@@ -19,11 +19,24 @@ final class SceneRouter {
         case channel(ChannelID, name: String)
     }
 
+    /// Routes inside Settings.
+    enum SettingsRoute: Hashable {
+        case instances
+    }
+
     var section = Section.feed
+    var settingsPath: [SettingsRoute] = []
     var feedPath: [Route] = []
     var searchPath: [Route] = []
     var watchPath: [Route] = []
     var watching: WatchContent?
+
+    /// The feed's empty-state actions (add an instance, import subscriptions) live on the
+    /// instances screen, so go straight there.
+    func openInstances() {
+        section = .settings
+        settingsPath = [.instances]
+    }
 
     func openChannel(_ id: ChannelID, name: String) {
         if watching != nil {

@@ -39,7 +39,7 @@ struct RootView: View {
             Tab(value: SceneRouter.Section.feed) {
                 NavigationStack(path: $router.feedPath) {
                     FeedScreen(model: feed, emptyReason: emptyReason, transition: zoom,
-                               onEmptyAction: { router.section = .settings },
+                               onEmptyAction: { router.openInstances() },
                                onSelect: { play($0.video) }, onPrefetch: { environment.prefetch($0.video) },
                                onOpenChannel: { router.openChannel($0, name: $1) })
                         .routes()
@@ -52,7 +52,7 @@ struct RootView: View {
                 Label { Text("Subscriptions") } icon: { Image(systemName: "play.square.stack") }
             }
             Tab(value: SceneRouter.Section.settings) {
-                NavigationStack { settingsScreen }
+                NavigationStack(path: $router.settingsPath) { settingsScreen }
             } label: {
                 Label { Text("Settings") } icon: { Image(systemName: "gearshape") }
             }
@@ -119,28 +119,7 @@ struct RootView: View {
     }
 
     private var settingsScreen: some View {
-        InstancesScreen(instances: InstanceStore(environment.database),
-                        subscriptions: SubscriptionStore(environment.database),
-                        secrets: environment.secrets, deviceName: UIDevice.current.name,
-                        onChange: { environment.instancesChanged() },
-                        onImported: { environment.subscriptionsChanged($0) })
-            .safeAreaInset(edge: .bottom) {
-                Form {
-                    Section {
-                        Toggle(isOn: $settings.hideShorts) { Text("Hide Shorts in the feed") }
-                        Toggle(isOn: $settings.showsRelated) { Text("Show “Up next” suggestions") }
-                    }
-                    Section {
-                        Toggle(isOn: $settings.skipsSponsors) { Text("Skip sponsors (SponsorBlock)") }
-                        Toggle(isOn: $settings.brandedTitles) { Text("Community titles (DeArrow)") }
-                        Toggle(isOn: $settings.brandedThumbnails) { Text("Community thumbnails (DeArrow)") }
-                    } footer: {
-                        Text("SponsorBlock and DeArrow titles are looked up anonymously by a short hash, never the video itself. DeArrow thumbnails ask its thumbnail service for each video.")
-                    }
-                }
-                .frame(height: 380)
-                .scrollDisabled(true)
-            }
+        SettingsView(environment: environment, settings: settings)
     }
 
     private var playerActions: PlayerActions {

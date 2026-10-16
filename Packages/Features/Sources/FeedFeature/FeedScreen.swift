@@ -115,9 +115,9 @@ public struct FeedScreen: View {
         switch emptyReason {
         case .noInstance:
             ContentUnavailableView {
-                Label { Text("No instance yet") } icon: { Image(systemName: "server.rack") }
+                Label { Text("Bring your own server") } icon: { Image(systemName: "server.rack") }
             } description: {
-                Text("Add your Piped, Invidious or YT Zero instance to see your feed.")
+                Text("This app plays videos through a Piped, Invidious or YT Zero server that you run or trust. It has no servers of its own and collects nothing. Add yours to see your subscriptions here.")
             } actions: {
                 Button { onEmptyAction() } label: { Text("Add Instance") }
                     .buttonStyle(.glassProminent)

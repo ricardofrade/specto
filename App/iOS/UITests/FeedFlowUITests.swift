@@ -16,7 +16,8 @@ final class FeedFlowUITests: XCTestCase {
         app.launch()
 
         // Empty state leads to Settings.
-        app.buttons["Add Instance"].firstMatch.tap()
+        app.buttons["Add Instance"].firstMatch.tap()      // Feed's empty state → Instances screen.
+        XCTAssertTrue(app.navigationBars["Instances"].waitForExistence(timeout: 5))
         app.buttons["Add Instance"].firstMatch.tap()
         let field = app.textFields["instance.url"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))

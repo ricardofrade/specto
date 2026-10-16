@@ -33,6 +33,7 @@ final class AppEnvironment {
     let castDiscovery = CastDiscovery()
     let castSession = CastSession()
     @ObservationIgnored var routeObserver: (any NSObjectProtocol)?
+    @ObservationIgnored let diagnostics = DiagnosticsCollector()
 
     init(database: AppDatabase, secrets: any SecretStore = KeychainSecretStore()) {
         self.database = database
@@ -50,6 +51,7 @@ final class AppEnvironment {
         reloadSources()
         watchForExpiredStreams()
         startSystemIntegration()
+        diagnostics.start()
     }
 
     static func live() -> AppEnvironment {

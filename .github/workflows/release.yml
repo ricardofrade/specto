@@ -1,0 +1,40 @@
+name: Release gate
+
+# Tags like v1.0.0-beta.3 run the full pipeline, then the performance gates *enforced* on a real
+# ProMotion iPhone. Hosted runners have no devices, so this needs a self-hosted Mac runner
+# labelled `device` with the owner's iPhone attached, unlocked and in Developer Mode.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  release-gate:
+    runs-on: [self-hosted, macOS, device]
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: CI (simulator)
+        run: scripts/ci.sh
+        env:
+          CI_OUTPUT: ${{ runner.temp }}/ci
+
+      - name: Performance tests on device (Release)
+        run: |
+          device="$(xcrun xctrace list devices 2>/dev/null | grep -E 'iPhone .*\([0-9.]+\) \(' | head -1 | sed -E 's/.*\(([0-9A-F-]+)\)$/\1/')"
+          [ -n "$device" ] || { echo "No iPhone attached"; exit 1; }
+          xcodegen generate --spec App/iOS/project.yml --quiet
+          xcodebuild test -project App/iOS/Player.xcodeproj -scheme Player -configuration Release \
+            -destination "id=$device" -only-testing:PlayerPerfTests -allowProvisioningUpdates \
+            > "$RUNNER_TEMP/perf-device.log" 2>&1
+
+      - name: Enforce performance gates
+        run: RELEASE_GATE=1 scripts/perf-gate.sh "$RUNNER_TEMP/perf-device.log"
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-gate-logs
+          path: ${{ runner.temp }}/*.log

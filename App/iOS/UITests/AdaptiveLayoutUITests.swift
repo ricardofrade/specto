@@ -14,7 +14,8 @@ final class AdaptiveLayoutUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = ["-UITestFreshStart", "-SeedSubscriptions", channel]
         app.launch()
-        app.buttons["Add Instance"].firstMatch.tap()
+        app.buttons["Add Instance"].firstMatch.tap()      // Feed's empty state → Instances screen.
+        XCTAssertTrue(app.navigationBars["Instances"].waitForExistence(timeout: 5))
         app.buttons["Add Instance"].firstMatch.tap()
         let field = app.textFields["instance.url"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))

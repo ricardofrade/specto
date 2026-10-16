@@ -32,6 +32,10 @@ targets:
     platform: iOS
     sources:
       - Sources
+      - path: Resources
+        buildPhase: resources
+      - path: ../../docs/licenses.md
+        buildPhase: resources
     dependencies:
       - package: Core
       - package: DesignSystem

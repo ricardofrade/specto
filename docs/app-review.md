@@ -1,6 +1,6 @@
-# App Review: probe build notes (draft)
+# App Review notes
 
-For the M2 probe submission and, refined, the M5 final submission. Owner action: submit from App Store Connect with the owner's developer account.
+Used for the M2 probe and the M5 submission. Owner action: submit from App Store Connect with the owner's developer account.
 
 ## Positioning
 
@@ -14,10 +14,12 @@ For the M2 probe submission and, refined, the M5 final submission. Owner action:
 > This app is a player for self-hosted video servers that the user runs themselves (open-source Piped, Invidious, or YT Zero). It has no content or server of its own.
 >
 > To review, add our demo server:
-> 1. Open the app → Settings → Add Instance.
-> 2. Enter: `<demo instance URL>` → Next. (The app detects the server type.)
-> 3. Settings → Import Subscriptions… is optional; the Search tab works immediately.
-> 4. Tap any video to play. Swipe the player down to keep it playing in the mini-player.
+> 1. Open the app and tap "Add Instance" on the first screen (or Settings → Instances & Subscriptions → Add Instance).
+> 2. Enter: `<demo instance URL>` → Next. The app detects the server type.
+> 3. Search works immediately. To fill the Subscriptions feed, use Import Subscriptions… with the attached sample file, or subscribe from any channel page.
+> 4. Tap any video to play. Swipe the player down to keep it playing in the mini-player; use the headphones button for audio-only.
+>
+> Privacy: the app collects no data and has no servers. Performance and crash reports stay on the device (Settings → Diagnostics) unless the user shares them.
 >
 > The demo server is available for the whole review period. Contact: `<email>`.
 
