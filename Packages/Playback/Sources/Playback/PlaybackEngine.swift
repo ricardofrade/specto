@@ -82,6 +82,8 @@ public enum MediaSource: Sendable, Hashable {
     case adaptive(video: VideoStream?, audio: AudioStream)
     /// Live streams, or a playlist synthesised on device for AVPlayer.
     case hls(URL)
+    /// One file with video and audio muxed together (for example a server-side download).
+    case progressive(URL)
 }
 
 public struct PlaybackRequest: Sendable {

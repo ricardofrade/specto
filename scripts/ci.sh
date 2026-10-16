@@ -43,6 +43,9 @@ xcodegen generate --spec "$root/App/iOS/project.yml" --quiet
 run build-app xcodebuild build -project "$root/App/iOS/Player.xcodeproj" -scheme Player \
     -destination "$destination" -derivedDataPath "$out/dd-app"
 
+step "License gate (no GPL in the shipped mpv/FFmpeg)"
+"$root/scripts/check-licenses.sh" "$out/dd-app/Build/Products/Debug-iphonesimulator/Player.app"
+
 if [[ -n "${SKIP_PERF:-}" ]]; then
     echo; echo "✔ CI passed (performance tests skipped)"
     exit 0

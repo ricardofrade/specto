@@ -70,7 +70,7 @@ public struct Thumbnail: Hashable, Sendable, Codable {
     }
 }
 
-public struct VideoSummary: Identifiable, Hashable, Sendable {
+public struct VideoSummary: Identifiable, Hashable, Sendable, Codable {
     public let id: VideoID
     public let title: String
     public let channelID: ChannelID
@@ -102,7 +102,7 @@ public struct VideoSummary: Identifiable, Hashable, Sendable {
 }
 
 /// Everything the Watch screen shows besides the player.
-public struct VideoDetails: Sendable {
+public struct VideoDetails: Sendable, Codable {
     public let summary: VideoSummary
     public let description: String
     public let likeCount: Int?
@@ -216,9 +216,11 @@ public struct ByteRange: Hashable, Sendable, Codable {
     public var length: Int64 { end - start + 1 }
 }
 
-public struct VideoStream: Hashable, Sendable {
+public struct VideoStream: Hashable, Sendable, Codable {
     public let url: URL
     public let codec: VideoCodec
+    /// RFC 6381 codecs string (for example "avc1.640028"); required for HLS playlists.
+    public let codecs: String?
     public let container: MediaContainer
     public let itag: Int?
     public let width: Int
@@ -232,11 +234,12 @@ public struct VideoStream: Hashable, Sendable {
     public let indexRange: ByteRange?
     public let contentLength: Int64?
 
-    public init(url: URL, codec: VideoCodec, container: MediaContainer, itag: Int? = nil,
+    public init(url: URL, codec: VideoCodec, codecs: String? = nil, container: MediaContainer, itag: Int? = nil,
                 width: Int, height: Int, fps: Int, bitrate: Int?, isHDR: Bool,
                 initRange: ByteRange? = nil, indexRange: ByteRange? = nil, contentLength: Int64? = nil) {
         self.url = url
         self.codec = codec
+        self.codecs = codecs
         self.container = container
         self.itag = itag
         self.width = width
@@ -250,9 +253,11 @@ public struct VideoStream: Hashable, Sendable {
     }
 }
 
-public struct AudioStream: Hashable, Sendable {
+public struct AudioStream: Hashable, Sendable, Codable {
     public let url: URL
     public let codec: AudioCodec
+    /// RFC 6381 codecs string (for example "mp4a.40.2").
+    public let codecs: String?
     public let container: MediaContainer
     public let itag: Int?
     public let bitrate: Int?
@@ -262,11 +267,12 @@ public struct AudioStream: Hashable, Sendable {
     public let indexRange: ByteRange?
     public let contentLength: Int64?
 
-    public init(url: URL, codec: AudioCodec, container: MediaContainer, itag: Int? = nil,
+    public init(url: URL, codec: AudioCodec, codecs: String? = nil, container: MediaContainer, itag: Int? = nil,
                 bitrate: Int?, language: String?,
                 initRange: ByteRange? = nil, indexRange: ByteRange? = nil, contentLength: Int64? = nil) {
         self.url = url
         self.codec = codec
+        self.codecs = codecs
         self.container = container
         self.itag = itag
         self.bitrate = bitrate
@@ -278,7 +284,7 @@ public struct AudioStream: Hashable, Sendable {
 }
 
 /// A WebVTT subtitle track.
-public struct CaptionTrack: Hashable, Sendable {
+public struct CaptionTrack: Hashable, Sendable, Codable {
     public let url: URL
     /// BCP 47 code.
     public let language: String
@@ -293,7 +299,7 @@ public struct CaptionTrack: Hashable, Sendable {
     }
 }
 
-public struct Chapter: Hashable, Sendable {
+public struct Chapter: Hashable, Sendable, Codable {
     public let title: String
     public let start: Duration
 
@@ -303,7 +309,7 @@ public struct Chapter: Hashable, Sendable {
     }
 }
 
-public struct StreamManifest: Sendable {
+public struct StreamManifest: Sendable, Codable {
     public let videoID: VideoID
     public let videoStreams: [VideoStream]
     public let audioStreams: [AudioStream]
@@ -327,7 +333,7 @@ public struct StreamManifest: Sendable {
 }
 
 /// One fetch gives both, because every source returns them from the same endpoint.
-public struct WatchPage: Sendable {
+public struct WatchPage: Sendable, Codable {
     public let details: VideoDetails
     public let manifest: StreamManifest
 

@@ -15,8 +15,9 @@ allowed_for() {
     case "$1" in
         Core)         echo "" ;;
         DesignSystem) echo "" ;;
+        MPVRuntime)   echo "" ;;
         Library)      echo "core" ;;
-        Playback)     echo "core" ;;
+        Playback)     echo "core mpvruntime" ;;
         Features)     echo "core library playback designsystem" ;;
         *)            echo "UNKNOWN" ;;
     esac
@@ -51,8 +52,9 @@ for dir in "$root"/Packages/*/; do
 done
 
 # Domain packages stay UI-free.
+# (`*UI` targets, such as PlaybackUI, exist precisely to hold the views.)
 for package in Core Library Playback; do
-    if grep -rEn '^\s*import\s+SwiftUI' "$root/Packages/$package/Sources" >/dev/null 2>&1; then
+    if grep -rEn --exclude-dir='*UI' '^\s*import\s+SwiftUI' "$root/Packages/$package/Sources" >/dev/null 2>&1; then
         fail "$package imports SwiftUI"
     fi
 done

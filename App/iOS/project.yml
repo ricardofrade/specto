@@ -22,6 +22,8 @@ packages:
     path: ../../Packages/DesignSystem
   Features:
     path: ../../Packages/Features
+  MPVRuntime:
+    path: ../../Packages/MPVRuntime
 targets:
   Player:
     type: application
@@ -33,6 +35,10 @@ targets:
       - package: DesignSystem
       - package: Features
         product: FeedFeature
+      - package: Playback
+        product: Playback
+      - package: Playback
+        product: PlaybackUI
     info:
       path: Info.plist
       properties:
@@ -64,6 +70,7 @@ targets:
     scheme:
       testTargets:
         - PlayerPerfTests
+        - PlayerUITests
   PlayerPerfTests:
     type: bundle.ui-testing
     platform: iOS
@@ -74,5 +81,17 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.player.perftests
+        TARGETED_DEVICE_FAMILY: "1,2"
+        GENERATE_INFOPLIST_FILE: YES
+  PlayerUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - UITests
+    dependencies:
+      - target: Player
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.player.uitests
         TARGETED_DEVICE_FAMILY: "1,2"
         GENERATE_INFOPLIST_FILE: YES
