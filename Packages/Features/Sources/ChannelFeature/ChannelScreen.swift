@@ -78,17 +78,33 @@ public final class ChannelModel {
 }
 
 public struct ChannelScreen: View {
-    private let model: ChannelModel
+    private let makeModel: () -> ChannelModel
     private let onSelect: (VideoSummary) -> Void
-    @Environment(\.displayScale) private var displayScale
-    @State private var columnWidth: CGFloat = 340
+    @State private var model: ChannelModel?
 
-    public init(model: ChannelModel, onSelect: @escaping (VideoSummary) -> Void) {
-        self.model = model
+    /// The model is created once per screen, on first appearance, however often the parent
+    /// re-renders.
+    public init(model: @escaping @autoclosure () -> ChannelModel, onSelect: @escaping (VideoSummary) -> Void) {
+        self.makeModel = model
         self.onSelect = onSelect
     }
 
     public var body: some View {
+        if let model {
+            ChannelContent(model: model, onSelect: onSelect)
+        } else {
+            Color.clear.onAppear { model = makeModel() }
+        }
+    }
+}
+
+private struct ChannelContent: View {
+    let model: ChannelModel
+    let onSelect: (VideoSummary) -> Void
+    @Environment(\.displayScale) private var displayScale
+    @State private var columnWidth: CGFloat = 340
+
+    var body: some View {
         ScrollView {
             header
             if let error = model.error {
@@ -131,6 +147,7 @@ public struct ChannelScreen: View {
             .buttonStyle(.glassProminent)
             .tint(model.isSubscribed ? .gray : .accentColor)
             .accessibilityIdentifier("channel.subscribe")
+            .sensoryFeedback(.success, trigger: model.isSubscribed)
         }
         .padding(Tokens.Spacing.xl)
     }

@@ -72,13 +72,12 @@ public struct SearchScreen: View {
         self.onSelect = onSelect
     }
 
+    /// Hosted in the app's `NavigationStack`.
     public var body: some View {
-        NavigationStack {
-            content
-                .navigationTitle(Text("Search"))
-                .searchable(text: $model.query, prompt: Text("Videos"))
-                .onSubmit(of: .search) { Task { await model.submit() } }
-        }
+        content
+            .navigationTitle(Text("Search"))
+            .searchable(text: $model.query, prompt: Text("Videos"))
+            .onSubmit(of: .search) { Task { await model.submit() } }
     }
 
     @ViewBuilder

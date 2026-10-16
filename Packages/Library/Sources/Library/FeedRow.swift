@@ -58,7 +58,7 @@ public struct RowFormatter: Sendable {
     }
 
     /// 754 s → "12:34"; 3723 s → "1:02:03".
-    static func clock(_ duration: Duration) -> String {
+    public static func clock(_ duration: Duration) -> String {
         let total = Int(duration.components.seconds)
         let hours = total / 3600, minutes = total % 3600 / 60, seconds = total % 60
         return hours > 0

@@ -47,7 +47,7 @@ final class BrowseFlowUITests: XCTestCase {
         list.buttons.firstMatch.tap()
 
         let surface = app.otherElements["watch.surface"]
-        XCTAssertTrue(waitFor(surface, "value == 'playing'", 45), "Never played")
+        XCTAssertTrue(waitFor(surface, "value BEGINSWITH 'playing '", 45), "Never played")
 
         // Channel opens inside the Watch sheet.
         app.buttons["watch.channel"].tap()
@@ -63,7 +63,7 @@ final class BrowseFlowUITests: XCTestCase {
         attach(app, "miniplayer")
 
         mini.tap()
-        XCTAssertTrue(waitFor(surface, "value == 'playing'", 15), "Reopened player isn't playing")
+        XCTAssertTrue(waitFor(surface, "value BEGINSWITH 'playing '", 15), "Reopened player isn't playing")
     }
 
     @MainActor

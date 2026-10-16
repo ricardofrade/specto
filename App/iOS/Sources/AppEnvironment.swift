@@ -144,6 +144,13 @@ final class AppEnvironment {
         return page
     }
 
+    var canLoadComments: Bool { !instances.isEmpty }
+
+    func comments(_ id: VideoID, cursor: String?) async throws -> Page<Comment> {
+        let router = self.router
+        return try await router.perform(.comments) { try await $0.comments(for: id, cursor: cursor) }
+    }
+
     func isSubscribed(_ id: ChannelID) -> Bool {
         ((try? SubscriptionStore(database).channels()) ?? []).contains { $0.id == id }
     }
@@ -204,8 +211,8 @@ final class AppEnvironment {
         }
     }
 
-    /// Cache, else the network; then plan and play. Returns the details for the Watch screen.
-    func play(_ video: VideoSummary, mode: PlaybackMode = .video, surfaceHeight: Int) async throws -> VideoDetails {
+    /// Cache, else the network; then plan and play. Returns the page for the Watch screen.
+    func play(_ video: VideoSummary, mode: PlaybackMode = .video, surfaceHeight: Int) async throws -> WatchPage {
         let tap = Signpost.begin(.playbackTapToFirstFrame)
         let page: WatchPage
         if let cached = try? manifests.page(for: video.id) {
@@ -222,7 +229,7 @@ final class AppEnvironment {
                                   artworkURL: video.thumbnails.first?.url, chapters: page.manifest.chapters)
         await session.play(item, request)
         endWhenPlaying(tap)
-        return page.details
+        return page
     }
 
     private func plan(_ page: WatchPage, mode: PlaybackMode, startAt: Duration) throws -> PlaybackRequest {

@@ -36,7 +36,7 @@ final class FeedFlowUITests: XCTestCase {
         list.buttons.firstMatch.tap()
         let surface = app.otherElements["watch.surface"]
         XCTAssertTrue(surface.waitForExistence(timeout: 10))
-        let playing = NSPredicate(format: "value == 'playing'")
+        let playing = NSPredicate(format: "value BEGINSWITH 'playing '")
         XCTAssertEqual(XCTWaiter().wait(for: [expectation(for: playing, evaluatedWith: surface)], timeout: 45), .completed,
                        "Never started playing (state: \(surface.value ?? "?"))")
         sleep(2)

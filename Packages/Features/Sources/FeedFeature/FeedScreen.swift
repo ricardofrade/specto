@@ -15,6 +15,7 @@ public struct FeedScreen: View {
     private let onEmptyAction: () -> Void
     private let onSelect: (FeedRow) -> Void
     private let onPrefetch: (FeedRow) -> Void
+    private let onOpenChannel: (ChannelID, String) -> Void
     private let transition: Namespace.ID?
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.displayScale) private var displayScale
@@ -26,8 +27,10 @@ public struct FeedScreen: View {
     /// - Parameter transition: namespace for the zoom into the Watch screen (source id: the row id).
     public init(model: FeedModel, emptyReason: EmptyReason?, transition: Namespace.ID? = nil,
                 onEmptyAction: @escaping () -> Void,
-                onSelect: @escaping (FeedRow) -> Void, onPrefetch: @escaping (FeedRow) -> Void = { _ in }) {
+                onSelect: @escaping (FeedRow) -> Void, onPrefetch: @escaping (FeedRow) -> Void = { _ in },
+                onOpenChannel: @escaping (ChannelID, String) -> Void = { _, _ in }) {
         self.transition = transition
+        self.onOpenChannel = onOpenChannel
         self.model = model
         self.emptyReason = emptyReason
         self.onEmptyAction = onEmptyAction
@@ -35,19 +38,21 @@ public struct FeedScreen: View {
         self.onPrefetch = onPrefetch
     }
 
+    /// Hosted in the app's `NavigationStack`, which owns navigation (typed routes per scene).
     public var body: some View {
-        NavigationStack {
-            content
-                .navigationTitle(Text("Subscriptions", comment: "Feed screen title"))
-                .refreshable { await model.refresh(force: true) }
-                .task {
-                    model.onWarmManifest = onPrefetch
-                    await model.start()
-                }
-                .onChange(of: scenePhase) { _, phase in
-                    if phase == .active { Task { await model.refresh(force: false) } }
-                }
-        }
+        content
+            .navigationTitle(Text("Subscriptions", comment: "Feed screen title"))
+            .refreshable { await model.refresh(force: true) }
+            .task {
+                model.onWarmManifest = onPrefetch
+                await model.start()
+            }
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .active { Task { await model.refresh(force: false) } }
+            }
+            .sensoryFeedback(.success, trigger: model.isRefreshing) { wasRefreshing, isRefreshing in
+                wasRefreshing && !isRefreshing && model.refreshError == nil
+            }
     }
 
     @ViewBuilder
@@ -63,7 +68,9 @@ public struct FeedScreen: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, Tokens.Spacing.screenInset)
                 }
-                LazyVStack(spacing: Tokens.Spacing.xl) {
+                // One column on a phone, more as width allows (unfolded, iPad, wide windows).
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: Self.minimumColumnWidth), spacing: Tokens.Spacing.l)],
+                          spacing: Tokens.Spacing.xl) {
                     ForEach(model.rows) { row in
                         VideoCell(VideoCellContent(row: row, pixelWidth: Int(thumbnailWidth * displayScale)),
                                   thumbnailWidth: thumbnailWidth)
@@ -71,6 +78,11 @@ public struct FeedScreen: View {
                             .zoomSource(id: row.id, in: transition)
                             .contentShape(.rect)
                             .onAppear { model.rowAppeared(row.id) }
+                            .contextMenu {
+                                Button { onOpenChannel(row.channelID, row.channelName) } label: {
+                                    Label { Text("Go to Channel") } icon: { Image(systemName: "person.crop.circle") }
+                                }
+                            }
                             .onTapGesture { onSelect(row) }
                             .onLongPressGesture(minimumDuration: 0.3) { onPrefetch(row) } onPressingChanged: { pressing in
                                 if pressing { onPrefetch(row) }
@@ -89,8 +101,13 @@ public struct FeedScreen: View {
         }
     }
 
+    static let minimumColumnWidth: CGFloat = 320
+
+    /// Mirrors the adaptive grid: as many columns of at least 320 pt as fit, sharing the width.
     private var thumbnailWidth: CGFloat {
-        max(contentWidth - 2 * Tokens.Spacing.screenInset, 100)
+        let available = max(contentWidth - 2 * Tokens.Spacing.screenInset, 100)
+        let columns = max(1, floor((available + Tokens.Spacing.l) / (Self.minimumColumnWidth + Tokens.Spacing.l)))
+        return (available - (columns - 1) * Tokens.Spacing.l) / columns
     }
 
     @ViewBuilder

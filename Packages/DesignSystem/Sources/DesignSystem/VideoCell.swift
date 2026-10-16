@@ -32,11 +32,17 @@ public struct VideoCell: View, Equatable {
     private let style: Style
     /// The thumbnail's laid-out width in points; the image pipeline requests exactly that.
     private let thumbnailWidth: CGFloat
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     public init(_ content: VideoCellContent, style: Style = .stacked, thumbnailWidth: CGFloat) {
         self.content = content
         self.style = style
         self.thumbnailWidth = thumbnailWidth
+    }
+
+    /// Inputs only; environment changes (such as text size) still re-render.
+    nonisolated public static func == (lhs: VideoCell, rhs: VideoCell) -> Bool {
+        lhs.content == rhs.content && lhs.style == rhs.style && lhs.thumbnailWidth == rhs.thumbnailWidth
     }
 
     public var body: some View {
@@ -80,21 +86,23 @@ public struct VideoCell: View, Equatable {
             .clipShape(.rect(cornerRadius: Tokens.Radius.thumbnail))
     }
 
+    /// At accessibility text sizes nothing is truncated: the cell grows instead.
     private func text(titleLines: Int) -> some View {
-        VStack(alignment: .leading, spacing: Tokens.Spacing.xxs) {
+        let wraps = typeSize.isAccessibilitySize
+        return VStack(alignment: .leading, spacing: Tokens.Spacing.xxs) {
             Text(content.title)
                 .font(style == .stacked ? Tokens.Typography.cellTitle : Tokens.Typography.cellMeta.weight(.semibold))
                 .foregroundStyle(Tokens.Colors.textPrimary)
-                .lineLimit(titleLines)
+                .lineLimit(wraps ? nil : titleLines)
             Text(content.channelName)
                 .font(style == .stacked ? Tokens.Typography.cellMeta : Tokens.Typography.caption)
                 .foregroundStyle(Tokens.Colors.textSecondary)
-                .lineLimit(1)
+                .lineLimit(wraps ? nil : 1)
             if !content.detail.isEmpty {
                 Text(content.detail)
                     .font(Tokens.Typography.caption)
                     .foregroundStyle(Tokens.Colors.textSecondary)
-                    .lineLimit(1)
+                    .lineLimit(wraps ? nil : 1)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

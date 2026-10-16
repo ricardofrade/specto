@@ -16,7 +16,11 @@ final class PiPSpikeUITests: XCTestCase {
         XCTAssertTrue(wait(status, "label == 'mpv playing'", 45), "mpv never played: \(status.label)")
         sleep(3)
         app.buttons["Start PiP"].tap()
-        XCTAssertTrue(wait(status, "label BEGINSWITH 'pip active'", 30), "PiP never started: \(status.label)")
+        _ = wait(status, "label BEGINSWITH 'pip'", 30)
+        if status.label.contains("unsupported") {
+            throw XCTSkip("Picture-in-Picture isn't supported on this device (the iPhone simulator); run on iPad or a device")
+        }
+        XCTAssertTrue(status.label.hasPrefix("pip active"), "PiP never started: \(status.label)")
         print("PiP handoff: \(status.label)")
         let pip = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         pip.name = "pip-active"
