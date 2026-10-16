@@ -453,3 +453,14 @@ public protocol SourceRouting: Sendable {
         _ operation: @Sendable (any VideoSource) async throws -> T
     ) async throws -> T
 }
+
+// MARK: - Thumbnail choice
+
+public extension Array where Element == Thumbnail {
+    /// The smallest thumbnail at least `pixelWidth` wide (so nothing is upscaled), else the
+    /// largest available; unsized thumbnails are a last resort.
+    func best(forPixelWidth pixelWidth: Int) -> Thumbnail? {
+        let sized = filter { $0.width > 0 }.sorted { $0.width < $1.width }
+        return sized.first { $0.width >= pixelWidth } ?? sized.last ?? first
+    }
+}

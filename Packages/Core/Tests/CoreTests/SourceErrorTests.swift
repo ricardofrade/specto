@@ -30,3 +30,17 @@ struct SourceErrorTests {
         #expect(ByteRange(start: 0, end: 739).length == 740)
     }
 }
+
+struct ThumbnailChoiceTests {
+    private func thumb(_ width: Int) -> Thumbnail {
+        Thumbnail(url: URL(string: "https://i.example/\(width).jpg")!, width: width, height: width * 9 / 16)
+    }
+
+    @Test func picksTheSmallestThatCoversTheCell() {
+        let thumbnails = [thumb(1280), thumb(320), thumb(640)]
+        #expect(thumbnails.best(forPixelWidth: 600)?.width == 640)
+        #expect(thumbnails.best(forPixelWidth: 2000)?.width == 1280)
+        #expect([Thumbnail.unsized("https://i.example/x.jpg")!].best(forPixelWidth: 600)?.width == 0)
+        #expect([Thumbnail]().best(forPixelWidth: 100) == nil)
+    }
+}

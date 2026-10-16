@@ -39,6 +39,10 @@ targets:
         product: InstancesFeature
       - package: Features
         product: WatchFeature
+      - package: Features
+        product: SearchFeature
+      - package: Features
+        product: ChannelFeature
       - package: Library
       - package: Playback
         product: Playback

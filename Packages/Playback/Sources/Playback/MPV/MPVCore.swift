@@ -55,9 +55,17 @@ final class MPVCore: @unchecked Sendable {
         set("ytdl", "no")
         set("input-default-bindings", "no")
         set("input-vo-keyboard", "no")
+        // Cache tuned for instant seeks: keep 50 MiB behind the playhead so seeking back never
+        // refetches, start playing before the cache fills, and resume quickly after a stall.
         set("cache", "yes")
         set("demuxer-readahead-secs", "\(cacheSeconds)")
         set("demuxer-max-bytes", "150MiB")
+        set("demuxer-max-back-bytes", "50MiB")
+        set("demuxer-seekable-cache", "yes")
+        set("force-seekable", "yes")
+        set("cache-pause-initial", "no")
+        set("cache-pause-wait", "0.5")
+        set("stream-buffer-size", "512KiB")
         set("network-timeout", "15")
         set("subs-fallback", "yes")
         set("audio-client-name", "Player")

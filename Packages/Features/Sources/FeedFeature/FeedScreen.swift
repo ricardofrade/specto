@@ -15,13 +15,19 @@ public struct FeedScreen: View {
     private let onEmptyAction: () -> Void
     private let onSelect: (FeedRow) -> Void
     private let onPrefetch: (FeedRow) -> Void
+    private let transition: Namespace.ID?
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.displayScale) private var displayScale
+    @State private var contentWidth: CGFloat = 390
 
     /// - Parameters:
     ///   - emptyReason: why there is nothing to show yet, when the feed is empty.
     ///   - onPrefetch: a row became likely to be tapped (touch-down, top of the list).
-    public init(model: FeedModel, emptyReason: EmptyReason?, onEmptyAction: @escaping () -> Void,
+    /// - Parameter transition: namespace for the zoom into the Watch screen (source id: the row id).
+    public init(model: FeedModel, emptyReason: EmptyReason?, transition: Namespace.ID? = nil,
+                onEmptyAction: @escaping () -> Void,
                 onSelect: @escaping (FeedRow) -> Void, onPrefetch: @escaping (FeedRow) -> Void = { _ in }) {
+        self.transition = transition
         self.model = model
         self.emptyReason = emptyReason
         self.onEmptyAction = onEmptyAction
@@ -34,7 +40,10 @@ public struct FeedScreen: View {
             content
                 .navigationTitle(Text("Subscriptions", comment: "Feed screen title"))
                 .refreshable { await model.refresh(force: true) }
-                .task { await model.start() }
+                .task {
+                    model.onWarmManifest = onPrefetch
+                    await model.start()
+                }
                 .onChange(of: scenePhase) { _, phase in
                     if phase == .active { Task { await model.refresh(force: false) } }
                 }
@@ -56,8 +65,12 @@ public struct FeedScreen: View {
                 }
                 LazyVStack(spacing: Tokens.Spacing.xl) {
                     ForEach(model.rows) { row in
-                        FeedCell(row: row)
+                        VideoCell(VideoCellContent(row: row, pixelWidth: Int(thumbnailWidth * displayScale)),
+                                  thumbnailWidth: thumbnailWidth)
+                            .equatable()
+                            .zoomSource(id: row.id, in: transition)
                             .contentShape(.rect)
+                            .onAppear { model.rowAppeared(row.id) }
                             .onTapGesture { onSelect(row) }
                             .onLongPressGesture(minimumDuration: 0.3) { onPrefetch(row) } onPressingChanged: { pressing in
                                 if pressing { onPrefetch(row) }
@@ -68,7 +81,16 @@ public struct FeedScreen: View {
                 .padding(.vertical, Tokens.Spacing.l)
             }
             .accessibilityIdentifier("feed.list")
+            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width in
+                contentWidth = width
+                model.thumbnailPixelSize = CGSize(width: thumbnailWidth * displayScale,
+                                                  height: thumbnailWidth * 9 / 16 * displayScale)
+            }
         }
+    }
+
+    private var thumbnailWidth: CGFloat {
+        max(contentWidth - 2 * Tokens.Spacing.screenInset, 100)
     }
 
     @ViewBuilder
@@ -109,4 +131,15 @@ public struct FeedScreen: View {
 #Preview("Empty") {
     FeedScreen(model: FeedModel(store: FeedStore(try! AppDatabase.inMemory())) { _ in },
                emptyReason: .noInstance, onEmptyAction: {}, onSelect: { _ in })
+}
+
+private extension View {
+    @ViewBuilder
+    func zoomSource(id: some Hashable, in namespace: Namespace.ID?) -> some View {
+        if let namespace {
+            matchedTransitionSource(id: id, in: namespace)
+        } else {
+            self
+        }
+    }
 }

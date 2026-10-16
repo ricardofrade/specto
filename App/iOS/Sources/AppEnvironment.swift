@@ -2,6 +2,7 @@ import SwiftUI
 import Core
 import Library
 import Playback
+import DesignSystem
 import InstancesFeature
 
 /// The composition root: builds sources from saved instances, routes between them, and owns
@@ -39,9 +40,7 @@ final class AppEnvironment {
     }
 
     static func live() -> AppEnvironment {
-        #if DEBUG
         if let testing = forUITests() { return testing }
-        #endif
         do {
             return AppEnvironment(database: try .onDisk(at: AppDatabase.defaultURL()))
         } catch {
@@ -50,9 +49,10 @@ final class AppEnvironment {
         }
     }
 
-    #if DEBUG
+    /// Launch-argument hooks for UI and performance tests (in-memory only, never the user's data;
+    /// kept in Release because the performance gates run there).
     /// `-UITestFreshStart`: empty in-memory state. `-SeedSubscriptions UC…,UC…`: subscribe
-    /// without the file picker, which UI tests can't drive.
+    /// without the file picker, which UI tests can't drive. `-SeedDemoFeed N`: N cached videos.
     private static func forUITests() -> AppEnvironment? {
         let arguments = ProcessInfo.processInfo.arguments
         guard arguments.contains("-UITestFreshStart"), let database = try? AppDatabase.inMemory() else { return nil }
@@ -62,9 +62,21 @@ final class AppEnvironment {
             }
             try? SubscriptionStore(database).subscribe(channels)
         }
+        if let index = arguments.firstIndex(of: "-SeedDemoFeed"), arguments.indices.contains(index + 1),
+           let count = Int(arguments[index + 1]) {
+            let channel = ChannelSummary(id: ChannelID(rawValue: "UCdemo000000000000000000"), name: "Demo", avatar: nil)
+            try? SubscriptionStore(database).subscribe([channel])
+            try? FeedStore(database).save((0..<count).map { index in
+                VideoSummary(id: VideoID(rawValue: "demo\(index)"),
+                             title: "Demo video \(index + 1) with a title long enough to wrap onto two lines",
+                             channelID: channel.id, channelName: "Demo channel \(index % 37)",
+                             duration: .seconds(60 + index * 37 % 3600),
+                             publishedAt: Date.now.addingTimeInterval(-Double(index) * 3600),
+                             viewCount: index * 1_311 % 900_000, thumbnails: [])
+            })
+        }
         return AppEnvironment(database: database, secrets: InMemorySecretStore())
     }
-    #endif
 
     /// Rebuild sources after instances change. Piped and Invidious first (AV1/VP9, higher
     /// resolutions); YT Zero last for streams. A linked YT Zero owns subscriptions (ADR 0002).
@@ -73,6 +85,7 @@ final class AppEnvironment {
         hasSubscriptions = !((try? SubscriptionStore(database).channels()) ?? []).isEmpty
         var sources: [any VideoSource] = []
         var linkedAccount: YTZeroSource?
+        var imageTokens: [String: String] = [:]
         for instance in instances {
             switch instance.kind {
             case .piped:
@@ -82,6 +95,7 @@ final class AppEnvironment {
             case .ytZero:
                 guard let token = secrets.secret(for: AddInstanceModel.tokenKey(for: instance.id)) else { continue }
                 let source = YTZeroSource(instance: instance, token: token)
+                if let host = instance.apiURL.host() { imageTokens[host] = token }
                 linkedAccount = linkedAccount ?? source
             }
         }
@@ -92,6 +106,57 @@ final class AppEnvironment {
         account = linkedAccount
         resumeStore.account = linkedAccount
         refresher = FeedRefresher(mode: linkedAccount.map { .account($0) } ?? .local(router), database: database)
+
+        // YT Zero serves thumbnails from its own image cache, which needs the Bearer token.
+        let tokens = imageTokens
+        Task {
+            await ImagePipeline.shared.setRequestDecorator { url in
+                var request = URLRequest(url: url)
+                if let host = url.host(), let token = tokens[host] {
+                    request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+                }
+                return request
+            }
+        }
+    }
+
+    /// After the first frame: start mpv's core and open connections to the instances, so the
+    /// first tap pays for neither (tap-to-first-frame budget).
+    func warmUp() {
+        Task {
+            try? await Task.sleep(for: .milliseconds(300))
+            session.prewarm()
+            _ = await router.checkHealth()
+        }
+    }
+
+    // MARK: Browsing
+
+    func search(_ query: String, cursor: String?) async throws -> Page<VideoSummary> {
+        let router = self.router
+        return try await router.perform(.search) { try await $0.search(query, cursor: cursor) }
+    }
+
+    func channel(_ id: ChannelID, cursor: String?) async throws -> ChannelPage {
+        let router = self.router
+        let page = try await router.perform(.channel) { try await $0.channel(id, cursor: cursor) }
+        try? FeedStore(database).save(page.videos.items)
+        return page
+    }
+
+    func isSubscribed(_ id: ChannelID) -> Bool {
+        ((try? SubscriptionStore(database).channels()) ?? []).contains { $0.id == id }
+    }
+
+    /// Writes through to a linked account (the source of truth), else the local store.
+    func setSubscribed(_ channel: ChannelSummary, _ subscribed: Bool) async throws {
+        if let account {
+            if subscribed { try await account.follow(channel.id) } else { try await account.unfollow(channel.id) }
+        }
+        let store = SubscriptionStore(database)
+        if subscribed { try store.subscribe([channel]) } else { try store.unsubscribe(channel.id) }
+        hasSubscriptions = !((try? store.channels()) ?? []).isEmpty
+        if subscribed { subscriptionsChanged([channel]) }
     }
 
     /// After instances change: refresh, and fill channels the cache has nothing for yet

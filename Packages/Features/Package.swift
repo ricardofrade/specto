@@ -10,7 +10,9 @@ let package = Package(
     products: [
         .library(name: "FeedFeature", targets: ["FeedFeature"]),
         .library(name: "InstancesFeature", targets: ["InstancesFeature"]),
-        .library(name: "WatchFeature", targets: ["WatchFeature"])
+        .library(name: "WatchFeature", targets: ["WatchFeature"]),
+        .library(name: "SearchFeature", targets: ["SearchFeature"]),
+        .library(name: "ChannelFeature", targets: ["ChannelFeature"])
     ],
     dependencies: [
         .package(path: "../Core"),
@@ -24,8 +26,12 @@ let package = Package(
         .target(name: "InstancesFeature", dependencies: ["Core", "Library", "DesignSystem"],
                 swiftSettings: featureSettings),
         .target(name: "WatchFeature",
-                dependencies: ["Core", "DesignSystem", .product(name: "Playback", package: "Playback"),
+                dependencies: ["Core", "Library", "DesignSystem", .product(name: "Playback", package: "Playback"),
                                .product(name: "PlaybackUI", package: "Playback")],
+                swiftSettings: featureSettings),
+        .target(name: "SearchFeature", dependencies: ["Core", "Library", "DesignSystem"],
+                swiftSettings: featureSettings),
+        .target(name: "ChannelFeature", dependencies: ["Core", "Library", "DesignSystem"],
                 swiftSettings: featureSettings)
     ]
 )

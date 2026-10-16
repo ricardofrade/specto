@@ -32,7 +32,7 @@ run() {
     if [[ $status != 0 ]]; then echo "✘ $name failed (exit $status, log: $out/$name.log)"; exit 1; fi
 }
 
-for package in Core Library Playback; do
+for package in Core Library Playback DesignSystem; do
     step "Unit tests: $package"
     # Multi-product packages get an extra "<name>-Package" scheme that holds the tests.
     scheme="$package"

@@ -21,12 +21,12 @@ final class PerformanceGateTests: XCTestCase {
         }
     }
 
-    /// Gate: scroll hitch ratio < 5 ms/s over the 1,000-cell placeholder list.
+    /// Gate: scroll hitch ratio < 5 ms/s over the real feed screen with 1,000 cached videos.
     @MainActor func testScrollHitchRatio() {
         let app = XCUIApplication()
-        app.launchArguments = ["-Harness", "scroll"]
+        app.launchArguments = ["-UITestFreshStart", "-SeedDemoFeed", "1000"]
         app.launch()
-        let list = app.scrollViews["perf.scroll"]
+        let list = app.scrollViews["feed.list"]
         XCTAssertTrue(list.waitForExistence(timeout: 10))
 
         let options = XCTMeasureOptions()

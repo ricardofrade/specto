@@ -1,5 +1,6 @@
 import SwiftUI
 import Core
+import Library
 import Playback
 import PlaybackUI
 import DesignSystem
@@ -7,13 +8,23 @@ import DesignSystem
 /// What the Watch screen shows: the video, and its details once loaded.
 public struct WatchContent: Sendable, Equatable {
     public let video: VideoSummary
-    public var details: VideoDetails?
+    public var details: VideoDetails? {
+        didSet { relatedRows = Self.format(details?.related ?? []) }
+    }
     public var error: String?
+    /// Pre-formatted once when details arrive, never in `body`.
+    public private(set) var relatedRows: [FeedRow] = []
 
     public init(video: VideoSummary, details: VideoDetails? = nil, error: String? = nil) {
         self.video = video
         self.details = details
         self.error = error
+        relatedRows = Self.format(details?.related ?? [])
+    }
+
+    private static func format(_ videos: [VideoSummary]) -> [FeedRow] {
+        let formatter = RowFormatter()
+        return videos.prefix(15).map { formatter.row($0, positionSeconds: nil, durationSeconds: nil) }
     }
 
     public static func == (lhs: WatchContent, rhs: WatchContent) -> Bool {
@@ -24,12 +35,20 @@ public struct WatchContent: Sendable, Equatable {
 public struct WatchScreen: View {
     private let session: PlaybackSession
     private let content: WatchContent
+    private let showsRelated: Bool
     private let onSelectRelated: (VideoSummary) -> Void
+    private let onOpenChannel: (ChannelID, String) -> Void
+    @Environment(\.displayScale) private var displayScale
 
-    public init(session: PlaybackSession, content: WatchContent, onSelectRelated: @escaping (VideoSummary) -> Void) {
+    /// - Parameter showsRelated: YouTube's own "Up next" suggestions; a setting, off for some.
+    public init(session: PlaybackSession, content: WatchContent, showsRelated: Bool = true,
+                onSelectRelated: @escaping (VideoSummary) -> Void,
+                onOpenChannel: @escaping (ChannelID, String) -> Void) {
         self.session = session
         self.content = content
+        self.showsRelated = showsRelated
         self.onSelectRelated = onSelectRelated
+        self.onOpenChannel = onOpenChannel
     }
 
     public var body: some View {
@@ -40,9 +59,13 @@ public struct WatchScreen: View {
                 VStack(alignment: .leading, spacing: Tokens.Spacing.m) {
                     Text(content.video.title)
                         .font(.title3.weight(.semibold))
-                    Text(content.video.channelName)
-                        .font(Tokens.Typography.cellMeta)
-                        .foregroundStyle(Tokens.Colors.textSecondary)
+                    Button { onOpenChannel(content.video.channelID, content.video.channelName) } label: {
+                        Label { Text(content.video.channelName) } icon: { Image(systemName: "person.crop.circle") }
+                            .font(Tokens.Typography.cellMeta.weight(.medium))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(Tokens.Colors.textSecondary)
+                    .accessibilityIdentifier("watch.channel")
                     if let error = content.error {
                         Label(error, systemImage: "exclamationmark.triangle")
                             .foregroundStyle(.red)
@@ -53,11 +76,13 @@ public struct WatchScreen: View {
                             .lineLimit(6)
                             .textSelection(.enabled)
                     }
-                    if let related = content.details?.related, !related.isEmpty {
+                    if showsRelated, !content.relatedRows.isEmpty {
                         Text("Up next").font(.headline).padding(.top, Tokens.Spacing.m)
-                        ForEach(related.prefix(15)) { video in
-                            Button { onSelectRelated(video) } label: {
-                                RelatedRow(video: video)
+                        ForEach(content.relatedRows) { row in
+                            Button { onSelectRelated(row.video) } label: {
+                                VideoCell(VideoCellContent(row: row, pixelWidth: Int(160 * displayScale)),
+                                          style: .row, thumbnailWidth: 160)
+                                    .equatable()
                             }
                             .buttonStyle(.plain)
                         }
@@ -132,23 +157,10 @@ private struct PlayerArea: View {
     }
 }
 
-private struct RelatedRow: View {
-    let video: VideoSummary
-
-    var body: some View {
-        HStack(alignment: .top, spacing: Tokens.Spacing.m) {
-            AsyncImage(url: video.thumbnails.first?.url) { image in
-                image.resizable().scaledToFill()
-            } placeholder: {
-                Tokens.Colors.thumbnailPlaceholder
-            }
-            .frame(width: 160, height: 90)
-            .clipShape(.rect(cornerRadius: Tokens.Radius.thumbnail))
-            VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
-                Text(video.title).font(Tokens.Typography.cellMeta.weight(.semibold)).lineLimit(2)
-                Text(video.channelName).font(Tokens.Typography.caption).foregroundStyle(Tokens.Colors.textSecondary)
-            }
-        }
-        .accessibilityElement(children: .combine)
+extension VideoCellContent {
+    init(row: FeedRow, pixelWidth: Int) {
+        self.init(title: row.title, channelName: row.channelName, detail: row.detail, durationText: row.durationText,
+                  thumbnailURL: row.thumbnails.best(forPixelWidth: pixelWidth)?.url, isLive: row.isLive,
+                  progress: row.progress)
     }
 }
