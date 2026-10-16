@@ -5,7 +5,8 @@ import Core
 struct PlayerApp: App {
     private let launchInterval = Signpost.begin(.launchFirstFeedFrame)
     private let harness = Harness.Screen(arguments: ProcessInfo.processInfo.arguments)
-    @State private var environment = AppEnvironment.live()
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    @State private var environment = AppEnvironment.shared
 
     var body: some Scene {
         WindowGroup {
@@ -30,5 +31,17 @@ private enum FirstFrame {
         fired = true
         // onAppear runs before the commit; the next main-queue turn is after it.
         DispatchQueue.main.async { action() }
+    }
+}
+
+/// Background URLSession events (offline downloads finishing while suspended).
+final class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String,
+                     completionHandler: @escaping () -> Void) {
+        #if OFFLINE_DOWNLOADS
+        AppEnvironment.shared.offlineAudio.setBackgroundCompletion(completionHandler)
+        #else
+        completionHandler()
+        #endif
     }
 }

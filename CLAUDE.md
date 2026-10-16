@@ -5,7 +5,7 @@ Users add their own self-hosted Piped, Invidious or YT Zero instance; the app ha
 App Review uses the owner's demo instance.
 
 Milestone plan (source of truth for scope): https://claude.ai/code/artifact/9bfaa959-0680-4460-8503-40b749eedc45
-Current milestone: **M0 — Foundations and risk spikes.** Brief: `docs/milestones/M0.md`.
+Current milestone: **M7 — tvOS.** Briefs for finished milestones: `docs/milestones/M0.md`–`M6.md`.
 
 ## Non-negotiable decisions
 
@@ -20,7 +20,7 @@ Current milestone: **M0 — Foundations and risk spikes.** Brief: `docs/mileston
 ## Repository layout
 
 ```
-App/iOS/            Xcode app target (iOS + iPadOS); later App/tvOS and a CarPlay scene
+App/iOS/            Xcode app target (iOS + iPadOS) with its CarPlay scene; App/tvOS follows in M7
 Packages/
   Core/             Models, VideoSource protocol, Piped/Invidious/YT Zero adapters, routing, health checks
   Library/          GRDB persistence: subscriptions, feed items, history, resume positions
@@ -99,7 +99,7 @@ Tap-to-play hits 300 ms only if the manifest is already cached: prefetch manifes
 
 ## App Store rules
 
-- No downloading or saving media in the App Store build (guideline 5.2.3).
+- No downloading or saving media in the App Store build (guideline 5.2.3). Offline audio is compiled only with `OFFLINE_DOWNLOADS`, which only the Debug configuration sets.
 - No YouTube name, logo or trade dress in the app name, icon or screenshots.
 - No built-in default instance; the user always supplies one. App Review uses the owner's demo instance.
 - Ship `PrivacyInfo.xcprivacy`. Support self-hosted instances on the local network (local-network permission, ATS exception for LAN HTTP).

@@ -59,7 +59,7 @@ public struct InstancesScreen: View {
             } header: {
                 Text("Subscriptions")
             } footer: {
-                Text("\(subscriptionCount) channels. Import a Google Takeout subscriptions.csv, or an export from NewPipe, FreeTube or Piped.")
+                Text("^[\(subscriptionCount) channel](inflect: true). Import a Google Takeout subscriptions.csv, or an export from NewPipe, FreeTube or Piped.")
             }
         }
         .navigationTitle(Text("Instances"))

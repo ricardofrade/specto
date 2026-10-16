@@ -17,6 +17,8 @@ struct RootView: View {
     @State private var search: SearchModel
     @State private var channels: [ChannelSummary] = []
     @State private var shortSidePixels = 1080
+    @State private var queuedIDs: Set<VideoID> = []
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Namespace private var zoom
     @Environment(\.displayScale) private var displayScale
     @Environment(\.scenePhase) private var scenePhase
@@ -41,7 +43,8 @@ struct RootView: View {
                     FeedScreen(model: feed, emptyReason: emptyReason, transition: zoom,
                                onEmptyAction: { router.openInstances() },
                                onSelect: { play($0.video) }, onPrefetch: { environment.prefetch($0.video) },
-                               onOpenChannel: { router.openChannel($0, name: $1) })
+                               onOpenChannel: { router.openChannel($0, name: $1) },
+                               onAddToQueue: { environment.addToQueue($0.video) })
                         .routes()
                         .onAppear {
                             onFirstFeedFrame()
@@ -63,20 +66,24 @@ struct RootView: View {
             } label: {
                 Label { Text("Search") } icon: { Image(systemName: "magnifyingglass") }
             }
-            // On iPad the tab bar becomes a sidebar; subscriptions list there as channels.
-            TabSection {
-                ForEach(channels) { channel in
-                    Tab(value: SceneRouter.Section.channel(channel.id)) {
-                        NavigationStack {
-                            ChannelScreen(model: channelModel(channel.id, name: channel.name)) { play($0) }
+            // Regular width (iPad) gets a sidebar that lists subscriptions as channels. Compact
+            // width has only a tab bar, where `.defaultVisibility(.hidden, for: .tabBar)` alone
+            // didn't hide them (seen in the iPhone tab bar), so they aren't added there at all.
+            if horizontalSizeClass == .regular {
+                TabSection {
+                    ForEach(channels) { channel in
+                        Tab(value: SceneRouter.Section.channel(channel.id)) {
+                            NavigationStack {
+                                ChannelScreen(model: channelModel(channel.id, name: channel.name)) { play($0) }
+                            }
+                        } label: {
+                            Label { Text(channel.name) } icon: { Image(systemName: "person.crop.circle") }
                         }
-                    } label: {
-                        Label { Text(channel.name) } icon: { Image(systemName: "person.crop.circle") }
+                        .defaultVisibility(.hidden, for: .tabBar)
                     }
-                    .defaultVisibility(.hidden, for: .tabBar)
+                } header: {
+                    Text("Channels")
                 }
-            } header: {
-                Text("Channels")
             }
         }
         .tabViewStyle(.sidebarAdaptable)
@@ -91,6 +98,13 @@ struct RootView: View {
             environment.refreshBranding()
         }
         .onChange(of: scenePhase) { _, phase in environment.scenePhaseChanged(phase) }
+        .onChange(of: horizontalSizeClass) { _, sizeClass in
+            // Channel tabs exist only at regular width: keep the open channel when they go away.
+            if sizeClass == .compact, case .channel(let id) = router.section {
+                router.section = .feed
+                router.feedPath.append(.channel(id, name: channels.first { $0.id == id }?.name ?? ""))
+            }
+        }
         .task(id: environment.hasSubscriptions) {
             channels = (try? SubscriptionStore(environment.database).channels()) ?? []
         }
@@ -123,12 +137,25 @@ struct RootView: View {
     }
 
     private var playerActions: PlayerActions {
-        PlayerActions(switchMode: { mode in Task { await environment.switchMode(to: mode) } },
-                      startPictureInPicture: environment.canStartPictureInPicture
-                          ? { environment.startPictureInPicture() } : nil,
-                      castTargets: environment.castTargets,
-                      cast: { environment.cast(to: $0) },
-                      casting: environment.casting)
+        var actions = PlayerActions(switchMode: { mode in Task { await environment.switchMode(to: mode) } },
+                                    startPictureInPicture: environment.canStartPictureInPicture
+                                        ? { environment.startPictureInPicture() } : nil,
+                                    castTargets: environment.castTargets,
+                                    cast: { environment.cast(to: $0) },
+                                    casting: environment.casting)
+        if let video = router.watching?.video {
+            actions.isQueued = queuedIDs.contains(video.id)
+            actions.toggleQueue = {
+                if queuedIDs.contains(video.id) {
+                    environment.removeFromQueue(video.id)
+                    queuedIDs.remove(video.id)
+                } else {
+                    environment.addToQueue(video)
+                    queuedIDs.insert(video.id)
+                }
+            }
+        }
+        return actions
     }
 
     private var emptyReason: FeedScreen.EmptyReason? {
@@ -161,6 +188,7 @@ struct RootView: View {
     }
 
     private func play(_ video: VideoSummary) {
+        if environment.isQueued(video.id) { queuedIDs.insert(video.id) }
         router.watchPath = []
         router.watching = WatchContent(video: video)
         Task {

@@ -264,6 +264,17 @@ struct PlaybackSessionTests {
         #expect(mpv.seeks == [.seconds(60)])
     }
 
+    @Test func skipsSponsorSegmentsInAudioMode() async {
+        let (session, mpv, av) = makeSession(MemoryResumeStore())
+        await session.play(item(a), request(a, mode: .audioOnly))
+        let sponsor = SkipSegment(category: .sponsor, start: .seconds(30), end: .seconds(60))
+        session.setSkipSegments([sponsor], for: a)
+        av.emit(.position(.seconds(31), duration: .seconds(600)))
+        await settle()
+        #expect(av.seeks == [.seconds(60)])
+        #expect(mpv.seeks.isEmpty)
+    }
+
     @Test func segmentsForAnotherVideoAreIgnored() async {
         let (session, mpv, _) = makeSession(MemoryResumeStore())
         await session.play(item(a), request(a))

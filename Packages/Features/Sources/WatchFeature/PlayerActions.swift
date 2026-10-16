@@ -16,6 +16,8 @@ public struct PlayerActions {
     }
 
     public var switchMode: (PlaybackMode) -> Void
+    public var isQueued: Bool = false
+    public var toggleQueue: () -> Void = {}
     /// nil when PiP isn't available for this playback.
     public var startPictureInPicture: (() -> Void)?
     public var castTargets: [CastTarget]
@@ -65,6 +67,13 @@ struct PlayerActionsBar: View {
                     }
                 }
                 .accessibilityIdentifier("watch.audioMode")
+                Button(action: actions.toggleQueue) {
+                    Label { Text(actions.isQueued ? "Queued" : "Add to Queue") } icon: {
+                        Image(systemName: actions.isQueued ? "checkmark" : "text.badge.plus")
+                    }
+                    .labelStyle(.iconOnly)
+                }
+                .accessibilityIdentifier("watch.queue")
                 if let startPiP = actions.startPictureInPicture, session.mode == .video {
                     Button(action: startPiP) {
                         Label { Text("Picture in Picture") } icon: { Image(systemName: "pip.enter") }

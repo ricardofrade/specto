@@ -26,6 +26,17 @@ packages:
     path: ../../Packages/MPVRuntime
   Cast:
     path: ../../Packages/Cast
+schemes:
+  # Release performance runs: excludes PlayerTests, whose @testable import needs a testable build.
+  PlayerPerf:
+    build:
+      targets:
+        Player: all
+    test:
+      config: Release
+      targets:
+        - PlayerPerfTests
+        - PlayerUITests
 targets:
   Player:
     type: application
@@ -73,6 +84,11 @@ targets:
           NSAllowsLocalNetworking: true
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: true
+          UISceneConfigurations:
+            CPTemplateApplicationSceneSessionRoleApplication:
+              - UISceneClassName: CPTemplateApplicationScene
+                UISceneConfigurationName: CarPlay
+                UISceneDelegateClassName: $(PRODUCT_MODULE_NAME).CarPlaySceneDelegate
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationLandscapeLeft
@@ -90,10 +106,30 @@ targets:
         # App code is main-actor by default (CLAUDE.md); test targets are not, because
         # XCTestCase's initializers and setUp are nonisolated.
         SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+        # CarPlay audio entitlement: simulator builds only until Apple grants it; then add it to
+        # device builds too (CODE_SIGN_ENTITLEMENTS without the sdk condition).
+        "CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]": CarPlay.entitlements
+      configs:
+        Debug:
+          # Offline downloads: never in App Store or TestFlight builds (guideline 5.2.3).
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG OFFLINE_DOWNLOADS
     scheme:
       testTargets:
+        - PlayerTests
         - PlayerPerfTests
         - PlayerUITests
+  PlayerTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - UnitTests
+    dependencies:
+      - target: Player
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.player.tests
+        TARGETED_DEVICE_FAMILY: "1,2"
+        GENERATE_INFOPLIST_FILE: YES
   PlayerPerfTests:
     type: bundle.ui-testing
     platform: iOS

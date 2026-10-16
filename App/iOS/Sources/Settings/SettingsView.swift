@@ -7,6 +7,9 @@ import InstancesFeature
 struct SettingsView: View {
     let environment: AppEnvironment
     @Bindable var settings: AppSettings
+    #if OFFLINE_DOWNLOADS
+    @State private var offlineUsed = ""
+    #endif
 
     var body: some View {
         Form {
@@ -37,6 +40,40 @@ struct SettingsView: View {
             } footer: {
                 Text("SponsorBlock and DeArrow titles are looked up anonymously by a short hash, never the video itself. Community thumbnails ask DeArrow's thumbnail service for each video.")
             }
+
+            #if OFFLINE_DOWNLOADS
+            Section {
+                Toggle(isOn: $settings.downloadsQueue) { Text("Download queued videos") }
+                Picker(selection: $settings.offlineLimitBytes) {
+                    Text("500 MB").tag(Int64(500_000_000))
+                    Text("1 GB").tag(Int64(1_000_000_000))
+                    Text("2 GB").tag(Int64(2_000_000_000))
+                    Text("5 GB").tag(Int64(5_000_000_000))
+                } label: { Text("Storage limit") }
+                LabeledContent {
+                    Text(offlineUsed)
+                } label: { Text("Used") }
+                // One element with a stable identifier: Form rows otherwise merge and drop it.
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(Text("Used"))
+                .accessibilityValue(Text(offlineUsed))
+                .accessibilityIdentifier("settings.offlineUsed")
+                Button(role: .destructive) {
+                    Task {
+                        await environment.deleteAllDownloads()
+                        offlineUsed = await environment.offlineUsage()
+                    }
+                } label: { Text("Delete All Downloads") }
+            } header: {
+                Text("Offline listening")
+            } footer: {
+                Text("Audio of queued videos is saved for listening without a connection, such as in the car. Watched items are removed first.")
+            }
+            .task { offlineUsed = await environment.offlineUsage() }
+            .onChange(of: settings.offlineLimitBytes) {
+                Task { offlineUsed = await environment.applyOfflineLimit() }
+            }
+            #endif
 
             Section {
                 NavigationLink {

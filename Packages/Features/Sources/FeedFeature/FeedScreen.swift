@@ -16,6 +16,7 @@ public struct FeedScreen: View {
     private let onSelect: (FeedRow) -> Void
     private let onPrefetch: (FeedRow) -> Void
     private let onOpenChannel: (ChannelID, String) -> Void
+    private let onAddToQueue: (FeedRow) -> Void
     private let transition: Namespace.ID?
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.displayScale) private var displayScale
@@ -28,8 +29,10 @@ public struct FeedScreen: View {
     public init(model: FeedModel, emptyReason: EmptyReason?, transition: Namespace.ID? = nil,
                 onEmptyAction: @escaping () -> Void,
                 onSelect: @escaping (FeedRow) -> Void, onPrefetch: @escaping (FeedRow) -> Void = { _ in },
-                onOpenChannel: @escaping (ChannelID, String) -> Void = { _, _ in }) {
+                onOpenChannel: @escaping (ChannelID, String) -> Void = { _, _ in },
+                onAddToQueue: @escaping (FeedRow) -> Void = { _ in }) {
         self.transition = transition
+        self.onAddToQueue = onAddToQueue
         self.onOpenChannel = onOpenChannel
         self.model = model
         self.emptyReason = emptyReason
@@ -79,6 +82,9 @@ public struct FeedScreen: View {
                             .contentShape(.rect)
                             .onAppear { model.rowAppeared(row.id) }
                             .contextMenu {
+                                Button { onAddToQueue(row) } label: {
+                                    Label { Text("Add to Queue") } icon: { Image(systemName: "text.badge.plus") }
+                                }
                                 Button { onOpenChannel(row.channelID, row.channelName) } label: {
                                     Label { Text("Go to Channel") } icon: { Image(systemName: "person.crop.circle") }
                                 }

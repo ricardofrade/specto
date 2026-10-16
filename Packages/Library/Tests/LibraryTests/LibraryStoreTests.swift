@@ -171,3 +171,38 @@ struct BrandingStoreTests {
         #expect(try store.videosNeedingLookup().isEmpty)
     }
 }
+
+struct ListeningStoresTests {
+    @Test func queueKeepsOrderAndFindsTheNext() throws {
+        let db = try AppDatabase.inMemory()
+        let queue = QueueStore(db)
+        try queue.add(video("one"))
+        try queue.add(video("two"))
+        try queue.add(video("one"))     // Already queued: ignored.
+        #expect(try queue.rows().map(\.id.rawValue) == ["one", "two"])
+        #expect(try queue.next(after: VideoID(rawValue: "one"))?.id.rawValue == "two")
+        #expect(try queue.next(after: VideoID(rawValue: "two")) == nil)
+    }
+
+    @Test func continueListeningShowsStartedUnfinishedVideos() throws {
+        let db = try AppDatabase.inMemory()
+        try FeedStore(db).save([video("started", duration: .seconds(600)), video("done", duration: .seconds(600))])
+        try WatchStateStore(db).save(.seconds(120), duration: .seconds(600), for: VideoID(rawValue: "started"))
+        try WatchStateStore(db).save(.seconds(599), duration: .seconds(600), for: VideoID(rawValue: "done"))
+        #expect(try WatchStateStore(db).inProgress().map(\.id.rawValue) == ["started"])
+    }
+
+    @Test func evictionDropsWatchedThenLeastRecentlyPlayedButKeepsQueuedLast() throws {
+        let db = try AppDatabase.inMemory()
+        let downloads = DownloadStore(db)
+        for id in ["watched", "old", "queued"] {
+            try FeedStore(db).save([video(id, duration: .seconds(600))])
+            try downloads.setState(.done, for: VideoID(rawValue: id), fileName: "\(id).m4a", bytes: 100)
+        }
+        try WatchStateStore(db).save(.seconds(599), duration: .seconds(600), for: VideoID(rawValue: "watched"))
+        try QueueStore(db).add(video("queued"))
+        let victims = try downloads.evictionCandidates(limitBytes: 150).map(\.videoID.rawValue)
+        #expect(victims == ["watched", "old"])
+        #expect(try downloads.watched().map(\.videoID.rawValue) == ["watched"])
+    }
+}

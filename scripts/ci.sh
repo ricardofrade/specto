@@ -51,13 +51,17 @@ run build-app xcodebuild build -project "$root/App/iOS/Player.xcodeproj" -scheme
 step "License gate (no GPL in the shipped mpv/FFmpeg)"
 "$root/scripts/check-licenses.sh" "$out/dd-app/Build/Products/Debug-iphonesimulator/Player.app"
 
+step "App unit tests"
+run test-app xcodebuild test -project "$root/App/iOS/Player.xcodeproj" -scheme Player \
+    -only-testing:PlayerTests -destination "$destination" -derivedDataPath "$out/dd-app"
+
 if [[ -n "${SKIP_PERF:-}" ]]; then
     echo; echo "✔ CI passed (performance tests skipped)"
     exit 0
 fi
 
 step "Performance tests (Release)"
-run perf xcodebuild test -project "$root/App/iOS/Player.xcodeproj" -scheme Player -configuration Release \
+run perf xcodebuild test -project "$root/App/iOS/Player.xcodeproj" -scheme PlayerPerf -configuration Release \
     -destination "$destination" -derivedDataPath "$out/dd-perf"
 
 step "Performance gates (enforced only with RELEASE_GATE=1 on a device)"

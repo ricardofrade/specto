@@ -29,6 +29,15 @@ final class AppSettings {
         didSet { defaults.set(brandedThumbnails, forKey: Keys.brandedThumbnails) }
     }
 
+    /// Download queued videos' audio for offline listening (builds with OFFLINE_DOWNLOADS only).
+    var downloadsQueue: Bool {
+        didSet { defaults.set(downloadsQueue, forKey: Keys.downloadsQueue) }
+    }
+    /// Storage limit for offline audio.
+    var offlineLimitBytes: Int64 {
+        didSet { defaults.set(offlineLimitBytes, forKey: Keys.offlineLimit) }
+    }
+
     private let defaults: UserDefaults
 
     init(defaults: UserDefaults = .standard) {
@@ -38,6 +47,8 @@ final class AppSettings {
         skipsSponsors = defaults.object(forKey: Keys.skipsSponsors) as? Bool ?? true
         brandedTitles = defaults.object(forKey: Keys.brandedTitles) as? Bool ?? false
         brandedThumbnails = defaults.object(forKey: Keys.brandedThumbnails) as? Bool ?? false
+        downloadsQueue = defaults.object(forKey: Keys.downloadsQueue) as? Bool ?? true
+        offlineLimitBytes = defaults.object(forKey: Keys.offlineLimit) as? Int64 ?? 2_000_000_000
     }
 
     var feedOptions: FeedStore.Options {
@@ -50,5 +61,7 @@ final class AppSettings {
         static let skipsSponsors = "sponsorBlock.enabled"
         static let brandedTitles = "deArrow.titles"
         static let brandedThumbnails = "deArrow.thumbnails"
+        static let downloadsQueue = "offline.downloadsQueue"
+        static let offlineLimit = "offline.limitBytes"
     }
 }

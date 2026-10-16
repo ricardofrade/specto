@@ -34,11 +34,17 @@ final class AppEnvironment {
     let castSession = CastSession()
     @ObservationIgnored var routeObserver: (any NSObjectProtocol)?
     @ObservationIgnored let diagnostics = DiagnosticsCollector()
+    #if OFFLINE_DOWNLOADS
+    @ObservationIgnored let offlineAudio: OfflineAudio
+    #endif
 
     init(database: AppDatabase, secrets: any SecretStore = KeychainSecretStore()) {
         self.database = database
         self.secrets = secrets
         manifests = ManifestCache(database)
+        #if OFFLINE_DOWNLOADS
+        offlineAudio = OfflineAudio(database: database)
+        #endif
         refresher = FeedRefresher(mode: .local(InstanceRouter(sources: [])), database: database)
         let resume = LibraryResumeStore(store: WatchStateStore(database))
         resumeStore = resume
@@ -52,7 +58,11 @@ final class AppEnvironment {
         watchForExpiredStreams()
         startSystemIntegration()
         diagnostics.start()
+        watchForEndOfPlayback()
     }
+
+    /// One per app: the window scenes and the CarPlay scene share it (and its session).
+    static let shared = live()
 
     static func live() -> AppEnvironment {
         if let testing = forUITests() { return testing }
@@ -230,12 +240,25 @@ final class AppEnvironment {
     /// Cache, else the network; then plan and play. Returns the page for the Watch screen.
     func play(_ video: VideoSummary, mode: PlaybackMode = .video, surfaceHeight: Int) async throws -> WatchPage {
         let tap = Signpost.begin(.playbackTapToFirstFrame)
+        #if OFFLINE_DOWNLOADS
+        // Downloaded audio plays without the network (the car, a flight).
+        if mode == .audioOnly, let file = offlineAudio.localFile(for: video.id) {
+            return await playOffline(video, file: file, tap: tap)
+        }
+        #endif
         let page: WatchPage
         if let cached = try? manifests.page(for: video.id) {
             page = cached
         } else {
             let interval = Signpost.begin(.playbackManifest)
-            page = try await router.perform(.streams) { try await $0.watchPage(for: video.id) }
+            do {
+                page = try await router.perform(.streams) { try await $0.watchPage(for: video.id) }
+            } catch {
+                #if OFFLINE_DOWNLOADS
+                if let file = offlineAudio.localFile(for: video.id) { return await playOffline(video, file: file, tap: tap) }
+                #endif
+                throw error
+            }
             Signpost.end(interval)
             try? manifests.store(page)
         }

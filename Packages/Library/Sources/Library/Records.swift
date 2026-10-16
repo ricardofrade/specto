@@ -104,3 +104,21 @@ struct BrandingRecord: Codable, FetchableRecord, PersistableRecord {
     var thumbnailTime: Double?
     var fetchedAt: Date
 }
+
+struct QueueRecord: Codable, FetchableRecord, PersistableRecord {
+    static let databaseTableName = "queueItem"
+    var videoID: String
+    var position: Double
+    var addedAt: Date
+}
+
+struct DownloadRecord: Codable, FetchableRecord, PersistableRecord {
+    static let databaseTableName = "download"
+    var videoID: String
+    var state: String
+    var fileName: String?
+    var bytes: Int64
+    var createdAt: Date
+    var completedAt: Date?
+    var lastPlayedAt: Date?
+}

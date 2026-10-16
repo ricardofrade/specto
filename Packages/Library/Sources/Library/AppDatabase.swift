@@ -99,6 +99,23 @@ public struct AppDatabase: Sendable {
                 t.column("fetchedAt", .datetime).notNull()
             }
         }
+        // Listening queue (CarPlay, "play next") and offline audio downloads (M6).
+        migrator.registerMigration("v3-queue-downloads") { db in
+            try db.create(table: "queueItem") { t in
+                t.primaryKey("videoID", .text)
+                t.column("position", .double).notNull()
+                t.column("addedAt", .datetime).notNull()
+            }
+            try db.create(table: "download") { t in
+                t.primaryKey("videoID", .text)
+                t.column("state", .text).notNull()
+                t.column("fileName", .text)
+                t.column("bytes", .integer).notNull().defaults(to: 0)
+                t.column("createdAt", .datetime).notNull()
+                t.column("completedAt", .datetime)
+                t.column("lastPlayedAt", .datetime)
+            }
+        }
         return migrator
     }
 }
