@@ -34,7 +34,12 @@ run() {
 
 for package in Core Library Playback; do
     step "Unit tests: $package"
-    (cd "$root/Packages/$package" && run "test-$package" xcodebuild test -scheme "$package" \
+    # Multi-product packages get an extra "<name>-Package" scheme that holds the tests.
+    scheme="$package"
+    if (cd "$root/Packages/$package" && xcodebuild -list 2>/dev/null | grep -q -- "$package-Package"); then
+        scheme="$package-Package"
+    fi
+    (cd "$root/Packages/$package" && run "test-$package" xcodebuild test -scheme "$scheme" \
         -destination "$destination" -derivedDataPath "$out/dd-$package")
 done
 
