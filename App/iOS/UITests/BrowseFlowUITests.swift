@@ -29,7 +29,7 @@ final class BrowseFlowUITests: XCTestCase {
     @MainActor
     func testSearchFindsVideos() throws {
         let app = try launchWithInstance()
-        app.tabBars.buttons["Search"].tap()
+        app.buttons["Search"].firstMatch.tap()   // Tab bar on iPhone, top bar or sidebar on iPad.
         let field = app.searchFields.firstMatch
         XCTAssertTrue(field.waitForExistence(timeout: 5))
         field.tap()
@@ -42,7 +42,7 @@ final class BrowseFlowUITests: XCTestCase {
     @MainActor
     func testWatchChannelMiniPlayerAndReopen() throws {
         let app = try launchWithInstance()
-        app.tabBars.buttons["Subscriptions"].tap()
+        app.buttons["Subscriptions"].firstMatch.tap()   // Tab bar on iPhone, top bar or sidebar on iPad.
         let list = app.scrollViews["feed.list"]
         XCTAssertTrue(list.waitForExistence(timeout: 45))
         list.buttons.firstMatch.tap()

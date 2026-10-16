@@ -72,7 +72,8 @@ public struct FeedScreen: View {
                         .padding(.horizontal, Tokens.Spacing.screenInset)
                 }
                 // One column on a phone, more as width allows (unfolded, iPad, wide windows).
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: Self.minimumColumnWidth), spacing: Tokens.Spacing.l)],
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: Self.minimumColumnWidth), spacing: Tokens.Spacing.l,
+                                            alignment: .top)],
                           spacing: Tokens.Spacing.xl) {
                     ForEach(model.rows) { row in
                         VideoCell(VideoCellContent(row: row, pixelWidth: Int(thumbnailWidth * displayScale)),

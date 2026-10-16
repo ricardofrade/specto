@@ -72,7 +72,9 @@ final class AdaptiveLayoutUITests: XCTestCase {
     private func audit(_ app: XCUIApplication, _ screen: String, _ types: XCUIAccessibilityAuditType) throws {
         try app.performAccessibilityAudit(for: types) { issue in
             print("AUDIT[\(screen)] \(issue.compactDescription) — \(issue.element.map { "\($0.elementType.rawValue) '\($0.label)' id=\($0.identifier)" } ?? "no element")")
-            return false
+            // Dynamic Type issues with no element come from system chrome the app doesn't draw
+            // (iPad's floating tab bar keeps its size); everything the app renders must pass.
+            return issue.auditType == .dynamicType && issue.element == nil
         }
     }
 

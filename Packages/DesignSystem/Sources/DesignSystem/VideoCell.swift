@@ -105,6 +105,8 @@ public struct VideoCell: View, Equatable {
                     .lineLimit(wraps ? nil : 1)
             }
         }
+        // A grid row can squeeze wrapped text vertically; at these sizes it takes its full height.
+        .fixedSize(horizontal: false, vertical: wraps)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
