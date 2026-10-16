@@ -1,0 +1,128 @@
+{
+  "type": "playlist",
+  "title": "Popular Music Videos",
+  "playlistId": "PLFgquLnL59alCl_2TQvOiD5Vgm1hCaGSI",
+  "playlistThumbnail": "https://i.ytimg.com/vi/fOT0BUpITw8/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLCRGVQz7WlA4UpQK0AVib1eZrqu_w",
+  "author": "Music",
+  "authorId": "UC-9-kyTW8ZkZNDHQJ6FgpwQ",
+  "authorUrl": "/channel/UC-9-kyTW8ZkZNDHQJ6FgpwQ",
+  "subtitle": null,
+  "authorThumbnails": [
+    {
+      "url": "https://yt3.ggpht.com/M1Hbe-1uiAYWJI8-1ZzV3uf7MwoWcEmKAPbIivbKs3buggZcVLov91trUzy8y-96unrkOcv3oA=s48-c-k-c0x00ffffff-no-rj",
+      "width": 32,
+      "height": 32
+    },
+    {
+      "url": "https://yt3.ggpht.com/M1Hbe-1uiAYWJI8-1ZzV3uf7MwoWcEmKAPbIivbKs3buggZcVLov91trUzy8y-96unrkOcv3oA=s48-c-k-c0x00ffffff-no-rj",
+      "width": 48,
+      "height": 48
+    },
+    {
+      "url": "https://yt3.ggpht.com/M1Hbe-1uiAYWJI8-1ZzV3uf7MwoWcEmKAPbIivbKs3buggZcVLov91trUzy8y-96unrkOcv3oA=s48-c-k-c0x00ffffff-no-rj",
+      "width": 76,
+      "height": 76
+    }
+  ],
+  "description": "",
+  "descriptionHtml": "<p></p>",
+  "videoCount": 182,
+  "viewCount": 1045670652,
+  "updated": 1784246400,
+  "isListed": true,
+  "videos": [
+    {
+      "type": "video",
+      "title": "BELLAKEO (Video Oficial) - Peso Pluma, Anitta",
+      "videoId": "fOT0BUpITw8",
+      "author": "Peso Pluma",
+      "authorId": "UCzrM_068Odho89mTRrrxqbA",
+      "authorUrl": "/channel/UCzrM_068Odho89mTRrrxqbA",
+      "videoThumbnails": [
+        {
+          "quality": "maxres",
+          "url": "https://instance.example/vi/fOT0BUpITw8/maxres.jpg",
+          "width": 1280,
+          "height": 720
+        },
+        {
+          "quality": "maxresdefault",
+          "url": "https://instance.example/vi/fOT0BUpITw8/maxresdefault.jpg",
+          "width": 1280,
+          "height": 720
+        },
+        {
+          "quality": "sddefault",
+          "url": "https://instance.example/vi/fOT0BUpITw8/sddefault.jpg",
+          "width": 640,
+          "height": 480
+        }
+      ],
+      "index": 0,
+      "lengthSeconds": 235,
+      "liveNow": false
+    },
+    {
+      "type": "video",
+      "title": "Arcángel - FN8 ( Video Lyric )",
+      "videoId": "NFvDHYMzj9U",
+      "author": "Arcangel",
+      "authorId": "UCu4bj03KW4CwAsYtHSwMEsQ",
+      "authorUrl": "/channel/UCu4bj03KW4CwAsYtHSwMEsQ",
+      "videoThumbnails": [
+        {
+          "quality": "maxres",
+          "url": "https://instance.example/vi/NFvDHYMzj9U/maxres.jpg",
+          "width": 1280,
+          "height": 720
+        },
+        {
+          "quality": "maxresdefault",
+          "url": "https://instance.example/vi/NFvDHYMzj9U/maxresdefault.jpg",
+          "width": 1280,
+          "height": 720
+        },
+        {
+          "quality": "sddefault",
+          "url": "https://instance.example/vi/NFvDHYMzj9U/sddefault.jpg",
+          "width": 640,
+          "height": 480
+        }
+      ],
+      "index": 1,
+      "lengthSeconds": 650,
+      "liveNow": false
+    },
+    {
+      "type": "video",
+      "title": "Becky G - POR EL CONTRARIO (Performance Video) ft. Ángela Aguilar, Leonardo Aguilar",
+      "videoId": "8c7KOGxeY3w",
+      "author": "Becky G",
+      "authorId": "UCgtNC51EUSgcZ6kKyVoPxKA",
+      "authorUrl": "/channel/UCgtNC51EUSgcZ6kKyVoPxKA",
+      "videoThumbnails": [
+        {
+          "quality": "maxres",
+          "url": "https://instance.example/vi/8c7KOGxeY3w/maxres.jpg",
+          "width": 1280,
+          "height": 720
+        },
+        {
+          "quality": "maxresdefault",
+          "url": "https://instance.example/vi/8c7KOGxeY3w/maxresdefault.jpg",
+          "width": 1280,
+          "height": 720
+        },
+        {
+          "quality": "sddefault",
+          "url": "https://instance.example/vi/8c7KOGxeY3w/sddefault.jpg",
+          "width": 640,
+          "height": 480
+        }
+      ],
+      "index": 2,
+      "lengthSeconds": 235,
+      "liveNow": false
+    }
+  ]
+}

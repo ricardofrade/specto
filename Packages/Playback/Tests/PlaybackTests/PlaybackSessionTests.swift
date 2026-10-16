@@ -63,7 +63,7 @@ actor MemoryResumeStore: ResumeStore {
     init(_ positions: [VideoID: Duration] = [:]) { self.positions = positions }
 
     func position(for id: VideoID) -> Duration? { positions[id] }
-    func save(_ position: Duration, for id: VideoID) {
+    func save(_ position: Duration, duration: Duration?, for id: VideoID) {
         positions[id] = position
         saves.append(Save(id: id, position: position))
     }

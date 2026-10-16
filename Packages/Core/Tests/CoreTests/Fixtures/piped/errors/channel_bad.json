@@ -1,0 +1,4 @@
+{
+  "error": "org.schabi.newpipe.extractor.exceptions.ContentNotAvailableException: Got error: \"This channel does not exist.\"\n\tat org.schabi.newpipe.extractor.services.youtube.YoutubeParsingHelper.defaultAlertsCheck(YoutubeParsingHelper.java:1286)\n\tat org.schabi.newpipe.extractor.services.youtube.YoutubeChannelHelper.getChannelResponse(YoutubeChannelHelper.java:229)\n\t... (stack trace truncated)",
+  "message": "Got error: \"This channel does not exist.\""
+}

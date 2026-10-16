@@ -1,0 +1,4 @@
+{
+  "error": "org.schabi.newpipe.extractor.exceptions.ContentNotAvailableException: Got error ERROR: \"This video is unavailable\"\n\tat org.schabi.newpipe.extractor.services.youtube.extractors.YoutubeStreamExtractor.checkPlayabilityStatus(YoutubeStreamExtractor.java:928)\n\tat org.schabi.newpipe.extractor.services.youtube.extractors.YoutubeStreamExtractor.fetchAndroidClient(YoutubeStreamExtractor.java:947)\n\t... (stack trace truncated)",
+  "message": "Got error ERROR: \"This video is unavailable\""
+}

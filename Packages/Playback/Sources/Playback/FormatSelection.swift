@@ -78,15 +78,20 @@ public struct FormatSelector: Sendable {
     }
 
     /// AVPlayer can only play AAC in MP4. mpv prefers Opus, which sounds better per bit.
+    /// Picks the preferred language when offered, otherwise the original track.
     /// - Parameter preferredLanguage: BCP 47 code; matched by primary language ("en" matches "en-US").
     public func selectAudio(from streams: [AudioStream],
                             for engine: EngineKind,
                             preferredLanguage: String?) -> AudioStream? {
         var playable = streams.filter { engine == .mpv || ($0.codec == .aac && $0.container == .mp4) }
 
-        if let preferred = preferredLanguage.map(primaryLanguage) {
-            let matching = playable.filter { $0.language.map(primaryLanguage) == preferred }
-            if !matching.isEmpty { playable = matching }
+        let preferred = preferredLanguage.map(primaryLanguage)
+        let matching = playable.filter { stream in preferred != nil && stream.language.map(primaryLanguage) == preferred }
+        if !matching.isEmpty {
+            playable = matching
+        } else if playable.contains(where: \.isOriginal) {
+            // No requested language (or it isn't offered): play the original, never a dub.
+            playable = playable.filter(\.isOriginal)
         }
 
         return playable.min { a, b in

@@ -1,0 +1,4 @@
+{
+  "error": "org.schabi.newpipe.extractor.exceptions.ContentNotAvailableException: Got error: \"The playlist does not exist.\"\n\tat org.schabi.newpipe.extractor.services.youtube.YoutubeParsingHelper.defaultAlertsCheck(YoutubeParsingHelper.java:1286)\n\tat org.schabi.newpipe.extractor.services.youtube.extractors.YoutubePlaylistExtractor.onFetchPage(YoutubePlaylistExtractor.java:100)\n\t... (stack trace truncated)",
+  "message": "Got error: \"The playlist does not exist.\""
+}

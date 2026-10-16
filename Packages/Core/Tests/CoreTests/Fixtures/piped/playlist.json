@@ -1,0 +1,61 @@
+{
+  "name": "Popular Music Videos",
+  "thumbnailUrl": "https://proxy.instance.example/vi/fOT0BUpITw8/hqdefault.jpg?host=i.ytimg.com&rs=AOn4CLDjsUIQ80ddZ3EkanNxx85JVi-MFg&sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE%3D",
+  "description": "",
+  "bannerUrl": null,
+  "nextpage": "{\"url\":\"https://www.youtube.com/youtubei/v1/browse?prettyPrint=false\",\"id\":\"false\",\"ids\":null,\"cookies\":null,\"body\":\"eyJjb250ZXh0Ijp7ImNsaWVudCI6eyJobCI6ImVuLUdCIiwiZ2wiOiJHQiIsImNsaWVudE5hbWUiOiJXRUIiLCJjbGllbnRWZXJzaW9uIjoiMi4yMDI2MTAwNy4wMS4wMCIsIm9yaWdpbmFsVXJsIjoiaHR0cHM6Ly93d3cueW91dHViZS5jb20iLCJwbGF0Zm9ybSI6IkRFU0tUT1AiLCJ1dGNPZmZzZXRNaW51dGVzIjowfSwicmVxdWVzdCI6eyJpbnRlcm5hbEV4cGVyaW1lbnRGbGFncyI6W10sInVzZVNzbCI6dHJ1ZX0sInVzZXIiOnsibG9ja2VkU2FmZXR5TW9kZSI6ZmFsc2V9fSwiY29udGludWF0aW9uIjoiNHFtRnNnS0JBUklrVmt4UVRFWm5jWFZNYmt3MU9XRnNRMnhmTWxSUmRrOXBSRFZXWjIweGFFTmhSMU5KR2pSRFFVWTJTR3hDVlU5clRraFZWMnhHVWxack1WVlhkR0ZSYXpGVldYcE9UMUpGYXpGVVdIQlNaVlU1UlZkalNVZEJaMmRCbWdJaVVFeEdaM0YxVEc1TU5UbGhiRU5zWHpKVVVYWlBhVVExVm1kdE1XaERZVWRUU1ElM0QlM0QifQ==\"}",
+  "uploader": "Music",
+  "uploaderUrl": "/channel/UC-9-kyTW8ZkZNDHQJ6FgpwQ",
+  "uploaderAvatar": "https://proxy.instance.example/M1Hbe-1uiAYWJI8-1ZzV3uf7MwoWcEmKAPbIivbKs3buggZcVLov91trUzy8y-96unrkOcv3oA=s176-c-k-c0x00ffffff-no-rw?host=yt3.ggpht.com",
+  "videos": 182,
+  "relatedStreams": [
+    {
+      "url": "/watch?v=fOT0BUpITw8",
+      "type": "stream",
+      "title": "BELLAKEO (Video Oficial) - Peso Pluma, Anitta",
+      "thumbnail": "https://proxy.instance.example/vi/fOT0BUpITw8/hqdefault.jpg?host=i.ytimg.com&rs=AOn4CLDIUMo6wmNwCk7_4gaFgstLo8XRVQ&sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg%3D%3D",
+      "uploaderName": "Peso Pluma",
+      "uploaderUrl": "/channel/UCzrM_068Odho89mTRrrxqbA",
+      "uploaderAvatar": "https://proxy.instance.example/shYKZTjAV9vcGz4GWpJ_66iuvOsah34oIV2loAQzvB4Qb-Ta-DwvCOwl39uL45EG4YajxDcq=s88-c-k-c0x00ffffff-no-rw?host=yt3.ggpht.com",
+      "uploadedDate": "2 years ago",
+      "shortDescription": null,
+      "duration": 235,
+      "views": 768000000,
+      "uploaded": 1728950400000,
+      "uploaderVerified": true,
+      "isShort": false
+    },
+    {
+      "url": "/watch?v=NFvDHYMzj9U",
+      "type": "stream",
+      "title": "Arcángel - FN8 ( Video Lyric )",
+      "thumbnail": "https://proxy.instance.example/vi/NFvDHYMzj9U/hqdefault.jpg?host=i.ytimg.com&rs=AOn4CLBfwrF8-B99YkS29S2MbyVfQrPfjQ&sqp=-oaymwE2CNACELwBSFXyq4qpAygIARUAAIhCGAFwAcABBvABAfgB_gmAAtAFigIMCAAQARhjIGMoYzAP",
+      "uploaderName": "Arcangel",
+      "uploaderUrl": "/channel/UCu4bj03KW4CwAsYtHSwMEsQ",
+      "uploaderAvatar": "https://proxy.instance.example/uEoj8Jo9Qt7jmxWnpI4T0EbllWzX-KWZXKaIJpICekHigtUUnK9C4FJEmX1aP1EPxxQjpjxw=s88-c-k-c0x00ffffff-no-rw?host=yt3.ggpht.com",
+      "uploadedDate": "2 years ago",
+      "shortDescription": null,
+      "duration": 650,
+      "views": 32000000,
+      "uploaded": 1728950400000,
+      "uploaderVerified": true,
+      "isShort": false
+    },
+    {
+      "url": "/watch?v=8c7KOGxeY3w",
+      "type": "stream",
+      "title": "Becky G - POR EL CONTRARIO (Performance Video) ft. Ángela Aguilar, Leonardo Aguilar",
+      "thumbnail": "https://proxy.instance.example/vi/8c7KOGxeY3w/hqdefault.jpg?host=i.ytimg.com&rs=AOn4CLAc8FMXFBxT72mBl7UTb-La5RqIWQ&sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg%3D%3D",
+      "uploaderName": "Becky G",
+      "uploaderUrl": "/channel/UCgtNC51EUSgcZ6kKyVoPxKA",
+      "uploaderAvatar": "https://proxy.instance.example/mnhA7phg9lNpqfohdcWaOiaPgtY3XK7DdgEflgyNYkwJIjdqOifaqDBDw9bL0yfOm_Oj9qwtRw=s88-c-k-c0x00ffffff-no-rw?host=yt3.ggpht.com",
+      "uploadedDate": "2 years ago",
+      "shortDescription": null,
+      "duration": 235,
+      "views": 784000000,
+      "uploaded": 1728950400000,
+      "uploaderVerified": true,
+      "isShort": false
+    }
+  ]
+}

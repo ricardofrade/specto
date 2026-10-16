@@ -9,3 +9,4 @@ App/iOS/*.xcodeproj/
 App/iOS/Info.plist
 build/
 .env.local
+.ytzero-test-token

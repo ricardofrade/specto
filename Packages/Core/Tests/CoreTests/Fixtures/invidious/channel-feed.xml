@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns:media="http://search.yahoo.com/mrss/" xmlns="http://www.w3.org/2005/Atom" xml:lang="en-US">
+  <link rel="self" href="https://instance.example/feed/channel/UCuAXFkgsw1L7xaCfnd5JJOw"/>
+  <id>yt:channel:UCuAXFkgsw1L7xaCfnd5JJOw</id>
+  <yt:channelId>UCuAXFkgsw1L7xaCfnd5JJOw</yt:channelId>
+  <title>Rick Astley</title>
+  <link rel="alternate" href="https://instance.example/channel/UCuAXFkgsw1L7xaCfnd5JJOw"/>
+  <author>
+    <name>Rick Astley</name>
+    <uri>https://instance.example/channel/UCuAXFkgsw1L7xaCfnd5JJOw</uri>
+  </author>
+  <image>
+    <url></url>
+    <title>Rick Astley</title>
+    <link rel="self" href="https://instance.example/feed/channel/UCuAXFkgsw1L7xaCfnd5JJOw"/>
+  </image>
+  <entry>
+    <id>yt:video:E_MGy41IYVw</id>
+    <yt:videoId>E_MGy41IYVw</yt:videoId>
+    <yt:channelId>UCuAXFkgsw1L7xaCfnd5JJOw</yt:channelId>
+    <title>38 years on, and the music video still hits 🕺 # #rickastley #80smusic</title>
+    <link rel="alternate" href="https://instance.example/watch?v=E_MGy41IYVw"/>
+    <author>
+      <name>Rick Astley</name>
+      <uri>https://instance.example/channel/UCuAXFkgsw1L7xaCfnd5JJOw</uri>
+    </author>
+    <content type="xhtml">
+      <div xmlns="http://www.w3.org/1999/xhtml">
+        <a href="https://instance.example/watch?v=E_MGy41IYVw">
+          <img src="https://instance.example/vi/E_MGy41IYVw/mqdefault.jpg"/>
+        </a>
+        <p style="word-break:break-word;white-space:pre-wrap"></p>
+      </div>
+    </content>
+    <published>2026-09-20T08:52:27+00:00</published>
+    <media:group>
+      <media:title>38 years on, and the music video still hits 🕺 # #rickastley #80smusic</media:title>
+      <media:thumbnail url="https://instance.example/vi/E_MGy41IYVw/mqdefault.jpg" width="320" height="180"/>
+      <media:description></media:description>
+    </media:group>
+    <media:community>
+      <media:statistics views="44747"/>
+    </media:community>
+  </entry>
+  <entry>
+    <id>yt:video:ihRdK3x3cUY</id>
+    <yt:videoId>ihRdK3x3cUY</yt:videoId>
+    <yt:channelId>UCuAXFkgsw1L7xaCfnd5JJOw</yt:channelId>
+    <title>A message from Rick ♥️ #rickastley</title>
+    <link rel="alternate" href="https://instance.example/watch?v=ihRdK3x3cUY"/>
+    <author>
+      <name>Rick Astley</name>
+      <uri>https://instance.example/channel/UCuAXFkgsw1L7xaCfnd5JJOw</uri>
+    </author>
+    <content type="xhtml">
+      <div xmlns="http://www.w3.org/1999/xhtml">
+        <a href="https://instance.example/watch?v=ihRdK3x3cUY">
+          <img src="https://instance.example/vi/ihRdK3x3cUY/mqdefault.jpg"/>
+        </a>
+        <p style="word-break:break-word;white-space:pre-wrap"></p>
+      </div>
+    </content>
+    <published>2026-08-31T15:56:01+00:00</published>
+    <media:group>
+      <media:title>A message from Rick ♥️ #rickastley</media:title>
+      <media:thumbnail url="https://instance.example/vi/ihRdK3x3cUY/mqdefault.jpg" width="320" height="180"/>
+      <media:description></media:description>
+    </media:group>
+    <media:community>
+      <media:statistics views="66236"/>
+    </media:community>
+  </entry>
+  <entry>
+    <id>yt:video:JjI4o2w6D5A</id>
+    <yt:videoId>JjI4o2w6D5A</yt:videoId>
+    <yt:channelId>UCuAXFkgsw1L7xaCfnd5JJOw</yt:channelId>
+    <title>We had a fantastic time in Cologne last night. Thanks for having us! ♥️🇩🇪</title>
+    <link rel="alternate" href="https://instance.example/watch?v=JjI4o2w6D5A"/>
+    <author>
+      <name>Rick Astley</name>
+      <uri>https://instance.example/channel/UCuAXFkgsw1L7xaCfnd5JJOw</uri>
+    </author>
+    <content type="xhtml">
+      <div xmlns="http://www.w3.org/1999/xhtml">
+        <a href="https://instance.example/watch?v=JjI4o2w6D5A">
+          <img src="https://instance.example/vi/JjI4o2w6D5A/mqdefault.jpg"/>
+        </a>
+        <p style="word-break:break-word;white-space:pre-wrap"></p>
+      </div>
+    </content>
+    <published>2026-08-05T16:19:00+00:00</published>
+    <media:group>
+      <media:title>We had a fantastic time in Cologne last night. Thanks for having us! ♥️🇩🇪</media:title>
+      <media:thumbnail url="https://instance.example/vi/JjI4o2w6D5A/mqdefault.jpg" width="320" height="180"/>
+      <media:description></media:description>
+    </media:group>
+    <media:community>
+      <media:statistics views="606306"/>
+    </media:community>
+  </entry>
+</feed>

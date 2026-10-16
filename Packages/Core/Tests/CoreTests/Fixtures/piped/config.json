@@ -1,0 +1,10 @@
+{
+  "imageProxyUrl": "https://proxy.instance.example",
+  "countries": [
+    "DZ",
+    "AR",
+    "AU"
+  ],
+  "s3Enabled": false,
+  "registrationDisabled": true
+}

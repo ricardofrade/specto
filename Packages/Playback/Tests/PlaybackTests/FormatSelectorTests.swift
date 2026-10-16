@@ -11,9 +11,9 @@ private func video(_ codec: VideoCodec, _ height: Int, container: MediaContainer
                 width: height * 16 / 9, height: height, fps: fps, bitrate: bitrate, isHDR: hdr)
 }
 
-private func audio(_ codec: AudioCodec, bitrate: Int, language: String? = nil) -> AudioStream {
+private func audio(_ codec: AudioCodec, bitrate: Int, language: String? = nil, original: Bool = true) -> AudioStream {
     AudioStream(url: url, codec: codec, container: codec == .opus ? .webm : .mp4,
-                bitrate: bitrate, language: language)
+                bitrate: bitrate, language: language, isOriginal: original)
 }
 
 private let av1Device = FormatSelector(capabilities: .init(av1Hardware: true, vp9Hardware: false,
@@ -89,5 +89,13 @@ struct FormatSelectorTests {
         let german = av1Device.selectAudio(from: streams, for: .mpv, preferredLanguage: "de")
         #expect(portuguese?.language == "pt-BR")
         #expect(german != nil)
+    }
+
+    @Test func withoutALanguageMatchTheOriginalBeatsAHigherBitrateDub() {
+        let streams = [audio(.opus, bitrate: 160_000, language: "en", original: true),
+                       audio(.opus, bitrate: 200_000, language: "pt-BR", original: false)]
+        #expect(av1Device.selectAudio(from: streams, for: .mpv, preferredLanguage: nil)?.language == "en")
+        #expect(av1Device.selectAudio(from: streams, for: .mpv, preferredLanguage: "de")?.language == "en")
+        #expect(av1Device.selectAudio(from: streams, for: .mpv, preferredLanguage: "pt")?.language == "pt-BR")
     }
 }

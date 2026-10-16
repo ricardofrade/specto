@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "url": "/playlist?list=PL2MI040U_GXobmpXtTwBF7oHBGT5BETSD",
+      "type": "playlist",
+      "name": "RickAstley - Greatest Hits",
+      "thumbnail": "https://proxy.instance.example/vi/dQw4w9WgXcQ/hq720.jpg?host=i.ytimg.com&rs=AOn4CLDX3LgTmArIBIk6uvvz4y5p95MOcg&sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE%3D",
+      "uploaderName": "RickAstleyVEVO",
+      "uploaderUrl": "/channel/UC38IQsAvIsxxjztdMZQtwHA",
+      "uploaderVerified": false,
+      "playlistType": "NORMAL",
+      "videos": 10
+    },
+    {
+      "url": "/playlist?list=PLUhqFX6g_9Nf2LNukrhLw2b7BDseSq7-g",
+      "type": "playlist",
+      "name": "Rick Astley Greatest Hits",
+      "thumbnail": "https://proxy.instance.example/vi/dQw4w9WgXcQ/hq720.jpg?host=i.ytimg.com&rs=AOn4CLDX3LgTmArIBIk6uvvz4y5p95MOcg&sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE%3D",
+      "uploaderName": "philmillar46",
+      "uploaderUrl": "/channel/UCxFeYU41xmO5OvS8SHkJodw",
+      "uploaderVerified": false,
+      "playlistType": "NORMAL",
+      "videos": 27
+    },
+    {
+      "url": "/playlist?list=PL2MI040U_GXq1L5JUxNOulWCyXn-7QyZK",
+      "type": "playlist",
+      "name": "Rick Astley Videos",
+      "thumbnail": "https://proxy.instance.example/vi/dQw4w9WgXcQ/hq720.jpg?host=i.ytimg.com&rs=AOn4CLDX3LgTmArIBIk6uvvz4y5p95MOcg&sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE%3D",
+      "uploaderName": "RickAstleyVEVO",
+      "uploaderUrl": "/channel/UC38IQsAvIsxxjztdMZQtwHA",
+      "uploaderVerified": false,
+      "playlistType": "NORMAL",
+      "videos": 22
+    }
+  ],
+  "nextpage": "{\"url\":\"https://www.youtube.com/youtubei/v1/search?prettyPrint=false\",\"id\":\"EuAHEgtyaWNrIGFzdGxleRrQB0VnSVFBMGdVZ2dFaVVFd3lUVWt3TkRCVlgwZFliMkp0Y0ZoMFZIZENSamR2U0VKSFZEVkNSVlJUUklJQklsQk1WV2h4UmxnMloxODVUbVl5VEU1MWEzSm9USGN5WWpkQ1JITmxVM0UzTFdlQ0FSaFZRM1ZCV0VaclozTjNNVXczZUdGRFptNWtOVXBLVDNlQ0FTSlFUREpOU1RBME1GVmZSMWh4TVV3MVNsVjRUazkxYkZkRGVWaHVMVGRSZVZwTGdnRWlVRXg0UVRZNE4zUlpkVTFYWjFaaVZGazVaa1pETTJkd2VqWnlVSEIwY0ZaTWI0SUJJbEJNYVZaWlNrcDZZVVEwZDNZelJEVktkeTF2WkZSa2NEUkNkakJxVWt4SVNFU0NBU0pRVEhoQk5qZzNkRmwxVFZkcFFYWjVWa2RoTjBoUk4zVm9UVm8zVlZKaFdFNVlnZ0VpVUV4T2MwMXBTWFUzVVhKcFFYbzJObVZhYjFGM1RUaDRjVlI1VlRabGMySnZWWUlCSWxCTVMwSlhZMWRsYkdWc1FrTkViM28yVEhCelZXUXlVV28yWkVOc09VOXRUVnFDQVNKUVRHeGhUamc0WVRkNU1sOXZRbFY0VEdRemFqSXpaR3RCUms1MFRTMVFNalJsZ2dFaVVFeHNZVTQ0T0dFM2VUSmZjVk5NU0ROd1RHbFJTVkUyYVhOWlgwUmFWSFJrWjRJQkVsQk1PVGN3TmtJeVEwWkZNalV3UVRCRk00SUJJbEJNVTBKWGRsbHRPSFEyZFdFNGFUbHJiWFJRYVdGS2JESTVlVWd3YkdoclQzYUNBU0pRVEd0eGVqTlRPRFJVZHkxVVVubGlWVEl0U1hkWFZuVmxUR2xRUnpkUmIxWmtnZ0VpVUV4d2FHaExTR05KUTBSd1RVeDBUSEoyTW1ZNVV6VkVlSGgzWVdOT2FXcFZOSUlCSWxCTWJHRk9PRGhoTjNreVgzSXlOR2xJWm1oT1RVZHpMVXhoT1dOMVRHbFZVV09DQVNKUVREaDNVVEZQUWxSUVJub3pXa3d5WkZKeFkwcEVNV1pXUzNVM2IzRllRMFZaZ2dFaVVFeHJPRE5WYTE5TFZWTlRaalU0VURoeGVuQlZORXRxWjFkSmNHdEpYMGhrVVlJQklsQk1NRkozZG1WYWREVlhOVTUyT1ZWNE1HTXpOa0pYZFhSalNraFdabnB5ZWxtQ0FTSlFURVV3YUdjdFRHUlRabmxtVWtoVFpVczVjMUpNVDBSemNsZ3dXazFhY0hGUHNnRUdDZ1FJRkJBQzhBRUIYgeDoGCILc2VhcmNoLWZlZWQ%3D\",\"ids\":null,\"cookies\":null,\"body\":null}",
+  "suggestion": "",
+  "corrected": false
+}

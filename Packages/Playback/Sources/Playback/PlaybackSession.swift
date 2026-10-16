@@ -22,7 +22,8 @@ public struct NowPlayingItem: Sendable, Equatable {
 /// Implemented by `Library` (GRDB). Kept as a protocol so `Playback` doesn't depend on persistence.
 public protocol ResumeStore: Sendable {
     func position(for id: VideoID) async -> Duration?
-    func save(_ position: Duration, for id: VideoID) async
+    /// `duration` lets the store treat a position near the end as finished.
+    func save(_ position: Duration, duration: Duration?, for id: VideoID) async
 }
 
 /// One per app, injected into every scene. Owns the engines, so views can come and go
@@ -218,10 +219,11 @@ public final class PlaybackSession {
         lastSavedPosition = position
         let store = resumeStore
         let snapshot = position
+        let length = duration
         let previous = saveChain
         saveChain = Task {
             await previous?.value
-            await store.save(snapshot, for: id)
+            await store.save(snapshot, duration: length, for: id)
         }
     }
 }

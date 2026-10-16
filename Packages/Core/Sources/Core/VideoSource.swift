@@ -60,6 +60,7 @@ public struct SourceCapabilities: OptionSet, Hashable, Sendable {
 
 public struct Thumbnail: Hashable, Sendable, Codable {
     public let url: URL
+    /// Pixel size; 0 when the source doesn't say.
     public let width: Int
     public let height: Int
 
@@ -67,6 +68,11 @@ public struct Thumbnail: Hashable, Sendable, Codable {
         self.url = url
         self.width = width
         self.height = height
+    }
+
+    /// A thumbnail whose size the source doesn't report.
+    public static func unsized(_ string: String) -> Thumbnail? {
+        URL(string: string).map { Thumbnail(url: $0, width: 0, height: 0) }
     }
 }
 
@@ -263,12 +269,15 @@ public struct AudioStream: Hashable, Sendable, Codable {
     public let bitrate: Int?
     /// BCP 47 code for multi-language videos; nil when the video has a single track.
     public let language: String?
+    /// False for dubbed, descriptive or secondary tracks; the original plays unless the user
+    /// asks for another language.
+    public let isOriginal: Bool
     public let initRange: ByteRange?
     public let indexRange: ByteRange?
     public let contentLength: Int64?
 
     public init(url: URL, codec: AudioCodec, codecs: String? = nil, container: MediaContainer, itag: Int? = nil,
-                bitrate: Int?, language: String?,
+                bitrate: Int?, language: String?, isOriginal: Bool = true,
                 initRange: ByteRange? = nil, indexRange: ByteRange? = nil, contentLength: Int64? = nil) {
         self.url = url
         self.codec = codec
@@ -277,6 +286,7 @@ public struct AudioStream: Hashable, Sendable, Codable {
         self.itag = itag
         self.bitrate = bitrate
         self.language = language
+        self.isOriginal = isOriginal
         self.initRange = initRange
         self.indexRange = indexRange
         self.contentLength = contentLength
@@ -315,17 +325,21 @@ public struct StreamManifest: Sendable, Codable {
     public let audioStreams: [AudioStream]
     /// Live streams and some instances provide HLS instead of (or as well as) adaptive streams.
     public let hlsURL: URL?
+    /// One file with video and audio together (YT Zero downloads).
+    public let muxedURL: URL?
     public let captions: [CaptionTrack]
     public let chapters: [Chapter]
     /// Stream URLs from YouTube expire; refetch the manifest after this date.
     public let expiresAt: Date?
 
     public init(videoID: VideoID, videoStreams: [VideoStream], audioStreams: [AudioStream],
-                hlsURL: URL?, captions: [CaptionTrack] = [], chapters: [Chapter], expiresAt: Date?) {
+                hlsURL: URL?, muxedURL: URL? = nil, captions: [CaptionTrack] = [], chapters: [Chapter],
+                expiresAt: Date?) {
         self.videoID = videoID
         self.videoStreams = videoStreams
         self.audioStreams = audioStreams
         self.hlsURL = hlsURL
+        self.muxedURL = muxedURL
         self.captions = captions
         self.chapters = chapters
         self.expiresAt = expiresAt
