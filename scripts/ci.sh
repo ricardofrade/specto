@@ -32,7 +32,7 @@ run() {
     if [[ $status != 0 ]]; then echo "✘ $name failed (exit $status, log: $out/$name.log)"; exit 1; fi
 }
 
-for package in Core Library Playback DesignSystem Features; do
+for package in Core Library Playback DesignSystem Features Cast; do
     step "Unit tests: $package"
     # Multi-product packages get an extra "<name>-Package" scheme that holds the tests.
     scheme="$package"
@@ -59,5 +59,8 @@ fi
 step "Performance tests (Release)"
 run perf xcodebuild test -project "$root/App/iOS/Player.xcodeproj" -scheme Player -configuration Release \
     -destination "$destination" -derivedDataPath "$out/dd-perf"
+
+step "Performance gates (enforced only with RELEASE_GATE=1 on a device)"
+"$root/scripts/perf-gate.sh" "$out/perf.log"
 
 echo; echo "✔ CI passed"

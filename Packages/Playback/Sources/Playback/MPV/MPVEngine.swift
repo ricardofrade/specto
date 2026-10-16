@@ -104,6 +104,10 @@ public final class MPVEngine: PlaybackEngine {
         layer.removeFromSuperlayer()
     }
 
+    public func setVideoEnabled(_ enabled: Bool) {
+        core?.setProperty("vid", string: enabled ? "auto" : "no")
+    }
+
     public func layoutSurface() {
         guard let superlayer = layer.superlayer else { return }
         CATransaction.begin()

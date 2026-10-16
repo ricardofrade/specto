@@ -44,6 +44,7 @@ public struct WatchScreen: View {
     private let makeComments: (() -> CommentsModel)?
     @State private var comments: CommentsModel?
     private let showsRelated: Bool
+    private let actions: PlayerActions
     private let onSelectRelated: (VideoSummary) -> Void
     private let onOpenChannel: (ChannelID, String) -> Void
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -56,13 +57,14 @@ public struct WatchScreen: View {
     ///   - showsRelated: YouTube's own "Up next" suggestions; a setting, off for some.
     ///   Created once per video, however often the parent re-renders.
     public init(session: PlaybackSession, content: WatchContent, comments: (() -> CommentsModel)? = nil,
-                showsRelated: Bool = true,
+                showsRelated: Bool = true, actions: PlayerActions = .none,
                 onSelectRelated: @escaping (VideoSummary) -> Void,
                 onOpenChannel: @escaping (ChannelID, String) -> Void) {
         self.session = session
         self.content = content
         self.makeComments = comments
         self.showsRelated = showsRelated
+        self.actions = actions
         self.onSelectRelated = onSelectRelated
         self.onOpenChannel = onOpenChannel
     }
@@ -92,16 +94,22 @@ public struct WatchScreen: View {
         case .compact:
             VStack(spacing: 0) {
                 player
+                PlayerActionsBar(session: session, actions: actions)
                 ScrollView { details }
             }
         case .band:
             VStack(spacing: 0) {
                 player
+                PlayerActionsBar(session: session, actions: actions)
                 WatchTabs(content: content, comments: comments, session: session) { details }
             }
         case .sidePanel:
             HStack(spacing: 0) {
-                player.frame(maxHeight: .infinity).background(.black)
+                VStack(spacing: 0) {
+                    player.frame(maxHeight: .infinity)
+                    PlayerActionsBar(session: session, actions: actions)
+                }
+                .background(.black)
                 WatchTabs(content: content, comments: comments, session: session) { details }
                     .frame(width: min(400, size.width * 0.34))
             }
@@ -113,6 +121,12 @@ public struct WatchScreen: View {
     private var player: some View {
         PlayerArea(session: session)
             .aspectRatio(16 / 9, contentMode: .fit)
+            .overlay {
+                if let casting = actions.casting { CastingOverlay(casting: casting) }
+            }
+            .overlay(alignment: .bottom) {
+                SkipNotice(segment: session.lastSkipped).padding(Tokens.Spacing.m)
+            }
     }
 
     private var details: some View {

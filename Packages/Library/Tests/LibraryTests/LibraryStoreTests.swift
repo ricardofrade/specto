@@ -146,3 +146,28 @@ struct SubscriptionImportTests {
         #expect(throws: SubscriptionImport.Failure.unrecognisedFormat) { try SubscriptionImport.parse(Data("hello".utf8)) }
     }
 }
+
+struct BrandingStoreTests {
+    @Test func brandedTitlesApplyOnlyWhenEnabled() throws {
+        let db = try AppDatabase.inMemory()
+        try SubscriptionStore(db).subscribe([channelA])
+        try FeedStore(db).save([video("v")])
+        try BrandingStore(db).save([VideoID(rawValue: "v"): Branding(title: "Clearer title", thumbnailTime: 12)],
+                                   lookedUp: [VideoID(rawValue: "v")])
+        #expect(try FeedStore(db).rows().first?.title == "Video v")
+        let branded = try FeedStore(db).rows(.init(brandedTitles: true, brandedThumbnails: true)).first
+        #expect(branded?.title == "Clearer title")
+        #expect(branded?.thumbnails.first?.url.host() == "dearrow-thumb.ajay.app")
+    }
+
+    @Test func lookupsAreRememberedIncludingMisses() throws {
+        let db = try AppDatabase.inMemory()
+        try SubscriptionStore(db).subscribe([channelA])
+        try FeedStore(db).save([video("hit"), video("miss")])
+        let store = BrandingStore(db)
+        #expect(Set(try store.videosNeedingLookup()) == [VideoID(rawValue: "hit"), VideoID(rawValue: "miss")])
+        try store.save([VideoID(rawValue: "hit"): Branding(title: "T", thumbnailTime: nil)],
+                       lookedUp: [VideoID(rawValue: "hit"), VideoID(rawValue: "miss")])
+        #expect(try store.videosNeedingLookup().isEmpty)
+    }
+}

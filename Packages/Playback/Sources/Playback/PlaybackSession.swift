@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import QuartzCore
 import Core
 
 public struct NowPlayingItem: Sendable, Equatable {
@@ -38,6 +39,12 @@ public final class PlaybackSession {
     public private(set) var mode: PlaybackMode = .video
     public private(set) var decoder: DecoderInfo?
     public private(set) var stats: PlaybackStats?
+    /// SponsorBlock segments for the current item.
+    public private(set) var skipSegments: [SkipSegment] = []
+    /// The most recent automatic skip, for a brief "Skipped sponsor" notice.
+    public private(set) var lastSkipped: SkipSegment?
+    /// Which engine is playing (AirPlay moves video from mpv to AVPlayer and back).
+    public private(set) var engineKind: EngineKind?
 
     @ObservationIgnored private let engineFactory: @MainActor (EngineKind) -> any PlaybackEngine
     @ObservationIgnored private let resumeStore: any ResumeStore
@@ -53,6 +60,8 @@ public final class PlaybackSession {
     @ObservationIgnored private var acceptsPosition = false
     /// Saves run one after another so an older position never overwrites a newer one.
     @ObservationIgnored private var saveChain: Task<Void, Never>?
+    /// Segments already skipped in this load; seeking back into one plays it.
+    @ObservationIgnored private var skipped: Set<SkipSegment> = []
 
     /// How often position is persisted during playback. Also saved on pause, end and switch.
     @ObservationIgnored public var saveInterval: Duration = .seconds(5)
@@ -76,7 +85,7 @@ public final class PlaybackSession {
         let loadGeneration = generation
         acceptsPosition = false
 
-        let next = engine(for: EngineKind.preferred(for: request.mode))
+        let next = engine(for: request.engine ?? EngineKind.preferred(for: request.mode))
         if let current, current !== next {
             current.stop()
             current.detach()
@@ -89,7 +98,11 @@ public final class PlaybackSession {
         self.stats = nil
         self.duration = nil
         self.position = request.startAt
+        self.skipSegments = []
+        self.lastSkipped = nil
+        self.skipped = []
         self.current = next
+        self.engineKind = next.kind
         if request.mode == .video, let host {
             next.attach(host)
         }
@@ -125,6 +138,16 @@ public final class PlaybackSession {
         await play(item, request)
     }
 
+    /// Segments arrive after playback starts; ignored if the item changed meanwhile.
+    public func setSkipSegments(_ segments: [SkipSegment], for id: VideoID) {
+        guard item?.videoID == id else { return }
+        skipSegments = segments
+    }
+
+    public func setVideoEnabled(_ enabled: Bool) {
+        current?.setVideoEnabled(enabled)
+    }
+
     public func resume() { current?.play() }
     public func pause() { current?.pause() }
 
@@ -139,6 +162,7 @@ public final class PlaybackSession {
         current?.stop()
         current?.detach()
         current = nil
+        engineKind = nil
         item = nil
         state = .idle
         position = .zero
@@ -148,6 +172,9 @@ public final class PlaybackSession {
     }
 
     // MARK: Render surfaces
+
+    /// The visible surface's layer; Picture-in-Picture inserts its player layer here.
+    public var hostLayer: CALayer? { host?.containerLayer }
 
     public func attach(_ host: any RenderSurfaceHost) {
         self.host = host
@@ -205,11 +232,22 @@ public final class PlaybackSession {
             position = newPosition
             duration = newDuration
             persistPosition(force: false)
+            skipSegmentIfNeeded()
         case .decoder(let info):
             decoder = info
         case .stats(let newStats):
             stats = newStats
         }
+    }
+
+    private func skipSegmentIfNeeded() {
+        guard let segment = skipSegments.first(where: { segment in
+            position >= segment.start && position < segment.end - .milliseconds(500) && !skipped.contains(segment)
+        }) else { return }
+        skipped.insert(segment)
+        lastSkipped = segment
+        let engine = current
+        Task { await engine?.seek(to: segment.end, precise: false) }
     }
 
     private func persistPosition(force: Bool) {

@@ -45,6 +45,7 @@ Dependency rules (enforced by `scripts/check-dependencies.sh`; never work around
 - All models are `Sendable` value types.
 - `PlaybackSession` and engines are `@MainActor`; engines do heavy work on their own threads internally.
 - No `@unchecked Sendable` without a comment explaining why it is safe.
+- Closures handed to system frameworks (KVO, `MPMediaItemArtwork`, `MPRemoteCommand` handlers, AVFoundation callbacks) must be `@Sendable` and hop to the main actor themselves. A closure written inside `@MainActor` code inherits that isolation, and Swift 6 traps at runtime when the framework calls it on another thread. A crash during the first M4 run had exactly this cause.
 
 ## UI and performance rules
 

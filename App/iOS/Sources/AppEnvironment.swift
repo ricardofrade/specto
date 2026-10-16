@@ -3,6 +3,8 @@ import Core
 import Library
 import Playback
 import DesignSystem
+import PlaybackUI
+import Cast
 import InstancesFeature
 
 /// The composition root: builds sources from saved instances, routes between them, and owns
@@ -22,7 +24,15 @@ final class AppEnvironment {
     @ObservationIgnored private let resumeStore: LibraryResumeStore
     @ObservationIgnored private var prefetching: Set<VideoID> = []
     @ObservationIgnored private var lastRecovery: (id: VideoID, at: ContinuousClock.Instant)?
-    @ObservationIgnored private var surfaceHeight = 1080
+    @ObservationIgnored var surfaceHeight = 1080
+    /// The page now playing; audio mode, PiP, AirPlay and casting re-plan from it.
+    @ObservationIgnored var currentPage: WatchPage?
+    @ObservationIgnored var nowPlaying: NowPlayingController?
+    @ObservationIgnored let pictureInPicture = PictureInPictureHandoff()
+    @ObservationIgnored let community = CommunityServices()
+    let castDiscovery = CastDiscovery()
+    let castSession = CastSession()
+    @ObservationIgnored var routeObserver: (any NSObjectProtocol)?
 
     init(database: AppDatabase, secrets: any SecretStore = KeychainSecretStore()) {
         self.database = database
@@ -31,12 +41,15 @@ final class AppEnvironment {
         refresher = FeedRefresher(mode: .local(InstanceRouter(sources: [])), database: database)
         let resume = LibraryResumeStore(store: WatchStateStore(database))
         resumeStore = resume
-        session = PlaybackSession(resumeStore: resume) { _ in
-            // AVPlayerEngine arrives in M4; mpv covers audio-only (vid=no) until then.
-            MPVEngine()
+        session = PlaybackSession(resumeStore: resume) { kind in
+            switch kind {
+            case .mpv: MPVEngine()
+            case .avPlayer: AVPlayerEngine()
+            }
         }
         reloadSources()
         watchForExpiredStreams()
+        startSystemIntegration()
     }
 
     static func live() -> AppEnvironment {
@@ -183,6 +196,7 @@ final class AppEnvironment {
     func refreshFeed(force: Bool) async throws {
         let refresher = self.refresher
         if force { try await refresher.refresh() } else { try await refresher.refreshIfStale() }
+        refreshBranding()
     }
 
     func subscriptionsChanged(_ added: [ChannelSummary]) {
@@ -227,12 +241,14 @@ final class AppEnvironment {
         let request = try plan(page, mode: mode, startAt: .zero)
         let item = NowPlayingItem(videoID: video.id, title: video.title, channelName: video.channelName,
                                   artworkURL: video.thumbnails.first?.url, chapters: page.manifest.chapters)
+        currentPage = page
         await session.play(item, request)
         endWhenPlaying(tap)
+        loadSkipSegments(for: video.id)
         return page
     }
 
-    private func plan(_ page: WatchPage, mode: PlaybackMode, startAt: Duration) throws -> PlaybackRequest {
+    func plan(_ page: WatchPage, mode: PlaybackMode, startAt: Duration) throws -> PlaybackRequest {
         let planner = PlaybackPlanner(selector: FormatSelector(capabilities: DecodeCapabilities()),
                                       preferredAudioLanguage: nil)
         return try planner.request(for: page, mode: mode, maxDisplayHeight: surfaceHeight,

@@ -24,6 +24,8 @@ packages:
     path: ../../Packages/Features
   MPVRuntime:
     path: ../../Packages/MPVRuntime
+  Cast:
+    path: ../../Packages/Cast
 targets:
   Player:
     type: application
@@ -44,6 +46,7 @@ targets:
       - package: Features
         product: ChannelFeature
       - package: Library
+      - package: Cast
       - package: Playback
         product: Playback
       - package: Playback
@@ -60,7 +63,8 @@ targets:
         # Background audio and Picture-in-Picture.
         UIBackgroundModes: [audio]
         # Self-hosted instances on the home network.
-        NSLocalNetworkUsageDescription: "Connect to video instances on your local network."
+        NSLocalNetworkUsageDescription: "Connect to your video instances and Chromecasts on the local network."
+        NSBonjourServices: [_googlecast._tcp]
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
         UIApplicationSceneManifest:

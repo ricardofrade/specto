@@ -12,21 +12,21 @@ struct RootView: View {
     let environment: AppEnvironment
     let onFirstFeedFrame: () -> Void
     @State private var router = SceneRouter()
-    @State private var settings = AppSettings()
+    @State private var settings = AppSettings.shared
     @State private var feed: FeedModel
     @State private var search: SearchModel
     @State private var channels: [ChannelSummary] = []
     @State private var shortSidePixels = 1080
     @Namespace private var zoom
     @Environment(\.displayScale) private var displayScale
+    @Environment(\.scenePhase) private var scenePhase
 
     init(environment: AppEnvironment, onFirstFeedFrame: @escaping () -> Void) {
         self.environment = environment
         self.onFirstFeedFrame = onFirstFeedFrame
-        let settings = AppSettings()
-        _settings = State(initialValue: settings)
+        let settings = AppSettings.shared
         _feed = State(initialValue: FeedModel(store: FeedStore(environment.database),
-                                              options: .init(hideShorts: settings.hideShorts)) { force in
+                                              options: settings.feedOptions) { force in
             try await environment.refreshFeed(force: force)
         })
         _search = State(initialValue: SearchModel { query, cursor in
@@ -86,9 +86,11 @@ struct RootView: View {
         .onGeometryChange(for: CGSize.self) { $0.size } action: { size in
             shortSidePixels = Int(min(size.width, size.height) * displayScale)
         }
-        .onChange(of: settings.hideShorts) { _, hide in
-            feed.setOptions(.init(hideShorts: hide))
+        .onChange(of: settings.feedOptions) { _, options in
+            feed.setOptions(options)
+            environment.refreshBranding()
         }
+        .onChange(of: scenePhase) { _, phase in environment.scenePhaseChanged(phase) }
         .task(id: environment.hasSubscriptions) {
             channels = (try? SubscriptionStore(environment.database).channels()) ?? []
         }
@@ -98,11 +100,13 @@ struct RootView: View {
             NavigationStack(path: $router.watchPath) {
                 WatchScreen(session: environment.session, content: content,
                             comments: environment.canLoadComments ? { commentsModel(content.video.id) } : nil,
-                            showsRelated: settings.showsRelated,
+                            showsRelated: settings.showsRelated, actions: playerActions,
                             onSelectRelated: { play($0) },
                             onOpenChannel: { router.openChannel($0, name: $1) })
                     .toolbar(.hidden, for: .navigationBar)
                     .routes()
+                    .onAppear { environment.castDiscovery.start() }
+                    .onDisappear { environment.castDiscovery.stop() }
             }
             .navigationTransition(.zoom(sourceID: content.video.id, in: zoom))
         }
@@ -122,12 +126,30 @@ struct RootView: View {
                         onImported: { environment.subscriptionsChanged($0) })
             .safeAreaInset(edge: .bottom) {
                 Form {
-                    Toggle(isOn: $settings.hideShorts) { Text("Hide Shorts in the feed") }
-                    Toggle(isOn: $settings.showsRelated) { Text("Show “Up next” suggestions") }
+                    Section {
+                        Toggle(isOn: $settings.hideShorts) { Text("Hide Shorts in the feed") }
+                        Toggle(isOn: $settings.showsRelated) { Text("Show “Up next” suggestions") }
+                    }
+                    Section {
+                        Toggle(isOn: $settings.skipsSponsors) { Text("Skip sponsors (SponsorBlock)") }
+                        Toggle(isOn: $settings.brandedTitles) { Text("Community titles (DeArrow)") }
+                        Toggle(isOn: $settings.brandedThumbnails) { Text("Community thumbnails (DeArrow)") }
+                    } footer: {
+                        Text("SponsorBlock and DeArrow titles are looked up anonymously by a short hash, never the video itself. DeArrow thumbnails ask its thumbnail service for each video.")
+                    }
                 }
-                .frame(height: 140)
+                .frame(height: 380)
                 .scrollDisabled(true)
             }
+    }
+
+    private var playerActions: PlayerActions {
+        PlayerActions(switchMode: { mode in Task { await environment.switchMode(to: mode) } },
+                      startPictureInPicture: environment.canStartPictureInPicture
+                          ? { environment.startPictureInPicture() } : nil,
+                      castTargets: environment.castTargets,
+                      cast: { environment.cast(to: $0) },
+                      casting: environment.casting)
     }
 
     private var emptyReason: FeedScreen.EmptyReason? {

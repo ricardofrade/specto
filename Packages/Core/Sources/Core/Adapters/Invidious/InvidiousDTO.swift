@@ -107,6 +107,7 @@ enum InvidiousDTO {
         let lengthSeconds: Int?
         let liveNow: Bool?
         let hlsUrl: String?
+        let dashUrl: String?
         let adaptiveFormats: [Format]?
         let captions: [Caption]?
         let recommendedVideos: [Recommended]?
@@ -130,6 +131,8 @@ enum InvidiousDTO {
             let manifest = StreamManifest(
                 videoID: id, videoStreams: video, audioStreams: audio,
                 hlsURL: hlsUrl.flatMap(URL.init(string:)),
+                // `local=true` makes the manifest's segments go through the instance too.
+                dashURL: dashUrl.flatMap { URL(string: $0.contains("?") ? $0 + "&local=true" : $0 + "?local=true") },
                 captions: (captions ?? []).compactMap { $0.track(instance: instance) },
                 chapters: [],
                 expiresAt: PipedDTO.expiry(of: video.first?.url ?? audio.first?.url))

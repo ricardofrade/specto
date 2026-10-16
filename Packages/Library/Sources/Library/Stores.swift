@@ -102,11 +102,18 @@ public struct FeedStore: Sendable {
         public var hideShorts: Bool
         public var hideWatched: Bool
         public var limit: Int
+        /// DeArrow community titles in place of the originals.
+        public var brandedTitles: Bool
+        /// DeArrow community thumbnails (asks its thumbnail service for the specific video).
+        public var brandedThumbnails: Bool
 
-        public init(hideShorts: Bool = true, hideWatched: Bool = false, limit: Int = 300) {
+        public init(hideShorts: Bool = true, hideWatched: Bool = false, limit: Int = 300,
+                    brandedTitles: Bool = false, brandedThumbnails: Bool = false) {
             self.hideShorts = hideShorts
             self.hideWatched = hideWatched
             self.limit = limit
+            self.brandedTitles = brandedTitles
+            self.brandedThumbnails = brandedThumbnails
         }
     }
 
@@ -161,10 +168,12 @@ public struct FeedStore: Sendable {
     static func fetchRows(_ db: Database, options: Options) throws -> [FeedRow] {
         var sql = """
             SELECT video.*, watchState.positionSeconds AS position, watchState.durationSeconds AS length,
-                   watchState.isFinished AS finished
+                   watchState.isFinished AS finished, branding.title AS brandedTitle,
+                   branding.thumbnailTime AS brandedThumbnailTime
             FROM video
             JOIN subscription ON subscription.channelID = video.channelID AND subscription.isDeleted = 0
             LEFT JOIN watchState ON watchState.videoID = video.id AND watchState.isDeleted = 0
+            LEFT JOIN branding ON branding.videoID = video.id
             """
         var conditions: [String] = []
         if options.hideShorts { conditions.append("video.isShort = 0") }
@@ -176,9 +185,52 @@ public struct FeedStore: Sendable {
         return try Row.fetchAll(db, sql: sql, arguments: [options.limit]).map { row in
             let record = try VideoRecord(row: row)
             let finished: Bool = row["finished"] ?? false
-            return formatter.row(record.summary,
+            var video = record.summary
+            if options.brandedTitles, let title: String = row["brandedTitle"], !title.isEmpty {
+                video = video.replacing(title: title)
+            }
+            if options.brandedThumbnails, let time: Double = row["brandedThumbnailTime"],
+               let thumbnail = Branding.thumbnail(for: video.id, at: time) {
+                video = video.replacing(thumbnails: [thumbnail])
+            }
+            return formatter.row(video,
                                  positionSeconds: finished ? (row["length"] ?? row["position"]) : row["position"],
                                  durationSeconds: row["length"])
+        }
+    }
+}
+
+// MARK: - DeArrow branding
+
+public struct BrandingStore: Sendable {
+    let database: AppDatabase
+
+    public init(_ database: AppDatabase) {
+        self.database = database
+    }
+
+    /// Feed videos with no branding lookup in the last `maxAge`, newest first.
+    public func videosNeedingLookup(limit: Int = 200, maxAge: TimeInterval = 86_400) throws -> [VideoID] {
+        let cutoff = Date.now.addingTimeInterval(-maxAge)
+        return try database.writer.read { db in
+            try String.fetchAll(db, sql: """
+                SELECT video.id FROM video
+                JOIN subscription ON subscription.channelID = video.channelID AND subscription.isDeleted = 0
+                LEFT JOIN branding ON branding.videoID = video.id
+                WHERE branding.videoID IS NULL OR branding.fetchedAt < ?
+                ORDER BY video.publishedAt DESC LIMIT ?
+                """, arguments: [cutoff, limit]).map(VideoID.init(rawValue:))
+        }
+    }
+
+    /// Records a lookup for every id (found or not), so misses aren't re-queried for a day.
+    public func save(_ branding: [VideoID: Branding], lookedUp ids: [VideoID]) throws {
+        try database.writer.write { db in
+            for id in ids {
+                let entry = branding[id]
+                try BrandingRecord(videoID: id.rawValue, title: entry?.title, thumbnailTime: entry?.thumbnailTime,
+                                   fetchedAt: .now).save(db)
+            }
         }
     }
 }

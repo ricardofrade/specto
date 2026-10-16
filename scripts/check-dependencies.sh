@@ -16,6 +16,7 @@ allowed_for() {
         Core)         echo "" ;;
         DesignSystem) echo "" ;;
         MPVRuntime)   echo "" ;;
+        Cast)         echo "" ;;
         Library)      echo "core" ;;
         Playback)     echo "core mpvruntime" ;;
         Features)     echo "core library playback designsystem" ;;

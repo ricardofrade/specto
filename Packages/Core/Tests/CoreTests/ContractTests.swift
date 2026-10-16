@@ -128,3 +128,16 @@ struct YTZeroContractTests {
         #expect(page.manifest.hlsURL != nil || page.manifest.muxedURL != nil)
     }
 }
+
+/// SponsorBlock and DeArrow, live (hash-prefix lookups only). Runs with `COMMUNITY=1`.
+@Suite(.enabled(if: ProcessInfo.processInfo.environment["COMMUNITY"] == "1"), .timeLimit(.minutes(1)))
+struct CommunityContractTests {
+    @Test func lookupsSucceedForAWellKnownVideo() async throws {
+        let services = CommunityServices()
+        let segments = try await services.skipSegments(for: VideoID(rawValue: "dQw4w9WgXcQ"),
+                                                       categories: Set(SkipSegment.Category.allCases))
+        print("SponsorBlock segments: \(segments.map { "\($0.category.rawValue) \($0.start)–\($0.end)" })")
+        let branding = try await services.branding(for: [VideoID(rawValue: "dQw4w9WgXcQ")])
+        print("DeArrow: \(branding)")
+    }
+}

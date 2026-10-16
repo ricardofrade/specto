@@ -41,12 +41,14 @@ final class FakeEngine: PlaybackEngine {
     }
     func play() { playCount += 1 }
     func pause() {}
-    func seek(to position: Duration, precise: Bool) async {}
+    func seek(to position: Duration, precise: Bool) async { seeks.append(position) }
     func setRate(_ rate: Float) {}
     func stop() { stopCount += 1 }
     func attach(_ host: any RenderSurfaceHost) { attachedHost = host }
     func detach() { detachCount += 1; attachedHost = nil }
     func layoutSurface() {}
+    private(set) var seeks: [Duration] = []
+    func setVideoEnabled(_ enabled: Bool) {}
 }
 
 @MainActor
@@ -244,5 +246,38 @@ struct PlaybackSessionTests {
 
         #expect(mpv.detachCount == 0)
         #expect(mpv.attachedHost === newHost)
+    }
+
+    @Test func skipsSponsorSegmentsOnceEach() async {
+        let (session, mpv, _) = makeSession(MemoryResumeStore())
+        await session.play(item(a), request(a))
+        let sponsor = SkipSegment(category: .sponsor, start: .seconds(30), end: .seconds(60))
+        session.setSkipSegments([sponsor], for: a)
+        mpv.emit(.position(.seconds(31), duration: .seconds(600)))
+        await settle()
+        #expect(mpv.seeks == [.seconds(60)])
+        #expect(session.lastSkipped == sponsor)
+
+        // Seeking back into the segment plays it: no second skip.
+        mpv.emit(.position(.seconds(35), duration: .seconds(600)))
+        await settle()
+        #expect(mpv.seeks == [.seconds(60)])
+    }
+
+    @Test func segmentsForAnotherVideoAreIgnored() async {
+        let (session, mpv, _) = makeSession(MemoryResumeStore())
+        await session.play(item(a), request(a))
+        session.setSkipSegments([SkipSegment(category: .sponsor, start: .zero, end: .seconds(30))], for: b)
+        mpv.emit(.position(.seconds(5), duration: nil))
+        await settle()
+        #expect(mpv.seeks.isEmpty)
+    }
+
+    @Test func requestEngineOverridesTheModesEngine() async {
+        let (session, mpv, av) = makeSession(MemoryResumeStore())
+        var airplay = request(a)
+        airplay.engine = .avPlayer
+        await session.play(item(a), airplay)
+        #expect(av.loaded.count == 1 && mpv.loaded.isEmpty)
     }
 }

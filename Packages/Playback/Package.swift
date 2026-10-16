@@ -17,6 +17,6 @@ let package = Package(
         // Views that host render surfaces; kept apart so `Playback` stays UI-free.
         .target(name: "PlaybackUI", dependencies: ["Playback"],
                 swiftSettings: [.defaultIsolation(MainActor.self)]),
-        .testTarget(name: "PlaybackTests", dependencies: ["Playback", "Core"])
+        .testTarget(name: "PlaybackTests", dependencies: ["Playback", "PlaybackUI", "Core"])
     ]
 )

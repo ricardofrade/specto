@@ -1,0 +1,24 @@
+{
+  "originHash" : "8aa5d4da7f04882b7c4c057d904aed1c1f4d7c6269acd2dddc6205453c545e2d",
+  "pins" : [
+    {
+      "identity" : "grdb.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/groue/GRDB.swift.git",
+      "state" : {
+        "revision" : "b83108d10f42680d78f23fe4d4d80fc88dab3212",
+        "version" : "7.11.1"
+      }
+    },
+    {
+      "identity" : "mpvkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mpvkit/MPVKit.git",
+      "state" : {
+        "revision" : "288527dffbc6d3e63cce147fc7b520c64a791603",
+        "version" : "1.0.0"
+      }
+    }
+  ],
+  "version" : 3
+}

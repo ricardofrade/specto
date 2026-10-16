@@ -96,3 +96,11 @@ struct ManifestCacheRecord: Codable, FetchableRecord, PersistableRecord {
     var payload: Data
     var expiresAt: Date
 }
+
+struct BrandingRecord: Codable, FetchableRecord, PersistableRecord {
+    static let databaseTableName = "branding"
+    var videoID: String
+    var title: String?
+    var thumbnailTime: Double?
+    var fetchedAt: Date
+}

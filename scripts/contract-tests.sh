@@ -40,6 +40,7 @@ ytzero_token() {
 export TEST_RUNNER_PIPED_URL="${PIPED_URL:-}"
 export TEST_RUNNER_INVIDIOUS_URL="${INVIDIOUS_URL:-}"
 export TEST_RUNNER_YTZERO_URL="${YTZERO_URL:-}"
+export TEST_RUNNER_COMMUNITY=1
 if [[ -n "${YTZERO_URL:-}" ]]; then
     export TEST_RUNNER_YTZERO_TOKEN="$(ytzero_token)"
     [[ -n "$TEST_RUNNER_YTZERO_TOKEN" ]] || echo "⚠︎ No YT Zero token; account tests will be skipped."
@@ -50,7 +51,7 @@ simulator="$(xcrun simctl list devices available -j | jq -r '
 cd "$root/Packages/Core"
 xcodebuild test -scheme Core -destination "platform=iOS Simulator,id=$simulator" \
     -derivedDataPath "$root/build/dd-contract" -only-testing:CoreTests/PipedContractTests \
-    -only-testing:CoreTests/InvidiousContractTests -only-testing:CoreTests/YTZeroContractTests \
+    -only-testing:CoreTests/InvidiousContractTests -only-testing:CoreTests/YTZeroContractTests -only-testing:CoreTests/CommunityContractTests \
     > "$root/build/contract.log" 2>&1 || status=$?
 grep -E "✔ Test|✘|Test run with|skipped" "$root/build/contract.log" | sort -u
 exit "${status:-0}"

@@ -92,14 +92,17 @@ public struct PlaybackRequest: Sendable {
     public var caption: CaptionTrack?
     public var startAt: Duration
     public var mode: PlaybackMode
+    /// Forces an engine (AirPlay video needs AVPlayer); nil picks by mode.
+    public var engine: EngineKind?
 
     public init(videoID: VideoID, source: MediaSource, caption: CaptionTrack? = nil,
-                startAt: Duration = .zero, mode: PlaybackMode) {
+                startAt: Duration = .zero, mode: PlaybackMode, engine: EngineKind? = nil) {
         self.videoID = videoID
         self.source = source
         self.caption = caption
         self.startAt = startAt
         self.mode = mode
+        self.engine = engine
     }
 }
 
@@ -139,4 +142,8 @@ public protocol PlaybackEngine: AnyObject {
 
     /// The host's bounds changed; resize the render layer.
     func layoutSurface()
+
+    /// Background without Picture-in-Picture: stop decoding video, keep audio playing.
+    /// Called with `true` on return to the foreground.
+    func setVideoEnabled(_ enabled: Bool)
 }

@@ -104,6 +104,7 @@ enum PipedDTO {
         let likes: Int64?
         let livestream: Bool?
         let hls: String?
+        let dash: String?
         let audioStreams: [Stream]?
         let videoStreams: [Stream]?
         let relatedStreams: [ContentItem]?
@@ -129,6 +130,7 @@ enum PipedDTO {
             let manifest = StreamManifest(
                 videoID: id, videoStreams: video, audioStreams: audio,
                 hlsURL: hls.flatMap(URL.init(string:)),
+                dashURL: dash.flatMap(URL.init(string:)),
                 captions: (subtitles ?? []).compactMap(\.captionTrack),
                 chapters: (chapters ?? []).compactMap(\.chapter),
                 expiresAt: PipedDTO.expiry(of: video.first?.url ?? audio.first?.url))

@@ -90,6 +90,15 @@ public struct AppDatabase: Sendable {
                 t.column("expiresAt", .datetime).notNull()
             }
         }
+        // DeArrow branding lives beside videos, so refreshing a video never loses it.
+        migrator.registerMigration("v2-branding") { db in
+            try db.create(table: "branding") { t in
+                t.primaryKey("videoID", .text)
+                t.column("title", .text)
+                t.column("thumbnailTime", .double)
+                t.column("fetchedAt", .datetime).notNull()
+            }
+        }
         return migrator
     }
 }

@@ -107,6 +107,20 @@ public struct VideoSummary: Identifiable, Hashable, Sendable, Codable {
     }
 }
 
+public extension VideoSummary {
+    func replacing(title: String) -> VideoSummary {
+        VideoSummary(id: id, title: title, channelID: channelID, channelName: channelName, duration: duration,
+                     publishedAt: publishedAt, publishedText: publishedText, viewCount: viewCount,
+                     thumbnails: thumbnails, isLive: isLive, isShort: isShort)
+    }
+
+    func replacing(thumbnails: [Thumbnail]) -> VideoSummary {
+        VideoSummary(id: id, title: title, channelID: channelID, channelName: channelName, duration: duration,
+                     publishedAt: publishedAt, publishedText: publishedText, viewCount: viewCount,
+                     thumbnails: thumbnails, isLive: isLive, isShort: isShort)
+    }
+}
+
 /// Everything the Watch screen shows besides the player.
 public struct VideoDetails: Sendable, Codable {
     public let summary: VideoSummary
@@ -327,19 +341,22 @@ public struct StreamManifest: Sendable, Codable {
     public let hlsURL: URL?
     /// One file with video and audio together (YT Zero downloads).
     public let muxedURL: URL?
+    /// A DASH manifest the instance serves; casting uses it (a Cast receiver fetches media itself).
+    public let dashURL: URL?
     public let captions: [CaptionTrack]
     public let chapters: [Chapter]
     /// Stream URLs from YouTube expire; refetch the manifest after this date.
     public let expiresAt: Date?
 
     public init(videoID: VideoID, videoStreams: [VideoStream], audioStreams: [AudioStream],
-                hlsURL: URL?, muxedURL: URL? = nil, captions: [CaptionTrack] = [], chapters: [Chapter],
-                expiresAt: Date?) {
+                hlsURL: URL?, muxedURL: URL? = nil, dashURL: URL? = nil, captions: [CaptionTrack] = [],
+                chapters: [Chapter], expiresAt: Date?) {
         self.videoID = videoID
         self.videoStreams = videoStreams
         self.audioStreams = audioStreams
         self.hlsURL = hlsURL
         self.muxedURL = muxedURL
+        self.dashURL = dashURL
         self.captions = captions
         self.chapters = chapters
         self.expiresAt = expiresAt
