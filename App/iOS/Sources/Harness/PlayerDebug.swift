@@ -120,5 +120,5 @@ private struct DebugReadout: View {
 /// The spike doesn't persist resume positions.
 private struct NoResumeStore: ResumeStore {
     func position(for id: VideoID) async -> Duration? { nil }
-    func save(_ position: Duration, for id: VideoID) async {}
+    func save(_ position: Duration, duration: Duration?, for id: VideoID) async {}
 }

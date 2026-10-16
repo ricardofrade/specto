@@ -42,6 +42,7 @@ struct MPVEngineTests {
         #expect(MPVCore.httpStatus(in: "tcp: Connection refused") == nil)
         #expect(MPVEngine.error(code: -13, httpStatus: 403) == .streamExpired)
         #expect(MPVEngine.error(code: -13, httpStatus: 410) == .streamExpired)
+        #expect(MPVEngine.error(code: -13, httpStatus: 401) == .streamExpired)
         #expect(MPVEngine.error(code: -13, httpStatus: 500) == .network)
     }
 

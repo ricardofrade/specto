@@ -35,6 +35,11 @@ targets:
       - package: DesignSystem
       - package: Features
         product: FeedFeature
+      - package: Features
+        product: InstancesFeature
+      - package: Features
+        product: WatchFeature
+      - package: Library
       - package: Playback
         product: Playback
       - package: Playback
@@ -48,6 +53,12 @@ targets:
         # Unlocks 120 Hz on ProMotion iPhones.
         CADisableMinimumFrameDurationOnPhone: true
         UILaunchScreen: {}
+        # Background audio and Picture-in-Picture.
+        UIBackgroundModes: [audio]
+        # Self-hosted instances on the home network.
+        NSLocalNetworkUsageDescription: "Connect to video instances on your local network."
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: true
         UISupportedInterfaceOrientations:

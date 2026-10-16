@@ -238,7 +238,8 @@ public final class MPVEngine: PlaybackEngine {
     }
 
     static func error(code: Int32, httpStatus: Int?) -> PlaybackError {
-        if let httpStatus, httpStatus == 403 || httpStatus == 410 { return .streamExpired }
+        // 403/410: expired or IP-bound googlevideo URLs; 401: an expired YT Zero playback ticket.
+        if let httpStatus, [401, 403, 410].contains(httpStatus) { return .streamExpired }
         if httpStatus != nil { return .network }
         switch code {
         case MPV_ERROR_UNKNOWN_FORMAT.rawValue: return .unsupportedFormat("mpv could not identify the stream")

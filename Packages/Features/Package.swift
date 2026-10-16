@@ -8,15 +8,24 @@ let package = Package(
     name: "Features",
     platforms: [.iOS(.v26), .tvOS(.v26)],
     products: [
-        .library(name: "FeedFeature", targets: ["FeedFeature"])
+        .library(name: "FeedFeature", targets: ["FeedFeature"]),
+        .library(name: "InstancesFeature", targets: ["InstancesFeature"]),
+        .library(name: "WatchFeature", targets: ["WatchFeature"])
     ],
     dependencies: [
         .package(path: "../Core"),
         .package(path: "../Library"),
+        .package(path: "../Playback"),
         .package(path: "../DesignSystem")
     ],
     targets: [
         .target(name: "FeedFeature", dependencies: ["Core", "Library", "DesignSystem"],
+                swiftSettings: featureSettings),
+        .target(name: "InstancesFeature", dependencies: ["Core", "Library", "DesignSystem"],
+                swiftSettings: featureSettings),
+        .target(name: "WatchFeature",
+                dependencies: ["Core", "DesignSystem", .product(name: "Playback", package: "Playback"),
+                               .product(name: "PlaybackUI", package: "Playback")],
                 swiftSettings: featureSettings)
     ]
 )
