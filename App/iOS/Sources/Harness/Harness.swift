@@ -9,6 +9,7 @@ struct Harness: View {
         case frameRate
         case glass
         case player
+        case pip
 
         init?(arguments: [String]) {
             guard let index = arguments.firstIndex(of: "-Harness"),
@@ -25,6 +26,7 @@ struct Harness: View {
         case .frameRate: FrameRateCheck()
         case .glass: PlayerControlClusterShowcase()
         case .player: PlayerDebug()
+        case .pip: PiPSpike()
         }
     }
 }
