@@ -7,3 +7,5 @@ xcuserdata/
 .claude/settings.local.json
 App/iOS/*.xcodeproj/
 App/iOS/Info.plist
+build/
+.env.local
