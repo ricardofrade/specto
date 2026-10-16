@@ -1,0 +1,248 @@
+import Foundation
+import QuartzCore
+import Testing
+import Core
+@testable import Playback
+
+// MARK: - Fakes
+
+@MainActor
+final class FakeEngine: PlaybackEngine {
+    let kind: EngineKind
+    let events: AsyncStream<PlaybackEvent>
+    private let continuation: AsyncStream<PlaybackEvent>.Continuation
+
+    private(set) var loaded: [PlaybackRequest] = []
+    private(set) var playCount = 0
+    private(set) var stopCount = 0
+    private(set) var detachCount = 0
+    private(set) var attachedHost: (any RenderSurfaceHost)?
+    /// Loads for these videos suspend until `release` is called.
+    var gated: Set<VideoID> = []
+    var failing: [VideoID: PlaybackError] = [:]
+    private var pending: [VideoID: CheckedContinuation<Void, Never>] = [:]
+
+    init(kind: EngineKind) {
+        self.kind = kind
+        (events, continuation) = AsyncStream.makeStream()
+    }
+
+    func emit(_ event: PlaybackEvent) { continuation.yield(event) }
+    func isLoading(_ id: VideoID) -> Bool { pending[id] != nil }
+    func release(_ id: VideoID) { pending.removeValue(forKey: id)?.resume() }
+
+    func prewarm() {}
+    func load(_ request: PlaybackRequest) async throws {
+        loaded.append(request)
+        if gated.contains(request.videoID) {
+            await withCheckedContinuation { pending[request.videoID] = $0 }
+        }
+        if let error = failing[request.videoID] { throw error }
+    }
+    func play() { playCount += 1 }
+    func pause() {}
+    func seek(to position: Duration, precise: Bool) async {}
+    func setRate(_ rate: Float) {}
+    func stop() { stopCount += 1 }
+    func attach(_ host: any RenderSurfaceHost) { attachedHost = host }
+    func detach() { detachCount += 1; attachedHost = nil }
+    func layoutSurface() {}
+}
+
+@MainActor
+final class FakeHost: RenderSurfaceHost {
+    let containerLayer = CALayer()
+}
+
+actor MemoryResumeStore: ResumeStore {
+    struct Save: Equatable { let id: VideoID; let position: Duration }
+
+    private(set) var positions: [VideoID: Duration]
+    private(set) var saves: [Save] = []
+
+    init(_ positions: [VideoID: Duration] = [:]) { self.positions = positions }
+
+    func position(for id: VideoID) -> Duration? { positions[id] }
+    func save(_ position: Duration, for id: VideoID) {
+        positions[id] = position
+        saves.append(Save(id: id, position: position))
+    }
+}
+
+// MARK: - Helpers
+
+private let a = VideoID(rawValue: "aaaaaaaaaaa")
+private let b = VideoID(rawValue: "bbbbbbbbbbb")
+
+private func item(_ id: VideoID) -> NowPlayingItem {
+    NowPlayingItem(videoID: id, title: id.rawValue, channelName: "Channel", artworkURL: nil)
+}
+
+private func request(_ id: VideoID, startAt: Duration = .zero, mode: PlaybackMode = .video) -> PlaybackRequest {
+    let audio = AudioStream(url: URL(string: "https://proxy.example/a")!, codec: .aac, container: .mp4,
+                            bitrate: 128_000, language: nil)
+    return PlaybackRequest(videoID: id, source: .adaptive(video: nil, audio: audio),
+                           startAt: startAt, mode: mode)
+}
+
+/// Lets the session's event loop and queued tasks run.
+@MainActor
+private func settle() async {
+    for _ in 0..<50 { await Task.yield() }
+}
+
+@MainActor
+private func waitUntil(_ condition: () -> Bool, sourceLocation: SourceLocation = #_sourceLocation) async {
+    for _ in 0..<500 {
+        if condition() { return }
+        await Task.yield()
+    }
+    Issue.record("Condition never became true", sourceLocation: sourceLocation)
+}
+
+@MainActor
+private func makeSession(_ store: MemoryResumeStore) -> (PlaybackSession, mpv: FakeEngine, av: FakeEngine) {
+    let mpv = FakeEngine(kind: .mpv)
+    let av = FakeEngine(kind: .avPlayer)
+    let session = PlaybackSession(resumeStore: store) { $0 == .mpv ? mpv : av }
+    return (session, mpv, av)
+}
+
+// MARK: - Tests
+
+@MainActor
+struct PlaybackSessionTests {
+    @Test func resumesFromSavedPosition() async {
+        let (session, mpv, _) = makeSession(MemoryResumeStore([a: .seconds(90)]))
+        await session.play(item(a), request(a))
+        #expect(mpv.loaded.last?.startAt == .seconds(90))
+        #expect(session.position == .seconds(90))
+        #expect(mpv.playCount == 1)
+    }
+
+    @Test func explicitStartOverridesSavedPosition() async {
+        let (session, mpv, _) = makeSession(MemoryResumeStore([a: .seconds(90)]))
+        await session.play(item(a), request(a, startAt: .seconds(10)))
+        #expect(mpv.loaded.last?.startAt == .seconds(10))
+    }
+
+    @Test func switchingVideosSavesTheOutgoingPosition() async {
+        let store = MemoryResumeStore()
+        let (session, mpv, _) = makeSession(store)
+        await session.play(item(a), request(a))
+        mpv.emit(.position(.seconds(42), duration: .seconds(600)))
+        mpv.emit(.position(.seconds(44), duration: .seconds(600)))
+        await settle()
+
+        await session.play(item(b), request(b))
+        await session.flushSaves()
+
+        #expect(await store.positions[a] == .seconds(44))
+        #expect(await store.positions[b] == nil)
+    }
+
+    @Test func stalePositionWhileLoadingIsNotSavedAgainstTheNewVideo() async {
+        let store = MemoryResumeStore()
+        let (session, mpv, _) = makeSession(store)
+        await session.play(item(a), request(a))
+        mpv.emit(.position(.seconds(300), duration: nil))
+        await settle()
+
+        mpv.gated = [b]
+        let playB = Task { await session.play(item(b), request(b)) }
+        await waitUntil { mpv.isLoading(b) }
+        mpv.emit(.position(.seconds(301), duration: nil))
+        mpv.emit(.state(.paused))
+        await settle()
+        mpv.release(b)
+        await playB.value
+        await session.flushSaves()
+
+        #expect(await store.positions[b] == nil)
+        #expect(session.position == .zero)
+    }
+
+    @Test func tappingAgainBeforeResumeLoadsDoesNotZeroTheSavedPosition() async {
+        let store = MemoryResumeStore([a: .seconds(120)])
+        let (session, mpv, _) = makeSession(store)
+        mpv.gated = [a]
+        let playA = Task { await session.play(item(a), request(a)) }
+        await waitUntil { mpv.isLoading(a) }
+
+        await session.play(item(b), request(b))
+        mpv.release(a)
+        await playA.value
+        await session.flushSaves()
+
+        #expect(await store.positions[a] == .seconds(120))
+    }
+
+    @Test func aSlowEarlierLoadDoesNotOverrideALaterOne() async {
+        let (session, mpv, _) = makeSession(MemoryResumeStore())
+        mpv.gated = [a, b]
+        mpv.failing = [a: .network]
+
+        let playA = Task { await session.play(item(a), request(a)) }
+        await waitUntil { mpv.isLoading(a) }
+        let playB = Task { await session.play(item(b), request(b)) }
+        await waitUntil { mpv.isLoading(b) }
+
+        mpv.release(b)
+        await playB.value
+        mpv.release(a)
+        await playA.value
+
+        #expect(session.item?.videoID == b)
+        #expect(mpv.playCount == 1)
+        #expect(session.state == .loading)
+    }
+
+    @Test func savesLandInOrderAndStopSavesTheFinalPosition() async {
+        let store = MemoryResumeStore()
+        let (session, mpv, _) = makeSession(store)
+        await session.play(item(a), request(a))
+        for second in [6, 8, 12, 13] {
+            mpv.emit(.position(.seconds(second), duration: nil))
+        }
+        await settle()
+        session.stop()
+        await session.flushSaves()
+
+        #expect(await store.saves.map(\.position) == [.seconds(6), .seconds(12), .seconds(13)])
+        #expect(session.state == .idle)
+    }
+
+    @Test func failedLoadReportsATypedError() async {
+        let (session, mpv, _) = makeSession(MemoryResumeStore())
+        mpv.failing = [a: .streamExpired]
+        await session.play(item(a), request(a))
+        #expect(session.state == .failed(.streamExpired))
+    }
+
+    @Test func switchingToAudioOnlyMovesEnginesAndKeepsPosition() async {
+        let (session, mpv, av) = makeSession(MemoryResumeStore())
+        await session.play(item(a), request(a))
+        mpv.emit(.position(.seconds(30), duration: nil))
+        await settle()
+
+        await session.switchMode(to: .audioOnly, using: request(a))
+
+        #expect(mpv.stopCount == 1)
+        #expect(av.loaded.last?.startAt == .seconds(30))
+        #expect(session.mode == .audioOnly)
+    }
+
+    @Test func staleDetachIsANoOp() async {
+        let (session, mpv, _) = makeSession(MemoryResumeStore())
+        let oldHost = FakeHost()
+        let newHost = FakeHost()
+        session.attach(oldHost)
+        await session.play(item(a), request(a))
+
+        session.attach(newHost)
+        session.detach(oldHost)
+
+        #expect(mpv.detachCount == 0)
+        #expect(mpv.attachedHost === newHost)
+    }
+}

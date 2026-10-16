@@ -1,0 +1,227 @@
+import Foundation
+import Observation
+import Core
+
+public struct NowPlayingItem: Sendable, Equatable {
+    public let videoID: VideoID
+    public let title: String
+    public let channelName: String
+    public let artworkURL: URL?
+    public let chapters: [Chapter]
+
+    public init(videoID: VideoID, title: String, channelName: String,
+                artworkURL: URL?, chapters: [Chapter] = []) {
+        self.videoID = videoID
+        self.title = title
+        self.channelName = channelName
+        self.artworkURL = artworkURL
+        self.chapters = chapters
+    }
+}
+
+/// Implemented by `Library` (GRDB). Kept as a protocol so `Playback` doesn't depend on persistence.
+public protocol ResumeStore: Sendable {
+    func position(for id: VideoID) async -> Duration?
+    func save(_ position: Duration, for id: VideoID) async
+}
+
+/// One per app, injected into every scene. Owns the engines, so views can come and go
+/// (fold, unfold, split-screen, mini-player, PiP, CarPlay) without interrupting playback.
+@MainActor
+@Observable
+public final class PlaybackSession {
+    public private(set) var item: NowPlayingItem?
+    public private(set) var state: PlaybackState = .idle
+    public private(set) var position: Duration = .zero
+    public private(set) var duration: Duration?
+    public private(set) var mode: PlaybackMode = .video
+    public private(set) var decoder: DecoderInfo?
+    public private(set) var stats: PlaybackStats?
+
+    @ObservationIgnored private let engineFactory: @MainActor (EngineKind) -> any PlaybackEngine
+    @ObservationIgnored private let resumeStore: any ResumeStore
+    @ObservationIgnored private var engines: [EngineKind: any PlaybackEngine] = [:]
+    @ObservationIgnored private var eventTasks: [EngineKind: Task<Void, Never>] = [:]
+    @ObservationIgnored private var current: (any PlaybackEngine)?
+    @ObservationIgnored private weak var host: (any RenderSurfaceHost)?
+    @ObservationIgnored private var lastSavedPosition: Duration = .zero
+    /// Bumped by every `play` and `stop`; a load that finishes under an older value is stale.
+    @ObservationIgnored private var generation = 0
+    /// True only while media is loaded. Nothing is saved while loading, so neither a stale
+    /// position from the previous media nor a not-yet-resumed zero can overwrite a saved one.
+    @ObservationIgnored private var acceptsPosition = false
+    /// Saves run one after another so an older position never overwrites a newer one.
+    @ObservationIgnored private var saveChain: Task<Void, Never>?
+
+    /// How often position is persisted during playback. Also saved on pause, end and switch.
+    @ObservationIgnored public var saveInterval: Duration = .seconds(5)
+
+    public init(resumeStore: any ResumeStore,
+                engineFactory: @escaping @MainActor (EngineKind) -> any PlaybackEngine) {
+        self.resumeStore = resumeStore
+        self.engineFactory = engineFactory
+    }
+
+    // MARK: Lifecycle
+
+    /// Call early (after first frame of the feed) so the first tap-to-play skips engine setup.
+    public func prewarm() {
+        engine(for: .mpv).prewarm()
+    }
+
+    public func play(_ item: NowPlayingItem, _ request: PlaybackRequest) async {
+        persistPosition(force: true)
+        generation += 1
+        let loadGeneration = generation
+        acceptsPosition = false
+
+        let next = engine(for: EngineKind.preferred(for: request.mode))
+        if let current, current !== next {
+            current.stop()
+            current.detach()
+        }
+
+        self.item = item
+        self.mode = request.mode
+        self.state = .loading
+        self.decoder = nil
+        self.stats = nil
+        self.duration = nil
+        self.position = request.startAt
+        self.current = next
+        if request.mode == .video, let host {
+            next.attach(host)
+        }
+
+        var request = request
+        if request.startAt == .zero {
+            let saved = await resumeStore.position(for: item.videoID)
+            guard loadGeneration == generation else { return }
+            if let saved {
+                request.startAt = saved
+                position = saved
+            }
+        }
+        lastSavedPosition = request.startAt
+
+        do {
+            try await next.load(request)
+            guard loadGeneration == generation else { return }
+            acceptsPosition = true
+            next.play()
+        } catch {
+            guard loadGeneration == generation else { return }
+            state = .failed(error as? PlaybackError ?? .other(String(describing: error)))
+        }
+    }
+
+    /// Switch between video and audio-only, keeping the current position.
+    public func switchMode(to newMode: PlaybackMode, using request: PlaybackRequest) async {
+        guard let item, newMode != mode else { return }
+        var request = request
+        request.mode = newMode
+        request.startAt = position
+        await play(item, request)
+    }
+
+    public func resume() { current?.play() }
+    public func pause() { current?.pause() }
+
+    public func seek(to target: Duration, precise: Bool = false) async {
+        await current?.seek(to: target, precise: precise)
+    }
+
+    public func stop() {
+        persistPosition(force: true)
+        generation += 1
+        acceptsPosition = false
+        current?.stop()
+        current?.detach()
+        current = nil
+        item = nil
+        state = .idle
+        position = .zero
+        duration = nil
+        decoder = nil
+        stats = nil
+    }
+
+    // MARK: Render surfaces
+
+    public func attach(_ host: any RenderSurfaceHost) {
+        self.host = host
+        if mode == .video {
+            current?.attach(host)
+        }
+    }
+
+    /// No-op unless `host` is the active one: SwiftUI may build the new view before
+    /// tearing down the old one, and the old view's detach must not kill the new surface.
+    public func detach(_ host: any RenderSurfaceHost) {
+        guard self.host === host else { return }
+        self.host = nil
+        current?.detach()
+    }
+
+    public func hostDidLayout(_ host: any RenderSurfaceHost) {
+        guard self.host === host else { return }
+        current?.layoutSurface()
+    }
+
+    // MARK: Testing
+
+    /// Waits for queued resume-position saves.
+    func flushSaves() async {
+        await saveChain?.value
+    }
+
+    // MARK: Private
+
+    private func engine(for kind: EngineKind) -> any PlaybackEngine {
+        if let existing = engines[kind] { return existing }
+        let created = engineFactory(kind)
+        engines[kind] = created
+        let stream = created.events
+        eventTasks[kind] = Task { [weak self] in
+            for await event in stream {
+                guard let self else { return }
+                self.handle(event, from: created)
+            }
+        }
+        return created
+    }
+
+    private func handle(_ event: PlaybackEvent, from engine: any PlaybackEngine) {
+        guard let current, current === engine else { return }
+        switch event {
+        case .state(let newState):
+            state = newState
+            if newState == .paused || newState == .ended {
+                persistPosition(force: true)
+            }
+        case .position(let newPosition, let newDuration):
+            guard acceptsPosition else { return }
+            position = newPosition
+            duration = newDuration
+            persistPosition(force: false)
+        case .decoder(let info):
+            decoder = info
+        case .stats(let newStats):
+            stats = newStats
+        }
+    }
+
+    private func persistPosition(force: Bool) {
+        guard acceptsPosition, let id = item?.videoID else { return }
+        let delta = position > lastSavedPosition ? position - lastSavedPosition : lastSavedPosition - position
+        guard force || delta >= saveInterval else { return }
+        lastSavedPosition = position
+        let store = resumeStore
+        let snapshot = position
+        let previous = saveChain
+        saveChain = Task {
+            await previous?.value
+            await store.save(snapshot, for: id)
+        }
+    }
+}

@@ -1,0 +1,9 @@
+.DS_Store
+.build/
+DerivedData/
+.swiftpm/
+xcuserdata/
+*.xcuserstate
+.claude/settings.local.json
+App/iOS/*.xcodeproj/
+App/iOS/Info.plist
