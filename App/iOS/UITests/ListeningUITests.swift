@@ -11,9 +11,7 @@ final class ListeningUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = ["-UITestFreshStart", "-SeedSubscriptions", "UCSMOQeBJ2RAnuFungnQOxLg"]
         app.launch()
-        app.buttons["Add Instance"].firstMatch.tap()
-        XCTAssertTrue(app.navigationBars["Instances"].waitForExistence(timeout: 5))
-        app.buttons["Add Instance"].firstMatch.tap()
+        app.buttons["welcome.addInstance"].tap()   // Welcome → Add Instance, straight away.
         let field = app.textFields["instance.url"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))
         field.tap()
@@ -21,6 +19,7 @@ final class ListeningUITests: XCTestCase {
         app.buttons["Next"].tap()
         XCTAssertTrue(app.staticTexts["Instance added"].waitForExistence(timeout: 20))
         app.buttons["Done"].tap()
+        app.closeSettings()   // Onboarding opened Instances inside Settings.
         app.buttons["Home"].firstMatch.tap()
         let list = app.scrollViews["feed.list"]
         XCTAssertTrue(list.waitForExistence(timeout: 45))
@@ -42,13 +41,14 @@ final class ListeningUITests: XCTestCase {
         var first = true
         while Date.now < deadline, !landed {
             if !first {
-                app.buttons["Home"].firstMatch.tap()   // Leave so Settings re-reads usage.
+                app.closeSettings()   // Leave so Settings re-reads usage.
                 sleep(5)
             }
             first = false
             app.buttons["Settings"].firstMatch.tap()
-            // Onboarding left Instances pushed on the Settings stack.
-            if app.buttons["BackButton"].exists { app.buttons["BackButton"].tap() }
+            let offline = app.buttons["settings.offline"]
+            for _ in 0..<4 where !offline.isHittable { app.swipeUp() }
+            offline.tap()
             for _ in 0..<4 where !used.exists { app.swipeUp() }   // Form only builds visible rows.
             // The value reads "Zero KB" until the file lands, then e.g. "3.4 MB".
             if used.exists, ((used.value as? String) ?? "").range(of: #"[1-9][\d.,]* [KMG]B"#, options: .regularExpression) != nil {

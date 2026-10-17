@@ -191,6 +191,16 @@ public struct AppDatabase: Sendable {
                 t.add(column: "mutesNotifications", .boolean).notNull().defaults(to: false)
             }
         }
+        // Explore's trending lists, one per category, in order; this device only (they're the
+        // instance's, not the person's).
+        migrator.registerMigration("v11-trending") { db in
+            try db.create(table: "trending") { t in
+                t.column("category", .text).notNull()
+                t.column("position", .integer).notNull()
+                t.column("videoID", .text).notNull()
+                t.primaryKey(["category", "position"])
+            }
+        }
         return migrator
     }
 }

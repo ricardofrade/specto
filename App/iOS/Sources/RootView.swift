@@ -19,6 +19,7 @@ struct RootView: View {
     @State private var feed: FeedModel
     @State private var search: SearchModel
     @State private var library: LibraryModel
+    @State private var explore: ExploreModel
     @State private var channels: [ChannelSummary] = []
     /// The tallest a 16:9 video can be drawn in this window, in either orientation: no point
     /// decoding more (and less means AVPlayer can play it, with system PiP; ADR 0005).
@@ -49,6 +50,10 @@ struct RootView: View {
                                                     playlists: PlaylistStore(environment.database),
                                                     userPlaylists: UserPlaylistStore(environment.database)))
         _search = State(initialValue: environment.makeSearchModel())
+        _explore = State(initialValue: ExploreModel(store: TrendingStore(environment.database),
+                                                    regionName: AppEnvironment.regionName) { category in
+            try await environment.refreshTrending(category)
+        })
     }
 
     var body: some View {
@@ -66,35 +71,57 @@ struct RootView: View {
                                onSaveToWatchLater: { environment.saveToWatchLater($0.video) },
                                onSaveToPlaylist: { router.savingToPlaylist = $0.video })
                         .routes()
+                        .settingsButton { router.openSettings() }
                         .onAppear {
                             onFirstFeedFrame()
                             environment.warmUp()
+                            // Explore's list also fills Search's starting screen.
+                            Task { await explore.refresh(force: false) }
                         }
                 }
             } label: {
                 Label { Text("Home") } icon: { Image(systemName: "house") }
+            }
+            Tab(value: SceneRouter.Section.explore) {
+                NavigationStack(path: $router.explorePath) {
+                    ExploreScreen(model: explore, transition: zoom,
+                                  onSelect: { play($0.video) }, onPrefetch: { environment.prefetch($0.video) },
+                                  onOpenChannel: { router.openChannel($0, name: $1) },
+                                  onAddToQueue: { environment.addToQueue($0.video) },
+                                  onSetWatched: { environment.setWatched($0.video, $1) },
+                                  onSaveToWatchLater: { environment.saveToWatchLater($0.video) },
+                                  onSaveToPlaylist: { router.savingToPlaylist = $0.video })
+                        .routes()
+                        .settingsButton { router.openSettings() }
+                }
+            } label: {
+                Label { Text("Explore") } icon: { Image(systemName: "safari") }
             }
             Tab(value: SceneRouter.Section.library) {
                 NavigationStack(path: $router.libraryPath) {
                     LibraryScreen(model: library, onSelect: { play($0.video) },
                                   onOpenChannel: { router.openChannel($0, name: $1) },
                                   onOpenChannels: { router.libraryPath.append(.channels) },
-                                  onOpenPlaylists: { router.libraryPath.append(.savedPlaylists) })
+                                  onOpenPlaylists: { router.libraryPath.append(.savedPlaylists) },
+                                  onOpenPlaylist: { target in
+                                      switch target {
+                                      case .own(let id): router.libraryPath.append(.userPlaylist(id))
+                                      case .saved(let playlist): router.libraryPath.append(.playlist(playlist))
+                                      }
+                                  },
+                                  onExplore: { router.section = .explore })
                         .routes()
+                        .settingsButton { router.openSettings() }
                 }
             } label: {
                 Label { Text("Library") } icon: { Image(systemName: "books.vertical") }
-            }
-            Tab(value: SceneRouter.Section.settings) {
-                NavigationStack(path: $router.settingsPath) { settingsScreen }
-            } label: {
-                Label { Text("Settings") } icon: { Image(systemName: "gearshape") }
             }
             Tab(value: SceneRouter.Section.search, role: .search) {
                 NavigationStack(path: $router.searchPath) {
                     SearchScreen(model: search, onSelect: { play($0) },
                                  onOpenChannel: { router.openChannel($0.id, name: $0.name) },
-                                 onOpenPlaylist: { router.push(.playlist($0)) })
+                                 onOpenPlaylist: { router.push(.playlist($0)) },
+                                 onOpenExplore: { router.section = .explore })
                         .routes()
                 }
             } label: {
@@ -180,6 +207,9 @@ struct RootView: View {
                 router.feedPath.append(.channel(id, name: channels.first { $0.id == id }?.name ?? ""))
             }
         }
+        .onChange(of: environment.instances, initial: true) {
+            explore.setCategoriesAvailable(environment.supportsTrendingCategories)
+        }
         .task(id: environment.hasSubscriptions) {
             channels = (try? SubscriptionStore(environment.database).channels()) ?? []
         }
@@ -187,6 +217,17 @@ struct RootView: View {
         // hide the band and side-panel layouts. The zoom transition makes it swipe-dismissible.
         .sheet(item: saving(inPlayer: false)) { video in
             SaveToPlaylistSheet(model: UserPlaylistsModel(store: UserPlaylistStore(environment.database)), video: video)
+        }
+        .sheet(isPresented: $router.showsSettings) {
+            NavigationStack(path: $router.settingsPath) {
+                settingsScreen
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button { router.showsSettings = false } label: { Text("Done") }
+                                .accessibilityIdentifier("settings.done")
+                        }
+                    }
+            }
         }
         .fullScreenCover(item: $router.shorts) { content in
             ShortsScreen(session: environment.session, content: content, onShow: { video in
@@ -420,6 +461,19 @@ private struct RoutesModifier: ViewModifier {
 private extension View {
     func routes() -> some View {
         modifier(RoutesModifier())
+    }
+
+    /// The gear at the top trailing corner that opens Settings (⌘, on a keyboard or a Mac).
+    func settingsButton(_ open: @escaping () -> Void) -> some View {
+        toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: open) {
+                    Label { Text("Settings") } icon: { Image(systemName: "gearshape") }
+                }
+                .keyboardShortcut(",", modifiers: .command)
+                .accessibilityIdentifier("settings.open")
+            }
+        }
     }
 
     /// The tab bar's bottom accessory (iOS 26.1+). On 26.0 there's no mini-player; closing the

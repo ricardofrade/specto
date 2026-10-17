@@ -4,6 +4,14 @@ import Testing
 
 /// Decoding against responses recorded from a real Piped instance (hosts sanitised).
 struct PipedSourceTests {
+    @Test func trendingCategoriesBeyondAllAreUnsupported() async throws {
+        let client = FixtureClient()
+        let piped = PipedSource(instance: instance(.piped), client: client)
+        await #expect(throws: SourceError.self) { try await piped.trending(region: "PT", category: .gaming) }
+        #expect(!piped.capabilities.contains(.trendingCategories))
+        #expect(client.requests.isEmpty)
+    }
+
     private func source(_ setup: (FixtureClient) -> Void) -> PipedSource {
         let client = FixtureClient()
         setup(client)

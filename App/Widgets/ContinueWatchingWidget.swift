@@ -54,10 +54,13 @@ struct ContinueWatchingView: View {
 
     var body: some View {
         if entry.items.isEmpty {
-            Text("Videos you watch show up here.")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
+            VStack(spacing: 8) {
+                BrandMark(size: family == .accessoryRectangular ? 20 : 36)
+                Text("Videos you watch show up here.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
         } else {
             switch family {
             case .systemSmall: small(entry.items[0])
@@ -73,17 +76,28 @@ struct ContinueWatchingView: View {
         entry.isContinue ? Text("Continue Watching") : Text("Latest")
     }
 
+    /// The heading with the app's eye in its violet.
+    private var brandedHeading: some View {
+        HStack(spacing: 5) {
+            Image(systemName: "eye.fill").foregroundStyle(BrandMark.violet).widgetAccentable()
+            heading.foregroundStyle(.secondary)
+        }
+        .font(.caption.weight(.semibold))
+    }
+
     private func small(_ item: HomeSnapshot.Item) -> some View {
         VStack(alignment: .leading, spacing: 6) {
+            brandedHeading
             Thumbnail(item: item)
             Text(verbatim: item.title).font(.caption.weight(.semibold)).lineLimit(2)
+            Spacer(minLength: 0)
         }
         .widgetURL(HomeSnapshot.playURL(for: item.id))
     }
 
     private func list(count: Int) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            heading.font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+            brandedHeading
             ForEach(entry.items.prefix(count), id: \.id) { item in
                 Link(destination: HomeSnapshot.playURL(for: item.id) ?? URL(fileURLWithPath: "/")) {
                     HStack(spacing: 10) {
@@ -134,5 +148,29 @@ private struct Thumbnail: View {
                 }
             }
             .clipShape(.rect(cornerRadius: 8))
+    }
+}
+
+/// The app icon's eye on its violet-to-coral, for the empty widget.
+private struct BrandMark: View {
+    let size: CGFloat
+
+    /// The accent: #6A2CF0, lighter (#A88BFF) on dark backgrounds.
+    static let violet = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(displayP3Red: 0.659, green: 0.545, blue: 1, alpha: 1)
+            : UIColor(displayP3Red: 0.416, green: 0.173, blue: 0.941, alpha: 1)
+    })
+
+    var body: some View {
+        Image(systemName: "eye.fill")
+            .font(.system(size: size * 0.45, weight: .semibold))
+            .foregroundStyle(.white)
+            .frame(width: size, height: size)
+            .background(LinearGradient(colors: [Color(.displayP3, red: 0.302, green: 0.137, blue: 0.784),
+                                                Color(.displayP3, red: 0.941, green: 0.337, blue: 0.478)],
+                                       startPoint: .topLeading, endPoint: .bottomTrailing),
+                        in: .rect(cornerRadius: size * 0.23))
+            .accessibilityHidden(true)
     }
 }

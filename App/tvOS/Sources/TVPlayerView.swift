@@ -171,9 +171,11 @@ struct TVPlayerView: View {
     }
 
     /// SponsorBlock segments as fractions of the video, for the progress bar.
-    private var segmentFractions: [ClosedRange<Double>] {
+    private var segmentFractions: [TransportBar.Segment] {
         guard let duration = session.duration, duration > .zero else { return [] }
-        return session.skipSegments.map { max(0, $0.start / duration)...min(1, $0.end / duration) }
+        return session.skipSegments.map {
+            TransportBar.Segment(range: max(0, $0.start / duration)...min(1, $0.end / duration), color: $0.category.color)
+        }
     }
 
     private var scrubDisplay: TransportBar.Scrub? {
@@ -270,8 +272,14 @@ struct TransportBar: View {
     let text: TransportClock
     let isPlaying: Bool
     let hasChapters: Bool
-    let segments: [ClosedRange<Double>]
+    let segments: [Segment]
     let scrub: Scrub?
+
+    /// A SponsorBlock segment: where, as fractions of the video, and its category's colour.
+    struct Segment {
+        let range: ClosedRange<Double>
+        let color: Color
+    }
 
     struct Scrub {
         let fraction: Double
@@ -294,15 +302,16 @@ struct TransportBar: View {
             Capsule().fill(.white.opacity(0.25))
                 .frame(height: 10)
                 .overlay(alignment: .leading) {
-                    ForEach(segments, id: \.lowerBound) { segment in
-                        Rectangle().fill(Color.yellow.opacity(0.85))
-                            .frame(width: max(3, barWidth * (segment.upperBound - segment.lowerBound)))
-                            .offset(x: barWidth * segment.lowerBound)
-                    }
-                }
-                .overlay(alignment: .leading) {
                     Capsule().fill(.white)
                         .scaleEffect(x: scrub?.fraction ?? text.fraction, y: 1, anchor: .leading)
+                }
+                // Over the played part too, as SponsorBlock draws them.
+                .overlay(alignment: .leading) {
+                    ForEach(segments, id: \.range.lowerBound) { segment in
+                        Rectangle().fill(segment.color)
+                            .frame(width: max(3, barWidth * (segment.range.upperBound - segment.range.lowerBound)))
+                            .offset(x: barWidth * segment.range.lowerBound)
+                    }
                 }
                 .clipShape(.capsule)
                 .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { barWidth = $0 }

@@ -9,6 +9,9 @@ final class BackupUITests: XCTestCase {
         app.launchArguments = ["-UITestFreshStart", "-SeedDemoFeed", "3"]
         app.launch()
         app.buttons["Settings"].firstMatch.tap()
+        let backup = app.buttons["settings.backup"]
+        for _ in 0..<6 where !backup.isHittable { app.swipeUp() }
+        backup.tap()
         let export = app.buttons["settings.exportBackup"]
         for _ in 0..<6 where !export.isHittable { app.swipeUp() }
         XCTAssertTrue(export.waitForExistence(timeout: 5), "No Export Backup")

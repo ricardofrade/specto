@@ -12,13 +12,20 @@ public struct LibraryScreen: View {
     private let onOpenChannel: (ChannelID, String) -> Void
     private let onOpenChannels: () -> Void
     private let onOpenPlaylists: () -> Void
+    private let onOpenPlaylist: (LibraryPlaylistCard.Target) -> Void
+    private let onExplore: (() -> Void)?
     @State private var confirmingClear = false
     @State private var query = ""
+    @Environment(\.dynamicTypeSize) private var typeSize
     @Environment(\.displayScale) private var displayScale
 
     public init(model: LibraryModel, onSelect: @escaping (FeedRow) -> Void,
                 onOpenChannel: @escaping (ChannelID, String) -> Void = { _, _ in },
-                onOpenChannels: @escaping () -> Void = {}, onOpenPlaylists: @escaping () -> Void = {}) {
+                onOpenChannels: @escaping () -> Void = {}, onOpenPlaylists: @escaping () -> Void = {},
+                onOpenPlaylist: @escaping (LibraryPlaylistCard.Target) -> Void = { _ in },
+                onExplore: (() -> Void)? = nil) {
+        self.onOpenPlaylist = onOpenPlaylist
+        self.onExplore = onExplore
         self.model = model
         self.onSelect = onSelect
         self.onOpenChannel = onOpenChannel
@@ -34,7 +41,12 @@ public struct LibraryScreen: View {
                 ContentUnavailableView {
                     Label { Text("Nothing here yet") } icon: { Image(systemName: "books.vertical") }
                 } description: {
-                    Text("Videos you watch and queue show up here.")
+                    Text("What you watch, queue and save to Watch Later or your playlists gathers here, with your channels.")
+                } actions: {
+                    if let onExplore {
+                        Button(action: onExplore) { Text("Find Something to Watch") }
+                            .buttonStyle(.glassProminent)
+                    }
                 }
             } else {
                 list
@@ -57,20 +69,46 @@ public struct LibraryScreen: View {
 
     private var list: some View {
         List {
-            if model.channelCount > 0 || model.playlistCount > 0 {
+            if !model.playlistCards.isEmpty {
                 Section {
-                    if model.channelCount > 0 {
-                        destinationRow(count: model.channelCount, action: onOpenChannels) {
-                            Label { Text("Channels") } icon: { Image(systemName: "person.2") }
+                    shelf {
+                        ForEach(model.playlistCards) { card in
+                            Button { onOpenPlaylist(card.target) } label: { PlaylistCardView(card: card) }
+                                .buttonStyle(.plain)
+                                .accessibilityIdentifier("library.playlistCard")
                         }
-                        .accessibilityIdentifier("library.channels")
                     }
-                    if model.playlistCount > 0 {
-                        destinationRow(count: model.playlistCount, action: onOpenPlaylists) {
-                            Label { Text("Playlists") } icon: { Image(systemName: "list.bullet.rectangle") }
-                        }
+                } header: {
+                    shelfHeader(Text("Playlists"), count: model.playlistCount, action: onOpenPlaylists)
                         .accessibilityIdentifier("library.playlists")
+                }
+            }
+            if !model.channelItems.isEmpty {
+                Section {
+                    shelf {
+                        ForEach(model.channelItems) { item in
+                            Button { onOpenChannel(item.channel.id, item.channel.name) } label: {
+                                VStack(spacing: Tokens.Spacing.xs) {
+                                    AvatarView(item.avatar, size: 64)
+                                    // Left out at accessibility sizes, where it would be a letter
+                                    // or two wide; VoiceOver still reads it.
+                                    if !typeSize.isAccessibilitySize {
+                                        Text(verbatim: item.channel.name)
+                                            .font(.caption)
+                                            .foregroundStyle(Tokens.Colors.textSecondary)
+                                            .lineLimit(1)
+                                            .frame(width: 76)
+                                    }
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(Text(verbatim: item.channel.name))
+                            .accessibilityIdentifier("library.channelItem")
+                        }
                     }
+                } header: {
+                    shelfHeader(Text("Channels"), count: model.channelCount, action: onOpenChannels)
+                        .accessibilityIdentifier("library.channels")
                 }
             }
             if !model.continueWatching.isEmpty {
@@ -143,22 +181,35 @@ public struct LibraryScreen: View {
         }
     }
 
-    /// A row that pushes a list (Channels, Playlists), with its count, like Music's Library.
-    private func destinationRow(count: Int, action: @escaping () -> Void,
-                                @ViewBuilder label: () -> some View) -> some View {
+    /// A section title that opens the full list ("Playlists 12 ›"), like Music's Library.
+    private func shelfHeader(_ title: Text, count: Int, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            LabeledContent {
-                HStack(spacing: Tokens.Spacing.xs) {
-                    Text(count, format: .number)
-                    Image(systemName: "chevron.forward").font(.footnote.weight(.semibold))
-                        .foregroundStyle(.tertiary)
-                }
-            } label: {
-                label()
+            HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.xs) {
+                title.font(Tokens.Typography.sectionTitle).foregroundStyle(Tokens.Colors.textPrimary)
+                Image(systemName: "chevron.forward")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+                Spacer()
+                Text(count, format: .number)
+                    .font(.subheadline)
+                    .foregroundStyle(Tokens.Colors.textSecondary)
             }
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
+        .textCase(nil)
+        .accessibilityAddTraits(.isHeader)
+    }
+
+    /// A horizontal row of cards inside the list, edge to edge.
+    private func shelf(@ViewBuilder content: () -> some View) -> some View {
+        ScrollView(.horizontal) {
+            LazyHStack(alignment: .top, spacing: Tokens.Spacing.l) { content() }
+                .padding(.horizontal, Tokens.Spacing.screenInset)
+        }
+        .scrollIndicators(.hidden)
+        .listRowInsets(EdgeInsets())
+        .listRowBackground(Color.clear)
     }
 
     private func cell(_ row: FeedRow) -> some View {
@@ -181,5 +232,38 @@ extension VideoCellContent {
                   thumbnailURL: row.thumbnails.best(forPixelWidth: pixelWidth)?.url, isLive: row.isLive,
                   progress: row.progress)
     }
+}
+/// A playlist on Library's shelf: its first video's thumbnail (or a symbol), title and count.
+private struct PlaylistCardView: View {
+    let card: LibraryPlaylistCard
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+            ZStack {
+                RoundedRectangle(cornerRadius: Tokens.Radius.thumbnail).fill(Tokens.Colors.accent.opacity(0.15))
+                if let url = card.thumbnailURL {
+                    RemoteImage(url, pointSize: CGSize(width: Self.width, height: Self.width * 9 / 16))
+                } else {
+                    Image(systemName: card.symbol).font(.title).foregroundStyle(Tokens.Colors.accent)
+                }
+            }
+            .frame(width: Self.width, height: Self.width * 9 / 16)
+            .clipShape(.rect(cornerRadius: Tokens.Radius.thumbnail))
+            Text(verbatim: card.title)
+                .font(Tokens.Typography.cellMeta.weight(.semibold))
+                .foregroundStyle(Tokens.Colors.textPrimary)
+                .lineLimit(1)
+            if let subtitle = card.subtitle {
+                Text(verbatim: subtitle)
+                    .font(Tokens.Typography.caption)
+                    .foregroundStyle(Tokens.Colors.textSecondary)
+                    .lineLimit(1)
+            }
+        }
+        .frame(width: Self.width, alignment: .leading)
+        .accessibilityElement(children: .combine)
+    }
+
+    static let width: CGFloat = 176
 }
 #endif

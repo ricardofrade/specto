@@ -68,3 +68,10 @@ Compared with Apple's own apps under iOS 26/27, Specto's building blocks were cu
 - **The player, like Apple's TV app.**
   - **On the video:** PiP, AirPlay and Settings (subtitles, audio track, quality, speed, sleep timer) float at the top right and fade with the transport controls. They fade rather than disappear, so an open menu survives the controls hiding. They also skip redraws, because the player redraws several times a second and an open menu would close if rebuilt.
   - **Under the title:** Save, Queue and Share with their names (icons alone when a name doesn't fit), and "…" for Audio Only, Share at Current Time and Cast. Share sends YouTube's own link.
+- **Navigation like Apple's media apps.**
+  - **Tabs:** Home, Explore, Library and Search. Settings left the tab bar: it's a sheet opened from the gear at the top right of Home, Explore and Library (⌘, with a keyboard or on a Mac), as Music, Podcasts and TV keep account and settings out of their tabs.
+  - **Settings:** the root lists groups with coloured icon tiles, as in the Settings app. Home & Feed, Video Quality, SponsorBlock, DeArrow, Backup and Offline listening each have their own page.
+  - **Explore:** the instance's trending list for the person's region. Number one shows large, then rows on a phone and a grid on wider windows. The list is cached (`TrendingStore`), so Explore opens on the last one seen and refreshes behind it.
+  - **Search before typing:** recent searches as chips, the person's channels, and the top of the trending list, instead of an empty screen.
+  - **Library:** Playlists and Channels are shelves (thumbnail cards and avatars) with headers that open the full lists, instead of rows with counts.
+  - **Home:** a strip of channel avatars filters Home to one channel.

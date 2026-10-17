@@ -51,6 +51,17 @@ public final class SearchModel {
     public private(set) var isLoadingMore = false
     public private(set) var suggestions: [String] = []
     public private(set) var recent: [String] = []
+    /// Before typing: the person's channels, A to Z, to jump to one.
+    public private(set) var channels: [IdleChannel] = []
+    /// Before typing: the top of Explore's trending list.
+    public private(set) var trending: [FeedRow] = []
+
+    /// A subscribed channel on the starting screen.
+    public struct IdleChannel: Identifiable, Hashable, Sendable {
+        public let channel: ChannelSummary
+        public let avatar: VideoCellContent.Avatar
+        public var id: ChannelID { channel.id }
+    }
     /// What the search field offers: recent searches before typing, suggestions after.
     public var completions: [String] { query.isEmpty ? recent : suggestions }
 
@@ -64,15 +75,24 @@ public final class SearchModel {
     @ObservationIgnored private var submitted = ""
     @ObservationIgnored private var suggestionTask: Task<Void, Never>?
     @ObservationIgnored private var recentObservation: Task<Void, Never>?
+    @ObservationIgnored private let subscriptions: SubscriptionStore?
+    @ObservationIgnored private let trendingStore: TrendingStore?
+    @ObservationIgnored private var idleObservations: [Task<Void, Never>] = []
 
     /// - Parameters:
     ///   - search: (query, filter, cursor) → a page of results, through the app's router.
     ///   - suggest: completions for a partial query; nil turns suggestions off.
     ///   - recent: where recent searches are kept; nil keeps none.
     ///   - searchesAsYouType: search after typing pauses (Apple TV) rather than on submit.
+    ///   - subscriptions, trending: what the starting screen shows before typing (nil: nothing).
     public init(search: @escaping @Sendable (String, SearchFilter, String?) async throws -> Page<SearchResult>,
                 suggest: ((String) async -> [String])? = nil, recent: RecentSearchStore? = nil,
-                searchesAsYouType: Bool = false) {
+                searchesAsYouType: Bool = false,
+                subscriptions: SubscriptionStore? = nil, trending: TrendingStore? = nil) {
+        self.subscriptions = subscriptions
+        self.trendingStore = trending
+        channels = Self.idle((try? subscriptions?.channels()) ?? [])
+        self.trending = Array(((try? trending?.rows()) ?? []).prefix(Self.trendingCount))
         self.search = search
         self.suggest = suggest
         self.searchesAsYouType = searchesAsYouType
@@ -82,10 +102,33 @@ public final class SearchModel {
 
     /// Observe recent searches. Call from `.task`.
     public func start() async {
+        if idleObservations.isEmpty {
+            if let changes = subscriptions?.observe() {
+                idleObservations.append(Task { [weak self] in
+                    do { for try await list in changes { self?.channels = Self.idle(list) } } catch {}
+                })
+            }
+            if let changes = trendingStore?.observe() {
+                idleObservations.append(Task { [weak self] in
+                    do {
+                        for try await rows in changes { self?.trending = Array(rows.prefix(Self.trendingCount)) }
+                    } catch {}
+                })
+            }
+        }
         guard recentObservation == nil, let changes = recentStore?.observe() else { return }
         recentObservation = Task { [weak self] in
             do { for try await list in changes { self?.recent = list } } catch {}
         }
+    }
+
+    /// Whether the starting screen has anything to show besides the explanation.
+    public var hasIdleContent: Bool { !recent.isEmpty || !channels.isEmpty || !trending.isEmpty }
+
+    static let trendingCount = 6
+
+    static func idle(_ list: [ChannelSummary]) -> [IdleChannel] {
+        list.map { IdleChannel(channel: $0, avatar: .init(url: $0.avatar?.url, initial: RowFormatter.initial($0.name))) }
     }
 
     /// Runs on submit (or picking a suggestion or a recent search).

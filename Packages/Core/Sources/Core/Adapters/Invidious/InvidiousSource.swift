@@ -4,8 +4,8 @@ import Foundation
 /// Shapes and quirks: `Tests/CoreTests/Fixtures/invidious` and `docs/adr/0002`.
 public struct InvidiousSource: VideoSource {
     public let instance: InstanceConfig
-    public let capabilities: SourceCapabilities = [.search, .trending, .channel, .comments, .streams,
-                                                   .subscriptions, .playlists]
+    public let capabilities: SourceCapabilities = [.search, .trending, .trendingCategories, .channel, .comments,
+                                                   .streams, .subscriptions, .playlists]
     private let api: APIRequester
 
     public init(instance: InstanceConfig, client: any HTTPClient = URLSessionHTTPClient()) {
@@ -40,9 +40,21 @@ public struct InvidiousSource: VideoSource {
     }
 
     public func trending(region: String?) async throws -> [VideoSummary] {
+        try await trending(region: region, category: .all)
+    }
+
+    /// `/api/v1/trending?type=gaming`; no type is the general list.
+    public func trending(region: String?, category: TrendingCategory) async throws -> [VideoSummary] {
         let region = region ?? Locale.current.region?.identifier ?? "US"
-        let items: [InvidiousDTO.Item] = try await api.get("api/v1/trending", query: [.init(name: "region", value: region)])
-        return items.compactMap(\.videoSummary)
+        var query: [URLQueryItem] = [.init(name: "region", value: region)]
+        if category != .all { query.append(.init(name: "type", value: category.rawValue)) }
+        let items: [InvidiousDTO.Item] = try await api.get("api/v1/trending", query: query)
+        let videos = items.compactMap(\.videoSummary)
+        // The general list stamps every video with the time it was fetched ("0 seconds ago"):
+        // one shared date across the whole list is no date at all.
+        let dates = Set(videos.compactMap(\.publishedAt))
+        guard videos.count > 1, dates.count == 1 else { return videos }
+        return videos.map { $0.withoutPublishedDate() }
     }
 
     public func channel(_ id: ChannelID, cursor: String?) async throws -> ChannelPage {

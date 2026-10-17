@@ -51,12 +51,26 @@ final class TVBrowseAndPlayUITests: XCTestCase {
         attach(app, "home-after")
     }
 
+    /// First launch: the welcome screen, with a button to Settings.
+    @MainActor
+    func testWelcomeWithoutAnInstance() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-UITestFreshStart"]
+        app.launch()
+        XCTAssertTrue(app.buttons["welcome.openSettings"].waitForExistence(timeout: 10), "No welcome screen")
+        sleep(1)
+        attach(app, "tv-welcome")
+    }
+
     @MainActor
     private func attach(_ app: XCUIApplication, _ name: String) {
         let shot = XCTAttachment(screenshot: app.screenshot())
         shot.name = name
         shot.lifetime = .keepAlways
         add(shot)
+        if let folder = ProcessInfo.processInfo.environment["SHOTS_DIR"] {   // Survives a lost result bundle.
+            try? app.screenshot().pngRepresentation.write(to: URL(filePath: folder).appending(path: "\(name).png"))
+        }
     }
 
     @MainActor

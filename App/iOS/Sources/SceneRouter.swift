@@ -9,9 +9,9 @@ import WatchFeature
 final class SceneRouter {
     enum Section: Hashable {
         case feed
+        case explore
         case library
         case search
-        case settings
         case channel(ChannelID)
     }
 
@@ -35,8 +35,12 @@ final class SceneRouter {
     var section = Section.feed {
         didSet { if section != oldValue { channelPath = [] } }
     }
+    /// Settings is a sheet, opened from the gear at the top of Home, Explore and Library (as in
+    /// Apple's own apps), so the tab bar holds places to browse.
+    var showsSettings = false
     var settingsPath: [SettingsRoute] = []
     var feedPath: [Route] = []
+    var explorePath: [Route] = []
     var libraryPath: [Route] = []
     var searchPath: [Route] = []
     var watchPath: [Route] = []
@@ -50,9 +54,15 @@ final class SceneRouter {
 
     /// The feed's empty-state actions (add an instance, import subscriptions) live on the
     /// instances screen, so go straight there.
+    /// The gear: Settings from its first screen.
+    func openSettings() {
+        settingsPath = []
+        showsSettings = true
+    }
+
     func openInstances() {
-        section = .settings
         settingsPath = [.instances]
+        showsSettings = true
     }
 
     /// The Shorts player. From inside the Watch screen (its channel page), the player closes
@@ -82,6 +92,8 @@ final class SceneRouter {
             searchPath.append(route)
         } else if section == .library {
             libraryPath.append(route)
+        } else if section == .explore {
+            explorePath.append(route)
         } else if case .channel = section {
             channelPath.append(route)
         } else {

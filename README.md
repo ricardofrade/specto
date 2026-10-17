@@ -9,7 +9,7 @@ A privacy-respecting video app for iPhone, iPad, Apple TV and CarPlay that plays
 **Watching**
 - **Native playback:** mpv (an LGPL-only build) for VP9, AV1 and high resolutions, and AVPlayer when it's just as good, for system Picture in Picture, AirPlay and lower power use.
 - **Player settings:** quality (with a cellular data saver), audio tracks for dubbed videos, speed, subtitles in your system caption style, and a sleep timer.
-- **Navigation within a video:** chapters, scrubbing previews, SponsorBlock (skip each kind of segment automatically, on a button, or not at all), double-tap to skip, hold for 2×.
+- **Navigation within a video:** chapters, scrubbing previews, SponsorBlock (each kind of segment in its colour on the timeline, skipped automatically, on a button, or only shown), double-tap to skip, hold for 2×.
 - **Continuity:** autoplay with an "Up next" countdown, a queue, audio-only mode, CarPlay, Handoff, Shortcuts and Siri.
 - **Shorts:** a vertical, swipeable player.
 
@@ -20,7 +20,7 @@ A privacy-respecting video app for iPhone, iPad, Apple TV and CarPlay that plays
 
 **Finding things**
 - Search videos, channels and playlists, with suggestions and recent searches.
-- When you have no subscriptions yet, Home shows what's trending in your region.
+- Explore shows what's trending in your region (and in gaming, with an Invidious instance); Search opens on your recent searches, your channels and what's trending.
 - Tap a channel in the strip above Home to see only its videos.
 - Mark videos as watched, hide a channel from Home without unsubscribing, or turn off its notifications.
 - Search your watch history.
@@ -85,7 +85,7 @@ The architecture is deliberately lean: SwiftUI with Observation (`@Observable` m
 | UI tests against a real instance | `scripts/live-ui-tests.sh` |
 | Dependency rules | `scripts/check-dependencies.sh` |
 
-GitHub Actions runs CI on every push, plus nightly contract and live UI tests. The nightly run needs these repository secrets: `PIPED_URL`, `INVIDIOUS_URL`, `YTZERO_URL`, `INSTANCE_USERNAME`, `INSTANCE_PASSWORD`.
+The GitHub Actions workflows (CI on every push, nightly contract and live UI tests) are in `.github/workflows` but disabled for now: hosted macOS runners use up the free minutes in a few runs. Run `scripts/ci.sh` locally instead. To turn them back on, enable them in the repository's Actions tab. The nightly run needs these repository secrets: `PIPED_URL`, `INVIDIOUS_URL`, `YTZERO_URL`, `INSTANCE_USERNAME`, `INSTANCE_PASSWORD`.
 
 ## Translations
 

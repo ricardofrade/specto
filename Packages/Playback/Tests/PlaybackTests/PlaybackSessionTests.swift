@@ -292,6 +292,18 @@ struct PlaybackSessionTests {
         #expect(mpv.seeks == [.seconds(20), .seconds(60)])
     }
 
+    @Test func shownOnlySegmentsAreNeitherSkippedNorOffered() async {
+        let (session, mpv, _) = makeSession(MemoryResumeStore())
+        await session.play(item(a), request(a))
+        let filler = SkipSegment(category: .filler, start: .seconds(5), end: .seconds(20))
+        session.setSkipSegments([filler], for: a, shownOnly: [.filler])
+        mpv.emit(.position(.seconds(6), duration: .seconds(600)))
+        await settle()
+        #expect(mpv.seeks.isEmpty)
+        #expect(session.skippable == nil)
+        #expect(session.skipSegments == [filler])   // Still there, for the timeline.
+    }
+
     @Test func theOfferEndsWhenPlaybackLeavesTheSegment() async {
         let (session, mpv, _) = makeSession(MemoryResumeStore())
         await session.play(item(a), request(a))

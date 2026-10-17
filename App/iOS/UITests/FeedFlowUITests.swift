@@ -16,9 +16,7 @@ final class FeedFlowUITests: XCTestCase {
         app.launch()
 
         // Empty state leads to Settings.
-        app.buttons["Add Instance"].firstMatch.tap()      // Feed's empty state → Instances screen.
-        XCTAssertTrue(app.navigationBars["Instances"].waitForExistence(timeout: 5))
-        app.buttons["Add Instance"].firstMatch.tap()
+        app.buttons["welcome.addInstance"].tap()   // Welcome → Add Instance, straight away.
         let field = app.textFields["instance.url"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))
         field.tap()
@@ -26,6 +24,7 @@ final class FeedFlowUITests: XCTestCase {
         app.buttons["Next"].tap()
         XCTAssertTrue(app.staticTexts["Instance added"].waitForExistence(timeout: 20))
         app.buttons["Done"].tap()
+        app.closeSettings()   // Onboarding opened Instances inside Settings.
 
         // The feed fills from the instance (refresh + backfill after adding it).
         app.buttons["Home"].firstMatch.tap()   // Tab bar on iPhone, top bar or sidebar on iPad.

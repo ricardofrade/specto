@@ -48,6 +48,8 @@ public final class PlaybackSession {
     public private(set) var skippable: SkipSegment?
     /// Categories offered as a button instead of skipped automatically.
     @ObservationIgnored private var manualCategories: Set<SkipSegment.Category> = []
+    /// Categories only marked on the timeline: never skipped or offered.
+    @ObservationIgnored private var shownCategories: Set<SkipSegment.Category> = []
     /// Playback speed (1 is normal). Kept across videos and engine switches.
     public private(set) var rate: Float = 1
     /// The subtitle line to show now, or nil.
@@ -114,6 +116,7 @@ public final class PlaybackSession {
         self.lastSkipped = nil
         self.skippable = nil
         self.manualCategories = []
+        self.shownCategories = []
         self.subtitleCues = []
         self.subtitle = nil
         self.skipped = []
@@ -173,12 +176,16 @@ public final class PlaybackSession {
         if text != subtitle { subtitle = text }
     }
 
-    /// - Parameter manual: categories to offer with a Skip button rather than skip on their own.
+    /// - Parameters:
+    ///   - manual: categories to offer with a Skip button rather than skip on their own.
+    ///   - shownOnly: categories only marked on the timeline (ADR 0013).
     public func setSkipSegments(_ segments: [SkipSegment], for id: VideoID,
-                                manual: Set<SkipSegment.Category> = []) {
+                                manual: Set<SkipSegment.Category> = [],
+                                shownOnly: Set<SkipSegment.Category> = []) {
         guard item?.videoID == id else { return }
         skipSegments = segments
         manualCategories = manual
+        shownCategories = shownOnly
     }
 
     /// Skips the segment `skippable` offers.
@@ -299,7 +306,8 @@ public final class PlaybackSession {
 
     private func skipSegmentIfNeeded() {
         let inside = skipSegments.first { segment in
-            position >= segment.start && position < segment.end - .milliseconds(500) && !skipped.contains(segment)
+            !shownCategories.contains(segment.category)
+                && position >= segment.start && position < segment.end - .milliseconds(500) && !skipped.contains(segment)
         }
         guard let segment = inside, !manualCategories.contains(segment.category) else {
             if skippable != inside { skippable = inside }

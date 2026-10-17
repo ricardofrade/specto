@@ -57,6 +57,15 @@ public struct SourceCapabilities: OptionSet, Hashable, Sendable {
     /// A batched latest-uploads feed for a list of channels (`feed(for:)`).
     public static let subscriptions = SourceCapabilities(rawValue: 1 << 5)
     public static let playlists     = SourceCapabilities(rawValue: 1 << 6)
+    /// Trending by category (`trending(region:category:)` beyond `.all`); Invidious only.
+    public static let trendingCategories = SourceCapabilities(rawValue: 1 << 7)
+}
+
+/// Explore's trending lists. Every source with `.trending` has `.all`; Gaming needs
+/// `.trendingCategories` (ADR 0014). YouTube no longer has Music or Movies trending lists:
+/// Invidious answers those with the general one, so they aren't offered.
+public enum TrendingCategory: String, CaseIterable, Hashable, Sendable {
+    case all, gaming
 }
 
 // MARK: - Content models
@@ -111,6 +120,13 @@ public struct VideoSummary: Identifiable, Hashable, Sendable, Codable {
 }
 
 public extension VideoSummary {
+    /// The same video without a publication date (a source that sent a wrong one).
+    func withoutPublishedDate() -> VideoSummary {
+        VideoSummary(id: id, title: title, channelID: channelID, channelName: channelName, duration: duration,
+                     publishedAt: nil, publishedText: nil, viewCount: viewCount, thumbnails: thumbnails,
+                     isLive: isLive, isShort: isShort)
+    }
+
     func replacing(title: String) -> VideoSummary {
         VideoSummary(id: id, title: title, channelID: channelID, channelName: channelName, duration: duration,
                      publishedAt: publishedAt, publishedText: publishedText, viewCount: viewCount,
@@ -479,6 +495,8 @@ public protocol VideoSource: Sendable {
     /// Completions for what's typed so far, from the instance (which asks YouTube on its own IP).
     func suggestions(for query: String) async throws -> [String]
     func trending(region: String?) async throws -> [VideoSummary]
+    /// One category's trending list; `.all` is `trending(region:)`.
+    func trending(region: String?, category: TrendingCategory) async throws -> [VideoSummary]
     func channel(_ id: ChannelID, cursor: String?) async throws -> ChannelPage
     func watchPage(for id: VideoID) async throws -> WatchPage
     /// Latest uploads for `channels`. Subscriptions live in `Library`, never on the instance.
@@ -507,6 +525,10 @@ public extension VideoSource {
     func suggestions(for query: String) async throws -> [String] { [] }
     func trending(region: String?) async throws -> [VideoSummary] {
         throw SourceError.unsupported(.trending)
+    }
+    func trending(region: String?, category: TrendingCategory) async throws -> [VideoSummary] {
+        guard category == .all else { throw SourceError.unsupported(.trendingCategories) }
+        return try await trending(region: region)
     }
     func channel(_ id: ChannelID, cursor: String?) async throws -> ChannelPage {
         throw SourceError.unsupported(.channel)

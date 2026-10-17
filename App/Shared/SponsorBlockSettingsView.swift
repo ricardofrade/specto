@@ -21,14 +21,20 @@ struct SponsorBlockSettingsView: View {
                                 Text(action.title).tag(action)
                             }
                         } label: {
-                            Text(verbatim: category.title)
+                            HStack(spacing: 12) {
+                                // Its colour on the timeline.
+                                Circle().fill(category.color).frame(width: 14, height: 14)
+                                    .overlay { Circle().strokeBorder(.primary.opacity(0.15), lineWidth: 1) }
+                                    .accessibilityHidden(true)
+                                Text(verbatim: category.title)
+                            }
                         }
                         .accessibilityIdentifier("sponsorBlock.\(category.rawValue)")
                     }
                 } header: {
                     Text("Segments")
                 } footer: {
-                    Text("With a Skip button, the player offers to skip while the segment plays.")
+                    Text("Segments show on the timeline in their colour. With a Skip button, the player offers to skip while the segment plays.")
                 }
             }
         }
@@ -52,9 +58,21 @@ struct SponsorBlockSettingsLink: View {
             LabeledContent {
                 if settings.skipsSponsors { Text("On") } else { Text("Off") }
             } label: {
+                #if os(iOS)
+                Label { Text("SponsorBlock") } icon: { SettingsTile("forward.end.fill", .green) }
+                #else
                 Text("SponsorBlock")
+                #endif
             }
         }
         .accessibilityIdentifier("settings.sponsorBlock")
+    }
+}
+
+extension SkipSegment.Category {
+    /// SponsorBlock's colour for the category, as on its seek bar.
+    var color: Color {
+        let rgb = self.rgb
+        return Color(red: rgb.red, green: rgb.green, blue: rgb.blue)
     }
 }

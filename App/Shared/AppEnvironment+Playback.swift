@@ -128,9 +128,10 @@ extension AppEnvironment {
         let actions = AppSettings.shared.sponsorActions
         let categories = Set(actions.filter { $0.value != .off }.keys)
         let manual = Set(actions.filter { $0.value == .ask }.keys)
+        let shownOnly = Set(actions.filter { $0.value == .show }.keys)
         Task {
             if let segments = try? await community.skipSegments(for: id, categories: categories) {
-                session.setSkipSegments(segments, for: id, manual: manual)
+                session.setSkipSegments(segments, for: id, manual: manual, shownOnly: shownOnly)
             }
         }
     }

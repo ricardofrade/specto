@@ -25,6 +25,25 @@ struct InvidiousSourceTests {
         #expect(aac.codec == .aac && aac.itag == 140 && aac.indexRange == ByteRange(start: 723, end: 1018))
     }
 
+    @Test func trendingCategoriesAskForTheirType() async throws {
+        let client = FixtureClient()
+        client.on("/api/v1/trending", fixture: "invidious/trending.json")
+        let iv = InvidiousSource(instance: instance(.invidious), client: client)
+        #expect(!(try await iv.trending(region: "PT", category: .gaming)).isEmpty)
+        _ = try await iv.trending(region: "PT", category: .all)
+        let queries = client.requests.compactMap { $0.url?.query }
+        #expect(queries[0].contains("type=gaming") && queries[0].contains("region=PT"))
+        #expect(!queries[1].contains("type="))
+    }
+
+    @Test func trendingWithOneSharedDateHasNoDates() async throws {
+        // The recorded list stamps every video with the same "published" (the fetch time).
+        let iv = source { $0.on("/api/v1/trending", fixture: "invidious/trending.json") }
+        let videos = try await iv.trending(region: "PT", category: .all)
+        #expect(!videos.isEmpty)
+        #expect(videos.allSatisfy { $0.publishedAt == nil && $0.publishedText == nil })
+    }
+
     @Test func captionURLsBecomeAbsoluteOnTheInstance() async throws {
         let iv = source { $0.on("/api/v1/videos/dQw4w9WgXcQ", fixture: "invidious/video.json") }
         let captions = try await iv.watchPage(for: VideoID(rawValue: "dQw4w9WgXcQ")).manifest.captions

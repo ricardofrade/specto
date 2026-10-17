@@ -29,4 +29,17 @@ struct WidgetRenderTests {
         try #require(image.pngData()).write(to: url)
         print("WIDGET RENDER: \(url.path(percentEncoded: false))")
     }
+
+    @Test func rendersTheEmptyWidget() throws {
+        let view = ContinueWatchingView(entry: Entry(date: .now, items: [], isContinue: false), familyOverride: .systemSmall)
+            .padding(16)
+            .frame(width: 170, height: 170)
+            .background(Color(white: 0.95), in: .rect(cornerRadius: 22))
+        let renderer = ImageRenderer(content: view)
+        renderer.scale = 3
+        let image = try #require(renderer.uiImage)
+        let url = FileManager.default.temporaryDirectory.appending(path: "widget-empty.png")
+        try #require(image.pngData()).write(to: url)
+        print("WIDGET RENDER: \(url.path(percentEncoded: false))")
+    }
 }

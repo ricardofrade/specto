@@ -13,9 +13,7 @@ final class BrowseFlowUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = ["-UITestFreshStart", "-SeedSubscriptions", channel]
         app.launch()
-        app.buttons["Add Instance"].firstMatch.tap()      // Feed's empty state → Instances screen.
-        XCTAssertTrue(app.navigationBars["Instances"].waitForExistence(timeout: 5))
-        app.buttons["Add Instance"].firstMatch.tap()
+        app.buttons["welcome.addInstance"].tap()   // Welcome → Add Instance, straight away.
         let field = app.textFields["instance.url"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))
         field.tap()
@@ -23,6 +21,7 @@ final class BrowseFlowUITests: XCTestCase {
         app.buttons["Next"].tap()
         XCTAssertTrue(app.staticTexts["Instance added"].waitForExistence(timeout: 20))
         app.buttons["Done"].tap()
+        app.closeSettings()   // Onboarding opened Instances inside Settings.
         return app
     }
 
@@ -31,7 +30,8 @@ final class BrowseFlowUITests: XCTestCase {
         let app = try launchWithInstance()
         app.buttons["Search"].firstMatch.tap()   // Tab bar on iPhone, top bar or sidebar on iPad.
         let field = app.searchFields.firstMatch
-        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        if !field.waitForExistence(timeout: 5) { print("NO SEARCH FIELD\n\(app.debugDescription)") }
+        XCTAssertTrue(field.exists)
         field.tap()
         field.typeText("big buck bunny\n")
         XCTAssertTrue(app.collectionViews["search.results"].waitForExistence(timeout: 30))

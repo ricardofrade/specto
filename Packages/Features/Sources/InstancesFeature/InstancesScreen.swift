@@ -13,6 +13,7 @@ public struct InstancesScreen: View {
     private let onChange: () -> Void
     private let onImported: ([ChannelSummary]) -> Void
     private let checkHealth: (() async -> [HealthSample])?
+    private let startsAdding: Bool
 
     @State private var list: [InstanceConfig] = []
     @State private var subscriptionCount = 0
@@ -25,10 +26,12 @@ public struct InstancesScreen: View {
     ///   - onChange: instances were added or removed (the app rebuilds its sources).
     ///   - onImported: channels were imported (the app backfills their videos).
     ///   - checkHealth: probes every instance, for each row's status and latency.
+    ///   - startsAdding: open Add Instance straight away when there are none yet (first launch).
     public init(instances: InstanceStore, subscriptions: SubscriptionStore, secrets: any SecretStore,
                 deviceName: String, onChange: @escaping () -> Void,
                 onImported: @escaping ([ChannelSummary]) -> Void,
-                checkHealth: (() async -> [HealthSample])? = nil) {
+                checkHealth: (() async -> [HealthSample])? = nil, startsAdding: Bool = false) {
+        self.startsAdding = startsAdding
         self.instances = instances
         self.subscriptions = subscriptions
         self.secrets = secrets
@@ -48,6 +51,7 @@ public struct InstancesScreen: View {
                 Button { startAdding() } label: {
                     Label { Text("Add Instance") } icon: { Image(systemName: "plus") }
                 }
+                .accessibilityIdentifier("instances.add")
             } header: {
                 Text("Instances")
             } footer: {
@@ -77,7 +81,10 @@ public struct InstancesScreen: View {
             }
         }
         .navigationTitle(Text("Instances"))
-        .task { reload() }
+        .task {
+            reload()
+            if startsAdding, list.isEmpty, addModel == nil { startAdding() }
+        }
         // Again whenever the list changes: a new instance joins the app's sources first.
         .task(id: list.map(\.id)) { await probe() }
         .refreshable { await probe() }

@@ -8,6 +8,8 @@ enum SponsorAction: String, CaseIterable, Sendable {
     case skip
     /// Offer a Skip button while it plays.
     case ask
+    /// Mark it on the timeline, in its colour, and play it.
+    case show
     /// Play it.
     case off
 
@@ -15,6 +17,7 @@ enum SponsorAction: String, CaseIterable, Sendable {
         switch self {
         case .skip: "Skip"
         case .ask: "Show a Skip button"
+        case .show: "Only show on the timeline"
         case .off: "Don't skip"
         }
     }

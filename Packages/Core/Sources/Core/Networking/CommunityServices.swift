@@ -6,6 +6,21 @@ public struct SkipSegment: Hashable, Sendable {
     public enum Category: String, Sendable, CaseIterable, Codable {
         case sponsor, selfpromo, interaction, intro, outro, preview, music_offtopic, filler
 
+        /// SponsorBlock's own colour for the category (as its extension draws it on the seek bar),
+        /// 0–1 per channel; views turn it into a `Color`.
+        public var rgb: (red: Double, green: Double, blue: Double) {
+            switch self {
+            case .sponsor: (0, 0.83, 0)                  // #00D400
+            case .selfpromo: (1, 1, 0)                   // #FFFF00
+            case .interaction: (0.8, 0, 1)               // #CC00FF
+            case .intro: (0, 1, 1)                       // #00FFFF
+            case .outro: (0.008, 0.008, 0.93)            // #0202ED
+            case .preview: (0, 0.56, 0.84)               // #008FD6
+            case .music_offtopic: (1, 0.6, 0)            // #FF9900
+            case .filler: (0.45, 0, 1)                   // #7300FF
+            }
+        }
+
         /// For settings: "Sponsor", "Intro".
         public var title: String {
             switch self {

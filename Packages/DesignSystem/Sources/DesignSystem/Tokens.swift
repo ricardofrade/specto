@@ -36,6 +36,10 @@ public enum Tokens {
         public static let textSecondary = Color.secondary
         public static let separator = Color(uiColor: .separator)
         public static let accent = Color.accentColor
+        /// The icon's violet-to-coral, for the few brand moments (the welcome screen).
+        public static let brand = LinearGradient(colors: [Color(.displayP3, red: 0.302, green: 0.137, blue: 0.784),
+                                                          Color(.displayP3, red: 0.941, green: 0.337, blue: 0.478)],
+                                                 startPoint: .topLeading, endPoint: .bottomTrailing)
         /// Placeholder behind thumbnails while they load.
         #if os(tvOS)
         public static let thumbnailPlaceholder = Color.gray.opacity(0.2)

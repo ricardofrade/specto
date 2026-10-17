@@ -10,9 +10,7 @@ final class SystemIntegrationUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = ["-UITestFreshStart", "-SeedSubscriptions", "UCSMOQeBJ2RAnuFungnQOxLg"]
         app.launch()
-        app.buttons["Add Instance"].firstMatch.tap()      // Feed's empty state → Instances screen.
-        XCTAssertTrue(app.navigationBars["Instances"].waitForExistence(timeout: 5))
-        app.buttons["Add Instance"].firstMatch.tap()
+        app.buttons["welcome.addInstance"].tap()   // Welcome → Add Instance, straight away.
         let field = app.textFields["instance.url"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))
         field.tap()
@@ -20,6 +18,7 @@ final class SystemIntegrationUITests: XCTestCase {
         app.buttons["Next"].tap()
         XCTAssertTrue(app.staticTexts["Instance added"].waitForExistence(timeout: 20))
         app.buttons["Done"].tap()
+        app.closeSettings()   // Onboarding opened Instances inside Settings.
         app.buttons["Home"].firstMatch.tap()
         let list = app.scrollViews["feed.list"]
         XCTAssertTrue(list.waitForExistence(timeout: 45))

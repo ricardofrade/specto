@@ -259,6 +259,7 @@ public struct FeedStore: Sendable {
             try db.execute(sql: """
                 DELETE FROM video WHERE (publishedAt < ? OR (publishedAt IS NULL AND fetchedAt < ?))
                 AND id NOT IN (SELECT videoID FROM watchState)
+                AND id NOT IN (SELECT videoID FROM trending)
                 """, arguments: [cutoff, undatedCutoff])
         }
     }

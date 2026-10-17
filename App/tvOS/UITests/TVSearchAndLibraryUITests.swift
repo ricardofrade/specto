@@ -26,6 +26,21 @@ final class TVSearchAndLibraryUITests: XCTestCase {
         attach(app, "search")
     }
 
+    /// Explore: what's trending, number one as the billboard.
+    @MainActor
+    func testExploreShowsTrending() throws {
+        let app = try launch()
+        XCTAssertTrue(moveToTab(app, "Explore"), "Couldn't reach the Explore tab")
+        let play = app.buttons["Play"]
+        XCTAssertTrue(play.waitForExistence(timeout: 45), "No billboard in Explore")
+        sleep(3)
+        attach(app, "tv-explore")
+        remote.press(.down)
+        remote.press(.down)
+        sleep(1)
+        attach(app, "tv-explore-grid")
+    }
+
     /// A watched video shows in Library's Continue Watching and History.
     @MainActor
     func testLibraryShowsWhatWasWatched() throws {
@@ -84,6 +99,9 @@ final class TVSearchAndLibraryUITests: XCTestCase {
         shot.name = name
         shot.lifetime = .keepAlways
         add(shot)
+        if let folder = ProcessInfo.processInfo.environment["SHOTS_DIR"] {   // Survives a lost result bundle.
+            try? app.screenshot().pngRepresentation.write(to: URL(filePath: folder).appending(path: "\(name).png"))
+        }
     }
 
     @MainActor

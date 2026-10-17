@@ -142,6 +142,11 @@ final class AppEnvironment {
            let url = URL(string: arguments[index + 1]) {
             try? InstanceStore(database).add(InstanceConfig(kind: .piped, displayName: url.host() ?? "Piped", apiURL: url))
         }
+        // `-SeedInvidious <API URL>`: an Invidious instance (Explore's categories).
+        if let index = arguments.firstIndex(of: "-SeedInvidious"), arguments.indices.contains(index + 1),
+           let url = URL(string: arguments[index + 1]) {
+            try? InstanceStore(database).add(InstanceConfig(kind: .invidious, displayName: url.host() ?? "Invidious", apiURL: url))
+        }
         if let index = arguments.firstIndex(of: "-SeedDemoFeed"), arguments.indices.contains(index + 1),
            let count = Int(arguments[index + 1]) {
             let channel = ChannelSummary(id: ChannelID(rawValue: "UCdemo000000000000000000"), name: "Demo", avatar: nil)
@@ -330,7 +335,8 @@ final class AppEnvironment {
             return try await self.search(query, filter: filter, cursor: cursor)
         }, suggest: { [weak self] query in
             await self?.suggestions(for: query) ?? []
-        }, recent: RecentSearchStore(database), searchesAsYouType: Self.isTV)
+        }, recent: RecentSearchStore(database), searchesAsYouType: Self.isTV,
+           subscriptions: SubscriptionStore(database), trending: TrendingStore(database))
     }
 
     func channel(_ id: ChannelID, cursor: String?) async throws -> ChannelPage {
@@ -338,6 +344,25 @@ final class AppEnvironment {
         let page = try await router.perform(.channel) { try await $0.channel(id, cursor: cursor) }
         try? FeedStore(database).save(page.videos.items)
         return page
+    }
+
+    /// The person's region as they'd read it ("Portugal"), for Explore's heading.
+    static var regionName: String? {
+        Locale.current.region.flatMap { Locale.current.localizedString(forRegionCode: $0.identifier) }
+    }
+
+    /// Explore: fetch a category's trending list and cache it; Shorts stay in their own player.
+    func refreshTrending(_ category: TrendingCategory = .all) async throws {
+        let router = self.router
+        let region = Locale.current.region?.identifier
+        let capability: SourceCapabilities = category == .all ? .trending : .trendingCategories
+        let videos = try await router.perform(capability) { try await $0.trending(region: region, category: category) }
+        try TrendingStore(database).replace(with: videos.filter { !$0.isShort }, category: category)
+    }
+
+    /// Music, Gaming and Movies lists exist only on Invidious instances.
+    var supportsTrendingCategories: Bool {
+        instances.contains { $0.kind == .invidious }
     }
 
     /// The instances' trending list for the person's region (Home before subscriptions).

@@ -569,6 +569,40 @@
         }
       }
     },
+    "Add Your Instance": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Eigene Instanz hinzufügen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Añadir tu instancia"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ajouter votre instance"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Adicionar sua instância"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Adicionar a sua instância"
+          }
+        }
+      }
+    },
     "Add to Queue": {
       "localizations": {
         "de": {
@@ -637,7 +671,42 @@
         }
       }
     },
+    "Add your Piped, Invidious or YT Zero instance in Settings, or add it on your iPhone or iPad: it arrives here through iCloud, with your subscriptions.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Füge deine Piped-, Invidious- oder YT-Zero-Instanz in den Einstellungen hinzu – oder auf deinem iPhone oder iPad: Sie kommt per iCloud hierher, mit deinen Abos."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Añade tu instancia de Piped, Invidious o YT Zero en Ajustes, o añádela en el iPhone o iPad: llega aquí por iCloud, con tus suscripciones."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ajoutez votre instance Piped, Invidious ou YT Zero dans Réglages, ou ajoutez-la sur votre iPhone ou iPad : elle arrive ici via iCloud, avec vos abonnements."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Adicione sua instância Piped, Invidious ou YT Zero nos Ajustes, ou adicione no iPhone ou iPad: ela chega aqui pelo iCloud, com suas inscrições."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Adicione a sua instância Piped, Invidious ou YT Zero nas Definições, ou adicione-a no iPhone ou iPad: chega aqui pelo iCloud, com as suas subscrições."
+          }
+        }
+      }
+    },
     "Add your Piped, Invidious or YT Zero instance in Settings.": {
+      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -1217,6 +1286,7 @@
       }
     },
     "Bring your own server": {
+      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -1636,6 +1706,7 @@
       }
     },
     "Checked in the background a few times a day, from your own instances.": {
+      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -1665,6 +1736,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Verificado em segundo plano algumas vezes por dia, a partir das suas instâncias."
+          }
+        }
+      }
+    },
+    "Checked in the background a few times a day, from your own instances. Turn them off for one channel in Library → Channels.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Wird ein paar Mal am Tag im Hintergrund über deine eigenen Instanzen geprüft. Für einzelne Kanäle unter Mediathek → Kanäle ausschalten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Se comprueban en segundo plano unas cuantas veces al día, desde tus propias instancias. Desactívalas para un canal en Biblioteca → Canales."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vérifiées en arrière-plan quelques fois par jour, depuis vos propres instances. Désactivez-les pour une chaîne dans Bibliothèque → Chaînes."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Verificadas em segundo plano algumas vezes por dia, nas suas instâncias. Desative para um canal em Biblioteca → Canais."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Verificadas em segundo plano algumas vezes por dia, a partir das suas instâncias. Desligue-as para um canal em Biblioteca → Canais."
           }
         }
       }
@@ -2587,6 +2692,74 @@
         }
       }
     },
+    "DeArrow": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "DeArrow"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "DeArrow"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "DeArrow"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "DeArrow"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "DeArrow"
+          }
+        }
+      }
+    },
+    "DeArrow titles are looked up anonymously by a short hash, never the video itself. Community thumbnails ask DeArrow's thumbnail service for each video.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "DeArrow-Titel werden anonym über einen kurzen Hash gesucht, nie über das Video selbst. Community-Miniaturen fragen den Miniaturdienst von DeArrow für jedes Video an."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Los títulos de DeArrow se buscan de forma anónima con un hash corto, nunca con el propio vídeo. Las miniaturas de la comunidad piden cada vídeo al servicio de miniaturas de DeArrow."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Les titres DeArrow sont recherchés anonymement par un court hachage, jamais par la vidéo elle-même. Les miniatures de la communauté demandent chaque vidéo au service de miniatures de DeArrow."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Os títulos do DeArrow são buscados anonimamente por um hash curto, nunca pelo próprio vídeo. As miniaturas da comunidade pedem cada vídeo ao serviço de miniaturas do DeArrow."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Os títulos do DeArrow são procurados anonimamente por um hash curto, nunca pelo próprio vídeo. As miniaturas da comunidade pedem cada vídeo ao serviço de miniaturas do DeArrow."
+          }
+        }
+      }
+    },
     "Decoder": {
       "localizations": {
         "de": {
@@ -3165,6 +3338,40 @@
         }
       }
     },
+    "Explore": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Entdecken"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Explorar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Explorer"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Explorar"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Explorar"
+          }
+        }
+      }
+    },
     "Export Backup…": {
       "localizations": {
         "de": {
@@ -3268,6 +3475,7 @@
       }
     },
     "Feed": {
+      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -3331,6 +3539,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Enchimento e desvios"
+          }
+        }
+      }
+    },
+    "Find Something to Watch": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Etwas zum Ansehen finden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Encontrar algo que ver"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Trouver quelque chose à regarder"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Encontrar algo para assistir"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Encontrar algo para ver"
           }
         }
       }
@@ -3399,6 +3641,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Avançar 10 segundos"
+          }
+        }
+      }
+    },
+    "Gaming": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Gaming"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Videojuegos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Jeux vidéo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Jogos"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Jogos"
           }
         }
       }
@@ -3672,6 +3948,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Início"
+          }
+        }
+      }
+    },
+    "Home & Feed": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Startseite & Feed"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Inicio y feed"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Accueil et flux"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Início e feed"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Início e feed"
           }
         }
       }
@@ -4537,6 +4847,74 @@
         }
       }
     },
+    "Movies": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Filme"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Películas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Films"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Filmes"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Filmes"
+          }
+        }
+      }
+    },
+    "Music": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Musik"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Música"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Musique"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Música"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Música"
+          }
+        }
+      }
+    },
     "Name": {
       "localizations": {
         "de": {
@@ -4737,6 +5115,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Sem Shorts"
+          }
+        }
+      }
+    },
+    "No accounts, no ads, no analytics. Specto has no servers of its own.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Keine Konten, keine Werbung, keine Analysen. Specto hat keine eigenen Server."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sin cuentas, sin anuncios, sin analíticas. Specto no tiene servidores propios."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Pas de compte, pas de pub, pas de statistiques. Specto n’a aucun serveur à lui."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sem contas, sem anúncios, sem análises. O Specto não tem servidores próprios."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sem contas, sem anúncios, sem análises. O Specto não tem servidores próprios."
           }
         }
       }
@@ -5228,6 +5640,40 @@
         }
       }
     },
+    "Nothing to explore yet": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Noch nichts zu entdecken"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Aún no hay nada que explorar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Rien à explorer pour l’instant"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ainda não há nada para explorar"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ainda nada para explorar"
+          }
+        }
+      }
+    },
     "Notifications": {
       "localizations": {
         "de": {
@@ -5534,6 +5980,40 @@
         }
       }
     },
+    "On all your devices": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Auf all deinen Geräten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "En todos tus dispositivos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sur tous vos appareils"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Em todos os seus aparelhos"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Em todos os seus dispositivos"
+          }
+        }
+      }
+    },
     "On cellular": {
       "localizations": {
         "de": {
@@ -5636,6 +6116,40 @@
         }
       }
     },
+    "Only show on the timeline": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Nur auf der Zeitleiste zeigen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Solo mostrar en la línea de tiempo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Afficher seulement sur la timeline"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Só mostrar na linha do tempo"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mostrar só na linha do tempo"
+          }
+        }
+      }
+    },
     "Open %@ where you're signed in to YT Zero and enter this code, or scan it with another device.": {
       "localizations": {
         "de": {
@@ -5700,6 +6214,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Abrir página de emparelhamento"
+          }
+        }
+      }
+    },
+    "Open Settings": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Einstellungen öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Abrir Ajustes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ouvrir Réglages"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Abrir Ajustes"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Abrir Definições"
           }
         }
       }
@@ -5977,6 +6525,7 @@
       }
     },
     "Performance and crash reports stay on this device unless you share them.": {
+      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -6686,6 +7235,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Antevisão e resumo"
+          }
+        }
+      }
+    },
+    "Private by design": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Privat von Grund auf"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Privado por diseño"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Privé par conception"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Privado por padrão"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Privado por natureza"
           }
         }
       }
@@ -7710,6 +8293,40 @@
         }
       }
     },
+    "See All": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Alle anzeigen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ver todo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tout afficher"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ver tudo"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ver tudo"
+          }
+        }
+      }
+    },
     "Segments": {
       "localizations": {
         "de": {
@@ -7774,6 +8391,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Os segmentos são procurados anonimamente por um hash curto, nunca pelo próprio vídeo."
+          }
+        }
+      }
+    },
+    "Segments show on the timeline in their colour. With a Skip button, the player offers to skip while the segment plays.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Segmente erscheinen in ihrer Farbe auf der Zeitleiste. Mit der Taste „Überspringen“ bietet der Player das Überspringen an, solange das Segment läuft."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Los segmentos se muestran en la línea de tiempo con su color. Con el botón Saltar, el reproductor ofrece saltar mientras se reproduce el segmento."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Les segments apparaissent sur la timeline dans leur couleur. Avec un bouton Ignorer, le lecteur propose d’ignorer le segment pendant sa lecture."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Os trechos aparecem na linha do tempo na sua cor. Com o botão Pular, o player oferece pular enquanto o trecho toca."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Os segmentos aparecem na linha do tempo com a sua cor. Com o botão Saltar, o leitor oferece-se para saltar enquanto o segmento é reproduzido."
           }
         }
       }
@@ -8494,6 +9145,7 @@
       }
     },
     "SponsorBlock and DeArrow titles are looked up anonymously by a short hash, never the video itself. Community thumbnails ask DeArrow's thumbnail service for each video.": {
+      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -8897,6 +9549,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Subscrições"
+          }
+        }
+      }
+    },
+    "Subscriptions, history and playlists sync through your iCloud, Apple TV included.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Abos, Verlauf und Playlists synchronisieren über deine iCloud, auch mit dem Apple TV."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Suscripciones, historial y listas se sincronizan por tu iCloud, Apple TV incluido."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Abonnements, historique et playlists se synchronisent via votre iCloud, Apple TV comprise."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Inscrições, histórico e playlists sincronizam pelo seu iCloud, inclusive na Apple TV."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Subscrições, histórico e listas sincronizam pelo seu iCloud, incluindo a Apple TV."
           }
         }
       }
@@ -9378,6 +10064,7 @@
       }
     },
     "This app plays videos through a Piped, Invidious or YT Zero server that you run or trust. It has no servers of its own and collects nothing. Add yours to see your subscriptions here.": {
+      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -9611,6 +10298,74 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Em destaque"
+          }
+        }
+      }
+    },
+    "Trending in %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Trends in %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tendencias en %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tendances : %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Em alta: %@"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Em destaque em %@"
+          }
+        }
+      }
+    },
+    "Try Again": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Erneut versuchen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Reintentar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Réessayer"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tentar de novo"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tentar novamente"
           }
         }
       }
@@ -9989,6 +10744,40 @@
         }
       }
     },
+    "Video Quality": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Videoqualität"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Calidad de vídeo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Qualité vidéo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Qualidade do vídeo"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Qualidade de vídeo"
+          }
+        }
+      }
+    },
     "Video quality": {
       "localizations": {
         "de": {
@@ -10193,6 +10982,40 @@
         }
       }
     },
+    "Videos, search and subscriptions come from your Piped, Invidious or YT Zero server.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Videos, Suche und Abos kommen von deinem Piped-, Invidious- oder YT-Zero-Server."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Los vídeos, la búsqueda y las suscripciones vienen de tu servidor Piped, Invidious o YT Zero."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vidéos, recherche et abonnements viennent de votre serveur Piped, Invidious ou YT Zero."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vídeos, busca e inscrições vêm do seu servidor Piped, Invidious ou YT Zero."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vídeos, pesquisa e subscrições vêm do seu servidor Piped, Invidious ou YT Zero."
+          }
+        }
+      }
+    },
     "Waiting for approval…": {
       "localizations": {
         "de": {
@@ -10295,6 +11118,74 @@
         }
       }
     },
+    "Watch YouTube through a server you run or trust.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "YouTube über einen Server ansehen, den du betreibst oder dem du vertraust."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mira YouTube a través de un servidor que gestionas o en el que confías."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Regardez YouTube via un serveur que vous gérez ou en qui vous avez confiance."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Assista ao YouTube por um servidor que você mantém ou em que confia."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Veja o YouTube através de um servidor que gere ou em que confia."
+          }
+        }
+      }
+    },
+    "Watch YouTube through a server you run or trust. No accounts, no ads, no analytics.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "YouTube über einen Server ansehen, den du betreibst oder dem du vertraust. Keine Konten, keine Werbung, keine Analysen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mira YouTube a través de un servidor que gestionas o en el que confías. Sin cuentas, sin anuncios, sin analíticas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Regardez YouTube via un serveur que vous gérez ou en qui vous avez confiance. Pas de compte, pas de pub, pas de statistiques."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Assista ao YouTube por um servidor que você mantém ou em que confia. Sem contas, sem anúncios, sem análises."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Veja o YouTube através de um servidor que gere ou em que confia. Sem contas, sem anúncios, sem análises."
+          }
+        }
+      }
+    },
     "Watched videos: %lld": {
       "localizations": {
         "de": {
@@ -10325,6 +11216,74 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Vídeos vistos: %lld"
+          }
+        }
+      }
+    },
+    "Watching": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Wiedergabe"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Viendo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Lecture"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Assistindo"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A ver"
+          }
+        }
+      }
+    },
+    "Welcome to Specto": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Willkommen bei Specto"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Te damos la bienvenida a Specto"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Bienvenue dans Specto"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Boas-vindas ao Specto"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Bem-vindo ao Specto"
           }
         }
       }
@@ -10363,7 +11322,42 @@
         }
       }
     },
+    "What you watch, queue and save to Watch Later or your playlists gathers here, with your channels.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Was du ansiehst, in die Warteliste legst und in „Später ansehen“ oder deinen Playlists sicherst, findest du hier – mit deinen Kanälen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Lo que ves, pones en cola y guardas en Ver más tarde o en tus listas se reúne aquí, con tus canales."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ce que vous regardez, mettez en file d’attente et enregistrez dans À regarder plus tard ou vos playlists se retrouve ici, avec vos chaînes."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "O que você assiste, coloca na fila e salva em Assistir depois ou nas suas playlists fica aqui, com seus canais."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "O que vê, põe na fila e guarda em Ver mais tarde ou nas suas listas reúne-se aqui, com os seus canais."
+          }
+        }
+      }
+    },
     "With a Skip button, the player offers to skip while the segment plays.": {
+      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -10427,6 +11421,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Ontem"
+          }
+        }
+      }
+    },
+    "Your Channels": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Deine Kanäle"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tus canales"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vos chaînes"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Seus canais"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Os seus canais"
           }
         }
       }
@@ -10563,6 +11591,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "O seu próprio servidor Piped, Invidious ou YT Zero. Nada é enviado para mais lado nenhum."
+          }
+        }
+      }
+    },
+    "Your own instance": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Deine eigene Instanz"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tu propia instancia"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Votre propre instance"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sua instância"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A sua instância"
           }
         }
       }

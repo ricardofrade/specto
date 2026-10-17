@@ -1,6 +1,20 @@
 import XCTest
 
 extension XCUIApplication {
+    /// Settings is a sheet (opened by the gear, or by onboarding's Add Instance): close it to get
+    /// back to the tabs. Nothing happens when it isn't open.
+    @MainActor
+    func closeSettings() {
+        let done = buttons["settings.done"]
+        // Done is on Settings' first page: go back from any page pushed on it.
+        for _ in 0..<3 where !done.waitForExistence(timeout: 2) {
+            let back = navigationBars.buttons["BackButton"].firstMatch
+            guard back.exists else { break }
+            back.tap()
+        }
+        if done.exists { done.tap() }
+    }
+
     /// A control over the video (PiP, AirPlay, Settings). They fade during playback, so tap the
     /// video first when it isn't showing.
     @MainActor

@@ -76,6 +76,112 @@ final class DesignTourUITests: XCTestCase {
         shot(app, "11-playlists")
     }
 
+    /// The tabs and Settings: Home with the gear, Explore, Search before typing, Library's
+    /// shelves, and Settings' tiles.
+    @MainActor
+    func testTourOfTabsAndSettings() throws {
+        guard let piped = ProcessInfo.processInfo.environment["PIPED_URL"] else {
+            throw XCTSkip("Set PIPED_URL to run against a real instance")
+        }
+        let app = XCUIApplication()
+        app.launchArguments = ["-UITestFreshStart", "-SeedInstance", piped, "-AppleLanguages", "(en)",
+                               "-SeedSubscriptions", "UCSMOQeBJ2RAnuFungnQOxLg,UCBJycsmduvYEL83R_U4JriQ"]
+        app.launch()
+        let list = app.scrollViews["feed.list"]
+        XCTAssertTrue(list.waitForExistence(timeout: 45))
+        sleep(3)
+        shot(app, "20-home")
+
+        // Something in Library: a video saved to Watch Later.
+        list.buttons.matching(identifier: "feed.channel").firstMatch.tap()
+        app.buttons["feed.allChannels"].tap()
+
+        app.buttons["Explore"].firstMatch.tap()
+        XCTAssertTrue(app.descendants(matching: .any)["explore.video"].firstMatch.waitForExistence(timeout: 45))
+        sleep(2)
+        shot(app, "21-explore")
+        app.descendants(matching: .any)["explore.video"].firstMatch.press(forDuration: 1.0)
+        XCTAssertTrue(app.buttons["Save to Watch Later"].waitForExistence(timeout: 5))
+        app.buttons["Save to Watch Later"].tap()
+
+        app.buttons["Library"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["library.playlists"].waitForExistence(timeout: 10))
+        sleep(2)
+        shot(app, "22-library")
+
+        app.buttons["Settings"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["settings.done"].waitForExistence(timeout: 5))
+        sleep(1)
+        shot(app, "23-settings")
+        app.buttons["settings.feed"].tap()
+        sleep(1)
+        shot(app, "24-settings-feed")
+        app.closeSettings()
+
+        app.buttons["Search"].firstMatch.tap()
+        XCTAssertTrue(app.descendants(matching: .any)["search.idle"].waitForExistence(timeout: 10), "No starting screen")
+        sleep(2)
+        shot(app, "25-search")
+    }
+
+    /// First launch, Explore's categories (Invidious) and SponsorBlock's colours.
+    @MainActor
+    func testTourOfWelcomeCategoriesAndSponsorBlock() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-UITestFreshStart", "-AppleLanguages", "(en)"]
+        app.launch()
+        XCTAssertTrue(app.buttons["welcome.addInstance"].waitForExistence(timeout: 10), "No welcome screen")
+        sleep(1)
+        shot(app, "40-welcome")
+        app.buttons["welcome.addInstance"].tap()
+        XCTAssertTrue(app.textFields["instance.url"].waitForExistence(timeout: 5), "Add Instance didn't open")
+        shot(app, "41-add-instance")
+        app.terminate()
+
+        guard let invidious = ProcessInfo.processInfo.environment["INVIDIOUS_URL"] else {
+            throw XCTSkip("Set INVIDIOUS_URL for Explore's categories")
+        }
+        app.launchArguments = ["-UITestFreshStart", "-SeedInvidious", invidious, "-AppleLanguages", "(en)",
+                               "-SeedSubscriptions", "UCSMOQeBJ2RAnuFungnQOxLg"]
+        app.launch()
+        app.buttons["Explore"].firstMatch.tap()
+        let chips = app.buttons.matching(identifier: "explore.category")
+        XCTAssertTrue(chips.element(boundBy: 1).waitForExistence(timeout: 20), "No category chips with Invidious")
+        chips.element(boundBy: 1).tap()   // Gaming.
+        XCTAssertTrue(app.descendants(matching: .any)["explore.video"].firstMatch.waitForExistence(timeout: 45))
+        sleep(2)
+        shot(app, "42-explore-gaming")
+
+        app.buttons["Settings"].firstMatch.tap()
+        let sponsorBlock = app.buttons["settings.sponsorBlock"]
+        XCTAssertTrue(sponsorBlock.waitForExistence(timeout: 5))
+        sponsorBlock.tap()
+        XCTAssertTrue(app.buttons["sponsorBlock.intro"].waitForExistence(timeout: 5))
+        shot(app, "43-sponsorblock")
+    }
+
+    /// A channel page: header, videos, and its other tabs.
+    @MainActor
+    func testTourOfChannel() throws {
+        guard let piped = ProcessInfo.processInfo.environment["PIPED_URL"] else {
+            throw XCTSkip("Set PIPED_URL to run against a real instance")
+        }
+        let app = XCUIApplication()
+        app.launchArguments = ["-UITestFreshStart", "-SeedInstance", piped, "-AppleLanguages", "(en)",
+                               "-SeedSubscriptions", "UCSMOQeBJ2RAnuFungnQOxLg"]
+        app.launch()
+        app.buttons["Library"].firstMatch.tap()
+        let channel = app.buttons["library.channelItem"].firstMatch
+        XCTAssertTrue(channel.waitForExistence(timeout: 10))
+        channel.tap()
+        XCTAssertTrue(app.buttons["channel.subscribe"].waitForExistence(timeout: 30), "No channel page")
+        sleep(3)
+        shot(app, "30-channel")
+        app.swipeUp()
+        sleep(1)
+        shot(app, "31-channel-scrolled")
+    }
+
     @MainActor
     private func shot(_ app: XCUIApplication, _ name: String) {
         let attachment = XCTAttachment(screenshot: app.screenshot())

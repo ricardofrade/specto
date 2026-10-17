@@ -242,14 +242,7 @@ public struct FeedScreen: View {
     private var emptyState: some View {
         switch emptyReason {
         case .noInstance:
-            ContentUnavailableView {
-                Label { Text("Bring your own server") } icon: { Image(systemName: "server.rack") }
-            } description: {
-                Text("This app plays videos through a Piped, Invidious or YT Zero server that you run or trust. It has no servers of its own and collects nothing. Add yours to see your subscriptions here.")
-            } actions: {
-                Button { onEmptyAction() } label: { Text("Add Instance") }
-                    .buttonStyle(.glassProminent)
-            }
+            WelcomeView(addInstance: onEmptyAction)
         case .noSubscriptions:
             if model.trending.isEmpty {
                 ContentUnavailableView {
@@ -293,7 +286,8 @@ struct RowActions {
     let openChannel: (ChannelID, String) -> Void
     let addToQueue: (FeedRow) -> Void
     let setWatched: (FeedRow, Bool) -> Void
-    let hideChannel: (FeedRow) -> Void
+    /// Nil where hiding makes no sense (Explore: channels the person doesn't follow).
+    let hideChannel: ((FeedRow) -> Void)?
     let saveToWatchLater: (FeedRow) -> Void
     let saveToPlaylist: (FeedRow) -> Void
 }
@@ -328,9 +322,11 @@ struct RowInteractions: ViewModifier {
                 Button { actions.openChannel(row.channelID, row.channelName) } label: {
                     Label { Text("Go to Channel") } icon: { Image(systemName: "person.crop.circle") }
                 }
-                Divider()
-                Button(role: .destructive) { actions.hideChannel(row) } label: {
-                    Label { Text("Hide \(row.channelName) from Home") } icon: { Image(systemName: "rectangle.slash") }
+                if let hideChannel = actions.hideChannel {
+                    Divider()
+                    Button(role: .destructive) { hideChannel(row) } label: {
+                        Label { Text("Hide \(row.channelName) from Home") } icon: { Image(systemName: "rectangle.slash") }
+                    }
                 }
             }
             .onTapGesture { actions.select(row) }

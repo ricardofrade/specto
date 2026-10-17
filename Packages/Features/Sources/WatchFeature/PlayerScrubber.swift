@@ -48,8 +48,9 @@ struct PlayerScrubber: View {
     private var track: some View {
         ZStack(alignment: .leading) {
             Capsule().fill(.white.opacity(0.3))
-            segmentMarks
             Capsule().fill(.white).scaleEffect(x: fraction, y: 1, anchor: .leading)
+            // Over the played part too, as SponsorBlock draws them: a skipped sponsor stays visible.
+            segmentMarks
             chapterMarks
             thumb
         }
@@ -72,7 +73,7 @@ struct PlayerScrubber: View {
     private var segmentMarks: some View {
         ForEach(session.skipSegments, id: \.self) { segment in
             Rectangle()
-                .fill(Color.yellow.opacity(0.85))
+                .fill(segment.category.color)
                 .frame(width: max(2, x(segment.end) - x(segment.start)))
                 .offset(x: x(segment.start))
         }
@@ -128,5 +129,13 @@ struct PlayerScrubber: View {
 
     private func target(_ fraction: Double) -> Duration {
         (session.duration ?? .zero) * fraction
+    }
+}
+
+extension SkipSegment.Category {
+    /// SponsorBlock's colour for the category.
+    var color: Color {
+        let rgb = self.rgb
+        return Color(red: rgb.red, green: rgb.green, blue: rgb.blue)
     }
 }

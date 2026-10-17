@@ -17,6 +17,9 @@ struct TVRootView: View {
     @State private var feed: FeedModel
     @State private var search: SearchModel
     @State private var library: LibraryModel
+    @State private var explore: ExploreModel
+    @State private var explorePath: [TVRoute] = []
+    @State private var tab = TVTab.home
     @State private var savedPlaylists: SavedPlaylistsModel
     @State private var ownPlaylists: UserPlaylistsModel
     @State private var libraryPath: [TVRoute] = []
@@ -40,20 +43,35 @@ struct TVRootView: View {
         _savedPlaylists = State(initialValue: SavedPlaylistsModel(store: PlaylistStore(environment.database)))
         _ownPlaylists = State(initialValue: UserPlaylistsModel(store: UserPlaylistStore(environment.database)))
         _search = State(initialValue: environment.makeSearchModel())
+        _explore = State(initialValue: ExploreModel(store: TrendingStore(environment.database),
+                                                    regionName: AppEnvironment.regionName) { category in
+            try await environment.refreshTrending(category)
+        })
     }
 
+    enum TVTab: Hashable { case home, explore, library, search, settings }
+
     var body: some View {
-        TabView {
-            Tab {
+        TabView(selection: $tab) {
+            Tab(value: TVTab.home) {
                 NavigationStack(path: $homePath) {
-                    HomeView(environment: environment, feed: feed, actions: actions { homePath.append($0) })
+                    HomeView(environment: environment, feed: feed, actions: actions { homePath.append($0) },
+                             openSettings: { tab = .settings })
                         .onAppear(perform: onFirstFeedFrame)
                         .routes(environment: environment, actions: actions { homePath.append($0) })
                 }
             } label: {
                 Text("Home")
             }
-            Tab {
+            Tab(value: TVTab.explore) {
+                NavigationStack(path: $explorePath) {
+                    TVExploreView(model: explore, actions: actions { explorePath.append($0) })
+                        .routes(environment: environment, actions: actions { explorePath.append($0) })
+                }
+            } label: {
+                Text("Explore")
+            }
+            Tab(value: TVTab.library) {
                 NavigationStack(path: $libraryPath) {
                     TVLibraryView(model: library, playlists: savedPlaylists, own: ownPlaylists, actions: actions { libraryPath.append($0) })
                         .routes(environment: environment, actions: actions { libraryPath.append($0) })
@@ -61,13 +79,13 @@ struct TVRootView: View {
             } label: {
                 Text("Library")
             }
-            Tab(role: .search) {
+            Tab(value: TVTab.search, role: .search) {
                 NavigationStack(path: $searchPath) {
                     TVSearchView(model: search, actions: actions { searchPath.append($0) })
                         .routes(environment: environment, actions: actions { searchPath.append($0) })
                 }
             }
-            Tab {
+            Tab(value: TVTab.settings) {
                 NavigationStack {
                     TVSettingsView(environment: environment)
                 }
@@ -90,6 +108,9 @@ struct TVRootView: View {
         }
         .onChange(of: scenePhase) { _, phase in
             environment.scenePhaseChanged(phase)
+        }
+        .onChange(of: environment.instances, initial: true) {
+            explore.setCategoriesAvailable(environment.supportsTrendingCategories)
         }
         .task { environment.warmUp() }
     }

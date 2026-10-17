@@ -10,16 +10,13 @@ struct HomeView: View {
     let environment: AppEnvironment
     let feed: FeedModel
     let actions: VideoActions
+    let openSettings: () -> Void
 
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: TVMetrics.sectionSpacing) {
                 if environment.instances.isEmpty {
-                    ContentUnavailableView {
-                        Label { Text("Bring your own server") } icon: { Image(systemName: "server.rack") }
-                    } description: {
-                        Text("Add your Piped, Invidious or YT Zero instance in Settings.")
-                    }
+                    TVWelcomeView(openSettings: openSettings)
                 }
                 // No subscriptions yet: what's trending, to find channels to follow.
                 if !environment.instances.isEmpty, !environment.hasSubscriptions, feed.featured == nil {

@@ -10,11 +10,16 @@ public struct SearchScreen: View {
     private let onSelect: (VideoSummary) -> Void
     private let onOpenChannel: (ChannelSummary) -> Void
     private let onOpenPlaylist: (PlaylistSummary) -> Void
+    private let onOpenExplore: (() -> Void)?
     @Environment(\.displayScale) private var displayScale
+    @Environment(\.dynamicTypeSize) private var typeSize
 
+    /// - Parameter onOpenExplore: "See All" under Trending on the starting screen (nil: none).
     public init(model: SearchModel, onSelect: @escaping (VideoSummary) -> Void,
                 onOpenChannel: @escaping (ChannelSummary) -> Void = { _ in },
-                onOpenPlaylist: @escaping (PlaylistSummary) -> Void = { _ in }) {
+                onOpenPlaylist: @escaping (PlaylistSummary) -> Void = { _ in },
+                onOpenExplore: (() -> Void)? = nil) {
+        self.onOpenExplore = onOpenExplore
         self.model = model
         self.onSelect = onSelect
         self.onOpenChannel = onOpenChannel
@@ -25,7 +30,10 @@ public struct SearchScreen: View {
     public var body: some View {
         content
             .navigationTitle(Text("Search"))
-            .searchable(text: $model.query, prompt: Text("Videos, channels, playlists"))
+            // Always showing: the starting screen scrolls, and a field that hides until pulled
+            // down is no use on the Search tab.
+            .searchable(text: $model.query, placement: .navigationBarDrawer(displayMode: .always),
+                        prompt: Text("Videos, channels, playlists"))
             .searchScopes($model.filter, activation: .onSearchPresentation) {
                 Text("Videos").tag(SearchFilter.videos)
                 Text("Channels").tag(SearchFilter.channels)
@@ -45,14 +53,14 @@ public struct SearchScreen: View {
     private var content: some View {
         switch model.phase {
         case .idle:
-            if model.recent.isEmpty {
+            if model.hasIdleContent {
+                idle
+            } else {
                 ContentUnavailableView {
                     Label { Text("Search your instances") } icon: { Image(systemName: "magnifyingglass") }
                 } description: {
                     Text("Suggestions and results come from your own instances.")
                 }
-            } else {
-                recentList
             }
         case .loading:
             ScrollView {
@@ -77,30 +85,98 @@ public struct SearchScreen: View {
         }
     }
 
-    private var recentList: some View {
-        List {
-            Section {
-                ForEach(model.recent, id: \.self) { text in
-                    Button { Task { await model.search(text) } } label: {
-                        Label { Text(verbatim: text) } icon: { Image(systemName: "clock.arrow.circlepath") }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .contentShape(.rect)
+    /// Before typing: recent searches as chips, the person's channels, and what's trending.
+    private var idle: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Tokens.Spacing.section) {
+                if !model.recent.isEmpty {
+                    VStack(alignment: .leading, spacing: Tokens.Spacing.m) {
+                        header(Text("Recent")) {
+                            Button { model.clearRecent() } label: { Text("Clear") }
+                                .accessibilityIdentifier("search.clearRecent")
+                        }
+                        FlowLayout {
+                            ForEach(model.recent, id: \.self) { text in
+                                Button { Task { await model.search(text) } } label: {
+                                    Label { Text(verbatim: text).lineLimit(1) } icon: { Image(systemName: "clock.arrow.circlepath") }
+                                }
+                                .buttonStyle(.glass)
+                                .accessibilityIdentifier("search.recent")
+                                .contextMenu {
+                                    Button(role: .destructive) { model.removeRecent(text) } label: {
+                                        Label { Text("Remove") } icon: { Image(systemName: "trash") }
+                                    }
+                                }
+                            }
+                        }
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityIdentifier("search.recent")
-                    .swipeActions { Button(role: .destructive) { model.removeRecent(text) } label: { Text("Remove") } }
+                    .padding(.horizontal, Tokens.Spacing.screenInset)
                 }
-            } header: {
-                HStack {
-                    Text("Recent")
-                    Spacer()
-                    Button { model.clearRecent() } label: { Text("Clear") }
-                        .font(.subheadline)
-                        .accessibilityIdentifier("search.clearRecent")
+                if !model.channels.isEmpty {
+                    VStack(alignment: .leading, spacing: Tokens.Spacing.m) {
+                        header(Text("Your Channels")) { EmptyView() }
+                            .padding(.horizontal, Tokens.Spacing.screenInset)
+                        ScrollView(.horizontal) {
+                            LazyHStack(alignment: .top, spacing: Tokens.Spacing.m) {
+                                ForEach(model.channels) { item in
+                                    Button { onOpenChannel(item.channel) } label: {
+                                        VStack(spacing: Tokens.Spacing.xs) {
+                                            AvatarView(item.avatar, size: 60)
+                                            // Left out at accessibility sizes (a letter or two
+                                            // wide); VoiceOver still reads it.
+                                            if !typeSize.isAccessibilitySize {
+                                                Text(verbatim: item.channel.name)
+                                                    .font(.caption)
+                                                    .foregroundStyle(Tokens.Colors.textSecondary)
+                                                    .lineLimit(1)
+                                                    .frame(width: 72)
+                                            }
+                                        }
+                                    }
+                                    .buttonStyle(.plain)
+                                    .accessibilityLabel(Text(verbatim: item.channel.name))
+                                    .accessibilityIdentifier("search.yourChannel")
+                                }
+                            }
+                            .padding(.horizontal, Tokens.Spacing.screenInset)
+                        }
+                        .scrollIndicators(.hidden)
+                    }
+                }
+                if !model.trending.isEmpty {
+                    VStack(alignment: .leading, spacing: Tokens.Spacing.m) {
+                        header(Label { Text("Trending") } icon: { Image(systemName: "flame.fill") }) {
+                            if let onOpenExplore {
+                                Button(action: onOpenExplore) { Text("See All") }
+                                    .accessibilityIdentifier("search.seeAllTrending")
+                            }
+                        }
+                        ForEach(model.trending) { row in
+                            Button { onSelect(row.video) } label: {
+                                VideoCell(VideoCellContent(row: row, pixelWidth: Int(160 * displayScale)), style: .row,
+                                          thumbnailWidth: 160)
+                                    .equatable()
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityIdentifier("search.trending")
+                        }
+                    }
+                    .padding(.horizontal, Tokens.Spacing.screenInset)
                 }
             }
+            .padding(.vertical, Tokens.Spacing.l)
         }
-        .listStyle(.plain)
+        .accessibilityIdentifier("search.idle")
+    }
+
+    private func header(_ title: some View, @ViewBuilder trailing: () -> some View) -> some View {
+        HStack(alignment: .firstTextBaseline) {
+            title
+                .font(Tokens.Typography.sectionTitle)
+                .accessibilityAddTraits(.isHeader)
+            Spacer()
+            trailing()
+        }
     }
 
     @ViewBuilder

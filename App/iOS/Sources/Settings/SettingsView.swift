@@ -33,29 +33,143 @@ struct SettingsView: View {
                     LabeledContent {
                         Text("\(environment.instances.count)")
                     } label: {
-                        Label { Text("Instances & Subscriptions") } icon: { Image(systemName: "server.rack") }
+                        Label { Text("Instances & Subscriptions") } icon: { SettingsTile("server.rack", .blue) }
                     }
                 }
                 .accessibilityIdentifier("settings.instances")
             }
 
             Section {
-                Toggle(isOn: $settings.hideShorts) { Text("Hide Shorts") }
-                Toggle(isOn: $settings.hideWatched) { Text("Hide watched videos") }
-                Toggle(isOn: $settings.showsRelated) { Text("Show “Up next” suggestions") }
-                Toggle(isOn: $settings.autoplay) { Text("Autoplay the next suggestion") }
-            } header: {
-                Text("Feed")
+                NavigationLink { feedPage } label: {
+                    Label { Text("Home & Feed") } icon: { SettingsTile("house.fill", .orange) }
+                }
+                .accessibilityIdentifier("settings.feed")
+                NavigationLink { playbackPage } label: {
+                    Label { Text("Video Quality") } icon: { SettingsTile("play.rectangle.fill", .red) }
+                }
+                .accessibilityIdentifier("settings.playback")
+                NavigationLink { searchPage } label: {
+                    Label { Text("Search") } icon: { SettingsTile("magnifyingglass", .gray) }
+                }
+                .accessibilityIdentifier("settings.search")
+                NavigationLink { notificationsPage } label: {
+                    LabeledContent {
+                        if settings.notifiesNewUploads { Text("On") } else { Text("Off") }
+                    } label: {
+                        Label { Text("Notifications") } icon: { SettingsTile("bell.badge.fill", .red) }
+                    }
+                }
+                .accessibilityIdentifier("settings.notifications")
             }
 
             Section {
-                Toggle(isOn: $settings.searchSuggestions) { Text("Suggestions while typing") }
+                SponsorBlockSettingsLink(settings: settings)
+                NavigationLink { deArrowPage } label: {
+                    LabeledContent {
+                        if settings.brandedTitles || settings.brandedThumbnails { Text("On") } else { Text("Off") }
+                    } label: {
+                        Label { Text("DeArrow") } icon: { SettingsTile("textformat.alt", .purple) }
+                    }
+                }
+                .accessibilityIdentifier("settings.deArrow")
             } header: {
-                Text("Search")
+                Text("Community")
+            }
+
+            Section {
+                NavigationLink { Form { BackupSection(environment: environment) }.navigationTitle(Text("Backup")) } label: {
+                    Label { Text("Backup") } icon: { SettingsTile("externaldrive.fill", .teal) }
+                }
+                .accessibilityIdentifier("settings.backup")
+                #if OFFLINE_DOWNLOADS
+                NavigationLink { offlinePage } label: {
+                    Label { Text("Offline listening") } icon: { SettingsTile("arrow.down.circle.fill", .indigo) }
+                }
+                .accessibilityIdentifier("settings.offline")
+                #endif
+            }
+
+            Section {
+                NavigationLink {
+                    DiagnosticsView(collector: environment.diagnostics)
+                } label: {
+                    Label { Text("Diagnostics") } icon: { SettingsTile("stethoscope", .gray) }
+                }
+                NavigationLink {
+                    LicensesView()
+                } label: {
+                    Label { Text("Open-Source Licences") } icon: { SettingsTile("doc.text.fill", .gray) }
+                }
+                LabeledContent { Text(Bundle.main.versionString) } label: { Text("Version") }
+            } header: {
+                Text("About")
+            } footer: {
+                Text("This app has no servers of its own and collects no data. It talks only to the instances you add.")
+            }
+        }
+        .navigationTitle(Text("Settings"))
+        .navigationDestination(for: SceneRouter.SettingsRoute.self) { route in
+            switch route {
+            case .instances:
+                InstancesScreen(instances: InstanceStore(environment.database),
+                                subscriptions: SubscriptionStore(environment.database),
+                                secrets: environment.secrets, deviceName: UIDevice.current.name,
+                                onChange: { environment.instancesChanged() },
+                                onImported: { environment.subscriptionsChanged($0) },
+                                checkHealth: { await environment.checkInstanceHealth() },
+                                startsAdding: environment.instances.isEmpty)
+            }
+        }
+    }
+
+    private var feedPage: some View {
+        Form {
+            Section {
+                Toggle(isOn: $settings.hideShorts) { Text("Hide Shorts") }
+                Toggle(isOn: $settings.hideWatched) { Text("Hide watched videos") }
+            } header: {
+                Text("Home")
+            }
+            Section {
+                Toggle(isOn: $settings.showsRelated) { Text("Show “Up next” suggestions") }
+                Toggle(isOn: $settings.autoplay) { Text("Autoplay the next suggestion") }
+            } header: {
+                Text("Watching")
+            }
+        }
+        .navigationTitle(Text("Home & Feed"))
+    }
+
+    private var searchPage: some View {
+        Form {
+            Section {
+                Toggle(isOn: $settings.searchSuggestions) { Text("Suggestions while typing") }
             } footer: {
                 Text("What you type is sent to your instance, which asks YouTube for suggestions. Recent searches stay on this device.")
             }
+        }
+        .navigationTitle(Text("Search"))
+    }
 
+    private var notificationsPage: some View {
+        Form {
+            Section {
+                Toggle(isOn: Binding(get: { settings.notifiesNewUploads }, set: { setNotifications($0) })) {
+                    Text("New videos from subscriptions")
+                }
+            } footer: {
+                if notificationsDenied {
+                    Text("Notifications are off for this app. Turn them on in the Settings app.")
+                } else {
+                    Text("Checked in the background a few times a day, from your own instances. Turn them off for one channel in Library → Channels.")
+                }
+            }
+        }
+        .navigationTitle(Text("Notifications"))
+    }
+
+    private var playbackPage: some View {
+        Form {
             Section {
                 QualityLimitPicker(title: Text("On Wi-Fi"), limit: $settings.wifiQualityLimit)
                     .accessibilityIdentifier("settings.wifiQuality")
@@ -64,39 +178,28 @@ struct SettingsView: View {
                     QualityLimitPicker(title: Text("On cellular"), limit: $settings.cellularQualityLimit)
                         .accessibilityIdentifier("settings.cellularQuality")
                 }
-            } header: {
-                Text("Video quality")
             } footer: {
                 Text("The highest quality to play. Cellular includes personal hotspots, and Low Data Mode plays at up to 480p. You can still pick a quality for a video in the player.")
             }
+        }
+        .navigationTitle(Text("Video Quality"))
+    }
 
+    private var deArrowPage: some View {
+        Form {
             Section {
-                SponsorBlockSettingsLink(settings: settings)
                 Toggle(isOn: $settings.brandedTitles) { Text("Community titles (DeArrow)") }
                 Toggle(isOn: $settings.brandedThumbnails) { Text("Community thumbnails (DeArrow)") }
-            } header: {
-                Text("Community")
             } footer: {
-                Text("SponsorBlock and DeArrow titles are looked up anonymously by a short hash, never the video itself. Community thumbnails ask DeArrow's thumbnail service for each video.")
+                Text("DeArrow titles are looked up anonymously by a short hash, never the video itself. Community thumbnails ask DeArrow's thumbnail service for each video.")
             }
+        }
+        .navigationTitle(Text("DeArrow"))
+    }
 
-            Section {
-                Toggle(isOn: Binding(get: { settings.notifiesNewUploads }, set: { setNotifications($0) })) {
-                    Text("New videos from subscriptions")
-                }
-            } header: {
-                Text("Notifications")
-            } footer: {
-                if notificationsDenied {
-                    Text("Notifications are off for this app. Turn them on in the Settings app.")
-                } else {
-                    Text("Checked in the background a few times a day, from your own instances.")
-                }
-            }
-
-            BackupSection(environment: environment)
-
-            #if OFFLINE_DOWNLOADS
+    #if OFFLINE_DOWNLOADS
+    private var offlinePage: some View {
+        Form {
             Section {
                 Toggle(isOn: $settings.downloadsQueue) { Text("Download queued videos") }
                 Picker(selection: $settings.offlineLimitBytes) {
@@ -119,51 +222,35 @@ struct SettingsView: View {
                         offlineUsed = await environment.offlineUsage()
                     }
                 } label: { Text("Delete All Downloads") }
-            } header: {
-                Text("Offline listening")
             } footer: {
                 Text("Audio of queued videos is saved for listening without a connection, such as in the car. Watched items are removed first.")
             }
-            .task { offlineUsed = await environment.offlineUsage() }
-            .onChange(of: settings.offlineLimitBytes) {
-                Task { offlineUsed = await environment.applyOfflineLimit() }
-            }
-            #endif
-
-            Section {
-                NavigationLink {
-                    DiagnosticsView(collector: environment.diagnostics)
-                } label: {
-                    Label { Text("Diagnostics") } icon: { Image(systemName: "stethoscope") }
-                }
-            } footer: {
-                Text("Performance and crash reports stay on this device unless you share them.")
-            }
-
-            Section {
-                NavigationLink {
-                    LicensesView()
-                } label: {
-                    Label { Text("Open-Source Licences") } icon: { Image(systemName: "doc.text") }
-                }
-                LabeledContent { Text(Bundle.main.versionString) } label: { Text("Version") }
-            } header: {
-                Text("About")
-            } footer: {
-                Text("This app has no servers of its own and collects no data. It talks only to the instances you add.")
-            }
         }
-        .navigationTitle(Text("Settings"))
-        .navigationDestination(for: SceneRouter.SettingsRoute.self) { route in
-            switch route {
-            case .instances:
-                InstancesScreen(instances: InstanceStore(environment.database),
-                                subscriptions: SubscriptionStore(environment.database),
-                                secrets: environment.secrets, deviceName: UIDevice.current.name,
-                                onChange: { environment.instancesChanged() },
-                                onImported: { environment.subscriptionsChanged($0) },
-                                checkHealth: { await environment.checkInstanceHealth() })
-            }
+        .navigationTitle(Text("Offline listening"))
+        .task { offlineUsed = await environment.offlineUsage() }
+        .onChange(of: settings.offlineLimitBytes) {
+            Task { offlineUsed = await environment.applyOfflineLimit() }
         }
+    }
+    #endif
+}
+
+/// A Settings row's icon: a white symbol on a coloured rounded square, as in the Settings app.
+struct SettingsTile: View {
+    let symbol: String
+    let color: Color
+
+    init(_ symbol: String, _ color: Color) {
+        self.symbol = symbol
+        self.color = color
+    }
+
+    var body: some View {
+        Image(systemName: symbol)
+            .font(.system(size: 15, weight: .semibold))
+            .foregroundStyle(.white)
+            .frame(width: 29, height: 29)
+            .background(color.gradient, in: .rect(cornerRadius: 7))
+            .accessibilityHidden(true)
     }
 }

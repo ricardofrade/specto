@@ -377,3 +377,39 @@ private extension SyncStore.Values {
         return false
     }
 }
+
+@Suite struct TrendingStoreTests {
+    private func video(_ id: String, daysAgo: Double = 1) -> VideoSummary {
+        VideoSummary(id: VideoID(rawValue: id), title: id, channelID: ChannelID(rawValue: "UCzzzzzzzzzzzzzzzzzzzzzz"),
+                     channelName: "Z", duration: .seconds(60), publishedAt: .now.addingTimeInterval(-daysAgo * 86_400),
+                     viewCount: 1, thumbnails: [])
+    }
+
+    @Test func keepsTheListInOrderAndReplacesIt() throws {
+        let db = try AppDatabase.inMemory()
+        let store = TrendingStore(db)
+        try store.replace(with: [video("b"), video("a"), video("c")])
+        #expect(try store.rows().map(\.id.rawValue) == ["b", "a", "c"])
+        try store.replace(with: [video("d")])
+        #expect(try store.rows().map(\.id.rawValue) == ["d"])
+        // Not subscribed: trending never shows on Home.
+        #expect(try FeedStore(db).rows().isEmpty)
+    }
+
+    @Test func eachCategoryKeepsItsOwnList() throws {
+        let db = try AppDatabase.inMemory()
+        let store = TrendingStore(db)
+        try store.replace(with: [video("a"), video("b")])
+        try store.replace(with: [video("m"), video("m")], category: .music)   // Duplicates collapse.
+        #expect(try store.rows().map(\.id.rawValue) == ["a", "b"])
+        #expect(try store.rows(.music).map(\.id.rawValue) == ["m"])
+        #expect(try store.rows(.gaming).isEmpty)
+    }
+
+    @Test func pruneKeepsListedVideos() throws {
+        let db = try AppDatabase.inMemory()
+        try TrendingStore(db).replace(with: [video("old", daysAgo: 400)])
+        try FeedStore(db).prune()
+        #expect(try TrendingStore(db).rows().map(\.id.rawValue) == ["old"])
+    }
+}
