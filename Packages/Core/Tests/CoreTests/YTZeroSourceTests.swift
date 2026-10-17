@@ -126,5 +126,9 @@ struct HTMLTextTests {
         #expect(HTMLText.plain("Line one<br>Line two") == "Line one\nLine two")
         #expect(HTMLText.plain("<a href=\"x\">link</a> &amp; &quot;quoted&quot; &#8212; done") == "link & \"quoted\" — done")
         #expect(HTMLText.plain("plain") == "plain")
+        // A shortened address keeps its full href; other link text stays as written.
+        #expect(HTMLText.plain(#"More: <a href="https://studio.blender.org/projects/big-buck-bunny/">https://studio.blender.org/projects/b...</a>"#)
+                == "More: https://studio.blender.org/projects/big-buck-bunny/")
+        #expect(HTMLText.plain(#"<a href="https://www.youtube.com/watch?v=aqz-KE-bpKQ&amp;t=120s">2:00</a> Chorus"#) == "2:00 Chorus")
     }
 }

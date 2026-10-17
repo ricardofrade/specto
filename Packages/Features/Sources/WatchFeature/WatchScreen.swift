@@ -9,10 +9,17 @@ import DesignSystem
 public struct WatchContent: Sendable, Equatable {
     public let video: VideoSummary
     /// The channel's first letter, for its monogram.
-    public let channelInitial: String
+    /// The channel, from the details once they arrive (a video opened by link knows only its ID).
+    public private(set) var channelID: ChannelID
+    public private(set) var channelName: String
+    public private(set) var channelInitial: String
     public var details: VideoDetails? {
-        didSet { relatedRows = Self.format(details?.related ?? []) }
+        didSet { applyDetails() }
     }
+    /// The description with tappable links and timestamps, built once when details arrive.
+    public private(set) var descriptionText: AttributedString?
+    /// Long enough to need More (about six lines on a phone).
+    public private(set) var descriptionIsLong = false
     public private(set) var chapters: [ChapterRow] = []
     /// Scrubbing previews for this video, sized for the phone's preview bubble.
     public var storyboard: Storyboard?
@@ -22,10 +29,27 @@ public struct WatchContent: Sendable, Equatable {
 
     public init(video: VideoSummary, details: VideoDetails? = nil, error: String? = nil) {
         self.video = video
-        channelInitial = video.channelName.first.map { String($0).uppercased() } ?? "•"
+        channelID = video.channelID
+        channelName = video.channelName
+        channelInitial = Self.initial(video.channelName)
         self.details = details
         self.error = error
+        applyDetails()
+    }
+
+    private mutating func applyDetails() {
         relatedRows = Self.format(details?.related ?? [])
+        descriptionText = details.map { DescriptionText.attributed($0.description) }
+        descriptionIsLong = details.map { DescriptionText.isLong($0.description) } ?? false
+        if let summary = details?.summary, !summary.channelName.isEmpty {
+            channelID = summary.channelID
+            channelName = summary.channelName
+            channelInitial = Self.initial(summary.channelName)
+        }
+    }
+
+    private static func initial(_ name: String) -> String {
+        name.first.map { String($0).uppercased() } ?? "•"
     }
 
     public mutating func setChapters(_ chapters: [Chapter]) {
@@ -173,13 +197,13 @@ public struct WatchScreen: View {
             Text(content.video.title)
                 .font(Tokens.Typography.sectionTitle)
                 .accessibilityAddTraits(.isHeader)
-            Button { onOpenChannel(content.video.channelID, content.video.channelName) } label: {
+            Button { onOpenChannel(content.channelID, content.channelName) } label: {
                 HStack(spacing: Tokens.Spacing.s) {
                     Text(content.channelInitial)
                         .font(.subheadline.weight(.bold))
                         .frame(width: 30, height: 30)
                         .background(Tokens.Colors.accent.opacity(0.25), in: .circle)
-                    Text(content.video.channelName)
+                    Text(content.channelName)
                         .font(Tokens.Typography.cellMeta.weight(.semibold))
                     Image(systemName: "chevron.right").font(.caption.weight(.semibold))
                         .foregroundStyle(Tokens.Colors.textSecondary)
@@ -198,11 +222,8 @@ public struct WatchScreen: View {
                 Label(error, systemImage: "exclamationmark.triangle")
                     .foregroundStyle(.red)
             }
-            if let description = content.details?.description, !description.isEmpty {
-                Text(description)
-                    .font(Tokens.Typography.body)
-                    .lineLimit(6)
-                    .selectableText()
+            if let description = content.descriptionText, !description.characters.isEmpty {
+                DescriptionView(text: description, isLong: content.descriptionIsLong, session: session)
             }
             if showsRelated, !content.relatedRows.isEmpty {
                 Text("Up next").font(.headline).padding(.top, Tokens.Spacing.m)
@@ -388,5 +409,37 @@ extension VideoCellContent {
         self.init(title: row.title, channelName: row.channelName, detail: row.detail, durationText: row.durationText,
                   thumbnailURL: row.thumbnails.best(forPixelWidth: pixelWidth)?.url, isLive: row.isLive,
                   progress: row.progress)
+    }
+}
+
+/// The description: six lines, More to read the rest. Timestamps seek; YouTube links open in
+/// this app (its URL scheme); other links open in the browser.
+private struct DescriptionView: View {
+    let text: AttributedString
+    let isLong: Bool
+    let session: PlaybackSession
+    @State private var expanded = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+            Text(text)
+                .font(Tokens.Typography.body)
+                .lineLimit(expanded ? nil : 6)
+                .selectableText()
+                .accessibilityIdentifier("watch.description")
+            if isLong {
+                Button { expanded.toggle() } label: {
+                    Text(expanded ? "Less" : "More").font(Tokens.Typography.body.weight(.semibold))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(Tokens.Colors.accent)
+                .accessibilityIdentifier("watch.descriptionMore")
+            }
+        }
+        .environment(\.openURL, OpenURLAction { url in
+            guard let seconds = DescriptionText.seconds(in: url) else { return .systemAction }
+            Task { await session.seek(to: .seconds(seconds), precise: true) }
+            return .handled
+        })
     }
 }
