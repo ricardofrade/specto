@@ -156,9 +156,14 @@ public struct PlaylistsScreen: View {
 /// A row of the person's playlists: first video's thumbnail, title, count.
 struct UserPlaylistCell: View {
     let row: UserPlaylistRow
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
-        HStack(spacing: Tokens.Spacing.m) {
+        // At accessibility text sizes the thumbnail goes above the text, so titles get the width.
+        let layout = typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: Tokens.Spacing.s))
+            : AnyLayout(HStackLayout(spacing: Tokens.Spacing.m))
+        layout {
             ZStack {
                 RoundedRectangle(cornerRadius: Tokens.Radius.thumbnail).fill(Tokens.Colors.accent.opacity(0.15))
                 if let url = row.thumbnailURL {
@@ -172,9 +177,10 @@ struct UserPlaylistCell: View {
             .clipShape(.rect(cornerRadius: Tokens.Radius.thumbnail))
             .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: Tokens.Spacing.xxs) {
-                Text(row.title).font(Tokens.Typography.cellMeta.weight(.semibold)).lineLimit(2)
+                Text(row.title).font(Tokens.Typography.cellMeta.weight(.semibold)).lineLimit(3)
                 Text(row.countText).font(Tokens.Typography.caption).foregroundStyle(Tokens.Colors.textSecondary)
             }
+            .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .contentShape(.rect)
@@ -261,6 +267,7 @@ public struct SaveToPlaylistSheet: View {
     @State private var naming = false
     @State private var newTitle = ""
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     public init(model: UserPlaylistsModel, video: VideoSummary) {
         _model = State(initialValue: model)
@@ -302,7 +309,8 @@ public struct SaveToPlaylistSheet: View {
                 Button { model.create(newTitle, with: video) } label: { Text("Create") }
             }
         }
-        .presentationDetents([.medium, .large])
+        // At accessibility text sizes half a screen shows barely one row: open full height.
+        .presentationDetents(typeSize.isAccessibilitySize ? [.large] : [.medium, .large])
         .task { await model.start() }
     }
 }

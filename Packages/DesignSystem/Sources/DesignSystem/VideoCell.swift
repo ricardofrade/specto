@@ -190,9 +190,14 @@ public struct AvatarView: View {
                     .font(.system(size: size * 0.5))
                     .foregroundStyle(.white)
             } else {
-                Text(verbatim: avatar.initial)
-                    .font(.system(size: size * 0.45, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.white)
+                // Drawn, not a Text: the letter is decoration sized to the circle, and a text
+                // element at a fixed size fails the Dynamic Type audit even when hidden.
+                Canvas { context, canvas in
+                    let letter = Text(verbatim: avatar.initial)
+                        .font(.system(size: size * 0.45, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.white)
+                    context.draw(letter, at: CGPoint(x: canvas.width / 2, y: canvas.height / 2))
+                }
             }
             if let url = avatar.url {
                 RemoteImage(url, pointSize: CGSize(width: size, height: size)).clipShape(.circle)
