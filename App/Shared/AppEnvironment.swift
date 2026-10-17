@@ -60,6 +60,9 @@ final class AppEnvironment {
 
     /// Picked in the player for this video; nil plans automatically (ADR 0007).
     private(set) var manualQuality: Int?
+    /// Autoplay's countdown while it runs (the Watch screen's card, the TV's Up Next panel).
+    var upNext: UpNextCountdown?
+    @ObservationIgnored var upNextTask: Task<Void, Never>?
     /// The playlist being played through (Play All); auto-advance continues in it after the queue.
     @ObservationIgnored var playlistContext: [VideoSummary] = []
     @ObservationIgnored var nowPlaying: NowPlayingController?
@@ -437,6 +440,7 @@ final class AppEnvironment {
     func play(_ video: VideoSummary, mode: PlaybackMode = .video, surfaceHeight: Int) async throws -> WatchPage {
         let tap = Signpost.begin(.playbackTapToFirstFrame)
         prepareForPlayback()
+        if upNext?.video.id != video.id { cancelUpNext() }   // Something else was picked.
         #if OFFLINE_DOWNLOADS
         // Downloaded audio plays without the network (the car, a flight).
         if mode == .audioOnly, let file = offlineAudio.localFile(for: video.id) {

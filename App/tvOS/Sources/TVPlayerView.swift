@@ -75,6 +75,7 @@ struct TVPlayerView: View {
             }
             if showsPanel {
                 InfoPanel(chapters: chapters, starts: chapterStarts, current: transport.chapterIndex, related: related,
+                          upNextTitle: environment.upNext?.label,
                           captions: environment.captionTracks, selectedCaption: environment.selectedCaption,
                           onCaption: { environment.selectCaption($0) },
                           rate: session.rate, onRate: { session.setRate($0) },
@@ -230,6 +231,7 @@ struct TVPlayerView: View {
     }
 
     private func closePanel() {
+        environment.cancelUpNext()   // Closing Up Next means "not now".
         withAnimation(Tokens.Motion.standard) { showsPanel = false }
         playerFocused = true
     }
@@ -334,6 +336,8 @@ private struct InfoPanel: View {
     let starts: [String]
     let current: Int?
     let related: [FeedRow]
+    /// Autoplay's countdown ("Up next in 5") while it runs.
+    let upNextTitle: String?
     let captions: [CaptionTrack]
     let selectedCaption: CaptionTrack?
     let onCaption: (CaptionTrack?) -> Void
@@ -420,7 +424,7 @@ private struct InfoPanel: View {
                 }
             }
             if !related.isEmpty {
-                shelf(Text("Up Next")) {
+                shelf(upNextTitle.map { Text(verbatim: $0) } ?? Text("Up Next")) {
                     ForEach(related) { row in
                         Button { onPlay(row.video) } label: {
                             VStack(alignment: .leading, spacing: 10) {

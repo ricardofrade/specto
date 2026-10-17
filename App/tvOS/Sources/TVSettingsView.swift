@@ -34,6 +34,7 @@ struct TVSettingsView: View {
             Section {
                 Toggle(isOn: $settings.hideShorts) { Text("Hide Shorts") }
                 Toggle(isOn: $settings.hideWatched) { Text("Hide watched videos") }
+                Toggle(isOn: $settings.autoplay) { Text("Autoplay the next suggestion") }
                 Toggle(isOn: $settings.skipsSponsors) { Text("Skip sponsors (SponsorBlock)") }
                 Toggle(isOn: $settings.brandedTitles) { Text("Community titles (DeArrow)") }
                 QualityLimitPicker(title: Text("Video quality"), limit: $settings.wifiQualityLimit)

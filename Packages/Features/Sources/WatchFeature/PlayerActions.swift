@@ -33,6 +33,10 @@ public struct PlayerActions {
     public var audioTracks: [AudioTrackOption] = []
     public var selectedAudio: String?
     public var selectAudio: (String?) -> Void = { _ in }
+    /// Autoplay's countdown to the next video (nil: none), and what the card's buttons do.
+    public var upNext: UpNextCountdown?
+    public var cancelUpNext: () -> Void = {}
+    public var playUpNextNow: () -> Void = {}
     /// The sleep timer's choice (nil: off), its countdown, and how to change it.
     public var sleepChoice: SleepTimer.Choice?
     public var sleepStatus: String?

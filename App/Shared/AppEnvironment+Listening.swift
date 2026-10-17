@@ -59,11 +59,48 @@ extension AppEnvironment {
                     }
                     if let next = (try? QueueStore(self.database).next(after: current)) ?? self.nextInPlaylist(after: current) {
                         _ = try? await self.play(next, mode: mode, surfaceHeight: self.surfaceHeight)
+                    } else {
+                        self.startUpNext(after: current, mode: mode)
                     }
                 }
                 self.watchForEndOfPlayback()
             }
         }
+    }
+
+    // MARK: Autoplay
+
+    /// Nothing queued: count down, then play the first suggestion (unless turned off in Settings).
+    func startUpNext(after current: VideoID, mode: PlaybackMode) {
+        guard AppSettings.shared.autoplay,
+              let next = UpNextCountdown.candidate(in: currentPage?.details.related ?? [], after: current) else { return }
+        cancelUpNext()
+        upNext = UpNextCountdown(video: next)
+        upNextTask = Task { [weak self] in
+            for left in stride(from: UpNextCountdown.seconds, to: 0, by: -1) {
+                guard !Task.isCancelled else { return }
+                self?.upNext?.tick(left)
+                try? await Task.sleep(for: .seconds(1))
+            }
+            guard !Task.isCancelled, let self, self.upNext?.video.id == next.id else { return }
+            self.upNext = nil
+            self.upNextTask = nil
+            _ = try? await self.play(next, mode: mode, surfaceHeight: self.surfaceHeight)
+        }
+    }
+
+    func cancelUpNext() {
+        upNextTask?.cancel()
+        upNextTask = nil
+        upNext = nil
+    }
+
+    /// Play Now on the card: no need to wait for the countdown.
+    func playUpNextNow() {
+        guard let video = upNext?.video else { return }
+        let mode = session.mode
+        cancelUpNext()
+        Task { _ = try? await play(video, mode: mode, surfaceHeight: surfaceHeight) }
     }
 
     func nextInPlaylist(after id: VideoID) -> VideoSummary? {

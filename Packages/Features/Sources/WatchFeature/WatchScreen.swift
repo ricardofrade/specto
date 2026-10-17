@@ -186,6 +186,13 @@ public struct WatchScreen: View {
             .overlay {
                 if let casting = actions.casting { CastingOverlay(casting: casting) }
             }
+            .overlay(alignment: .bottom) {
+                if let upNext = actions.upNext {
+                    UpNextCard(upNext: upNext, cancel: actions.cancelUpNext, playNow: actions.playUpNextNow)
+                        .padding(Tokens.Spacing.m)
+                        .transition(.opacity)
+                }
+            }
             .overlay(alignment: .top) {
                 SkipNotice(segment: session.lastSkipped).padding(Tokens.Spacing.m)
             }
@@ -441,5 +448,44 @@ private struct DescriptionView: View {
             Task { await session.seek(to: .seconds(seconds), precise: true) }
             return .handled
         })
+    }
+}
+
+/// Autoplay's card over the player when a video ends: what's next, the countdown, Cancel and
+/// Play Now.
+private struct UpNextCard: View {
+    let upNext: UpNextCountdown
+    let cancel: () -> Void
+    let playNow: () -> Void
+    @Environment(\.displayScale) private var displayScale
+
+    var body: some View {
+        HStack(spacing: Tokens.Spacing.m) {
+            RemoteImage(upNext.video.thumbnails.best(forPixelWidth: Int(112 * displayScale))?.url,
+                        pointSize: CGSize(width: 112, height: 63))
+                .frame(width: 112, height: 63)
+                .clipShape(.rect(cornerRadius: Tokens.Radius.thumbnail))
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: Tokens.Spacing.xxs) {
+                Text(upNext.label).font(Tokens.Typography.caption.weight(.semibold)).foregroundStyle(.secondary)
+                    .contentTransition(.numericText())
+                Text(upNext.video.title).font(Tokens.Typography.cellMeta.weight(.semibold)).lineLimit(2)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            Button(action: cancel) {
+                Label { Text("Cancel") } icon: { Image(systemName: "xmark") }.labelStyle(.iconOnly)
+            }
+            .buttonStyle(.glass)
+            .accessibilityIdentifier("watch.upNextCancel")
+            Button(action: playNow) {
+                Label { Text("Play Now") } icon: { Image(systemName: "play.fill") }.labelStyle(.iconOnly)
+            }
+            .buttonStyle(.glassProminent)
+            .accessibilityIdentifier("watch.upNextPlay")
+        }
+        .padding(Tokens.Spacing.s)
+        .glassEffect(in: .rect(cornerRadius: 16))
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("watch.upNext")
     }
 }

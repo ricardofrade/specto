@@ -71,6 +71,11 @@ final class AppSettings {
         didSet { defaults.set(audioLanguage, forKey: Keys.audioLanguage) }
     }
 
+    /// When a video ends with nothing queued, play the first suggestion after a countdown. On.
+    var autoplay: Bool {
+        didSet { defaults.set(autoplay, forKey: Keys.autoplay) }
+    }
+
     /// Search suggestions while typing (from the instances). On by default.
     var searchSuggestions: Bool {
         didSet { defaults.set(searchSuggestions, forKey: Keys.searchSuggestions) }
@@ -92,6 +97,7 @@ final class AppSettings {
         notifiesNewUploads = defaults.bool(forKey: Keys.notifiesNewUploads)
         newUploadsSince = defaults.object(forKey: Keys.newUploadsSince) as? Date
         audioLanguage = defaults.string(forKey: Keys.audioLanguage).flatMap { $0.isEmpty ? nil : $0 }
+        autoplay = Self.flag(defaults, Keys.autoplay, default: true)
         searchSuggestions = Self.flag(defaults, Keys.searchSuggestions, default: true)
         wifiQualityLimit = Self.limit(defaults.integer(forKey: Keys.wifiQualityLimit))
         cellularQualityLimit = Self.limit(defaults.integer(forKey: Keys.cellularQualityLimit))
@@ -124,6 +130,7 @@ final class AppSettings {
         static let showsRelated = "watch.showsRelated"
         static let wifiQualityLimit = "playback.wifiQualityLimit"
         static let searchSuggestions = "search.suggestions"
+        static let autoplay = "playback.autoplay"
         static let audioLanguage = "playback.audioLanguage"
         static let cellularQualityLimit = "playback.cellularQualityLimit"
         static let skipsSponsors = "sponsorBlock.enabled"

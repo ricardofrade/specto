@@ -252,6 +252,9 @@ struct RootView: View {
         actions.audioTracks = environment.availableAudioTracks
         actions.selectedAudio = environment.selectedAudioLanguage
         actions.selectAudio = { language in Task { await environment.selectAudio(language) } }
+        actions.upNext = environment.upNext
+        actions.cancelUpNext = { environment.cancelUpNext() }
+        actions.playUpNextNow = { environment.playUpNextNow() }
         actions.sleepChoice = environment.sleepTimer.choice
         actions.sleepStatus = environment.sleepTimer.status
         actions.setSleep = { environment.sleepTimer.set($0) }

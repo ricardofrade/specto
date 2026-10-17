@@ -977,6 +977,40 @@
         }
       }
     },
+    "Autoplay the next suggestion": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Nächsten Vorschlag automatisch abspielen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Reproducir automáticamente la siguiente sugerencia"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Lire automatiquement la suggestion suivante"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Reproduzir automaticamente a próxima sugestão"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Reproduzir automaticamente a sugestão seguinte"
+          }
+        }
+      }
+    },
     "Back 10 Seconds": {
       "localizations": {
         "de": {
@@ -5567,6 +5601,40 @@
         }
       }
     },
+    "Play Now": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Jetzt abspielen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Reproducir ahora"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Lire maintenant"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Reproduzir Agora"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Reproduzir agora"
+          }
+        }
+      }
+    },
     "Play Queue": {
       "localizations": {
         "de": {
@@ -8385,6 +8453,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "A seguir"
+          }
+        }
+      }
+    },
+    "Up next in %lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Als Nächstes in %lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A continuación en %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "À suivre dans %lld"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A seguir em %lld"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A seguir em %lld"
           }
         }
       }
