@@ -96,6 +96,29 @@ private func video(_ id: String) -> VideoSummary {
 }
 
 struct FeedRefresherTests {
+    /// All four kinds at once: a linked YT Zero owns YouTube subscriptions, but PeerTube's stay,
+    /// and their videos still come from the instances (ADR 0016).
+    @Test func linkedAccountKeepsAndRefreshesPeerTubeChannels() async throws {
+        let db = try AppDatabase.inMemory()
+        let peerTube = ChannelSummary(id: .peerTube(host: "pt.example", handle: "films@pt.example"), name: "Films", avatar: nil)
+        let goneYouTube = ChannelSummary(id: ChannelID(rawValue: "UCbbbbbbbbbbbbbbbbbbbbbb"), name: "Gone", avatar: nil)
+        try SubscriptionStore(db).subscribe([peerTube, goneYouTube])
+        let requested = LockedBox<[[ChannelID]]>([])
+        let ptVideo = VideoSummary(id: .peerTube(host: "pt.example", uuid: "u1"), title: "Film", channelID: peerTube.id,
+                                   channelName: "Films", duration: .seconds(60), publishedAt: .now, viewCount: 1, thumbnails: [])
+        let account = StubAccount(channels: [channel], entries: [])
+        let refresher = FeedRefresher(mode: .account(account, router: StubRouter(videos: [ptVideo], requested: requested)),
+                                      database: db)
+
+        try await refresher.refresh()
+
+        let ids = try SubscriptionStore(db).channels().map(\.id)
+        #expect(ids.contains(peerTube.id) && ids.contains(channel.id))
+        #expect(!ids.contains(goneYouTube.id))                // The account's list wins for YouTube.
+        #expect(requested.current == [[peerTube.id]])          // Only PeerTube asked of the instances.
+        #expect(try FeedStore(db).rows().contains { $0.id == ptVideo.id })
+    }
+
     @Test func localModeFetchesTheSubscribedChannelsAndCachesTheFeed() async throws {
         let db = try AppDatabase.inMemory()
         try SubscriptionStore(db).subscribe([channel])

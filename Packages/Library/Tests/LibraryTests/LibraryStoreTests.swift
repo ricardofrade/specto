@@ -339,6 +339,15 @@ struct ListeningStoresTests {
         #expect(try subscriptions.mutedChannels().isEmpty)
     }
 
+    @Test func theAccountsListLeavesPeerTubeChannelsAlone() throws {
+        let db = try AppDatabase.inMemory()
+        let subscriptions = SubscriptionStore(db)
+        let peerTube = ChannelSummary(id: .peerTube(host: "pt.example", handle: "films@pt.example"), name: "Films", avatar: nil)
+        try subscriptions.subscribe([channel, peerTube])
+        try subscriptions.replaceAll(with: [other])
+        #expect(Set(try subscriptions.channels().map(\.id)) == [other.id, peerTube.id])
+    }
+
     @Test func subscribingAgainShowsTheChannelAgain() throws {
         let db = try AppDatabase.inMemory()
         let subscriptions = SubscriptionStore(db)

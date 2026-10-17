@@ -210,7 +210,7 @@ final class AppEnvironment {
         self.router = router
         account = linkedAccount
         resumeStore.account = linkedAccount
-        refresher = FeedRefresher(mode: linkedAccount.map { .account($0) } ?? .local(router), database: database)
+        refresher = FeedRefresher(mode: linkedAccount.map { .account($0, router: router) } ?? .local(router), database: database)
         updateCloudSync()
 
         // YT Zero serves thumbnails from its own image cache, which needs the Bearer token.
@@ -232,11 +232,14 @@ final class AppEnvironment {
         let container = Bundle.main.object(forInfoDictionaryKey: "CloudKitContainer") as? String ?? ""
         guard !container.isEmpty, !ProcessInfo.processInfo.arguments.contains("-UITestFreshStart") else { return }
         // A linked account owns subscriptions and watch state (ADR 0002), not instances or playlists.
+        // A linked account owns YouTube subscriptions and watch state; PeerTube subscriptions
+        // still sync here (ADR 0016).
         let types: Set<SyncStore.RecordType> = account == nil ? Set(SyncStore.RecordType.allCases)
-                                                                    : [.instance, .playlist, .userPlaylist]
+                                                                    : [.instance, .playlist, .userPlaylist, .subscription]
         guard cloudSync?.types != types else { return }
         let previous = cloudSync
-        let sync = CloudSync(containerIdentifier: container, database: database, types: types, secrets: secrets)
+        let sync = CloudSync(containerIdentifier: container, database: database, types: types,
+                             peerTubeSubscriptionsOnly: account != nil, secrets: secrets)
         cloudSync = sync
         Task {
             await previous?.stop()
@@ -414,7 +417,8 @@ final class AppEnvironment {
 
     /// Writes through to a linked account (the source of truth), else the local store.
     func setSubscribed(_ channel: ChannelSummary, _ subscribed: Bool) async throws {
-        if let account {
+        // The account follows YouTube channels; PeerTube subscriptions stay local (ADR 0016).
+        if let account, !channel.id.isPeerTube {
             if subscribed { try await account.follow(channel.id) } else { try await account.unfollow(channel.id) }
         }
         let store = SubscriptionStore(database)

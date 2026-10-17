@@ -17,9 +17,10 @@ public actor CloudSync: CKSyncEngineDelegate {
     /// The container must be in the app's iCloud entitlement: CloudKit traps otherwise. The
     /// app passes the identifier only when its Info.plist names one (`CloudKitContainer`).
     public init(containerIdentifier: String, database: AppDatabase, types: Set<SyncStore.RecordType>,
+                peerTubeSubscriptionsOnly: Bool = false,
                 secrets: any SecretStore) {
         container = CKContainer(identifier: containerIdentifier)
-        store = SyncStore(database, types: types, secrets: secrets)
+        store = SyncStore(database, types: types, secrets: secrets, peerTubeSubscriptionsOnly: peerTubeSubscriptionsOnly)
     }
 
     public nonisolated var types: Set<SyncStore.RecordType> { store.types }

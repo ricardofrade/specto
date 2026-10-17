@@ -60,24 +60,39 @@ public struct SyncStore: Sendable {
     public let types: Set<RecordType>
     let secrets: (any SecretStore)?
 
+    /// With a linked account, it owns YouTube subscriptions; PeerTube's still sync (ADR 0016).
+    public let peerTubeSubscriptionsOnly: Bool
+
     public init(_ database: AppDatabase, types: Set<RecordType> = Set(RecordType.allCases),
-                secrets: (any SecretStore)? = nil) {
+                secrets: (any SecretStore)? = nil, peerTubeSubscriptionsOnly: Bool = false) {
         self.database = database
         self.types = types
         self.secrets = secrets
+        self.peerTubeSubscriptionsOnly = peerTubeSubscriptionsOnly
+    }
+
+    private func inScope(_ key: Key) -> Bool {
+        Self.inScope(key, types: types, peerTubeSubscriptionsOnly: peerTubeSubscriptionsOnly)
+    }
+
+    private static func inScope(_ key: Key, types: Set<RecordType>, peerTubeSubscriptionsOnly: Bool) -> Bool {
+        guard types.contains(key.type) else { return false }
+        return key.type != .subscription || !peerTubeSubscriptionsOnly || ChannelID(rawValue: key.id).isPeerTube
     }
 
     // MARK: Outgoing
 
     public func pendingKeys() throws -> [Key] {
         let types = self.types
-        return try database.writer.read { try Self.fetchPending($0, types) }
+        return try database.writer.read { try Self.fetchPending($0, types) }.filter(inScope)
     }
 
     /// Emits the pending keys whenever they change, so local edits reach the engine on their own.
     public func observePending() -> AsyncThrowingStream<[Key], Error> {
-        let types = self.types
-        return database.stream { try Self.fetchPending($0, types) }
+        let types = self.types, peerTubeOnly = peerTubeSubscriptionsOnly
+        return database.stream {
+            try Self.fetchPending($0, types).filter { Self.inScope($0, types: types, peerTubeSubscriptionsOnly: peerTubeOnly) }
+        }
     }
 
     public func change(for key: Key) throws -> Change? {
@@ -150,7 +165,7 @@ public struct SyncStore: Sendable {
     /// Types outside `types` are ignored; a later change of scope fetches them again.
     @discardableResult
     public func apply(_ change: Change) throws -> Bool {
-        guard types.contains(change.key.type) else { return false }
+        guard inScope(change.key) else { return false }
         let secrets = self.secrets
         return try database.writer.write { db in
             let key = change.key

@@ -88,6 +88,8 @@ struct PeerTubeSourceTests {
         await #expect(throws: SourceError.self) { try await pt.watchPage(for: .peerTube(host: "other.example", uuid: uuid)) }
         await #expect(throws: SourceError.self) { try await pt.search("x", filter: .videos, cursor: nil) }
         await #expect(throws: SourceError.self) { try await pt.trending(region: nil, category: .all) }
+        // No suggestions of its own: it steps aside so YouTube's come through.
+        await #expect(throws: SourceError.self) { try await pt.suggestions(for: "blen") }
     }
 
     @Test func youTubeFrontEndsDeclinePeerTubeContent() async throws {

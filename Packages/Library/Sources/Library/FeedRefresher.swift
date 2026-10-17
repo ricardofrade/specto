@@ -8,8 +8,17 @@ public actor FeedRefresher {
     public enum Mode: Sendable {
         /// Subscriptions in GRDB (synced via CloudKit later); videos from the instances.
         case local(any SourceRouting)
-        /// A linked account (YT Zero) owns subscriptions, feed and watch state; we mirror it.
-        case account(any SubscriptionAccount)
+        /// A linked account (YT Zero) owns YouTube subscriptions, feed and watch state; we mirror
+        /// it. PeerTube channels stay local and come from the instances (`router`, ADR 0016).
+        case account(any SubscriptionAccount, router: (any SourceRouting)? = nil)
+    }
+
+    /// The instances, in either mode: PeerTube content always comes from them.
+    private var router: (any SourceRouting)? {
+        switch mode {
+        case .local(let router): router
+        case .account(_, let router): router
+        }
     }
 
     public static let feedResource = "feed"
@@ -46,7 +55,9 @@ public actor FeedRefresher {
 
     /// Fills a newly subscribed channel's history, since batched feeds only carry recent uploads.
     public func backfill(_ channel: ChannelID) async throws {
-        guard case .local(let router) = mode else { return }
+        // With an account linked, it fills YouTube channels itself; PeerTube's are still ours.
+        if case .account = mode, !channel.isPeerTube { return }
+        guard let router else { return }
         let page = try await router.perform(.channel) { try await $0.channel(channel, cursor: nil) }
         try feed.save(page.videos.items)
         // Imports (Takeout CSV) carry no avatar or proper name; the channel page has both.
@@ -80,8 +91,9 @@ public actor FeedRefresher {
     /// Channels still without an avatar (an import whose backfill failed or never ran) get
     /// theirs from the channel page: a few per call, each tried at most every `retryAfter`.
     public func refreshMissingAvatars(channelsPerPass: Int = 4, retryAfter: TimeInterval = 86_400) async {
-        guard case .local = mode, let channels = try? subscriptions.channels() else { return }
+        guard router != nil, let channels = try? subscriptions.channels() else { return }
         let due = channels.filter { channel in
+            if case .account = mode, !channel.id.isPeerTube { return false }   // The account's to fill.
             guard channel.avatar == nil else { return false }
             let last = (try? log.lastRefresh(Self.avatarResource(channel.id))) ?? nil
             return last.map { $0 < Date.now.addingTimeInterval(-retryAfter) } ?? true
@@ -105,25 +117,36 @@ public actor FeedRefresher {
             if !youTube.isEmpty {
                 videos += try await router.perform(.subscriptions) { try await $0.feed(for: youTube) }
             }
-            let peerTube = Dictionary(grouping: channels.filter(\.isPeerTube)) { $0.peerTube?.host ?? "" }
-            for group in peerTube.values {
-                if youTube.isEmpty, peerTube.count == 1 {
-                    videos += try await router.perform(.subscriptions) { try await $0.feed(for: group) }
-                } else if let more = try? await router.perform(.subscriptions, { try await $0.feed(for: group) }) {
-                    videos += more   // One unreachable server shouldn't sink everyone else's feed.
-                }
-            }
+            videos += try await peerTubeFeed(channels, router: router, strict: youTube.isEmpty)
             try feed.save(videos)
-        case .account(let account):
+        case .account(let account, let router):
             async let channels = account.subscriptions()
             async let entries = accountFeed(account, pages: 3)
             let (list, videos) = try await (channels, entries)
-            try subscriptions.replaceAll(with: list)
+            try subscriptions.replaceAll(with: list)   // YouTube's only: PeerTube channels stay.
             try feed.save(videos.map(\.video))
             try watchState.merge(videos)
+            if let router {
+                try feed.save(await peerTubeFeed(try subscriptions.channels().map(\.id), router: router, strict: false))
+            }
         }
         try log.markRefreshed(Self.feedResource)
         try feed.prune()
+    }
+
+    /// PeerTube channels' latest, per server. `strict`: the only feed there is, so a lone
+    /// server's failure is the refresh's; otherwise one unreachable server is skipped.
+    private func peerTubeFeed(_ channels: [ChannelID], router: any SourceRouting, strict: Bool) async throws -> [VideoSummary] {
+        let servers = Dictionary(grouping: channels.filter(\.isPeerTube)) { $0.peerTube?.host ?? "" }
+        var videos: [VideoSummary] = []
+        for group in servers.values {
+            if strict, servers.count == 1 {
+                videos += try await router.perform(.subscriptions) { try await $0.feed(for: group) }
+            } else if let more = try? await router.perform(.subscriptions, { try await $0.feed(for: group) }) {
+                videos += more
+            }
+        }
+        return videos
     }
 
     private func accountFeed(_ account: any SubscriptionAccount, pages: Int) async throws -> [AccountVideo] {

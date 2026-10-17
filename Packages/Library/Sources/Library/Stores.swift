@@ -151,10 +151,13 @@ public struct SubscriptionStore: Sendable {
     }
 
     /// Mirror an account's list (YT Zero is the source of truth when linked, ADR 0002).
+    /// The linked account's YouTube subscriptions replace ours; PeerTube channels aren't its to
+    /// remove (ADR 0016).
     public func replaceAll(with channels: [ChannelSummary]) throws {
         try database.writer.write { db in
             let keep = Set(channels.map(\.id.rawValue))
-            for record in try SubscriptionRecord.fetchAll(db) where !keep.contains(record.channelID) && !record.isDeleted {
+            for record in try SubscriptionRecord.fetchAll(db)
+            where !keep.contains(record.channelID) && !record.isDeleted && !ChannelID(rawValue: record.channelID).isPeerTube {
                 var tombstone = record
                 tombstone.isDeleted = true
                 tombstone.modifiedAt = .now

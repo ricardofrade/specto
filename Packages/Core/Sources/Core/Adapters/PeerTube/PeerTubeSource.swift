@@ -53,6 +53,12 @@ public struct PeerTubeSource: VideoSource {
         }
     }
 
+    /// PeerTube has none; beside a YouTube front-end, step aside so its suggestions come through.
+    public func suggestions(for query: String) async throws -> [String] {
+        guard servesGeneralQueries else { throw SourceError.belongsElsewhere }
+        return []
+    }
+
     public func trending(region: String?) async throws -> [VideoSummary] {
         try await trending(region: region, category: .all)
     }

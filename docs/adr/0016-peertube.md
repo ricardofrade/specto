@@ -29,3 +29,12 @@ Every source so far fronts YouTube (Piped, Invidious, YT Zero). That's the app's
 5. **Privacy:** PeerTube media comes from PeerTube servers, never Google.
    - **Why the proxy rule doesn't apply:** "streams through the instance's proxy" exists because googlevideo binds stream URLs to the requester's IP. That doesn't arise here.
    - **What PeerTube servers see:** a federated video's files may come from the server that hosts it, so that server sees the request. This is how PeerTube works for everyone.
+
+## All four at once (Piped, Invidious, YT Zero, PeerTube)
+
+6. **A linked YT Zero owns YouTube subscriptions only** (ADR 0002 narrowed).
+   - **Following:** PeerTube channels are followed and unfollowed locally, never sent to the account.
+   - **The account's list:** replaces YouTube subscriptions and leaves PeerTube's alone.
+   - **The feed:** the account's feed covers YouTube. PeerTube channels refresh from the instances (`FeedRefresher.Mode.account(_, router:)`), and are backfilled and given avatars as in local mode.
+   - **iCloud:** with an account linked, the sync scope keeps subscriptions but only PeerTube's (`SyncStore.peerTubeSubscriptionsOnly`), so they still reach the person's other devices.
+7. **Suggestions:** PeerTube has none, so beside a YouTube front-end it declines suggestions instead of answering with an empty list that would hide YouTube's.

@@ -329,3 +329,22 @@ private let video = VideoID(rawValue: "aqz-KE-bpKQ")
         #expect(try UserPlaylistStore(fresh).playlist(UserPlaylist.watchLaterID)?.videos.map(\.id.rawValue) == ["w"])
     }
 }
+
+
+@Suite struct PeerTubeSyncScopeTests {
+    /// With a linked account, only PeerTube subscriptions sync; YouTube's are the account's.
+    @Test func linkedAccountSyncsPeerTubeSubscriptionsOnly() throws {
+        let db = try AppDatabase.inMemory()
+        let youTube = ChannelSummary(id: ChannelID(rawValue: "UCaaaaaaaaaaaaaaaaaaaaaa"), name: "A", avatar: nil)
+        let peerTube = ChannelSummary(id: .peerTube(host: "pt.example", handle: "films@pt.example"), name: "Films", avatar: nil)
+        try SubscriptionStore(db).subscribe([youTube, peerTube])
+        let store = SyncStore(db, types: [.subscription], peerTubeSubscriptionsOnly: true)
+        #expect(try store.pendingKeys() == [SyncStore.Key(.subscription, peerTube.id.rawValue)])
+
+        let remoteYouTube = SyncStore.Change(key: SyncStore.Key(.subscription, "UCcccccccccccccccccccccc"),
+                                             values: .subscription(channelName: "C", avatarURL: nil, subscribedAt: .now,
+                                                                   isDeleted: false),
+                                             modifiedAt: .now, systemFields: nil)
+        #expect(try store.apply(remoteYouTube) == false)
+    }
+}
