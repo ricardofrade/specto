@@ -5,7 +5,7 @@ Users add their own self-hosted Piped, Invidious or YT Zero instance; the app ha
 App Review uses the owner's demo instance.
 
 Milestone plan (source of truth for scope): https://claude.ai/code/artifact/9bfaa959-0680-4460-8503-40b749eedc45
-All milestones M0–M7 are built; what remains are owner actions and device checks (listed at the end of each brief). Briefs: `docs/milestones/M0.md`–`M7.md`.
+All milestones M0–M7 are built; what remains are owner actions and device checks (listed at the end of each brief). Briefs: `docs/milestones/M0.md`–`M7.md`; what came after M7 is in `docs/milestones/post-M7.md`.
 
 ## Non-negotiable decisions
 
