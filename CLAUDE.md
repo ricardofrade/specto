@@ -1,11 +1,11 @@
 # Project: Apple-native YouTube client
 
-A privacy-respecting YouTube client for iOS, iPadOS (including the foldable iPhone), CarPlay (audio mode) and tvOS.
-Users add their own self-hosted Piped, Invidious or YT Zero instance; the app has no backend of its own.
-App Review uses the owner's demo instance.
+A privacy-respecting video client for iOS, iPadOS (including the foldable iPhone), CarPlay (audio mode), tvOS and Apple silicon Macs ("Designed for iPad").
+Users add their own Piped, Invidious or YT Zero instance (YouTube), or a PeerTube server, including public ones from joinpeertube.org's index (ADR 0016). The app has no backend of its own.
+App Review can use a public PeerTube server, or the owner's demo instance.
 
 Milestone plan (source of truth for scope): https://claude.ai/code/artifact/9bfaa959-0680-4460-8503-40b749eedc45
-All milestones M0–M7 are built; what remains are owner actions and device checks (listed at the end of each brief). Briefs: `docs/milestones/M0.md`–`M7.md`; what came after M7 is in `docs/milestones/post-M7.md`.
+All milestones M0–M7 are built; what remains are owner actions and device checks (listed at the end of each brief). Later decisions are in `docs/adr` (0006 onwards) and `docs/design.md`. Briefs: `docs/milestones/M0.md`–`M7.md`; what came after M7 is in `docs/milestones/post-M7.md`.
 
 ## Non-negotiable decisions
 
@@ -24,7 +24,7 @@ App/iOS/            iOS + iPadOS app with its CarPlay scene (XcodeGen project: A
 App/tvOS/           Apple TV app and Top Shelf extension (XcodeGen project: App/tvOS/project.yml)
 App/Shared/         Composition root compiled into both apps; iOS-only parts behind #if os(iOS)
 Packages/
-  Core/             Models, VideoSource protocol, Piped/Invidious/YT Zero adapters, routing, health checks
+  Core/             Models, VideoSource protocol, Piped/Invidious/YT Zero/PeerTube adapters, routing, health checks
   Library/          GRDB persistence: subscriptions, feed items, history, resume positions
   Playback/         PlaybackSession, PlaybackEngine protocol, MPVEngine, AVPlayerEngine, codec policy
   DesignSystem/     Tokens, Liquid Glass components
@@ -72,7 +72,8 @@ Dependency rules (enforced by `scripts/check-dependencies.sh`; never work around
 - mpv uses `hwdec=videotoolbox`. Log which decoder each session actually uses.
 - mpv has no adaptive bitrate: choose the format up front from measured throughput (`FormatSelector`).
 - AVPlayer plays only MP4/AAC and HLS, never webm or Opus. `FormatSelector` picks per engine; don't bypass it.
-- Stream URLs must come through the instance's proxy: googlevideo URLs are bound to the IP that requested them (the instance, not the device).
+- YouTube stream URLs must come through the instance's proxy: googlevideo URLs are bound to the IP that requested them (the instance, not the device). PeerTube media comes from PeerTube servers directly (ADR 0016).
+- PeerTube IDs carry their server (`pt:<host>:…`). YouTube front-ends are wrapped in `YouTubeOnly`; adapters decline others' content with `SourceError.belongsElsewhere`, which the router passes on without a health mark. SponsorBlock and DeArrow are YouTube-only.
 - Failures are typed (`PlaybackError`). On `.streamExpired`, refetch the manifest and resume at the current position instead of showing an error.
 - Resume positions are saved only while media is loaded, in order, and always for the outgoing video before a switch.
 
@@ -81,7 +82,7 @@ Dependency rules (enforced by `scripts/check-dependencies.sh`; never work around
 - mpv and FFmpeg must be built without GPL or nonfree components. Do not add any GPL dependency anywhere in the project.
 - Record every third-party dependency and its license in `docs/licenses.md`.
 
-## Performance gates (CI blocks a milestone on these)
+## Performance gates (measured locally and on a device)
 
 | Gate | Target | Signpost / metric name |
 |---|---|---|
@@ -92,13 +93,14 @@ Dependency rules (enforced by `scripts/check-dependencies.sh`; never work around
 | Resize/fold during playback | zero stalls | UI test resizing the window while playing |
 
 Use `os_signpost` with the names above so tests and Instruments agree.
-Hosted CI simulators are noisy and can't show 120 Hz: treat their numbers as a regression trend with tolerance. The gate itself is measured on a physical device.
+GitHub Actions is disabled (hosted macOS runners use up the free minutes): run `scripts/ci.sh` locally. Simulator numbers are a regression trend with tolerance; the gate itself is measured on a physical device.
 Tap-to-play hits 300 ms only if the manifest is already cached: prefetch manifests for visible feed items and start fetching on touch-down.
 
 ## Testing
 
 - Unit tests with Swift Testing (`import Testing`). Performance and UI tests with XCTest.
-- Source adapters: decoding tests against recorded JSON fixtures run on every PR; live contract tests against real instances run nightly to catch API drift. The nightly workflow (`.github/workflows/nightly.yml`) needs repository secrets `PIPED_URL`, `INVIDIOUS_URL`, `YTZERO_URL`, `INSTANCE_USERNAME`, `INSTANCE_PASSWORD`; locally, `scripts/contract-tests.sh` and `scripts/live-ui-tests.sh` read `.env.local`. Read instance URLs from environment variables `PIPED_URL`, `INVIDIOUS_URL`, `YTZERO_URL`. Never commit instance URLs or credentials.
+- Source adapters: decoding tests against recorded JSON fixtures (hosts sanitised to `instance.example`); live contract tests against real instances catch API drift. Locally, `scripts/contract-tests.sh` and `scripts/live-ui-tests.sh` read `.env.local` (`PIPED_URL`, `INVIDIOUS_URL`, `YTZERO_URL`, `INSTANCE_USERNAME`, `INSTANCE_PASSWORD`); the disabled nightly workflow needs the same as repository secrets. Never commit private instance URLs or credentials. PeerTube tests use a public server (video.blender.org).
+- UI tests: launch hooks `-UITestFreshStart`, `-SeedInstance`/`-SeedInvidious`/`-SeedPeerTube <url>`, `-SeedSubscriptions`, `-SeedDemoFeed N`, `-SeedHistory N`. Screenshots also go to `SHOTS_DIR` when set (xcodebuild can hang after a run and lose the result bundle). The iPhone Duo's fold layouts are checked with `-SimulateFold flat|bent -FoldAxis vertical|horizontal` on an iPad simulator (`DuoLayoutsUITests`); real poses need the device.
 - `PlaybackSession` is tested against `FakeEngine` (`Packages/Playback/Tests`). Gate a fake load to reproduce races.
 - Packages are iOS/tvOS only, so `swift test` won't run them. From the package directory:
   `xcodebuild test -scheme <Package> -destination 'platform=iOS Simulator,name=<newest iPhone Pro>'`
@@ -108,13 +110,14 @@ Tap-to-play hits 300 ms only if the manifest is already cached: prefetch manifes
 
 - No downloading or saving media in the App Store build (guideline 5.2.3). Offline audio is compiled only with `OFFLINE_DOWNLOADS`, which only the Debug configuration sets.
 - No YouTube name, logo or trade dress in the app name, icon or screenshots.
-- No built-in default instance; the user always supplies one. App Review uses the owner's demo instance.
+- No built-in YouTube front-end (Piped, Invidious, YT Zero): the user always supplies one. PeerTube may offer public servers from joinpeertube.org's index to choose from (ADR 0016); nothing is preconfigured or added without the person choosing.
 - Ship `PrivacyInfo.xcprivacy`. Support self-hosted instances on the local network (local-network permission, ATS exception for LAN HTTP).
 
 ## Working conventions for Claude Code
 
 - Find simulators with `xcrun simctl list devices available`; prefer the newest iPhone Pro and an iPad.
 - Build with `xcodebuild` from the command line; fix errors before moving on.
+- Signing: `App/Signing.xcconfig` (committed placeholders) includes `App/Local.xcconfig` (not committed) with `SPECTO_BUNDLE_PREFIX` and `DEVELOPMENT_TEAM`; bundle IDs and the App Group follow the prefix. Installing on the owner's devices needs their OK each time.
 - The app projects are generated: edit `App/iOS/project.yml` or `App/tvOS/project.yml`, never the `.xcodeproj`. Run `xcodegen generate --spec <project.yml>`, then build the `Specto` scheme (iOS) or `SpectoTV` scheme (tvOS, `-destination 'generic/platform=tvOS Simulator'`).
 - Code in `App/Shared` compiles for both platforms: guard iOS-only APIs with `#if os(iOS)`, and iOS-only modifiers in packages with `DesignSystem/PlatformModifiers.swift`.
 - Run `scripts/check-dependencies.sh` after touching any `Package.swift`. A new package must be added to its allow-list deliberately.

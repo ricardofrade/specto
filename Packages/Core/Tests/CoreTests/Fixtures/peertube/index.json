@@ -1,0 +1,58 @@
+{
+ "total": 1733,
+ "data": [
+  {
+   "host": "meyon.com.ye",
+   "name": "ميون - النسخة التجريبية",
+   "shortDescription": "ميون منصة مرئية توفر بيئة إعلامية متكاملة لتبادل المعارف وتداول الأخبار ومقاطع الفيديو والمحتوى الإبداعي ومشاركتها، تهدف \"ميون\" إلى أن تكون البديل لمنصات الفيديو التي طالما مارست الإجراءات التعسفية بحق المحتوى الحر والهادف ",
+   "totalLocalVideos": 32775,
+   "languages": [
+    "ar",
+    "en",
+    "en"
+   ],
+   "isNSFW": false
+  },
+  {
+   "host": "makertube.net",
+   "name": "MakerTube",
+   "shortDescription": "A home for makers, musicians, artists and DIY folks",
+   "totalLocalVideos": 32198,
+   "languages": [
+    "en",
+    "de"
+   ],
+   "isNSFW": false
+  },
+  {
+   "host": "tube-arts-lettres-sciences-humaines.apps.education.fr",
+   "name": "Art & Sciences Humaines",
+   "shortDescription": "Cette instance Peertube est mise à disposition par le Ministère de l'Éducation Nationale, de la Jeunesse et des Sports.",
+   "totalLocalVideos": 24609,
+   "languages": [
+    "fr"
+   ],
+   "isNSFW": false
+  },
+  {
+   "host": "nsfw.example",
+   "name": "Hidden",
+   "shortDescription": "",
+   "totalLocalVideos": 10,
+   "languages": [
+    "en"
+   ],
+   "isNSFW": true
+  },
+  {
+   "host": "videos.example",
+   "name": "English videos",
+   "shortDescription": "",
+   "totalLocalVideos": 5,
+   "languages": [
+    "en"
+   ],
+   "isNSFW": false
+  }
+ ]
+}

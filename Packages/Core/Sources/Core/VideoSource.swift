@@ -21,6 +21,11 @@ public struct PlaylistID: RawRepresentable, Hashable, Sendable, Codable {
 
 public enum SourceKind: String, Sendable, Codable, CaseIterable {
     case piped, invidious, ytZero
+    /// A PeerTube server: its own (and federated) videos, not YouTube's (ADR 0016).
+    case peerTube
+
+    /// Piped, Invidious and YT Zero front YouTube; PeerTube is its own network.
+    public var isYouTube: Bool { self != .peerTube }
 }
 
 public struct InstanceConfig: Identifiable, Hashable, Sendable, Codable {
@@ -66,6 +71,8 @@ public struct SourceCapabilities: OptionSet, Hashable, Sendable {
 /// Invidious answers those with the general one, so they aren't offered.
 public enum TrendingCategory: String, CaseIterable, Hashable, Sendable {
     case all, gaming
+    /// What's trending on the PeerTube servers added: only they answer it.
+    case peerTube
 }
 
 // MARK: - Content models
@@ -469,11 +476,14 @@ public enum SourceError: Error, Sendable {
     /// The content itself can't be played anywhere: private, removed or region-locked.
     case unavailable(reason: String?)
     case network(URLError)
+    /// The content is on another network or server (a PeerTube video asked of Piped, say):
+    /// the router tries the next instance without counting it against this one.
+    case belongsElsewhere
 
     /// Whether routing should try the same operation on another instance.
     public var isRetryableElsewhere: Bool {
         switch self {
-        case .unsupported, .decoding, .rateLimited, .blockedUpstream, .network: true
+        case .unsupported, .decoding, .rateLimited, .blockedUpstream, .network, .belongsElsewhere: true
         case .http(let status): status >= 500 || status == 403 || status == 429
         case .unavailable: false
         }

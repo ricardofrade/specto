@@ -1,6 +1,6 @@
 # Specto
 
-A privacy-respecting video app for iPhone, iPad, Apple TV and CarPlay that plays YouTube through **your own** [Piped](https://github.com/TeamPiped/Piped), [Invidious](https://invidious.io) or [YT Zero](https://ytzero.app/) instance. Specto has no servers of its own, no accounts and no analytics. It talks only to the instances you add (and, if you turn it on, iCloud).
+A privacy-respecting video app for iPhone, iPad, Apple TV and CarPlay that plays YouTube through **your own** [Piped](https://github.com/TeamPiped/Piped), [Invidious](https://invidious.io) or [YT Zero](https://ytzero.app/) instance, and [PeerTube](https://joinpeertube.org): your own server or one of the public ones the app lists. Specto has no servers of its own, no accounts and no analytics. It talks only to the instances you add (and, if you turn it on, iCloud).
 
 *Specto* is Latin for "I watch". The icon is an eye whose pupil is a play button.
 
@@ -35,7 +35,7 @@ A privacy-respecting video app for iPhone, iPad, Apple TV and CarPlay that plays
 
 - **To run:** iOS / iPadOS 26 or later, or tvOS 26 or later.
 - **To build:** Xcode 27 (the foldable iPhone layouts use the iOS 27 SDK; Xcode 26 builds everything else) and [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`).
-- **To watch anything:** a Piped, Invidious or YT Zero instance you run or trust. The app has no built-in instance.
+- **To watch anything:** a Piped, Invidious or YT Zero instance you run or trust, or a PeerTube server (the app lists public ones). There is no built-in YouTube instance.
 
 ## Getting started
 

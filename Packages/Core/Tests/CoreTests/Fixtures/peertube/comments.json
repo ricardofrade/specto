@@ -1,0 +1,68 @@
+{
+ "total": 1,
+ "data": [
+  {
+   "id": 12590,
+   "url": "https://u2be.ovh/videos/watch/7ad3cbee-fe5f-41c2-93ea-b108986939f4/comments/14586",
+   "text": "Video not playing",
+   "threadId": 12590,
+   "inReplyToCommentId": null,
+   "videoId": 57015,
+   "createdAt": "2026-10-16T15:55:41.805Z",
+   "updatedAt": "2026-10-16T15:55:42.478Z",
+   "deletedAt": null,
+   "heldForReview": false,
+   "isDeleted": false,
+   "totalRepliesFromVideoAuthor": 0,
+   "totalReplies": 0,
+   "account": {
+    "url": "https://u2be.ovh/accounts/shakira",
+    "name": "shakira",
+    "host": "u2be.ovh",
+    "avatars": [
+     {
+      "height": 48,
+      "width": 48,
+      "path": "/lazy-static/avatars/56a80b0b-a31f-4a54-92a5-9a4b36efff86.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/56a80b0b-a31f-4a54-92a5-9a4b36efff86.png",
+      "createdAt": "2026-05-29T15:43:14.516+00:00",
+      "updatedAt": "2026-10-17T00:43:44.501+00:00"
+     },
+     {
+      "height": 120,
+      "width": 120,
+      "path": "/lazy-static/avatars/a6a9f2e1-68b8-4d4f-89bb-859b5c8d2af2.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/a6a9f2e1-68b8-4d4f-89bb-859b5c8d2af2.png",
+      "createdAt": "2026-05-29T15:43:14.511+00:00",
+      "updatedAt": "2026-10-17T06:25:31.306+00:00"
+     },
+     {
+      "height": 600,
+      "width": 600,
+      "path": "/lazy-static/avatars/d2efe0b0-b7fe-43f0-8e03-561762534a6e.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/d2efe0b0-b7fe-43f0-8e03-561762534a6e.png",
+      "createdAt": "2026-05-29T15:43:14.526+00:00",
+      "updatedAt": "2026-05-29T15:43:14.526+00:00"
+     },
+     {
+      "height": 1500,
+      "width": 1500,
+      "path": "/lazy-static/avatars/4b05f255-767c-49fe-9310-7857b9bc9039.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/4b05f255-767c-49fe-9310-7857b9bc9039.png",
+      "createdAt": "2026-05-29T15:43:14.534+00:00",
+      "updatedAt": "2026-05-29T15:43:14.534+00:00"
+     }
+    ],
+    "id": 1021979,
+    "hostRedundancyAllowed": false,
+    "followingCount": 3,
+    "followersCount": 30,
+    "createdAt": "2026-04-08T23:21:34.979Z",
+    "displayName": "Shakira",
+    "description": "Shakira Isabel Mebarak Ripoll, known mononymously as Shakira, is a Colombian singer and songwriter. Born and raised in Barranquilla, she has been referred to as the \"Queen of Latin Music\" and has been praised for her musical versatility. She made her recording debut with Sony Music Colombia at the age of 13.\n\nBorn:Shakira Isabel Mebarak Ripoll, February 2, 1977, Barranquilla, Colombia\n\nOccupation: Singer, songwriter, record producer, dancer, actress, philanthropist\n\nYears active:1990–present\n\n#LMYNLWorldTour",
+    "updatedAt": "2026-05-29T15:43:14.489Z"
+   }
+  }
+ ],
+ "totalNotDeletedComments": 1
+}

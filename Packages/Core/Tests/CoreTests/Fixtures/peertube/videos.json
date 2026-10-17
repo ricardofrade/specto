@@ -1,0 +1,718 @@
+{
+ "total": 1233,
+ "data": [
+  {
+   "id": 57015,
+   "uuid": "7ad3cbee-fe5f-41c2-93ea-b108986939f4",
+   "shortUUID": "gaGB17Qu1F5tXZyXN6idEQ",
+   "url": "https://instance.example/videos/watch/7ad3cbee-fe5f-41c2-93ea-b108986939f4",
+   "name": "OVERGROWN - Blender Feature Film (Teaser)",
+   "category": {
+    "id": null,
+    "label": "Unknown"
+   },
+   "licence": {
+    "id": null,
+    "label": "Unknown"
+   },
+   "language": {
+    "id": null,
+    "label": "Unknown"
+   },
+   "privacy": {
+    "id": 1,
+    "label": "Public"
+   },
+   "nsfw": false,
+   "nsfwFlags": 0,
+   "nsfwSummary": null,
+   "truncatedDescription": "Enjoy the teaser for OVERGROWN, a potential feature film project by Blender Studio. More information is available at https://studio.blender.org/projects/overgrown/ \r\n\r\nTo ensure a stable foundation for this project, we are looking for the support ...",
+   "description": "Enjoy the teaser for OVERGROWN, a potential feature film project by Blender Studio. More information is available at https://studio.blender.org/projects/overgrown/ \r\n\r\nTo ensure a stable foundation for this project, we are looking for the support ...",
+   "isLocal": true,
+   "duration": 81,
+   "aspectRatio": 2.3869,
+   "views": 1938,
+   "viewers": 0,
+   "downloads": 298,
+   "likes": 45,
+   "dislikes": 1,
+   "thumbnailPath": "/lazy-static/thumbnails/2059efac-4400-42d6-be93-71668ed4751f.jpg",
+   "previewPath": "/lazy-static/thumbnails/4e67c427-2dd4-4d4f-9ba4-bdef6166e044.jpg",
+   "thumbnails": [
+    {
+     "height": 157,
+     "width": 280,
+     "aspectRatio": "16:9",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/2059efac-4400-42d6-be93-71668ed4751f.jpg"
+    },
+    {
+     "height": 480,
+     "width": 850,
+     "aspectRatio": "16:9",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/998c3319-4edd-48ff-8eec-dd8254a5452a.jpg"
+    },
+    {
+     "height": 720,
+     "width": 1280,
+     "aspectRatio": "16:9",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/94eaeba8-d858-4611-9f5e-ebdbf2d3feb7.jpg"
+    },
+    {
+     "height": 1400,
+     "width": 1400,
+     "aspectRatio": "1:1",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/adc9e591-12ef-4e3e-8f0f-33f9f84b4ed2.jpg"
+    },
+    {
+     "height": 1080,
+     "width": 1920,
+     "aspectRatio": "16:9",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/4e67c427-2dd4-4d4f-9ba4-bdef6166e044.jpg"
+    }
+   ],
+   "embedPath": "/videos/embed/gaGB17Qu1F5tXZyXN6idEQ",
+   "createdAt": "2026-09-14T14:42:23.039Z",
+   "updatedAt": "2026-10-17T19:46:33.355Z",
+   "publishedAt": "2026-09-14T14:43:33.813Z",
+   "originallyPublishedAt": null,
+   "isLive": false,
+   "account": {
+    "id": 6,
+    "displayName": "Blender",
+    "name": "blender",
+    "url": "https://instance.example/accounts/blender",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "width": 48,
+      "path": "/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "createdAt": "2026-05-24T11:32:01.734Z",
+      "updatedAt": "2026-05-24T11:32:01.734Z"
+     },
+     {
+      "width": 120,
+      "path": "/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "createdAt": "2026-05-24T11:32:01.730Z",
+      "updatedAt": "2026-05-24T11:32:01.730Z"
+     },
+     {
+      "width": 600,
+      "path": "/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "createdAt": "2026-05-24T11:32:01.724Z",
+      "updatedAt": "2026-05-24T11:32:01.724Z"
+     },
+     {
+      "width": 1500,
+      "path": "/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "createdAt": "2026-05-24T11:32:01.719Z",
+      "updatedAt": "2026-05-24T11:32:01.719Z"
+     }
+    ]
+   },
+   "channel": {
+    "id": 9,
+    "name": "blender_open_movies",
+    "displayName": "Blender Open Movies",
+    "url": "https://instance.example/video-channels/blender_open_movies",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "width": 48,
+      "path": "/lazy-static/avatars/f79d3ae7-86a8-4705-a9cf-75652312ed20.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/f79d3ae7-86a8-4705-a9cf-75652312ed20.png",
+      "createdAt": "2026-06-04T09:58:19.748Z",
+      "updatedAt": "2026-06-04T09:58:19.748Z"
+     },
+     {
+      "width": 120,
+      "path": "/lazy-static/avatars/df50b04c-67e0-4317-822a-be1f1a2d85d3.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/df50b04c-67e0-4317-822a-be1f1a2d85d3.png",
+      "createdAt": "2026-06-04T09:58:19.735Z",
+      "updatedAt": "2026-06-04T09:58:19.735Z"
+     },
+     {
+      "width": 600,
+      "path": "/lazy-static/avatars/0001ea1f-7c7b-45b3-8a15-004c6d0713bb.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/0001ea1f-7c7b-45b3-8a15-004c6d0713bb.png",
+      "createdAt": "2026-06-04T09:58:19.728Z",
+      "updatedAt": "2026-06-04T09:58:19.728Z"
+     },
+     {
+      "width": 1500,
+      "path": "/lazy-static/avatars/2676b86b-94a3-4692-9601-f4e41dcbf72f.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/2676b86b-94a3-4692-9601-f4e41dcbf72f.png",
+      "createdAt": "2026-06-04T09:58:19.710Z",
+      "updatedAt": "2026-06-04T09:58:19.710Z"
+     }
+    ]
+   },
+   "comments": 1
+  },
+  {
+   "id": 57034,
+   "uuid": "bc54d71e-8ea3-4696-a7bf-58b630fc3491",
+   "shortUUID": "pfR4RXgYL79FnLjoTpxHeT",
+   "url": "https://instance.example/videos/watch/bc54d71e-8ea3-4696-a7bf-58b630fc3491",
+   "name": "Keynote — BCON26",
+   "category": {
+    "id": 15,
+    "label": "Science & Technology"
+   },
+   "licence": {
+    "id": 2,
+    "label": "Attribution - Share Alike"
+   },
+   "language": {
+    "id": "en",
+    "label": "English"
+   },
+   "privacy": {
+    "id": 1,
+    "label": "Public"
+   },
+   "nsfw": false,
+   "nsfwFlags": 0,
+   "nsfwSummary": null,
+   "truncatedDescription": "\"Keynote\" by Francesco Siddi at Blender Conference 2026\r\n\r\nThe traditional opening of Blender Conference.\r\n\r\n–\r\n\r\nLearn more about Blender Conference 2026 at https://conference.blender.org/2026/\r\n",
+   "description": "\"Keynote\" by Francesco Siddi at Blender Conference 2026\r\n\r\nThe traditional opening of Blender Conference.\r\n\r\n–\r\n\r\nLearn more about Blender Conference 2026 at https://conference.blender.org/2026/\r\n",
+   "isLocal": true,
+   "duration": 1362,
+   "aspectRatio": 1.7778,
+   "views": 485,
+   "viewers": 0,
+   "downloads": 95,
+   "likes": 10,
+   "dislikes": 0,
+   "thumbnailPath": "/lazy-static/thumbnails/9a25ba11-7a1e-4d01-a94c-f1a727ed879c.jpg",
+   "previewPath": "/lazy-static/thumbnails/52adab75-3e55-4067-9cc1-cb2a34cfeb9d.jpg",
+   "thumbnails": [
+    {
+     "height": 157,
+     "width": 280,
+     "aspectRatio": "16:9",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/9a25ba11-7a1e-4d01-a94c-f1a727ed879c.jpg"
+    },
+    {
+     "height": 480,
+     "width": 850,
+     "aspectRatio": "16:9",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/f90540c1-144d-414a-908e-3991f690637f.jpg"
+    },
+    {
+     "height": 720,
+     "width": 1280,
+     "aspectRatio": "16:9",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/9a7535bd-90b1-47e9-a165-d76a985fe3d6.jpg"
+    },
+    {
+     "height": 1400,
+     "width": 1400,
+     "aspectRatio": "1:1",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/edd882c2-9ed0-4fd8-98a1-0648596872c1.jpg"
+    },
+    {
+     "height": 1080,
+     "width": 1920,
+     "aspectRatio": "16:9",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/52adab75-3e55-4067-9cc1-cb2a34cfeb9d.jpg"
+    }
+   ],
+   "embedPath": "/videos/embed/pfR4RXgYL79FnLjoTpxHeT",
+   "createdAt": "2026-09-23T09:43:04.957Z",
+   "updatedAt": "2026-10-16T22:16:33.402Z",
+   "publishedAt": "2026-09-23T09:49:01.132Z",
+   "originallyPublishedAt": "2026-09-23T00:00:00.000Z",
+   "isLive": false,
+   "account": {
+    "id": 6,
+    "displayName": "Blender",
+    "name": "blender",
+    "url": "https://instance.example/accounts/blender",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "width": 48,
+      "path": "/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "createdAt": "2026-05-24T11:32:01.734Z",
+      "updatedAt": "2026-05-24T11:32:01.734Z"
+     },
+     {
+      "width": 120,
+      "path": "/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "createdAt": "2026-05-24T11:32:01.730Z",
+      "updatedAt": "2026-05-24T11:32:01.730Z"
+     },
+     {
+      "width": 600,
+      "path": "/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "createdAt": "2026-05-24T11:32:01.724Z",
+      "updatedAt": "2026-05-24T11:32:01.724Z"
+     },
+     {
+      "width": 1500,
+      "path": "/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "createdAt": "2026-05-24T11:32:01.719Z",
+      "updatedAt": "2026-05-24T11:32:01.719Z"
+     }
+    ]
+   },
+   "channel": {
+    "id": 4,
+    "name": "blender_channel",
+    "displayName": "Blender",
+    "url": "https://instance.example/video-channels/blender_channel",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "width": 48,
+      "path": "/lazy-static/avatars/56817c33-af28-475f-9e87-0244015a04e0.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/56817c33-af28-475f-9e87-0244015a04e0.png",
+      "createdAt": "2026-05-24T10:42:47.572Z",
+      "updatedAt": "2026-05-24T10:42:47.572Z"
+     },
+     {
+      "width": 120,
+      "path": "/lazy-static/avatars/5720b4a8-d244-4fae-a2bf-3474caa8f644.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/5720b4a8-d244-4fae-a2bf-3474caa8f644.png",
+      "createdAt": "2026-05-24T10:42:47.565Z",
+      "updatedAt": "2026-05-24T10:42:47.565Z"
+     },
+     {
+      "width": 600,
+      "path": "/lazy-static/avatars/24f94d65-d525-4afc-8522-cfe19ea97464.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/24f94d65-d525-4afc-8522-cfe19ea97464.png",
+      "createdAt": "2026-05-24T10:42:47.556Z",
+      "updatedAt": "2026-05-24T10:42:47.556Z"
+     },
+     {
+      "width": 1500,
+      "path": "/lazy-static/avatars/40cb35af-7fd5-45f3-8026-c90b54cd9da1.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/40cb35af-7fd5-45f3-8026-c90b54cd9da1.png",
+      "createdAt": "2026-05-24T10:42:47.543Z",
+      "updatedAt": "2026-05-24T10:42:47.543Z"
+     }
+    ]
+   },
+   "comments": 0
+  },
+  {
+   "id": 54,
+   "uuid": "bf1f3fb5-b119-4f9f-9930-8e20e892b898",
+   "shortUUID": "pAQiVCgv2CsLg79KKXUoMw",
+   "url": "https://instance.example/videos/watch/bf1f3fb5-b119-4f9f-9930-8e20e892b898",
+   "name": "Big Buck Bunny",
+   "category": {
+    "id": 10,
+    "label": "Entertainment"
+   },
+   "licence": {
+    "id": null,
+    "label": "Unknown"
+   },
+   "language": {
+    "id": null,
+    "label": "Unknown"
+   },
+   "privacy": {
+    "id": 1,
+    "label": "Public"
+   },
+   "nsfw": false,
+   "nsfwFlags": 0,
+   "nsfwSummary": null,
+   "truncatedDescription": "Big Buck Bunny tells the story of a giant rabbit with a heart bigger than himself. When one sunny day three rodents rudely harass him, something snaps... and the rabbit ain't no bunny anymore! In the typical cartoon tradition he prepares the nasty...",
+   "description": "Big Buck Bunny tells the story of a giant rabbit with a heart bigger than himself. When one sunny day three rodents rudely harass him, something snaps... and the rabbit ain't no bunny anymore! In the typical cartoon tradition he prepares the nasty...",
+   "isLocal": true,
+   "duration": 596,
+   "aspectRatio": null,
+   "views": 3528,
+   "viewers": 0,
+   "downloads": 990,
+   "likes": 26,
+   "dislikes": 0,
+   "thumbnailPath": "/lazy-static/thumbnails/bf1f3fb5-b119-4f9f-9930-8e20e892b898.jpg",
+   "previewPath": "/lazy-static/thumbnails/bf1f3fb5-b119-4f9f-9930-8e20e892b898.jpg",
+   "thumbnails": [
+    {
+     "height": 110,
+     "width": 200,
+     "aspectRatio": "16:9",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/bf1f3fb5-b119-4f9f-9930-8e20e892b898.jpg"
+    }
+   ],
+   "embedPath": "/videos/embed/pAQiVCgv2CsLg79KKXUoMw",
+   "createdAt": "2018-10-25T13:13:10.685Z",
+   "updatedAt": "2026-10-17T19:16:33.377Z",
+   "publishedAt": "2018-10-27T02:00:22.765Z",
+   "originallyPublishedAt": null,
+   "isLive": false,
+   "account": {
+    "id": 6,
+    "displayName": "Blender",
+    "name": "blender",
+    "url": "https://instance.example/accounts/blender",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "width": 48,
+      "path": "/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "createdAt": "2026-05-24T11:32:01.734Z",
+      "updatedAt": "2026-05-24T11:32:01.734Z"
+     },
+     {
+      "width": 120,
+      "path": "/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "createdAt": "2026-05-24T11:32:01.730Z",
+      "updatedAt": "2026-05-24T11:32:01.730Z"
+     },
+     {
+      "width": 600,
+      "path": "/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "createdAt": "2026-05-24T11:32:01.724Z",
+      "updatedAt": "2026-05-24T11:32:01.724Z"
+     },
+     {
+      "width": 1500,
+      "path": "/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "createdAt": "2026-05-24T11:32:01.719Z",
+      "updatedAt": "2026-05-24T11:32:01.719Z"
+     }
+    ]
+   },
+   "channel": {
+    "id": 9,
+    "name": "blender_open_movies",
+    "displayName": "Blender Open Movies",
+    "url": "https://instance.example/video-channels/blender_open_movies",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "width": 48,
+      "path": "/lazy-static/avatars/f79d3ae7-86a8-4705-a9cf-75652312ed20.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/f79d3ae7-86a8-4705-a9cf-75652312ed20.png",
+      "createdAt": "2026-06-04T09:58:19.748Z",
+      "updatedAt": "2026-06-04T09:58:19.748Z"
+     },
+     {
+      "width": 120,
+      "path": "/lazy-static/avatars/df50b04c-67e0-4317-822a-be1f1a2d85d3.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/df50b04c-67e0-4317-822a-be1f1a2d85d3.png",
+      "createdAt": "2026-06-04T09:58:19.735Z",
+      "updatedAt": "2026-06-04T09:58:19.735Z"
+     },
+     {
+      "width": 600,
+      "path": "/lazy-static/avatars/0001ea1f-7c7b-45b3-8a15-004c6d0713bb.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/0001ea1f-7c7b-45b3-8a15-004c6d0713bb.png",
+      "createdAt": "2026-06-04T09:58:19.728Z",
+      "updatedAt": "2026-06-04T09:58:19.728Z"
+     },
+     {
+      "width": 1500,
+      "path": "/lazy-static/avatars/2676b86b-94a3-4692-9601-f4e41dcbf72f.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/2676b86b-94a3-4692-9601-f4e41dcbf72f.png",
+      "createdAt": "2026-06-04T09:58:19.710Z",
+      "updatedAt": "2026-06-04T09:58:19.710Z"
+     }
+    ]
+   },
+   "comments": 3
+  },
+  {
+   "id": 55194,
+   "uuid": "1ba07bbb-1456-4293-99a6-833fa450eda0",
+   "shortUUID": "4pSeQCu9XXz9wWMh5gTNMf",
+   "url": "https://instance.example/videos/watch/1ba07bbb-1456-4293-99a6-833fa450eda0",
+   "name": "SINGULARITY - Painterly Space Adventure",
+   "category": {
+    "id": null,
+    "label": "Unknown"
+   },
+   "licence": {
+    "id": 2,
+    "label": "Attribution - Share Alike"
+   },
+   "language": {
+    "id": null,
+    "label": "Unknown"
+   },
+   "privacy": {
+    "id": 1,
+    "label": "Public"
+   },
+   "nsfw": false,
+   "nsfwFlags": 0,
+   "nsfwSummary": null,
+   "truncatedDescription": "Our story takes place in a distant age of the universe, when the stars and galaxies were young. When an ominous cosmic event swallows the icy home of a small space critter, he must find refuge among a group of luminous creatures watched over by a ...",
+   "description": "Our story takes place in a distant age of the universe, when the stars and galaxies were young. When an ominous cosmic event swallows the icy home of a small space critter, he must find refuge among a group of luminous creatures watched over by a ...",
+   "isLocal": true,
+   "duration": 391,
+   "aspectRatio": 2.3869,
+   "views": 8222,
+   "viewers": 0,
+   "downloads": 2406,
+   "likes": 83,
+   "dislikes": 1,
+   "thumbnailPath": "/lazy-static/thumbnails/38b6e48a-40e7-4c46-801f-9a46baf9c02a.jpg",
+   "previewPath": "/lazy-static/thumbnails/54d3fc9c-96ba-4108-bb2f-ba27f5c71ae9.jpg",
+   "thumbnails": [
+    {
+     "height": 157,
+     "width": 280,
+     "aspectRatio": "16:9",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/38b6e48a-40e7-4c46-801f-9a46baf9c02a.jpg"
+    },
+    {
+     "height": 480,
+     "width": 850,
+     "aspectRatio": "16:9",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/54d3fc9c-96ba-4108-bb2f-ba27f5c71ae9.jpg"
+    }
+   ],
+   "embedPath": "/videos/embed/4pSeQCu9XXz9wWMh5gTNMf",
+   "createdAt": "2026-05-15T09:33:59.329Z",
+   "updatedAt": "2026-10-17T18:16:33.378Z",
+   "publishedAt": "2026-05-15T09:59:06.707Z",
+   "originallyPublishedAt": "2026-05-11T15:00:00.000Z",
+   "isLive": false,
+   "account": {
+    "id": 6,
+    "displayName": "Blender",
+    "name": "blender",
+    "url": "https://instance.example/accounts/blender",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "width": 48,
+      "path": "/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "createdAt": "2026-05-24T11:32:01.734Z",
+      "updatedAt": "2026-05-24T11:32:01.734Z"
+     },
+     {
+      "width": 120,
+      "path": "/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "createdAt": "2026-05-24T11:32:01.730Z",
+      "updatedAt": "2026-05-24T11:32:01.730Z"
+     },
+     {
+      "width": 600,
+      "path": "/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "createdAt": "2026-05-24T11:32:01.724Z",
+      "updatedAt": "2026-05-24T11:32:01.724Z"
+     },
+     {
+      "width": 1500,
+      "path": "/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "createdAt": "2026-05-24T11:32:01.719Z",
+      "updatedAt": "2026-05-24T11:32:01.719Z"
+     }
+    ]
+   },
+   "channel": {
+    "id": 9,
+    "name": "blender_open_movies",
+    "displayName": "Blender Open Movies",
+    "url": "https://instance.example/video-channels/blender_open_movies",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "width": 48,
+      "path": "/lazy-static/avatars/f79d3ae7-86a8-4705-a9cf-75652312ed20.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/f79d3ae7-86a8-4705-a9cf-75652312ed20.png",
+      "createdAt": "2026-06-04T09:58:19.748Z",
+      "updatedAt": "2026-06-04T09:58:19.748Z"
+     },
+     {
+      "width": 120,
+      "path": "/lazy-static/avatars/df50b04c-67e0-4317-822a-be1f1a2d85d3.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/df50b04c-67e0-4317-822a-be1f1a2d85d3.png",
+      "createdAt": "2026-06-04T09:58:19.735Z",
+      "updatedAt": "2026-06-04T09:58:19.735Z"
+     },
+     {
+      "width": 600,
+      "path": "/lazy-static/avatars/0001ea1f-7c7b-45b3-8a15-004c6d0713bb.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/0001ea1f-7c7b-45b3-8a15-004c6d0713bb.png",
+      "createdAt": "2026-06-04T09:58:19.728Z",
+      "updatedAt": "2026-06-04T09:58:19.728Z"
+     },
+     {
+      "width": 1500,
+      "path": "/lazy-static/avatars/2676b86b-94a3-4692-9601-f4e41dcbf72f.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/2676b86b-94a3-4692-9601-f4e41dcbf72f.png",
+      "createdAt": "2026-06-04T09:58:19.710Z",
+      "updatedAt": "2026-06-04T09:58:19.710Z"
+     }
+    ]
+   },
+   "comments": 10
+  },
+  {
+   "id": 56858,
+   "uuid": "bd0084a5-1d26-4816-ab5e-1bad9e2fb990",
+   "shortUUID": "pkDDcE7HiLU3UTGmRV1nJG",
+   "url": "https://instance.example/videos/watch/bd0084a5-1d26-4816-ab5e-1bad9e2fb990",
+   "name": "WING IT! - Blender Open Movie",
+   "category": {
+    "id": null,
+    "label": "Unknown"
+   },
+   "licence": {
+    "id": null,
+    "label": "Unknown"
+   },
+   "language": {
+    "id": "en",
+    "label": "English"
+   },
+   "privacy": {
+    "id": 1,
+    "label": "Public"
+   },
+   "nsfw": false,
+   "nsfwFlags": 0,
+   "nsfwSummary": null,
+   "truncatedDescription": "WING IT! is an open movie, made entirely with Blender. Get the production files, assets and exclusive making-of videos by joining Blender Studio at https://studio.blender.org/wing-it\r\n\r\n--\r\n\r\nAn uptight engineer gets an unwelcome visit from a enth...",
+   "description": "WING IT! is an open movie, made entirely with Blender. Get the production files, assets and exclusive making-of videos by joining Blender Studio at https://studio.blender.org/wing-it\r\n\r\n--\r\n\r\nAn uptight engineer gets an unwelcome visit from a enth...",
+   "isLocal": true,
+   "duration": 238,
+   "aspectRatio": 1.7778,
+   "views": 6825,
+   "viewers": 0,
+   "downloads": 2093,
+   "likes": 21,
+   "dislikes": 0,
+   "thumbnailPath": "/lazy-static/thumbnails/4efa0a16-83b0-4c62-a4bc-4dcd30c05749.jpg",
+   "previewPath": "/lazy-static/thumbnails/87971309-dcb1-4583-b4f5-f4521dad2fc8.jpg",
+   "thumbnails": [
+    {
+     "height": 157,
+     "width": 280,
+     "aspectRatio": "16:9",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/4efa0a16-83b0-4c62-a4bc-4dcd30c05749.jpg"
+    },
+    {
+     "height": 480,
+     "width": 850,
+     "aspectRatio": "16:9",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/dec777a6-56ca-4ebe-bfe0-6e9b2dd3351d.jpg"
+    },
+    {
+     "height": 720,
+     "width": 1280,
+     "aspectRatio": "16:9",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/65e33380-d9ee-4c3a-a5ec-a57005a9ef3f.jpg"
+    },
+    {
+     "height": 1400,
+     "width": 1400,
+     "aspectRatio": "1:1",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/d817984e-6b27-46b9-9222-3952afd3e28c.jpg"
+    },
+    {
+     "height": 1080,
+     "width": 1920,
+     "aspectRatio": "16:9",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/87971309-dcb1-4583-b4f5-f4521dad2fc8.jpg"
+    }
+   ],
+   "embedPath": "/videos/embed/pkDDcE7HiLU3UTGmRV1nJG",
+   "createdAt": "2026-06-01T14:35:54.735Z",
+   "updatedAt": "2026-10-17T19:16:33.916Z",
+   "publishedAt": "2026-06-01T14:42:04.984Z",
+   "originallyPublishedAt": "2023-09-12T10:00:26.000Z",
+   "isLive": false,
+   "account": {
+    "id": 6,
+    "displayName": "Blender",
+    "name": "blender",
+    "url": "https://instance.example/accounts/blender",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "width": 48,
+      "path": "/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "createdAt": "2026-05-24T11:32:01.734Z",
+      "updatedAt": "2026-05-24T11:32:01.734Z"
+     },
+     {
+      "width": 120,
+      "path": "/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "createdAt": "2026-05-24T11:32:01.730Z",
+      "updatedAt": "2026-05-24T11:32:01.730Z"
+     },
+     {
+      "width": 600,
+      "path": "/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "createdAt": "2026-05-24T11:32:01.724Z",
+      "updatedAt": "2026-05-24T11:32:01.724Z"
+     },
+     {
+      "width": 1500,
+      "path": "/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "createdAt": "2026-05-24T11:32:01.719Z",
+      "updatedAt": "2026-05-24T11:32:01.719Z"
+     }
+    ]
+   },
+   "channel": {
+    "id": 9,
+    "name": "blender_open_movies",
+    "displayName": "Blender Open Movies",
+    "url": "https://instance.example/video-channels/blender_open_movies",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "width": 48,
+      "path": "/lazy-static/avatars/f79d3ae7-86a8-4705-a9cf-75652312ed20.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/f79d3ae7-86a8-4705-a9cf-75652312ed20.png",
+      "createdAt": "2026-06-04T09:58:19.748Z",
+      "updatedAt": "2026-06-04T09:58:19.748Z"
+     },
+     {
+      "width": 120,
+      "path": "/lazy-static/avatars/df50b04c-67e0-4317-822a-be1f1a2d85d3.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/df50b04c-67e0-4317-822a-be1f1a2d85d3.png",
+      "createdAt": "2026-06-04T09:58:19.735Z",
+      "updatedAt": "2026-06-04T09:58:19.735Z"
+     },
+     {
+      "width": 600,
+      "path": "/lazy-static/avatars/0001ea1f-7c7b-45b3-8a15-004c6d0713bb.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/0001ea1f-7c7b-45b3-8a15-004c6d0713bb.png",
+      "createdAt": "2026-06-04T09:58:19.728Z",
+      "updatedAt": "2026-06-04T09:58:19.728Z"
+     },
+     {
+      "width": 1500,
+      "path": "/lazy-static/avatars/2676b86b-94a3-4692-9601-f4e41dcbf72f.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/2676b86b-94a3-4692-9601-f4e41dcbf72f.png",
+      "createdAt": "2026-06-04T09:58:19.710Z",
+      "updatedAt": "2026-06-04T09:58:19.710Z"
+     }
+    ]
+   },
+   "comments": 1
+  }
+ ]
+}

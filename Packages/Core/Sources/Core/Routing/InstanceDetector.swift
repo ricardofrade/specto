@@ -11,7 +11,7 @@ public struct InstanceDetector: Sendable {
 
     public enum Failure: Error, Equatable {
         case invalidURL
-        /// Reachable, but not a Piped API, Invidious or YT Zero. A Piped *frontend* URL lands here.
+        /// Reachable, but not a Piped API, Invidious, YT Zero or PeerTube. A Piped *frontend* URL lands here.
         case unrecognised
         case unreachable
     }
@@ -41,7 +41,8 @@ public struct InstanceDetector: Sendable {
         async let ytZero = probeYTZero(url)
         async let invidious = probeInvidious(url)
         async let piped = probePiped(url)
-        let results = await [ytZero, invidious, piped]
+        async let peerTube = probePeerTube(url)
+        let results = await [ytZero, invidious, piped, peerTube]
         if let found = results.compactMap({ $0.detected }).first { return found }
         if results.allSatisfy({ $0.unreachable }) { throw Failure.unreachable }
         throw Failure.unrecognised
@@ -64,6 +65,15 @@ public struct InstanceDetector: Sendable {
             let stats = try JSONDecoder().decode(InvidiousDTO.Stats.self, from: data)
             return stats.software?.name == "invidious"
                 ? Detected(kind: .invidious, apiURL: url, version: stats.software?.version) : nil
+        }
+    }
+
+    /// PeerTube's `/api/v1/config` has its version and the server's name.
+    private func probePeerTube(_ url: URL) async -> Probe {
+        await probe(url, path: "api/v1/config") { data in
+            let config = try JSONDecoder().decode(PeerTubeDTO.Config.self, from: data)
+            return config.serverVersion != nil && config.instance != nil
+                ? Detected(kind: .peerTube, apiURL: url, version: config.serverVersion) : nil
         }
     }
 

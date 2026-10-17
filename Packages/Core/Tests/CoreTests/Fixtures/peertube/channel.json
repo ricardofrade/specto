@@ -1,0 +1,116 @@
+{
+ "url": "https://instance.example/video-channels/blender_open_movies",
+ "name": "blender_open_movies",
+ "host": "instance.example",
+ "avatars": [
+  {
+   "height": 48,
+   "width": 48,
+   "path": "/lazy-static/avatars/f79d3ae7-86a8-4705-a9cf-75652312ed20.png",
+   "fileUrl": "https://instance.example/lazy-static/avatars/f79d3ae7-86a8-4705-a9cf-75652312ed20.png",
+   "createdAt": "2026-06-04T09:58:19.748Z",
+   "updatedAt": "2026-06-04T09:58:19.748Z"
+  },
+  {
+   "height": 120,
+   "width": 120,
+   "path": "/lazy-static/avatars/df50b04c-67e0-4317-822a-be1f1a2d85d3.png",
+   "fileUrl": "https://instance.example/lazy-static/avatars/df50b04c-67e0-4317-822a-be1f1a2d85d3.png",
+   "createdAt": "2026-06-04T09:58:19.735Z",
+   "updatedAt": "2026-06-04T09:58:19.735Z"
+  },
+  {
+   "height": 600,
+   "width": 600,
+   "path": "/lazy-static/avatars/0001ea1f-7c7b-45b3-8a15-004c6d0713bb.png",
+   "fileUrl": "https://instance.example/lazy-static/avatars/0001ea1f-7c7b-45b3-8a15-004c6d0713bb.png",
+   "createdAt": "2026-06-04T09:58:19.728Z",
+   "updatedAt": "2026-06-04T09:58:19.728Z"
+  },
+  {
+   "height": 1500,
+   "width": 1500,
+   "path": "/lazy-static/avatars/2676b86b-94a3-4692-9601-f4e41dcbf72f.png",
+   "fileUrl": "https://instance.example/lazy-static/avatars/2676b86b-94a3-4692-9601-f4e41dcbf72f.png",
+   "createdAt": "2026-06-04T09:58:19.710Z",
+   "updatedAt": "2026-06-04T09:58:19.710Z"
+  }
+ ],
+ "id": 9,
+ "hostRedundancyAllowed": false,
+ "followingCount": 0,
+ "followersCount": 475,
+ "createdAt": "2018-10-25T13:08:22.385Z",
+ "banners": [
+  {
+   "height": 100,
+   "width": 600,
+   "path": "/lazy-static/banners/c0a1b39b-ccfd-426e-873f-4cac312b9dca.png",
+   "fileUrl": "https://instance.example/lazy-static/banners/c0a1b39b-ccfd-426e-873f-4cac312b9dca.png",
+   "createdAt": "2026-06-04T09:58:26.601Z",
+   "updatedAt": "2026-06-04T09:58:26.601Z"
+  },
+  {
+   "height": 317,
+   "width": 1920,
+   "path": "/lazy-static/banners/b12f93e6-2b5c-4f95-ab04-64b3a6d8f318.png",
+   "fileUrl": "https://instance.example/lazy-static/banners/b12f93e6-2b5c-4f95-ab04-64b3a6d8f318.png",
+   "createdAt": "2026-06-04T09:58:26.593Z",
+   "updatedAt": "2026-06-04T09:58:26.593Z"
+  }
+ ],
+ "displayName": "Blender Open Movies",
+ "description": "Official PeerTube channel with all iconic Blender Open Movies and behind-the-scenes content.\n\n**The Freedom to Create**",
+ "support": "Join the [Blender Development Fund](https://fund.blender.org/) and become a [Blender Studio subscriber](https://studio.blender.org/join).",
+ "publicEmail": null,
+ "isLocal": true,
+ "updatedAt": "2026-09-14T14:42:23.068Z",
+ "ownerAccount": {
+  "url": "https://instance.example/accounts/blender",
+  "name": "blender",
+  "host": "instance.example",
+  "avatars": [
+   {
+    "height": 48,
+    "width": 48,
+    "path": "/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+    "fileUrl": "https://instance.example/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+    "createdAt": "2026-05-24T11:32:01.734Z",
+    "updatedAt": "2026-05-24T11:32:01.734Z"
+   },
+   {
+    "height": 120,
+    "width": 120,
+    "path": "/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+    "fileUrl": "https://instance.example/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+    "createdAt": "2026-05-24T11:32:01.730Z",
+    "updatedAt": "2026-05-24T11:32:01.730Z"
+   },
+   {
+    "height": 600,
+    "width": 600,
+    "path": "/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+    "fileUrl": "https://instance.example/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+    "createdAt": "2026-05-24T11:32:01.724Z",
+    "updatedAt": "2026-05-24T11:32:01.724Z"
+   },
+   {
+    "height": 1500,
+    "width": 1500,
+    "path": "/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+    "fileUrl": "https://instance.example/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+    "createdAt": "2026-05-24T11:32:01.719Z",
+    "updatedAt": "2026-05-24T11:32:01.719Z"
+   }
+  ],
+  "id": 6,
+  "hostRedundancyAllowed": false,
+  "followingCount": 1,
+  "followersCount": 6399,
+  "createdAt": "2018-10-24T14:55:59.623Z",
+  "displayName": "Blender",
+  "description": "Blender is the free and open source 3D creation suite. \n\nIt supports the entirety of the 3D pipeline—modeling, rigging, animation, simulation, rendering, compositing and motion tracking, even video editing and game creation.  \n\nBlender is well suited to individuals and small studios who benefit from its unified pipeline and responsive development process.",
+  "updatedAt": "2022-12-19T21:05:12.414Z",
+  "userId": 4
+ }
+}

@@ -272,7 +272,9 @@ struct RootView: View {
             }
         }
         .onChange(of: environment.instances, initial: true) {
-            explore.setCategoriesAvailable(environment.supportsTrendingCategories)
+            explore.setCategoriesAvailable(environment.supportsTrendingCategories,
+                                           peerTube: environment.hasPeerTube && environment.hasYouTube,
+                                           onlyPeerTube: environment.hasPeerTube && !environment.hasYouTube)
         }
         .task(id: environment.hasSubscriptions) {
             channels = (try? SubscriptionStore(environment.database).channels()) ?? []
@@ -400,10 +402,13 @@ struct RootView: View {
             actions.saveToPlaylist = { router.savingToPlaylist = video }
             // YouTube's own address: it opens in any app, this one included (descriptions,
             // Handoff), and says nothing about the instance.
-            actions.shareURL = URL(string: "https://www.youtube.com/watch?v=\(video.id.rawValue)")
+            actions.shareURL = video.id.webURL
             let session = environment.session
             actions.shareURLAtCurrentTime = {
                 let seconds = Int(session.position.components.seconds)
+                if let peerTube = video.id.peerTube {
+                    return URL(string: "https://\(peerTube.host)/w/\(peerTube.uuid)?start=\(seconds)s")
+                }
                 return URL(string: "https://www.youtube.com/watch?v=\(video.id.rawValue)&t=\(seconds)s")
             }
         }

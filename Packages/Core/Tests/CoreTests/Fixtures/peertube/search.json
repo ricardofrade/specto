@@ -1,0 +1,640 @@
+{
+ "total": 1024,
+ "data": [
+  {
+   "id": 3,
+   "uuid": "8f65c679-68f2-4ba8-9368-ca73699955a7",
+   "shortUUID": "iH2uV3EaNDzUg63X1EjtUB",
+   "url": "https://instance.example/videos/watch/8f65c679-68f2-4ba8-9368-ca73699955a7",
+   "name": "The New 2018 Blender Institute!",
+   "category": {
+    "id": 13,
+    "label": "Education"
+   },
+   "licence": {
+    "id": 7,
+    "label": "Public Domain Dedication"
+   },
+   "language": {
+    "id": "en",
+    "label": "English"
+   },
+   "privacy": {
+    "id": 1,
+    "label": "Public"
+   },
+   "nsfw": false,
+   "nsfwFlags": 0,
+   "nsfwSummary": null,
+   "truncatedDescription": "First tour of the new Blender Institute.",
+   "description": "First tour of the new Blender Institute.",
+   "isLocal": true,
+   "duration": 305,
+   "aspectRatio": null,
+   "views": 76,
+   "viewers": 0,
+   "downloads": 6,
+   "likes": 0,
+   "dislikes": 0,
+   "thumbnailPath": "/lazy-static/thumbnails/8f65c679-68f2-4ba8-9368-ca73699955a7.jpg",
+   "previewPath": "/lazy-static/thumbnails/8f65c679-68f2-4ba8-9368-ca73699955a7.jpg",
+   "thumbnails": [
+    {
+     "height": 110,
+     "width": 200,
+     "aspectRatio": "16:9",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/8f65c679-68f2-4ba8-9368-ca73699955a7.jpg"
+    }
+   ],
+   "embedPath": "/videos/embed/iH2uV3EaNDzUg63X1EjtUB",
+   "createdAt": "2018-10-25T11:15:17.825Z",
+   "updatedAt": "2026-10-02T15:16:33.126Z",
+   "publishedAt": "2018-10-25T12:28:07.845Z",
+   "originallyPublishedAt": null,
+   "isLive": false,
+   "account": {
+    "id": 6,
+    "displayName": "Blender",
+    "name": "blender",
+    "url": "https://instance.example/accounts/blender",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "width": 48,
+      "path": "/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "createdAt": "2026-05-24T11:32:01.734Z",
+      "updatedAt": "2026-05-24T11:32:01.734Z"
+     },
+     {
+      "width": 120,
+      "path": "/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "createdAt": "2026-05-24T11:32:01.730Z",
+      "updatedAt": "2026-05-24T11:32:01.730Z"
+     },
+     {
+      "width": 600,
+      "path": "/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "createdAt": "2026-05-24T11:32:01.724Z",
+      "updatedAt": "2026-05-24T11:32:01.724Z"
+     },
+     {
+      "width": 1500,
+      "path": "/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "createdAt": "2026-05-24T11:32:01.719Z",
+      "updatedAt": "2026-05-24T11:32:01.719Z"
+     }
+    ]
+   },
+   "channel": {
+    "id": 4,
+    "name": "blender_channel",
+    "displayName": "Blender",
+    "url": "https://instance.example/video-channels/blender_channel",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "width": 48,
+      "path": "/lazy-static/avatars/56817c33-af28-475f-9e87-0244015a04e0.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/56817c33-af28-475f-9e87-0244015a04e0.png",
+      "createdAt": "2026-05-24T10:42:47.572Z",
+      "updatedAt": "2026-05-24T10:42:47.572Z"
+     },
+     {
+      "width": 120,
+      "path": "/lazy-static/avatars/5720b4a8-d244-4fae-a2bf-3474caa8f644.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/5720b4a8-d244-4fae-a2bf-3474caa8f644.png",
+      "createdAt": "2026-05-24T10:42:47.565Z",
+      "updatedAt": "2026-05-24T10:42:47.565Z"
+     },
+     {
+      "width": 600,
+      "path": "/lazy-static/avatars/24f94d65-d525-4afc-8522-cfe19ea97464.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/24f94d65-d525-4afc-8522-cfe19ea97464.png",
+      "createdAt": "2026-05-24T10:42:47.556Z",
+      "updatedAt": "2026-05-24T10:42:47.556Z"
+     },
+     {
+      "width": 1500,
+      "path": "/lazy-static/avatars/40cb35af-7fd5-45f3-8026-c90b54cd9da1.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/40cb35af-7fd5-45f3-8026-c90b54cd9da1.png",
+      "createdAt": "2026-05-24T10:42:47.543Z",
+      "updatedAt": "2026-05-24T10:42:47.543Z"
+     }
+    ]
+   },
+   "comments": 0
+  },
+  {
+   "id": 4,
+   "uuid": "6c5139f7-e33e-4317-a098-394c605717b0",
+   "shortUUID": "enM7PuPz9TjxptzMFk6jiW",
+   "url": "https://instance.example/videos/watch/6c5139f7-e33e-4317-a098-394c605717b0",
+   "name": "Blender Studio Tour #3",
+   "category": {
+    "id": 13,
+    "label": "Education"
+   },
+   "licence": {
+    "id": 7,
+    "label": "Public Domain Dedication"
+   },
+   "language": {
+    "id": "en",
+    "label": "English"
+   },
+   "privacy": {
+    "id": 1,
+    "label": "Public"
+   },
+   "nsfw": false,
+   "nsfwFlags": 0,
+   "nsfwSummary": null,
+   "truncatedDescription": "Blender Studio Tour #3",
+   "description": "Blender Studio Tour #3",
+   "isLocal": true,
+   "duration": 572,
+   "aspectRatio": null,
+   "views": 50,
+   "viewers": 0,
+   "downloads": 1,
+   "likes": 0,
+   "dislikes": 0,
+   "thumbnailPath": "/lazy-static/thumbnails/6c5139f7-e33e-4317-a098-394c605717b0.jpg",
+   "previewPath": "/lazy-static/thumbnails/6c5139f7-e33e-4317-a098-394c605717b0.jpg",
+   "thumbnails": [
+    {
+     "height": 110,
+     "width": 200,
+     "aspectRatio": "16:9",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/6c5139f7-e33e-4317-a098-394c605717b0.jpg"
+    }
+   ],
+   "embedPath": "/videos/embed/enM7PuPz9TjxptzMFk6jiW",
+   "createdAt": "2018-10-25T11:21:16.402Z",
+   "updatedAt": "2026-10-06T06:16:33.161Z",
+   "publishedAt": "2018-10-25T16:03:50.941Z",
+   "originallyPublishedAt": null,
+   "isLive": false,
+   "account": {
+    "id": 6,
+    "displayName": "Blender",
+    "name": "blender",
+    "url": "https://instance.example/accounts/blender",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "width": 48,
+      "path": "/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "createdAt": "2026-05-24T11:32:01.734Z",
+      "updatedAt": "2026-05-24T11:32:01.734Z"
+     },
+     {
+      "width": 120,
+      "path": "/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "createdAt": "2026-05-24T11:32:01.730Z",
+      "updatedAt": "2026-05-24T11:32:01.730Z"
+     },
+     {
+      "width": 600,
+      "path": "/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "createdAt": "2026-05-24T11:32:01.724Z",
+      "updatedAt": "2026-05-24T11:32:01.724Z"
+     },
+     {
+      "width": 1500,
+      "path": "/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "createdAt": "2026-05-24T11:32:01.719Z",
+      "updatedAt": "2026-05-24T11:32:01.719Z"
+     }
+    ]
+   },
+   "channel": {
+    "id": 4,
+    "name": "blender_channel",
+    "displayName": "Blender",
+    "url": "https://instance.example/video-channels/blender_channel",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "width": 48,
+      "path": "/lazy-static/avatars/56817c33-af28-475f-9e87-0244015a04e0.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/56817c33-af28-475f-9e87-0244015a04e0.png",
+      "createdAt": "2026-05-24T10:42:47.572Z",
+      "updatedAt": "2026-05-24T10:42:47.572Z"
+     },
+     {
+      "width": 120,
+      "path": "/lazy-static/avatars/5720b4a8-d244-4fae-a2bf-3474caa8f644.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/5720b4a8-d244-4fae-a2bf-3474caa8f644.png",
+      "createdAt": "2026-05-24T10:42:47.565Z",
+      "updatedAt": "2026-05-24T10:42:47.565Z"
+     },
+     {
+      "width": 600,
+      "path": "/lazy-static/avatars/24f94d65-d525-4afc-8522-cfe19ea97464.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/24f94d65-d525-4afc-8522-cfe19ea97464.png",
+      "createdAt": "2026-05-24T10:42:47.556Z",
+      "updatedAt": "2026-05-24T10:42:47.556Z"
+     },
+     {
+      "width": 1500,
+      "path": "/lazy-static/avatars/40cb35af-7fd5-45f3-8026-c90b54cd9da1.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/40cb35af-7fd5-45f3-8026-c90b54cd9da1.png",
+      "createdAt": "2026-05-24T10:42:47.543Z",
+      "updatedAt": "2026-05-24T10:42:47.543Z"
+     }
+    ]
+   },
+   "comments": 0
+  },
+  {
+   "id": 6,
+   "uuid": "e8351755-4cf7-43b0-87b8-5e037db106ba",
+   "shortUUID": "uF6cjxuFGELN5ni6gn7oRG",
+   "url": "https://instance.example/videos/watch/e8351755-4cf7-43b0-87b8-5e037db106ba",
+   "name": "First Steps - Blender Fundamentals",
+   "category": {
+    "id": 13,
+    "label": "Education"
+   },
+   "licence": {
+    "id": 7,
+    "label": "Public Domain Dedication"
+   },
+   "language": {
+    "id": "en",
+    "label": "English"
+   },
+   "privacy": {
+    "id": 1,
+    "label": "Public"
+   },
+   "nsfw": false,
+   "nsfwFlags": 0,
+   "nsfwSummary": null,
+   "truncatedDescription": "Blender is Free and Open Source Software\r\nDownload: https://blender.org/download\r\nDonate: https://blender.org/donate\r\n--\r\nThis tutorial is part of the Blender Fundamentals series, produced by Dillon Gu.\r\n\r\nFind more free tutorials on: https://blen...",
+   "description": "Blender is Free and Open Source Software\r\nDownload: https://blender.org/download\r\nDonate: https://blender.org/donate\r\n--\r\nThis tutorial is part of the Blender Fundamentals series, produced by Dillon Gu.\r\n\r\nFind more free tutorials on: https://blen...",
+   "isLocal": true,
+   "duration": 93,
+   "aspectRatio": null,
+   "views": 359,
+   "viewers": 0,
+   "downloads": 16,
+   "likes": 3,
+   "dislikes": 0,
+   "thumbnailPath": "/lazy-static/thumbnails/e8351755-4cf7-43b0-87b8-5e037db106ba.jpg",
+   "previewPath": "/lazy-static/thumbnails/e8351755-4cf7-43b0-87b8-5e037db106ba.jpg",
+   "thumbnails": [
+    {
+     "height": 110,
+     "width": 200,
+     "aspectRatio": "16:9",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/e8351755-4cf7-43b0-87b8-5e037db106ba.jpg"
+    }
+   ],
+   "embedPath": "/videos/embed/uF6cjxuFGELN5ni6gn7oRG",
+   "createdAt": "2018-10-25T12:09:30.699Z",
+   "updatedAt": "2026-10-14T09:46:33.240Z",
+   "publishedAt": "2018-10-26T07:42:02.689Z",
+   "originallyPublishedAt": null,
+   "isLive": false,
+   "account": {
+    "id": 6,
+    "displayName": "Blender",
+    "name": "blender",
+    "url": "https://instance.example/accounts/blender",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "width": 48,
+      "path": "/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "createdAt": "2026-05-24T11:32:01.734Z",
+      "updatedAt": "2026-05-24T11:32:01.734Z"
+     },
+     {
+      "width": 120,
+      "path": "/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "createdAt": "2026-05-24T11:32:01.730Z",
+      "updatedAt": "2026-05-24T11:32:01.730Z"
+     },
+     {
+      "width": 600,
+      "path": "/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "createdAt": "2026-05-24T11:32:01.724Z",
+      "updatedAt": "2026-05-24T11:32:01.724Z"
+     },
+     {
+      "width": 1500,
+      "path": "/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "createdAt": "2026-05-24T11:32:01.719Z",
+      "updatedAt": "2026-05-24T11:32:01.719Z"
+     }
+    ]
+   },
+   "channel": {
+    "id": 4,
+    "name": "blender_channel",
+    "displayName": "Blender",
+    "url": "https://instance.example/video-channels/blender_channel",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "width": 48,
+      "path": "/lazy-static/avatars/56817c33-af28-475f-9e87-0244015a04e0.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/56817c33-af28-475f-9e87-0244015a04e0.png",
+      "createdAt": "2026-05-24T10:42:47.572Z",
+      "updatedAt": "2026-05-24T10:42:47.572Z"
+     },
+     {
+      "width": 120,
+      "path": "/lazy-static/avatars/5720b4a8-d244-4fae-a2bf-3474caa8f644.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/5720b4a8-d244-4fae-a2bf-3474caa8f644.png",
+      "createdAt": "2026-05-24T10:42:47.565Z",
+      "updatedAt": "2026-05-24T10:42:47.565Z"
+     },
+     {
+      "width": 600,
+      "path": "/lazy-static/avatars/24f94d65-d525-4afc-8522-cfe19ea97464.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/24f94d65-d525-4afc-8522-cfe19ea97464.png",
+      "createdAt": "2026-05-24T10:42:47.556Z",
+      "updatedAt": "2026-05-24T10:42:47.556Z"
+     },
+     {
+      "width": 1500,
+      "path": "/lazy-static/avatars/40cb35af-7fd5-45f3-8026-c90b54cd9da1.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/40cb35af-7fd5-45f3-8026-c90b54cd9da1.png",
+      "createdAt": "2026-05-24T10:42:47.543Z",
+      "updatedAt": "2026-05-24T10:42:47.543Z"
+     }
+    ]
+   },
+   "comments": 1
+  },
+  {
+   "id": 7,
+   "uuid": "369454db-09e1-4b8e-9f9f-263ceaa394bc",
+   "shortUUID": "7JUmeLcJa6AJEzzoAasUgE",
+   "url": "https://instance.example/videos/watch/369454db-09e1-4b8e-9f9f-263ceaa394bc",
+   "name": "Navigation Overview - Blender Fundamentals",
+   "category": {
+    "id": 13,
+    "label": "Education"
+   },
+   "licence": {
+    "id": 1,
+    "label": "Attribution"
+   },
+   "language": {
+    "id": "en",
+    "label": "English"
+   },
+   "privacy": {
+    "id": 1,
+    "label": "Public"
+   },
+   "nsfw": false,
+   "nsfwFlags": 0,
+   "nsfwSummary": null,
+   "truncatedDescription": "Blender is Free and Open Source Software\r\nDownload: https://blender.org/download\r\nDonate: https://blender.org/donate\r\n--\r\nThis tutorial is part of the Blender Fundamentals series, produced by Dillon Gu.\r\n\r\nFind more free tutorials on: https://blen...",
+   "description": "Blender is Free and Open Source Software\r\nDownload: https://blender.org/download\r\nDonate: https://blender.org/donate\r\n--\r\nThis tutorial is part of the Blender Fundamentals series, produced by Dillon Gu.\r\n\r\nFind more free tutorials on: https://blen...",
+   "isLocal": true,
+   "duration": 425,
+   "aspectRatio": null,
+   "views": 161,
+   "viewers": 0,
+   "downloads": 0,
+   "likes": 0,
+   "dislikes": 0,
+   "thumbnailPath": "/lazy-static/thumbnails/369454db-09e1-4b8e-9f9f-263ceaa394bc.jpg",
+   "previewPath": "/lazy-static/thumbnails/369454db-09e1-4b8e-9f9f-263ceaa394bc.jpg",
+   "thumbnails": [
+    {
+     "height": 110,
+     "width": 200,
+     "aspectRatio": "16:9",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/369454db-09e1-4b8e-9f9f-263ceaa394bc.jpg"
+    }
+   ],
+   "embedPath": "/videos/embed/7JUmeLcJa6AJEzzoAasUgE",
+   "createdAt": "2018-10-25T12:11:07.321Z",
+   "updatedAt": "2026-09-28T21:18:10.820Z",
+   "publishedAt": "2018-10-26T10:47:42.096Z",
+   "originallyPublishedAt": null,
+   "isLive": false,
+   "account": {
+    "id": 6,
+    "displayName": "Blender",
+    "name": "blender",
+    "url": "https://instance.example/accounts/blender",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "width": 48,
+      "path": "/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "createdAt": "2026-05-24T11:32:01.734Z",
+      "updatedAt": "2026-05-24T11:32:01.734Z"
+     },
+     {
+      "width": 120,
+      "path": "/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "createdAt": "2026-05-24T11:32:01.730Z",
+      "updatedAt": "2026-05-24T11:32:01.730Z"
+     },
+     {
+      "width": 600,
+      "path": "/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "createdAt": "2026-05-24T11:32:01.724Z",
+      "updatedAt": "2026-05-24T11:32:01.724Z"
+     },
+     {
+      "width": 1500,
+      "path": "/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "createdAt": "2026-05-24T11:32:01.719Z",
+      "updatedAt": "2026-05-24T11:32:01.719Z"
+     }
+    ]
+   },
+   "channel": {
+    "id": 4,
+    "name": "blender_channel",
+    "displayName": "Blender",
+    "url": "https://instance.example/video-channels/blender_channel",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "width": 48,
+      "path": "/lazy-static/avatars/56817c33-af28-475f-9e87-0244015a04e0.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/56817c33-af28-475f-9e87-0244015a04e0.png",
+      "createdAt": "2026-05-24T10:42:47.572Z",
+      "updatedAt": "2026-05-24T10:42:47.572Z"
+     },
+     {
+      "width": 120,
+      "path": "/lazy-static/avatars/5720b4a8-d244-4fae-a2bf-3474caa8f644.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/5720b4a8-d244-4fae-a2bf-3474caa8f644.png",
+      "createdAt": "2026-05-24T10:42:47.565Z",
+      "updatedAt": "2026-05-24T10:42:47.565Z"
+     },
+     {
+      "width": 600,
+      "path": "/lazy-static/avatars/24f94d65-d525-4afc-8522-cfe19ea97464.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/24f94d65-d525-4afc-8522-cfe19ea97464.png",
+      "createdAt": "2026-05-24T10:42:47.556Z",
+      "updatedAt": "2026-05-24T10:42:47.556Z"
+     },
+     {
+      "width": 1500,
+      "path": "/lazy-static/avatars/40cb35af-7fd5-45f3-8026-c90b54cd9da1.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/40cb35af-7fd5-45f3-8026-c90b54cd9da1.png",
+      "createdAt": "2026-05-24T10:42:47.543Z",
+      "updatedAt": "2026-05-24T10:42:47.543Z"
+     }
+    ]
+   },
+   "comments": 0
+  },
+  {
+   "id": 8,
+   "uuid": "1f5f81f1-7e05-40b8-9f54-fad9edd7e5af",
+   "shortUUID": "4SGpJRQ5oeBhBDwBj2f7qF",
+   "url": "https://instance.example/videos/watch/1f5f81f1-7e05-40b8-9f54-fad9edd7e5af",
+   "name": "Selection & Transform - Blender Fundamentals",
+   "category": {
+    "id": 13,
+    "label": "Education"
+   },
+   "licence": {
+    "id": 7,
+    "label": "Public Domain Dedication"
+   },
+   "language": {
+    "id": "en",
+    "label": "English"
+   },
+   "privacy": {
+    "id": 1,
+    "label": "Public"
+   },
+   "nsfw": false,
+   "nsfwFlags": 0,
+   "nsfwSummary": null,
+   "truncatedDescription": "Blender is Free and Open Source Software\r\nDownload: https://blender.org/download\r\nDonate: https://blender.org/donate\r\n--\r\nThis tutorial is part of the Blender Fundamentals series, produced by Dillon Gu.\r\n\r\nFind more free tutorials on: https://blen...",
+   "description": "Blender is Free and Open Source Software\r\nDownload: https://blender.org/download\r\nDonate: https://blender.org/donate\r\n--\r\nThis tutorial is part of the Blender Fundamentals series, produced by Dillon Gu.\r\n\r\nFind more free tutorials on: https://blen...",
+   "isLocal": true,
+   "duration": 623,
+   "aspectRatio": null,
+   "views": 77,
+   "viewers": 0,
+   "downloads": 5,
+   "likes": 0,
+   "dislikes": 0,
+   "thumbnailPath": "/lazy-static/thumbnails/1f5f81f1-7e05-40b8-9f54-fad9edd7e5af.jpg",
+   "previewPath": "/lazy-static/thumbnails/1f5f81f1-7e05-40b8-9f54-fad9edd7e5af.jpg",
+   "thumbnails": [
+    {
+     "height": 110,
+     "width": 200,
+     "aspectRatio": "16:9",
+     "fileUrl": "https://instance.example/lazy-static/thumbnails/1f5f81f1-7e05-40b8-9f54-fad9edd7e5af.jpg"
+    }
+   ],
+   "embedPath": "/videos/embed/4SGpJRQ5oeBhBDwBj2f7qF",
+   "createdAt": "2018-10-25T12:11:56.740Z",
+   "updatedAt": "2026-10-10T09:46:33.205Z",
+   "publishedAt": "2018-10-26T11:05:06.220Z",
+   "originallyPublishedAt": null,
+   "isLive": false,
+   "account": {
+    "id": 6,
+    "displayName": "Blender",
+    "name": "blender",
+    "url": "https://instance.example/accounts/blender",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "width": 48,
+      "path": "/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "createdAt": "2026-05-24T11:32:01.734Z",
+      "updatedAt": "2026-05-24T11:32:01.734Z"
+     },
+     {
+      "width": 120,
+      "path": "/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "createdAt": "2026-05-24T11:32:01.730Z",
+      "updatedAt": "2026-05-24T11:32:01.730Z"
+     },
+     {
+      "width": 600,
+      "path": "/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "createdAt": "2026-05-24T11:32:01.724Z",
+      "updatedAt": "2026-05-24T11:32:01.724Z"
+     },
+     {
+      "width": 1500,
+      "path": "/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "createdAt": "2026-05-24T11:32:01.719Z",
+      "updatedAt": "2026-05-24T11:32:01.719Z"
+     }
+    ]
+   },
+   "channel": {
+    "id": 4,
+    "name": "blender_channel",
+    "displayName": "Blender",
+    "url": "https://instance.example/video-channels/blender_channel",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "width": 48,
+      "path": "/lazy-static/avatars/56817c33-af28-475f-9e87-0244015a04e0.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/56817c33-af28-475f-9e87-0244015a04e0.png",
+      "createdAt": "2026-05-24T10:42:47.572Z",
+      "updatedAt": "2026-05-24T10:42:47.572Z"
+     },
+     {
+      "width": 120,
+      "path": "/lazy-static/avatars/5720b4a8-d244-4fae-a2bf-3474caa8f644.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/5720b4a8-d244-4fae-a2bf-3474caa8f644.png",
+      "createdAt": "2026-05-24T10:42:47.565Z",
+      "updatedAt": "2026-05-24T10:42:47.565Z"
+     },
+     {
+      "width": 600,
+      "path": "/lazy-static/avatars/24f94d65-d525-4afc-8522-cfe19ea97464.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/24f94d65-d525-4afc-8522-cfe19ea97464.png",
+      "createdAt": "2026-05-24T10:42:47.556Z",
+      "updatedAt": "2026-05-24T10:42:47.556Z"
+     },
+     {
+      "width": 1500,
+      "path": "/lazy-static/avatars/40cb35af-7fd5-45f3-8026-c90b54cd9da1.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/40cb35af-7fd5-45f3-8026-c90b54cd9da1.png",
+      "createdAt": "2026-05-24T10:42:47.543Z",
+      "updatedAt": "2026-05-24T10:42:47.543Z"
+     }
+    ]
+   },
+   "comments": 0
+  }
+ ]
+}

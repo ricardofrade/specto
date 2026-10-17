@@ -142,6 +142,11 @@ final class AppEnvironment {
            let url = URL(string: arguments[index + 1]) {
             try? InstanceStore(database).add(InstanceConfig(kind: .piped, displayName: url.host() ?? "Piped", apiURL: url))
         }
+        // `-SeedPeerTube <server URL>`: a PeerTube server.
+        if let index = arguments.firstIndex(of: "-SeedPeerTube"), arguments.indices.contains(index + 1),
+           let url = URL(string: arguments[index + 1]) {
+            try? InstanceStore(database).add(InstanceConfig(kind: .peerTube, displayName: url.host() ?? "PeerTube", apiURL: url))
+        }
         // `-SeedInvidious <API URL>`: an Invidious instance (Explore's categories).
         if let index = arguments.firstIndex(of: "-SeedInvidious"), arguments.indices.contains(index + 1),
            let url = URL(string: arguments[index + 1]) {
@@ -179,20 +184,27 @@ final class AppEnvironment {
         var sources: [any VideoSource] = []
         var linkedAccount: YTZeroSource?
         var imageTokens: [String: String] = [:]
+        // PeerTube answers search and Explore's main list only when nothing fronts YouTube;
+        // YouTube's front-ends decline PeerTube content (ADR 0016).
+        let hasYouTube = instances.contains { $0.kind.isYouTube }
         for instance in instances {
             switch instance.kind {
             case .piped:
-                sources.append(PipedSource(instance: instance))
+                sources.append(YouTubeOnly(PipedSource(instance: instance)))
             case .invidious:
-                sources.append(InvidiousSource(instance: instance))
+                sources.append(YouTubeOnly(InvidiousSource(instance: instance)))
+            case .peerTube:
+                sources.append(PeerTubeSource(instance: instance, servesGeneralQueries: !hasYouTube))
             case .ytZero:
                 guard let token = secrets.secret(for: AddInstanceModel.tokenKey(for: instance.id)) else { continue }
                 let source = YTZeroSource(instance: instance, token: token)
+                // The account is the YT Zero source itself (subscriptions); routing goes
+                // through the wrapper below.
                 if let host = instance.apiURL.host() { imageTokens[host] = token }
                 linkedAccount = linkedAccount ?? source
             }
         }
-        if let linkedAccount { sources.append(linkedAccount) }
+        if let linkedAccount { sources.append(YouTubeOnly(linkedAccount)) }
 
         let router = InstanceRouter(sources: sources)
         self.router = router
@@ -355,15 +367,18 @@ final class AppEnvironment {
     func refreshTrending(_ category: TrendingCategory = .all) async throws {
         let router = self.router
         let region = Locale.current.region?.identifier
-        let capability: SourceCapabilities = category == .all ? .trending : .trendingCategories
+        let capability: SourceCapabilities = category == .gaming ? .trendingCategories : .trending
         let videos = try await router.perform(capability) { try await $0.trending(region: region, category: category) }
         try TrendingStore(database).replace(with: videos.filter { !$0.isShort }, category: category)
     }
 
-    /// Music, Gaming and Movies lists exist only on Invidious instances.
+    /// Gaming: Invidious, or a PeerTube server on its own (its Gaming category).
     var supportsTrendingCategories: Bool {
-        instances.contains { $0.kind == .invidious }
+        instances.contains { $0.kind == .invidious } || (hasPeerTube && !hasYouTube)
     }
+
+    var hasPeerTube: Bool { instances.contains { $0.kind == .peerTube } }
+    var hasYouTube: Bool { instances.contains { $0.kind.isYouTube } }
 
     /// The instances' trending list for the person's region (Home before subscriptions).
     func trending() async throws -> [VideoSummary] {

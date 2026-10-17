@@ -1,0 +1,587 @@
+{
+ "client": {
+  "newFeaturesInfo": true,
+  "header": {
+   "hideInstanceName": false
+  },
+  "videos": {
+   "miniature": {
+    "preferAuthorDisplayName": true
+   },
+   "resumableUpload": {
+    "maxChunkSize": 0
+   }
+  },
+  "browseVideos": {
+   "defaultSort": "-publishedAt",
+   "defaultScope": "federated"
+  },
+  "menu": {
+   "login": {
+    "redirectOnSingleExternalAuth": false
+   }
+  },
+  "openInApp": {
+   "android": {
+    "intent": {
+     "enabled": true,
+     "host": "joinpeertube.org",
+     "scheme": "peertube",
+     "fallbackUrl": "https://play.google.com/store/apps/details?id=org.framasoft.peertube"
+    }
+   },
+   "ios": {
+    "enabled": true,
+    "host": "joinpeertube.org",
+    "scheme": "peertube",
+    "fallbackUrl": "https://apps.apple.com/fr/app/peertube/id6737834858"
+   }
+  }
+ },
+ "defaults": {
+  "publish": {
+   "downloadEnabled": true,
+   "commentsPolicy": 1,
+   "privacy": 1,
+   "licence": null
+  },
+  "live": {
+   "saveReplay": false
+  },
+  "p2p": {
+   "webapp": {
+    "enabled": true
+   },
+   "embed": {
+    "enabled": true
+   }
+  },
+  "player": {
+   "theme": "lucide",
+   "autoPlay": true
+  }
+ },
+ "webadmin": {
+  "configuration": {
+   "edition": {
+    "allowed": true
+   }
+  }
+ },
+ "instance": {
+  "name": "Blender Video",
+  "shortDescription": "PeerTube instance of the Blender Foundation.",
+  "isNSFW": false,
+  "defaultNSFWPolicy": "do_not_list",
+  "defaultClientRoute": "/videos/browse",
+  "serverCountry": "The Netherlands",
+  "support": {
+   "text": "Support the Blender Foundation by joining the [Blender Development Fund](https://fund.blender.org).\n\nSupport the Blender Studio by [becoming a subscriber](https://studio.blender.org/join/)."
+  },
+  "social": {
+   "blueskyLink": "https://bsky.app/profile/blender.org",
+   "mastodonLink": "https://mastodon.social/@Blender",
+   "xLink": "https://x.com/Blender",
+   "externalLink": "https://www.blender.org"
+  },
+  "customizations": {
+   "javascript": "",
+   "css": ""
+  },
+  "defaultLanguage": "en-US",
+  "avatars": [
+   {
+    "height": 48,
+    "width": 48,
+    "path": "/lazy-static/avatars/fae48696-478e-4c46-b720-9f3a1919eed0.png",
+    "fileUrl": "https://instance.example/lazy-static/avatars/fae48696-478e-4c46-b720-9f3a1919eed0.png",
+    "createdAt": "2026-05-25T13:00:38.827Z",
+    "updatedAt": "2026-05-25T13:00:38.827Z"
+   },
+   {
+    "height": 120,
+    "width": 120,
+    "path": "/lazy-static/avatars/598f36c2-01ee-4f57-b9ed-2ef17a168057.png",
+    "fileUrl": "https://instance.example/lazy-static/avatars/598f36c2-01ee-4f57-b9ed-2ef17a168057.png",
+    "createdAt": "2026-05-25T13:00:38.821Z",
+    "updatedAt": "2026-05-25T13:00:38.821Z"
+   },
+   {
+    "height": 600,
+    "width": 600,
+    "path": "/lazy-static/avatars/39336dc0-d676-4974-8721-c20059dd2e84.png",
+    "fileUrl": "https://instance.example/lazy-static/avatars/39336dc0-d676-4974-8721-c20059dd2e84.png",
+    "createdAt": "2026-05-25T13:00:38.814Z",
+    "updatedAt": "2026-05-25T13:00:38.814Z"
+   },
+   {
+    "height": 1500,
+    "width": 1500,
+    "path": "/lazy-static/avatars/83e44c73-9c22-453c-a454-c4efe225fd4d.png",
+    "fileUrl": "https://instance.example/lazy-static/avatars/83e44c73-9c22-453c-a454-c4efe225fd4d.png",
+    "createdAt": "2026-05-25T13:00:38.806Z",
+    "updatedAt": "2026-05-25T13:00:38.806Z"
+   }
+  ],
+  "banners": [
+   {
+    "height": 100,
+    "width": 600,
+    "path": "/lazy-static/banners/9fddce9a-a93a-4156-8bfa-c7b06bff0075.jpg",
+    "fileUrl": "https://instance.example/lazy-static/banners/9fddce9a-a93a-4156-8bfa-c7b06bff0075.jpg",
+    "createdAt": "2026-05-25T13:00:38.981Z",
+    "updatedAt": "2026-05-25T13:00:38.981Z"
+   },
+   {
+    "height": 317,
+    "width": 1920,
+    "path": "/lazy-static/banners/a77157f6-24ec-49ce-97bc-8ba6e6b63480.jpg",
+    "fileUrl": "https://instance.example/lazy-static/banners/a77157f6-24ec-49ce-97bc-8ba6e6b63480.jpg",
+    "createdAt": "2026-05-25T13:00:38.977Z",
+    "updatedAt": "2026-05-25T13:00:38.977Z"
+   }
+  ],
+  "logo": [
+   {
+    "height": null,
+    "width": null,
+    "type": "favicon",
+    "fileUrl": "https://instance.example/static/uploads/images/9bfe4a33-aa6d-43ef-b745-094d9c8f3b66.svg",
+    "isFallback": false
+   },
+   {
+    "height": 48,
+    "width": 48,
+    "type": "header-square",
+    "fileUrl": "https://instance.example/lazy-static/avatars/fae48696-478e-4c46-b720-9f3a1919eed0.png",
+    "isFallback": true
+   },
+   {
+    "height": 120,
+    "width": 120,
+    "type": "header-square",
+    "fileUrl": "https://instance.example/lazy-static/avatars/598f36c2-01ee-4f57-b9ed-2ef17a168057.png",
+    "isFallback": true
+   },
+   {
+    "height": 600,
+    "width": 600,
+    "type": "header-square",
+    "fileUrl": "https://instance.example/lazy-static/avatars/39336dc0-d676-4974-8721-c20059dd2e84.png",
+    "isFallback": true
+   },
+   {
+    "height": 1500,
+    "width": 1500,
+    "type": "header-square",
+    "fileUrl": "https://instance.example/lazy-static/avatars/83e44c73-9c22-453c-a454-c4efe225fd4d.png",
+    "isFallback": true
+   },
+   {
+    "height": 48,
+    "width": 48,
+    "type": "header-wide",
+    "fileUrl": "https://instance.example/lazy-static/avatars/fae48696-478e-4c46-b720-9f3a1919eed0.png",
+    "isFallback": true
+   },
+   {
+    "height": 120,
+    "width": 120,
+    "type": "header-wide",
+    "fileUrl": "https://instance.example/lazy-static/avatars/598f36c2-01ee-4f57-b9ed-2ef17a168057.png",
+    "isFallback": true
+   },
+   {
+    "height": 600,
+    "width": 600,
+    "type": "header-wide",
+    "fileUrl": "https://instance.example/lazy-static/avatars/39336dc0-d676-4974-8721-c20059dd2e84.png",
+    "isFallback": true
+   },
+   {
+    "height": 1500,
+    "width": 1500,
+    "type": "header-wide",
+    "fileUrl": "https://instance.example/lazy-static/avatars/83e44c73-9c22-453c-a454-c4efe225fd4d.png",
+    "isFallback": true
+   },
+   {
+    "height": 650,
+    "width": 1200,
+    "type": "opengraph",
+    "fileUrl": "https://instance.example/static/uploads/images/d8bd718f-bbcd-4d09-9b2b-8f9d90619104.webp",
+    "isFallback": false
+   }
+  ]
+ },
+ "search": {
+  "remoteUri": {
+   "users": true,
+   "anonymous": false
+  },
+  "searchIndex": {
+   "enabled": false,
+   "url": "",
+   "disableLocalSearch": false,
+   "isDefaultSearch": false
+  }
+ },
+ "plugin": {
+  "registered": [
+   {
+    "npmName": "peertube-plugin-auth-openid-connect",
+    "name": "auth-openid-connect",
+    "version": "2.1.1",
+    "description": "Add OpenID connect support to login form in PeerTube.",
+    "clientScripts": {}
+   }
+  ],
+  "registeredExternalAuths": [
+   {
+    "npmName": "peertube-plugin-auth-openid-connect",
+    "name": "auth-openid-connect",
+    "version": "2.1.1",
+    "authName": "openid-connect",
+    "authDisplayName": "Blender ID (staff only)"
+   }
+  ],
+  "registeredIdAndPassAuths": []
+ },
+ "theme": {
+  "registered": [],
+  "builtIn": [
+   {
+    "name": "peertube-core-dark-brown"
+   },
+   {
+    "name": "peertube-core-light-beige"
+   }
+  ],
+  "default": "default",
+  "customization": {
+   "primaryColor": null,
+   "onPrimaryColor": null,
+   "foregroundColor": null,
+   "backgroundColor": null,
+   "backgroundSecondaryColor": null,
+   "menuForegroundColor": null,
+   "menuBackgroundColor": null,
+   "menuBorderRadius": null,
+   "headerForegroundColor": null,
+   "headerBackgroundColor": null,
+   "inputBorderRadius": null
+  }
+ },
+ "email": {
+  "enabled": true
+ },
+ "contactForm": {
+  "enabled": false
+ },
+ "serverVersion": "8.3.1",
+ "serverCommit": "",
+ "transcoding": {
+  "remoteRunners": {
+   "enabled": true
+  },
+  "hls": {
+   "enabled": true,
+   "splitAudioAndVideo": false
+  },
+  "web_videos": {
+   "enabled": true
+  },
+  "enabledResolutions": [
+   480,
+   1080
+  ],
+  "profile": "default",
+  "availableProfiles": [
+   "default"
+  ],
+  "alwaysTranscodeOriginalResolution": false,
+  "alwaysTranscodePodcastOptimizedAudio": true
+ },
+ "live": {
+  "enabled": false,
+  "allowReplay": true,
+  "dvr": {
+   "maxWindow": 3600
+  },
+  "latencySetting": {
+   "enabled": true
+  },
+  "maxDuration": -1,
+  "maxInstanceLives": 20,
+  "maxUserLives": 3,
+  "transcoding": {
+   "enabled": true,
+   "remoteRunners": {
+    "enabled": false
+   },
+   "enabledResolutions": [],
+   "profile": "default",
+   "availableProfiles": [
+    "default"
+   ]
+  },
+  "rtmp": {
+   "port": 1935
+  }
+ },
+ "videoStudio": {
+  "enabled": true,
+  "remoteRunners": {
+   "enabled": true
+  }
+ },
+ "videoFile": {
+  "update": {
+   "enabled": true
+  }
+ },
+ "videoTranscription": {
+  "enabled": false,
+  "remoteRunners": {
+   "enabled": false
+  }
+ },
+ "import": {
+  "videos": {
+   "http": {
+    "enabled": true
+   },
+   "torrent": {
+    "enabled": false
+   }
+  },
+  "videoChannelSynchronization": {
+   "enabled": true
+  },
+  "users": {
+   "enabled": true
+  }
+ },
+ "export": {
+  "users": {
+   "enabled": true,
+   "exportExpiration": 172800000,
+   "maxUserVideoQuota": 10737418240
+  }
+ },
+ "autoBlacklist": {
+  "videos": {
+   "ofUsers": {
+    "enabled": false
+   }
+  }
+ },
+ "avatar": {
+  "file": {
+   "size": {
+    "max": 8388608
+   },
+   "extensions": [
+    ".png",
+    ".jpeg",
+    ".jpg",
+    ".gif",
+    ".webp"
+   ]
+  }
+ },
+ "banner": {
+  "file": {
+   "size": {
+    "max": 8388608
+   },
+   "extensions": [
+    ".png",
+    ".jpeg",
+    ".jpg",
+    ".gif",
+    ".webp"
+   ]
+  }
+ },
+ "logo": {
+  "file": {
+   "size": {
+    "max": 8388608
+   },
+   "extensions": [
+    ".svg",
+    ".png",
+    ".jpeg",
+    ".jpg",
+    ".gif",
+    ".webp"
+   ]
+  }
+ },
+ "video": {
+  "image": {
+   "extensions": [
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".webp"
+   ],
+   "size": {
+    "max": 8388608
+   }
+  },
+  "file": {
+   "extensions": [
+    ".webm",
+    ".ogv",
+    ".ogg",
+    ".mp4",
+    ".mkv",
+    ".mov",
+    ".qt",
+    ".mqv",
+    ".m4v",
+    ".flv",
+    ".f4v",
+    ".wmv",
+    ".avi",
+    ".3gp",
+    ".3gpp",
+    ".3g2",
+    ".3gpp2",
+    ".nut",
+    ".mts",
+    ".ts",
+    ".m2ts",
+    ".mpv",
+    ".m2v",
+    ".m1v",
+    ".mpg",
+    ".mpe",
+    ".mpeg",
+    ".vob",
+    ".mxf",
+    ".mp3",
+    ".wma",
+    ".wav",
+    ".flac",
+    ".aac",
+    ".m4a",
+    ".m4b",
+    ".ac3"
+   ]
+  }
+ },
+ "videoCaption": {
+  "file": {
+   "size": {
+    "max": 20971520
+   },
+   "extensions": [
+    ".vtt",
+    ".srt"
+   ]
+  }
+ },
+ "user": {
+  "videoQuota": 5368709120,
+  "videoQuotaDaily": -1
+ },
+ "videoChannels": {
+  "maxPerUser": 20
+ },
+ "trending": {
+  "videos": {
+   "intervalDays": 7,
+   "algorithms": {
+    "enabled": [
+     "best",
+     "hot",
+     "most-viewed",
+     "most-liked"
+    ],
+    "default": "most-viewed"
+   }
+  }
+ },
+ "tracker": {
+  "enabled": true
+ },
+ "followings": {
+  "instance": {
+   "autoFollowIndex": {
+    "indexUrl": "https://instances.joinpeertube.org"
+   }
+  }
+ },
+ "blocklist": {
+  "publicLog": {
+   "enabled": false
+  }
+ },
+ "federation": {
+  "enabled": true
+ },
+ "broadcastMessage": {
+  "enabled": false,
+  "message": "",
+  "level": "info",
+  "dismissable": false
+ },
+ "homepage": {
+  "enabled": false
+ },
+ "openTelemetry": {
+  "metrics": {
+   "enabled": false,
+   "playbackStatsInterval": 15000
+  }
+ },
+ "views": {
+  "videos": {
+   "remote": {
+    "maxAge": 2592000000
+   },
+   "local": {
+    "maxAge": -1
+   },
+   "watchingInterval": {
+    "anonymous": 5000,
+    "users": 5000
+   }
+  }
+ },
+ "storyboards": {
+  "enabled": true,
+  "remoteRunners": {
+   "enabled": false
+  }
+ },
+ "webrtc": {
+  "stunServers": [
+   "stun:stunserver2025.stunprotocol.org",
+   "stun:stun.framasoft.org",
+   "stun:stun.ekiga.net",
+   "stun:stun.freeswitch.org"
+  ]
+ },
+ "nsfwFlagsSettings": {
+  "enabled": true
+ },
+ "fieldsConstraints": {
+  "users": {
+   "password": {
+    "minLength": 8,
+    "maxLength": 50
+   }
+  }
+ },
+ "signup": {
+  "allowed": false,
+  "allowedForCurrentIP": true,
+  "minimumAge": 16,
+  "requiresApproval": true,
+  "requiresEmailVerification": false
+ }
+}

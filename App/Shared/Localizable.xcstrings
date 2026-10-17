@@ -4847,6 +4847,74 @@
         }
       }
     },
+    "Most users": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Meiste Nutzer"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Más usuarios"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Le plus d’utilisateurs"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mais usuários"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mais utilizadores"
+          }
+        }
+      }
+    },
+    "Most videos": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Meiste Videos"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Más vídeos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Le plus de vidéos"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mais vídeos"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mais vídeos"
+          }
+        }
+      }
+    },
     "Movies": {
       "extractionState": "stale",
       "localizations": {
@@ -5049,6 +5117,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Novos vídeos das subscrições"
+          }
+        }
+      }
+    },
+    "Newest": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Neueste"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Más recientes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Les plus récents"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mais recentes"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mais recentes"
           }
         }
       }
@@ -5355,6 +5457,74 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Sem listas guardadas"
+          }
+        }
+      }
+    },
+    "No server? PeerTube servers host their own videos, run by communities and organisations independent of this app.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Kein Server? PeerTube-Server hosten ihre eigenen Videos und werden von Gemeinschaften und Organisationen betrieben, unabhängig von dieser App."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "¿No tienes servidor? Los servidores PeerTube alojan sus propios vídeos y los gestionan comunidades y organizaciones independientes de esta app."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Pas de serveur ? Les serveurs PeerTube hébergent leurs propres vidéos et sont gérés par des communautés et organisations indépendantes de cette app."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Não tem servidor? Os servidores PeerTube hospedam seus próprios vídeos e são mantidos por comunidades e organizações independentes deste app."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Não tem servidor? Os servidores PeerTube alojam os seus próprios vídeos e são geridos por comunidades e organizações independentes desta app."
+          }
+        }
+      }
+    },
+    "No servers match.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Keine passenden Server."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ningún servidor coincide."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Aucun serveur ne correspond."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Nenhum servidor encontrado."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Nenhum servidor corresponde."
           }
         }
       }
@@ -6458,6 +6628,40 @@
         }
       }
     },
+    "PeerTube": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "PeerTube"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "PeerTube"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "PeerTube"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "PeerTube"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "PeerTube"
+          }
+        }
+      }
+    },
     "Performance": {
       "localizations": {
         "de": {
@@ -7305,6 +7509,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Privado por natureza"
+          }
+        }
+      }
+    },
+    "Public PeerTube servers": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Öffentliche PeerTube-Server"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Servidores PeerTube públicos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Serveurs PeerTube publics"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Servidores PeerTube públicos"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Servidores PeerTube públicos"
           }
         }
       }
@@ -8261,6 +8499,40 @@
         }
       }
     },
+    "Search servers": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Server suchen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Buscar servidores"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Rechercher des serveurs"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Buscar servidores"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Pesquisar servidores"
+          }
+        }
+      }
+    },
     "Search your instances": {
       "localizations": {
         "de": {
@@ -8665,6 +8937,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Mostrar"
+          }
+        }
+      }
+    },
+    "Show More": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mehr anzeigen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mostrar más"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Afficher plus"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mostrar mais"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mostrar mais"
           }
         }
       }
@@ -9074,6 +9380,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Algo correu mal: %@"
+          }
+        }
+      }
+    },
+    "Sort": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sortieren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ordenar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Trier"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ordenar"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ordenar"
           }
         }
       }
@@ -9862,6 +10202,7 @@
       }
     },
     "The app works out whether it's Piped, Invidious or YT Zero.": {
+      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -9891,6 +10232,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "A app deteta se é Piped, Invidious ou YT Zero."
+          }
+        }
+      }
+    },
+    "The app works out whether it's Piped, Invidious, YT Zero or PeerTube.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Die App erkennt, ob es Piped, Invidious, YT Zero oder PeerTube ist."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "La app detecta si es Piped, Invidious, YT Zero o PeerTube."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "L’app détecte s’il s’agit de Piped, Invidious, YT Zero ou PeerTube."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "O app descobre se é Piped, Invidious, YT Zero ou PeerTube."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A app descobre se é Piped, Invidious, YT Zero ou PeerTube."
           }
         }
       }
@@ -10402,6 +10777,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Em destaque em %@"
+          }
+        }
+      }
+    },
+    "Trending on PeerTube": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Trends auf PeerTube"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tendencias en PeerTube"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tendances sur PeerTube"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Em alta no PeerTube"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Em destaque no PeerTube"
           }
         }
       }
@@ -11053,6 +11462,7 @@
       }
     },
     "Videos, search and subscriptions come from your Piped, Invidious or YT Zero server.": {
+      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -11082,6 +11492,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Vídeos, pesquisa e subscrições vêm do seu servidor Piped, Invidious ou YT Zero."
+          }
+        }
+      }
+    },
+    "Videos, search and subscriptions come from your Piped, Invidious, YT Zero or PeerTube server. No server? Pick a public PeerTube one.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Videos, Suche und Abos kommen von deinem Piped-, Invidious-, YT-Zero- oder PeerTube-Server. Kein Server? Wähle einen öffentlichen PeerTube-Server."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Los vídeos, la búsqueda y las suscripciones vienen de tu servidor Piped, Invidious, YT Zero o PeerTube. ¿Sin servidor? Elige uno PeerTube público."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vidéos, recherche et abonnements viennent de votre serveur Piped, Invidious, YT Zero ou PeerTube. Pas de serveur ? Choisissez un PeerTube public."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vídeos, busca e inscrições vêm do seu servidor Piped, Invidious, YT Zero ou PeerTube. Não tem servidor? Escolha um PeerTube público."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vídeos, pesquisa e subscrições vêm do seu servidor Piped, Invidious, YT Zero ou PeerTube. Não tem servidor? Escolha um PeerTube público."
           }
         }
       }

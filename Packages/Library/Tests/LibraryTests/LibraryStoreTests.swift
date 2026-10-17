@@ -400,10 +400,10 @@ private extension SyncStore.Values {
         let db = try AppDatabase.inMemory()
         let store = TrendingStore(db)
         try store.replace(with: [video("a"), video("b")])
-        try store.replace(with: [video("m"), video("m")], category: .music)   // Duplicates collapse.
+        try store.replace(with: [video("m"), video("m")], category: .gaming)   // Duplicates collapse.
         #expect(try store.rows().map(\.id.rawValue) == ["a", "b"])
-        #expect(try store.rows(.music).map(\.id.rawValue) == ["m"])
-        #expect(try store.rows(.gaming).isEmpty)
+        #expect(try store.rows(.gaming).map(\.id.rawValue) == ["m"])
+        #expect(try store.rows(.peerTube).isEmpty)
     }
 
     @Test func pruneKeepsListedVideos() throws {

@@ -24,7 +24,7 @@ struct WelcomeView: View {
                 }
                 VStack(alignment: .leading, spacing: Tokens.Spacing.l) {
                     feature("server.rack", Text("Your own instance"),
-                            Text("Videos, search and subscriptions come from your Piped, Invidious or YT Zero server."))
+                            Text("Videos, search and subscriptions come from your Piped, Invidious, YT Zero or PeerTube server. No server? Pick a public PeerTube one."))
                     feature("hand.raised.fill", Text("Private by design"),
                             Text("No accounts, no ads, no analytics. Specto has no servers of its own."))
                     feature("icloud.fill", Text("On all your devices"),

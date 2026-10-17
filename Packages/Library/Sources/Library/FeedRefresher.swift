@@ -61,7 +61,7 @@ public actor FeedRefresher {
     public func refreshShorts(channelsPerPass: Int = 3, maxAge: TimeInterval = 12 * 3600) async {
         guard case .local(let router) = mode, let channels = try? subscriptions.channels() else { return }
         let hidden = (try? subscriptions.hiddenFromHome()) ?? []
-        let due = channels.filter { !hidden.contains($0.id) }
+        let due = channels.filter { !hidden.contains($0.id) && !$0.id.isPeerTube }   // PeerTube has no Shorts.
             .map { ($0.id, (try? log.lastRefresh(Self.shortsResource($0.id))) ?? nil) }
             .filter { _, last in last.map { $0 < Date.now.addingTimeInterval(-maxAge) } ?? true }
             .sorted { ($0.1 ?? .distantPast) < ($1.1 ?? .distantPast) }
@@ -99,7 +99,20 @@ public actor FeedRefresher {
         case .local(let router):
             let channels = try subscriptions.channels().map(\.id)
             guard !channels.isEmpty else { break }
-            let videos = try await router.perform(.subscriptions) { try await $0.feed(for: channels) }
+            // YouTube's channels in one batch; PeerTube's per server (ADR 0016).
+            let youTube = channels.filter { !$0.isPeerTube }
+            var videos: [VideoSummary] = []
+            if !youTube.isEmpty {
+                videos += try await router.perform(.subscriptions) { try await $0.feed(for: youTube) }
+            }
+            let peerTube = Dictionary(grouping: channels.filter(\.isPeerTube)) { $0.peerTube?.host ?? "" }
+            for group in peerTube.values {
+                if youTube.isEmpty, peerTube.count == 1 {
+                    videos += try await router.perform(.subscriptions) { try await $0.feed(for: group) }
+                } else if let more = try? await router.perform(.subscriptions, { try await $0.feed(for: group) }) {
+                    videos += more   // One unreachable server shouldn't sink everyone else's feed.
+                }
+            }
             try feed.save(videos)
         case .account(let account):
             async let channels = account.subscriptions()

@@ -14,8 +14,13 @@ public final class ExploreModel {
     public private(set) var isRefreshing = false
     /// Shown when a refresh fails; the cached list stays.
     public private(set) var refreshError: String?
-    /// "Trending in Portugal", formatted once.
-    public let heading: String
+    /// "Trending in Portugal" (YouTube's list is regional), or "Trending on PeerTube".
+    public var heading: String {
+        category == .peerTube || onlyPeerTube ? String(localized: "Trending on PeerTube") : regionHeading
+    }
+    private let regionHeading: String
+    /// Only PeerTube servers added: their lists aren't regional.
+    public private(set) var onlyPeerTube = false
     /// The lists the instances offer: just `.all`, or Gaming too (Invidious).
     public private(set) var categories: [TrendingCategory] = [.all]
     public private(set) var category = TrendingCategory.all
@@ -32,13 +37,17 @@ public final class ExploreModel {
                 refresh: @escaping @Sendable (TrendingCategory) async throws -> Void) {
         self.store = store
         self.refresher = refresh
-        heading = regionName.map { String(localized: "Trending in \($0)") } ?? String(localized: "Trending")
+        regionHeading = regionName.map { String(localized: "Trending in \($0)") } ?? String(localized: "Trending")
         apply((try? store.rows()) ?? [])
     }
 
-    /// Whether the instances can list categories; without, Explore shows the general list only.
-    public func setCategoriesAvailable(_ available: Bool) {
-        let list: [TrendingCategory] = available ? TrendingCategory.allCases : [.all]
+    /// What the instances can list: Gaming (Invidious, or PeerTube alone), and PeerTube's own
+    /// list beside YouTube's. Without, Explore shows the general list only.
+    public func setCategoriesAvailable(_ gaming: Bool, peerTube: Bool = false, onlyPeerTube: Bool = false) {
+        self.onlyPeerTube = onlyPeerTube
+        var list: [TrendingCategory] = [.all]
+        if gaming { list.append(.gaming) }
+        if peerTube { list.append(.peerTube) }
         guard list != categories else { return }
         categories = list
         if !list.contains(category) { select(.all) }
@@ -102,6 +111,7 @@ extension TrendingCategory {
         switch self {
         case .all: String(localized: "All")
         case .gaming: String(localized: "Gaming")
+        case .peerTube: String(localized: "PeerTube")
         }
     }
 
@@ -109,6 +119,7 @@ extension TrendingCategory {
         switch self {
         case .all: "flame.fill"
         case .gaming: "gamecontroller.fill"
+        case .peerTube: "play.tv.fill"
         }
     }
 }

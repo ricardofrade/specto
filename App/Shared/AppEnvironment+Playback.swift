@@ -123,7 +123,7 @@ extension AppEnvironment {
     // MARK: SponsorBlock and DeArrow
 
     func loadSkipSegments(for id: VideoID) {
-        guard AppSettings.shared.skipsSponsors else { return }
+        guard AppSettings.shared.skipsSponsors, !id.isPeerTube else { return }   // SponsorBlock knows YouTube only.
         let community = self.community
         let actions = AppSettings.shared.sponsorActions
         let categories = Set(actions.filter { $0.value != .off }.keys)
@@ -140,7 +140,8 @@ extension AppEnvironment {
         guard AppSettings.shared.brandedTitles || AppSettings.shared.brandedThumbnails else { return }
         let store = BrandingStore(database), community = self.community
         Task.detached(priority: .utility) {
-            guard let ids = try? store.videosNeedingLookup(), !ids.isEmpty,
+            // DeArrow knows YouTube's videos only.
+            guard let ids = try? store.videosNeedingLookup().filter({ !$0.isPeerTube }), !ids.isEmpty,
                   let branding = try? await community.branding(for: ids) else { return }
             try? store.save(branding, lookedUp: ids)
         }

@@ -67,6 +67,9 @@ public actor InstanceRouter: SourceRouting {
                 let value = try await operation(source)
                 await record(.success(clock.now - start), source: source, capability: capability)
                 return value
+            } catch SourceError.belongsElsewhere {
+                // Not this instance's content: no mark against its health.
+                lastError = SourceError.belongsElsewhere
             } catch let error as SourceError {
                 await record(.failure(error), source: source, capability: capability)
                 lastError = error

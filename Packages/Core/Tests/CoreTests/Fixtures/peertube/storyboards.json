@@ -1,0 +1,13 @@
+{
+ "storyboards": [
+  {
+   "fileUrl": "https://instance.example/lazy-static/storyboards/c0f4f6c4-7607-4fdd-9aca-44819d95aab9.jpg",
+   "storyboardPath": "/lazy-static/storyboards/c0f4f6c4-7607-4fdd-9aca-44819d95aab9.jpg",
+   "totalHeight": 640,
+   "totalWidth": 2112,
+   "spriteWidth": 192,
+   "spriteHeight": 80,
+   "spriteDuration": 1
+  }
+ ]
+}

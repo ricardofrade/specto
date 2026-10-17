@@ -222,6 +222,7 @@ extension SourceKind {
         case .piped: "Piped"
         case .invidious: "Invidious"
         case .ytZero: "YT Zero"
+        case .peerTube: "PeerTube"
         }
     }
 }

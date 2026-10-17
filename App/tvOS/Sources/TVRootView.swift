@@ -110,7 +110,9 @@ struct TVRootView: View {
             environment.scenePhaseChanged(phase)
         }
         .onChange(of: environment.instances, initial: true) {
-            explore.setCategoriesAvailable(environment.supportsTrendingCategories)
+            explore.setCategoriesAvailable(environment.supportsTrendingCategories,
+                                           peerTube: environment.hasPeerTube && environment.hasYouTube,
+                                           onlyPeerTube: environment.hasPeerTube && !environment.hasYouTube)
         }
         .task { environment.warmUp() }
     }

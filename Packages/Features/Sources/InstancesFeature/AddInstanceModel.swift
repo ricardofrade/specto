@@ -16,6 +16,17 @@ public final class AddInstanceModel {
     public var urlText = ""
     public private(set) var step: Step = .enterURL
     public private(set) var error: String?
+    /// Public PeerTube servers to choose from, for people without a server (ADR 0016).
+    public private(set) var publicServers: [PeerTubeDirectory.Server] = []
+    public private(set) var loadingServers = false
+    public private(set) var serversFailed = false
+    /// How many the index has for this sort and search: "Show More" while there are more.
+    public private(set) var serverTotal = 0
+    public var serverSort = PeerTubeDirectory.Sort.mostVideos {
+        didSet { if serverSort != oldValue { Task { await reloadServers() } } }
+    }
+    public var serverSearch = ""
+    @ObservationIgnored private var serverStart = 0
 
     @ObservationIgnored private let instances: InstanceStore
     @ObservationIgnored private let secrets: any SecretStore
@@ -52,6 +63,46 @@ public final class AddInstanceModel {
             self.error = Self.message(for: error)
             step = .enterURL
         }
+    }
+
+    /// The first page, once.
+    public func loadPublicServers() async {
+        guard publicServers.isEmpty, !loadingServers else { return }
+        await reloadServers()
+    }
+
+    /// From the top: after the sort or the search changed.
+    public func reloadServers() async {
+        serverStart = 0
+        publicServers = []
+        await loadMoreServers()
+    }
+
+    public var hasMoreServers: Bool { serverStart < serverTotal }
+
+    public func loadMoreServers() async {
+        guard !loadingServers else { return }
+        loadingServers = true
+        serversFailed = false
+        defer { loadingServers = false }
+        let search = serverSearch, sort = serverSort, start = serverStart
+        do {
+            let page = try await PeerTubeDirectory().servers(sort: sort, search: search, start: start)
+            // The query changed meanwhile: that answer is stale.
+            guard search == serverSearch, sort == serverSort else { return }
+            let known = Set(publicServers.map(\.id))
+            publicServers += page.servers.filter { !known.contains($0.id) }
+            serverTotal = page.total
+            serverStart = start + 40
+        } catch {
+            serversFailed = true
+        }
+    }
+
+    /// Add a server from the list: the same checks as a typed address.
+    public func choose(_ server: PeerTubeDirectory.Server) async {
+        urlText = server.host
+        await submit()
     }
 
     public func cancelPairing() {

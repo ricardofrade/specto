@@ -1,0 +1,455 @@
+{
+ "total": 6,
+ "data": [
+  {
+   "url": "https://instance.example/video-channels/blender_channel",
+   "name": "blender_channel",
+   "host": "instance.example",
+   "avatars": [
+    {
+     "height": 48,
+     "width": 48,
+     "path": "/lazy-static/avatars/56817c33-af28-475f-9e87-0244015a04e0.png",
+     "fileUrl": "https://instance.example/lazy-static/avatars/56817c33-af28-475f-9e87-0244015a04e0.png",
+     "createdAt": "2026-05-24T10:42:47.572Z",
+     "updatedAt": "2026-05-24T10:42:47.572Z"
+    },
+    {
+     "height": 120,
+     "width": 120,
+     "path": "/lazy-static/avatars/5720b4a8-d244-4fae-a2bf-3474caa8f644.png",
+     "fileUrl": "https://instance.example/lazy-static/avatars/5720b4a8-d244-4fae-a2bf-3474caa8f644.png",
+     "createdAt": "2026-05-24T10:42:47.565Z",
+     "updatedAt": "2026-05-24T10:42:47.565Z"
+    },
+    {
+     "height": 600,
+     "width": 600,
+     "path": "/lazy-static/avatars/24f94d65-d525-4afc-8522-cfe19ea97464.png",
+     "fileUrl": "https://instance.example/lazy-static/avatars/24f94d65-d525-4afc-8522-cfe19ea97464.png",
+     "createdAt": "2026-05-24T10:42:47.556Z",
+     "updatedAt": "2026-05-24T10:42:47.556Z"
+    },
+    {
+     "height": 1500,
+     "width": 1500,
+     "path": "/lazy-static/avatars/40cb35af-7fd5-45f3-8026-c90b54cd9da1.png",
+     "fileUrl": "https://instance.example/lazy-static/avatars/40cb35af-7fd5-45f3-8026-c90b54cd9da1.png",
+     "createdAt": "2026-05-24T10:42:47.543Z",
+     "updatedAt": "2026-05-24T10:42:47.543Z"
+    }
+   ],
+   "id": 4,
+   "hostRedundancyAllowed": false,
+   "followingCount": 0,
+   "followersCount": 1229,
+   "createdAt": "2018-10-24T14:55:59.645Z",
+   "banners": [
+    {
+     "height": 100,
+     "width": 600,
+     "path": "/lazy-static/banners/98cf3d52-54ef-4e41-8e97-b6a3ae2abbe5.jpg",
+     "fileUrl": "https://instance.example/lazy-static/banners/98cf3d52-54ef-4e41-8e97-b6a3ae2abbe5.jpg",
+     "createdAt": "2026-05-25T13:21:40.845Z",
+     "updatedAt": "2026-05-25T13:21:40.845Z"
+    },
+    {
+     "height": 317,
+     "width": 1920,
+     "path": "/lazy-static/banners/d7ffe6f5-f742-4124-82d7-3d230b73ab6d.jpg",
+     "fileUrl": "https://instance.example/lazy-static/banners/d7ffe6f5-f742-4124-82d7-3d230b73ab6d.jpg",
+     "createdAt": "2026-05-25T13:21:40.800Z",
+     "updatedAt": "2026-05-25T13:21:40.800Z"
+    }
+   ],
+   "displayName": "Blender",
+   "description": "Official PeerTube channel for Blender, the Free and Open Source 3D Creation Suite.\n\n**The Freedom to Create**",
+   "support": "Join the [Blender Development Fund](https://fund.blender.org/).",
+   "publicEmail": null,
+   "isLocal": true,
+   "updatedAt": "2026-10-12T22:17:35.310Z",
+   "ownerAccount": {
+    "url": "https://instance.example/accounts/blender",
+    "name": "blender",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "height": 48,
+      "width": 48,
+      "path": "/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "createdAt": "2026-05-24T11:32:01.734Z",
+      "updatedAt": "2026-05-24T11:32:01.734Z"
+     },
+     {
+      "height": 120,
+      "width": 120,
+      "path": "/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "createdAt": "2026-05-24T11:32:01.730Z",
+      "updatedAt": "2026-05-24T11:32:01.730Z"
+     },
+     {
+      "height": 600,
+      "width": 600,
+      "path": "/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "createdAt": "2026-05-24T11:32:01.724Z",
+      "updatedAt": "2026-05-24T11:32:01.724Z"
+     },
+     {
+      "height": 1500,
+      "width": 1500,
+      "path": "/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "createdAt": "2026-05-24T11:32:01.719Z",
+      "updatedAt": "2026-05-24T11:32:01.719Z"
+     }
+    ],
+    "id": 6,
+    "hostRedundancyAllowed": false,
+    "displayName": "Blender"
+   }
+  },
+  {
+   "url": "https://instance.example/video-channels/blender_open_movies",
+   "name": "blender_open_movies",
+   "host": "instance.example",
+   "avatars": [
+    {
+     "height": 48,
+     "width": 48,
+     "path": "/lazy-static/avatars/f79d3ae7-86a8-4705-a9cf-75652312ed20.png",
+     "fileUrl": "https://instance.example/lazy-static/avatars/f79d3ae7-86a8-4705-a9cf-75652312ed20.png",
+     "createdAt": "2026-06-04T09:58:19.748Z",
+     "updatedAt": "2026-06-04T09:58:19.748Z"
+    },
+    {
+     "height": 120,
+     "width": 120,
+     "path": "/lazy-static/avatars/df50b04c-67e0-4317-822a-be1f1a2d85d3.png",
+     "fileUrl": "https://instance.example/lazy-static/avatars/df50b04c-67e0-4317-822a-be1f1a2d85d3.png",
+     "createdAt": "2026-06-04T09:58:19.735Z",
+     "updatedAt": "2026-06-04T09:58:19.735Z"
+    },
+    {
+     "height": 600,
+     "width": 600,
+     "path": "/lazy-static/avatars/0001ea1f-7c7b-45b3-8a15-004c6d0713bb.png",
+     "fileUrl": "https://instance.example/lazy-static/avatars/0001ea1f-7c7b-45b3-8a15-004c6d0713bb.png",
+     "createdAt": "2026-06-04T09:58:19.728Z",
+     "updatedAt": "2026-06-04T09:58:19.728Z"
+    },
+    {
+     "height": 1500,
+     "width": 1500,
+     "path": "/lazy-static/avatars/2676b86b-94a3-4692-9601-f4e41dcbf72f.png",
+     "fileUrl": "https://instance.example/lazy-static/avatars/2676b86b-94a3-4692-9601-f4e41dcbf72f.png",
+     "createdAt": "2026-06-04T09:58:19.710Z",
+     "updatedAt": "2026-06-04T09:58:19.710Z"
+    }
+   ],
+   "id": 9,
+   "hostRedundancyAllowed": false,
+   "followingCount": 0,
+   "followersCount": 475,
+   "createdAt": "2018-10-25T13:08:22.385Z",
+   "banners": [
+    {
+     "height": 100,
+     "width": 600,
+     "path": "/lazy-static/banners/c0a1b39b-ccfd-426e-873f-4cac312b9dca.png",
+     "fileUrl": "https://instance.example/lazy-static/banners/c0a1b39b-ccfd-426e-873f-4cac312b9dca.png",
+     "createdAt": "2026-06-04T09:58:26.601Z",
+     "updatedAt": "2026-06-04T09:58:26.601Z"
+    },
+    {
+     "height": 317,
+     "width": 1920,
+     "path": "/lazy-static/banners/b12f93e6-2b5c-4f95-ab04-64b3a6d8f318.png",
+     "fileUrl": "https://instance.example/lazy-static/banners/b12f93e6-2b5c-4f95-ab04-64b3a6d8f318.png",
+     "createdAt": "2026-06-04T09:58:26.593Z",
+     "updatedAt": "2026-06-04T09:58:26.593Z"
+    }
+   ],
+   "displayName": "Blender Open Movies",
+   "description": "Official PeerTube channel with all iconic Blender Open Movies and behind-the-scenes content.\n\n**The Freedom to Create**",
+   "support": "Join the [Blender Development Fund](https://fund.blender.org/) and become a [Blender Studio subscriber](https://studio.blender.org/join).",
+   "publicEmail": null,
+   "isLocal": true,
+   "updatedAt": "2026-09-14T14:42:23.068Z",
+   "ownerAccount": {
+    "url": "https://instance.example/accounts/blender",
+    "name": "blender",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "height": 48,
+      "width": 48,
+      "path": "/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "createdAt": "2026-05-24T11:32:01.734Z",
+      "updatedAt": "2026-05-24T11:32:01.734Z"
+     },
+     {
+      "height": 120,
+      "width": 120,
+      "path": "/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "createdAt": "2026-05-24T11:32:01.730Z",
+      "updatedAt": "2026-05-24T11:32:01.730Z"
+     },
+     {
+      "height": 600,
+      "width": 600,
+      "path": "/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "createdAt": "2026-05-24T11:32:01.724Z",
+      "updatedAt": "2026-05-24T11:32:01.724Z"
+     },
+     {
+      "height": 1500,
+      "width": 1500,
+      "path": "/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "createdAt": "2026-05-24T11:32:01.719Z",
+      "updatedAt": "2026-05-24T11:32:01.719Z"
+     }
+    ],
+    "id": 6,
+    "hostRedundancyAllowed": false,
+    "displayName": "Blender"
+   }
+  },
+  {
+   "url": "https://instance.example/video-channels/blenderdevelopers",
+   "name": "blenderdevelopers",
+   "host": "instance.example",
+   "avatars": [
+    {
+     "height": 48,
+     "width": 48,
+     "path": "/lazy-static/avatars/05e460d8-4e66-4cc1-a542-c55b00347c48.jpg",
+     "fileUrl": "https://instance.example/lazy-static/avatars/05e460d8-4e66-4cc1-a542-c55b00347c48.jpg",
+     "createdAt": "2026-05-25T13:11:37.112Z",
+     "updatedAt": "2026-05-25T13:11:37.112Z"
+    },
+    {
+     "height": 120,
+     "width": 120,
+     "path": "/lazy-static/avatars/04060492-3cfc-45a7-bfd9-968aeb3bfb1b.jpg",
+     "fileUrl": "https://instance.example/lazy-static/avatars/04060492-3cfc-45a7-bfd9-968aeb3bfb1b.jpg",
+     "createdAt": "2026-05-25T13:11:37.087Z",
+     "updatedAt": "2026-05-25T13:11:37.087Z"
+    },
+    {
+     "height": 600,
+     "width": 600,
+     "path": "/lazy-static/avatars/14e77cc2-31be-41de-a4f5-9dc7faa27e17.jpg",
+     "fileUrl": "https://instance.example/lazy-static/avatars/14e77cc2-31be-41de-a4f5-9dc7faa27e17.jpg",
+     "createdAt": "2026-05-25T13:11:37.033Z",
+     "updatedAt": "2026-05-25T13:11:37.033Z"
+    },
+    {
+     "height": 1500,
+     "width": 1500,
+     "path": "/lazy-static/avatars/3b2e46b8-db9a-4c34-ad2e-f0c3c2ec6a32.jpg",
+     "fileUrl": "https://instance.example/lazy-static/avatars/3b2e46b8-db9a-4c34-ad2e-f0c3c2ec6a32.jpg",
+     "createdAt": "2026-05-25T13:11:37.011Z",
+     "updatedAt": "2026-05-25T13:11:37.011Z"
+    }
+   ],
+   "id": 2737,
+   "hostRedundancyAllowed": false,
+   "followingCount": 0,
+   "followersCount": 829,
+   "createdAt": "2019-01-12T04:04:40.740Z",
+   "banners": [
+    {
+     "height": 100,
+     "width": 600,
+     "path": "/lazy-static/banners/7d18b954-d5c6-4749-9cb3-406222100b46.jpg",
+     "fileUrl": "https://instance.example/lazy-static/banners/7d18b954-d5c6-4749-9cb3-406222100b46.jpg",
+     "createdAt": "2026-05-25T13:25:22.249Z",
+     "updatedAt": "2026-05-25T13:25:22.249Z"
+    },
+    {
+     "height": 317,
+     "width": 1920,
+     "path": "/lazy-static/banners/61a591c3-3c68-43e4-bbb0-fd8fc20aedb9.jpg",
+     "fileUrl": "https://instance.example/lazy-static/banners/61a591c3-3c68-43e4-bbb0-fd8fc20aedb9.jpg",
+     "createdAt": "2026-05-25T13:25:22.242Z",
+     "updatedAt": "2026-05-25T13:25:22.242Z"
+    }
+   ],
+   "displayName": "Blender Developers",
+   "description": "Official account for development news of Blender, the Free and Open Source 3D creation suite. ",
+   "support": "Join the [Blender Development Fund](https://fund.blender.org/).",
+   "publicEmail": null,
+   "isLocal": true,
+   "updatedAt": "2026-09-15T10:52:49.072Z",
+   "ownerAccount": {
+    "url": "https://instance.example/accounts/blender",
+    "name": "blender",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "height": 48,
+      "width": 48,
+      "path": "/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/d81f71c9-cdd8-4c61-a0dd-75a9dfad8dc1.png",
+      "createdAt": "2026-05-24T11:32:01.734Z",
+      "updatedAt": "2026-05-24T11:32:01.734Z"
+     },
+     {
+      "height": 120,
+      "width": 120,
+      "path": "/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/07965da7-5723-40d6-9a61-c034d6ebeabd.png",
+      "createdAt": "2026-05-24T11:32:01.730Z",
+      "updatedAt": "2026-05-24T11:32:01.730Z"
+     },
+     {
+      "height": 600,
+      "width": 600,
+      "path": "/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/1485e2e7-71d0-4e6a-b56d-bf46b2ec40de.png",
+      "createdAt": "2026-05-24T11:32:01.724Z",
+      "updatedAt": "2026-05-24T11:32:01.724Z"
+     },
+     {
+      "height": 1500,
+      "width": 1500,
+      "path": "/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/b4d1c81e-bded-45e2-a569-413d391cdd82.png",
+      "createdAt": "2026-05-24T11:32:01.719Z",
+      "updatedAt": "2026-05-24T11:32:01.719Z"
+     }
+    ],
+    "id": 6,
+    "hostRedundancyAllowed": false,
+    "displayName": "Blender"
+   }
+  },
+  {
+   "url": "https://instance.example/video-channels/blender_docs_channel",
+   "name": "blender_docs_channel",
+   "host": "instance.example",
+   "avatars": [],
+   "id": 3078,
+   "hostRedundancyAllowed": false,
+   "followingCount": 0,
+   "followersCount": 22,
+   "createdAt": "2021-07-21T11:02:55.703Z",
+   "banners": [],
+   "displayName": "blender_docs_channel",
+   "description": null,
+   "support": null,
+   "publicEmail": null,
+   "isLocal": true,
+   "updatedAt": "2021-07-21T11:02:55.706Z",
+   "ownerAccount": {
+    "url": "https://instance.example/accounts/blender_docs",
+    "name": "blender_docs",
+    "host": "instance.example",
+    "avatars": [],
+    "id": 44426,
+    "hostRedundancyAllowed": false,
+    "displayName": "blender_docs"
+   }
+  },
+  {
+   "url": "https://instance.example/video-channels/infrastructure",
+   "name": "infrastructure",
+   "host": "instance.example",
+   "avatars": [
+    {
+     "height": 48,
+     "width": 48,
+     "path": "/lazy-static/avatars/50e38ecf-1511-463a-b98d-b04292f24393.png",
+     "fileUrl": "https://instance.example/lazy-static/avatars/50e38ecf-1511-463a-b98d-b04292f24393.png",
+     "createdAt": "2026-05-24T12:34:23.950Z",
+     "updatedAt": "2026-05-24T12:34:23.950Z"
+    },
+    {
+     "height": 120,
+     "width": 120,
+     "path": "/lazy-static/avatars/72a0b0c1-7247-4310-8107-b07443dab2ef.png",
+     "fileUrl": "https://instance.example/lazy-static/avatars/72a0b0c1-7247-4310-8107-b07443dab2ef.png",
+     "createdAt": "2026-05-24T12:34:23.946Z",
+     "updatedAt": "2026-05-24T12:34:23.946Z"
+    },
+    {
+     "height": 600,
+     "width": 600,
+     "path": "/lazy-static/avatars/3713be10-d375-444f-a2b9-da9d84b009b6.png",
+     "fileUrl": "https://instance.example/lazy-static/avatars/3713be10-d375-444f-a2b9-da9d84b009b6.png",
+     "createdAt": "2026-05-24T12:34:23.942Z",
+     "updatedAt": "2026-05-24T12:34:23.942Z"
+    },
+    {
+     "height": 1500,
+     "width": 1500,
+     "path": "/lazy-static/avatars/47b9b8f4-d43a-46d5-915e-b769ff66ba69.png",
+     "fileUrl": "https://instance.example/lazy-static/avatars/47b9b8f4-d43a-46d5-915e-b769ff66ba69.png",
+     "createdAt": "2026-05-24T12:34:23.936Z",
+     "updatedAt": "2026-05-24T12:34:23.936Z"
+    }
+   ],
+   "id": 4509,
+   "hostRedundancyAllowed": false,
+   "followingCount": 0,
+   "followersCount": 1,
+   "createdAt": "2026-05-24T12:07:25.315Z",
+   "banners": [],
+   "displayName": "Blender Infrastructure",
+   "description": "Managed by Bart van der Braak",
+   "support": null,
+   "publicEmail": null,
+   "isLocal": true,
+   "updatedAt": "2026-10-03T23:36:16.718Z",
+   "ownerAccount": {
+    "url": "https://instance.example/accounts/bart",
+    "name": "bart",
+    "host": "instance.example",
+    "avatars": [
+     {
+      "height": 48,
+      "width": 48,
+      "path": "/lazy-static/avatars/a852f83e-5816-4257-a9e5-fb2d0b5464b2.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/a852f83e-5816-4257-a9e5-fb2d0b5464b2.png",
+      "createdAt": "2026-05-24T12:11:36.910Z",
+      "updatedAt": "2026-05-24T12:11:36.910Z"
+     },
+     {
+      "height": 120,
+      "width": 120,
+      "path": "/lazy-static/avatars/5663ae2b-3552-426d-8811-aedc735e135b.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/5663ae2b-3552-426d-8811-aedc735e135b.png",
+      "createdAt": "2026-05-24T12:11:36.906Z",
+      "updatedAt": "2026-05-24T12:11:36.906Z"
+     },
+     {
+      "height": 600,
+      "width": 600,
+      "path": "/lazy-static/avatars/df86929d-3b22-4c6a-8acf-7d3e961d5c8c.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/df86929d-3b22-4c6a-8acf-7d3e961d5c8c.png",
+      "createdAt": "2026-05-24T12:11:36.902Z",
+      "updatedAt": "2026-05-24T12:11:36.902Z"
+     },
+     {
+      "height": 1500,
+      "width": 1500,
+      "path": "/lazy-static/avatars/b7e5d01e-c334-4714-ae2b-df25f77d748c.png",
+      "fileUrl": "https://instance.example/lazy-static/avatars/b7e5d01e-c334-4714-ae2b-df25f77d748c.png",
+      "createdAt": "2026-05-24T12:11:36.894Z",
+      "updatedAt": "2026-05-24T12:11:36.894Z"
+     }
+    ],
+    "id": 1020135,
+    "hostRedundancyAllowed": false,
+    "displayName": "Bart van der Braak"
+   }
+  }
+ ]
+}
