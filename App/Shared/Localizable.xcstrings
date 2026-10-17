@@ -496,6 +496,16 @@
         }
       }
     },
+    "Close": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Fechar"
+          }
+        }
+      }
+    },
     "Close player": {
       "localizations": {
         "pt-PT": {
@@ -1214,6 +1224,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Seguinte"
+          }
+        }
+      }
+    },
+    "No Shorts": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sem Shorts"
           }
         }
       }
@@ -1945,6 +1965,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Definições"
+          }
+        }
+      }
+    },
+    "Shorts": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Shorts"
           }
         }
       }

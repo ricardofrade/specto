@@ -86,6 +86,13 @@ struct InvidiousSourceTests {
         #expect(playlists.allSatisfy { $0.thumbnails.allSatisfy { $0.url.host() == "instance.example" } })
     }
 
+    @Test func channelShortsAreMarkedAndUndated() async throws {
+        let iv = source { $0.on("/shorts", fixture: "invidious/channel-shorts.json") }
+        let page = try await iv.channelShorts(ChannelID(rawValue: "UCBJycsmduvYEL83R_U4JriQ"), cursor: nil)
+        #expect(page.items.count == 3)
+        #expect(page.items.allSatisfy { $0.isShort && $0.publishedAt == nil && $0.publishedText == nil })
+    }
+
     @Test func suggestions() async throws {
         let iv = source { $0.on("/api/v1/search/suggestions", fixture: "invidious/search-suggestions.json") }
         let suggestions = try await iv.suggestions(for: "blend")

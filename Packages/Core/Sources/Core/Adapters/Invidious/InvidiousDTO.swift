@@ -86,7 +86,8 @@ enum InvidiousDTO {
                 channelName: author ?? "",
                 duration: lengthSeconds.flatMap { $0 > 0 ? .seconds($0) : nil },
                 publishedAt: published.flatMap { $0 > 0 ? Date(timeIntervalSince1970: TimeInterval($0)) : nil },
-                publishedText: publishedText,
+                // Shorts tabs say "published: 0" ("56 years ago"): no date, no text.
+                publishedText: published == 0 ? nil : publishedText,
                 viewCount: viewCount.flatMap { $0 > 0 ? Int($0) : nil },
                 thumbnails: InvidiousDTO.thumbnails(videoThumbnails),
                 isLive: liveNow ?? false)

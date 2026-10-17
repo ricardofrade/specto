@@ -32,6 +32,19 @@ struct PipedSourceTests {
         #expect(playlist.channelName == "RickAstleyVEVO")
     }
 
+    @Test func channelShortsComeFromTheShortsTab() async throws {
+        let client = FixtureClient()
+        client.on("/channel/UCBJycsmduvYEL83R_U4JriQ", fixture: "piped/channel_shorts_tabs.json")
+        client.on("/channels/tabs", fixture: "piped/channel_tab_shorts.json")
+        let piped = PipedSource(instance: instance(.piped), client: client)
+        let page = try await piped.channelShorts(ChannelID(rawValue: "UCBJycsmduvYEL83R_U4JriQ"), cursor: nil)
+        #expect(page.items.count == 3)
+        // The tab's uploaderUrl is "/channel/UC…/shorts"; the channel still comes through.
+        #expect(page.items.allSatisfy { $0.isShort && $0.channelID.rawValue == "UCBJycsmduvYEL83R_U4JriQ" })
+        #expect(page.items.allSatisfy { $0.publishedAt == nil })
+        #expect(page.nextCursor != nil)
+    }
+
     @Test func suggestions() async throws {
         let piped = source { $0.on("/suggestions", fixture: "piped/suggestions.json") }
         let suggestions = try await piped.suggestions(for: "blend")

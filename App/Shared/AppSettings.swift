@@ -74,18 +74,18 @@ final class AppSettings {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
-        hideShorts = defaults.object(forKey: Keys.hideShorts) as? Bool ?? true
+        hideShorts = Self.flag(defaults, Keys.hideShorts, default: true)
         hideWatched = defaults.bool(forKey: Keys.hideWatched)
-        showsRelated = defaults.object(forKey: Keys.showsRelated) as? Bool ?? true
-        skipsSponsors = defaults.object(forKey: Keys.skipsSponsors) as? Bool ?? true
-        brandedTitles = defaults.object(forKey: Keys.brandedTitles) as? Bool ?? false
-        brandedThumbnails = defaults.object(forKey: Keys.brandedThumbnails) as? Bool ?? false
-        downloadsQueue = defaults.object(forKey: Keys.downloadsQueue) as? Bool ?? true
+        showsRelated = Self.flag(defaults, Keys.showsRelated, default: true)
+        skipsSponsors = Self.flag(defaults, Keys.skipsSponsors, default: true)
+        brandedTitles = Self.flag(defaults, Keys.brandedTitles, default: false)
+        brandedThumbnails = Self.flag(defaults, Keys.brandedThumbnails, default: false)
+        downloadsQueue = Self.flag(defaults, Keys.downloadsQueue, default: true)
         offlineLimitBytes = defaults.object(forKey: Keys.offlineLimit) as? Int64 ?? 2_000_000_000
         captionLanguage = defaults.string(forKey: Keys.captionLanguage)
         notifiesNewUploads = defaults.bool(forKey: Keys.notifiesNewUploads)
         newUploadsSince = defaults.object(forKey: Keys.newUploadsSince) as? Date
-        searchSuggestions = defaults.object(forKey: Keys.searchSuggestions) as? Bool ?? true
+        searchSuggestions = Self.flag(defaults, Keys.searchSuggestions, default: true)
         wifiQualityLimit = Self.limit(defaults.integer(forKey: Keys.wifiQualityLimit))
         cellularQualityLimit = Self.limit(defaults.integer(forKey: Keys.cellularQualityLimit))
     }
@@ -96,6 +96,12 @@ final class AppSettings {
     }
 
     private static func limit(_ stored: Int) -> Int? { stored > 0 ? stored : nil }
+
+    /// `bool(forKey:)` also reads "YES"/"NO" from launch arguments (`-feed.hideShorts NO`),
+    /// which arrive as strings; a missing key takes the default.
+    private static func flag(_ defaults: UserDefaults, _ key: String, default value: Bool) -> Bool {
+        defaults.object(forKey: key) == nil ? value : defaults.bool(forKey: key)
+    }
 
     var feedOptions: FeedStore.Options {
         .init(hideShorts: hideShorts, hideWatched: hideWatched, brandedTitles: brandedTitles,

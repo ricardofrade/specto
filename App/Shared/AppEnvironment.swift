@@ -368,6 +368,18 @@ final class AppEnvironment {
         if force { try await refresher.refresh() } else { try await refresher.refreshIfStale() }
         refreshBranding()
         HomeSnapshotPublisher.publish(database)
+        // Home's Shorts shelf (iPhone and iPad): a few channels' Shorts tabs per refresh.
+        #if os(iOS)
+        if !AppSettings.shared.hideShorts { Task { await refresher.refreshShorts() } }
+        #endif
+    }
+
+    /// A channel's Shorts tab; cached, so they also reach Home's shelf.
+    func channelShorts(_ id: ChannelID, cursor: String?) async throws -> Page<VideoSummary> {
+        let router = self.router
+        let page = try await router.perform(.channel) { try await $0.channelShorts(id, cursor: cursor) }
+        if cursor == nil { try? FeedStore(database).saveNewestFirst(page.items) }
+        return page
     }
 
     func subscriptionsChanged(_ added: [ChannelSummary]) {

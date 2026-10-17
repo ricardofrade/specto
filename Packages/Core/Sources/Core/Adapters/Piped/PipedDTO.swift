@@ -84,27 +84,10 @@ enum PipedDTO {
         }
     }
 
-    /// `channels/tabs`: mixed items; only playlists are kept.
+    /// `channels/tabs`: a tab's items (playlists, or Shorts as streams).
     struct TabPage: Decodable {
-        let content: [TabItem]?
+        let content: [ContentItem]?
         let nextpage: String?
-    }
-
-    struct TabItem: Decodable {
-        let type: String?
-        let url: String?
-        let name: String?
-        let thumbnail: String?
-        let uploaderName: String?
-        let videos: Int?
-
-        var playlistSummary: PlaylistSummary? {
-            guard type == "playlist", let url, let components = URLComponents(string: url),
-                  let list = components.queryItems?.first(where: { $0.name == "list" })?.value else { return nil }
-            return PlaylistSummary(id: PlaylistID(rawValue: list), title: name ?? "", channelName: uploaderName,
-                                   videoCount: videos.flatMap { $0 >= 0 ? $0 : nil },
-                                   thumbnails: thumbnail.flatMap(Thumbnail.unsized).map { [$0] } ?? [])
-        }
     }
 
     struct Playlist: Decodable {
@@ -292,11 +275,11 @@ enum PipedDTO {
         URLComponents(string: path)?.queryItems?.first { $0.name == "v" }?.value
     }
 
-    /// "/channel/UC…" → "UC…".
+    /// "/channel/UC…" (or "/channel/UC…/shorts" from a channel tab) → "UC…".
     static func channelID(_ path: String) -> String? {
         let parts = path.split(separator: "/")
-        guard parts.count >= 2, parts[parts.count - 2] == "channel" else { return nil }
-        return String(parts.last!)
+        guard let index = parts.firstIndex(of: "channel"), parts.indices.contains(index + 1) else { return nil }
+        return String(parts[index + 1])
     }
 
     static func date(milliseconds: Int64?) -> Date? {

@@ -12,7 +12,17 @@ private let pipedURL = ProcessInfo.processInfo.environment["PIPED_URL"].flatMap(
 struct LocalHLSIntegrationTests {
     @Test(.enabled(if: pipedURL != nil), .timeLimit(.minutes(1)))
     func avPlayerPlaysAdaptiveStreamsThroughLocalPlaylists() async throws {
-        let (video, audio) = try await Self.streams(videoID: "aqz-KE-bpKQ")
+        try await play(videoID: "aqz-KE-bpKQ", height: 720)
+    }
+
+    /// A Short: portrait, so the 1080p stream is 1080×1920.
+    @Test(.enabled(if: pipedURL != nil), .timeLimit(.minutes(1)))
+    func avPlayerPlaysAPortraitShort() async throws {
+        try await play(videoID: "R6yNUnRXZ64", height: 1920)
+    }
+
+    private func play(videoID: String, height: Int) async throws {
+        let (video, audio) = try await Self.streams(videoID: videoID, height: height)
         let prepared = try await LocalHLS.prepare(video: video, audio: audio)
         let item = AVPlayerItem(asset: prepared.asset)
         let player = AVPlayer(playerItem: item)
@@ -29,8 +39,8 @@ struct LocalHLSIntegrationTests {
         withExtendedLifetime(prepared) {}
     }
 
-    /// 720p H.264 (any frame rate) and AAC from Piped's `/streams`, with their byte ranges.
-    private static func streams(videoID: String) async throws -> (VideoStream, AudioStream) {
+    /// H.264 of `height` (any frame rate) and AAC from Piped's `/streams`, with their byte ranges.
+    private static func streams(videoID: String, height: Int) async throws -> (VideoStream, AudioStream) {
         let url = try #require(pipedURL).appending(path: "streams/\(videoID)")
         let (data, _) = try await URLSession.shared.data(from: url)
         let json = try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
@@ -40,7 +50,7 @@ struct LocalHLSIntegrationTests {
             return ByteRange(start: Int64(a), end: Int64(b))
         }
         let v = try #require(streams("videoStreams").first {
-            ($0["videoOnly"] as? Bool) == true && ($0["height"] as? Int) == 720
+            ($0["videoOnly"] as? Bool) == true && ($0["height"] as? Int) == height
                 && (($0["codec"] as? String)?.hasPrefix("avc1") ?? false)
         })
         let a = try #require(streams("audioStreams").first { ($0["itag"] as? Int) == 140 })

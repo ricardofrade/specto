@@ -55,6 +55,28 @@ public actor FeedRefresher {
         }
     }
 
+    /// Subscription feeds leave Shorts out, so Home's Shorts shelf is filled from channels'
+    /// Shorts tabs: a few channels per call, each at most every `maxAge`, the longest-waiting
+    /// first. Bounded on purpose: each channel costs the instance one or two requests.
+    public func refreshShorts(channelsPerPass: Int = 3, maxAge: TimeInterval = 12 * 3600) async {
+        guard case .local(let router) = mode, let channels = try? subscriptions.channels() else { return }
+        let hidden = (try? subscriptions.hiddenFromHome()) ?? []
+        let due = channels.filter { !hidden.contains($0.id) }
+            .map { ($0.id, (try? log.lastRefresh(Self.shortsResource($0.id))) ?? nil) }
+            .filter { _, last in last.map { $0 < Date.now.addingTimeInterval(-maxAge) } ?? true }
+            .sorted { ($0.1 ?? .distantPast) < ($1.1 ?? .distantPast) }
+            .prefix(channelsPerPass)
+        for (channel, _) in due {
+            // Marked even on failure, so a channel without Shorts isn't retried every refresh.
+            try? log.markRefreshed(Self.shortsResource(channel))
+            guard let page = try? await router.perform(.channel, { try await $0.channelShorts(channel, cursor: nil) })
+            else { continue }
+            try? feed.saveNewestFirst(Array(page.items.prefix(12)))
+        }
+    }
+
+    static func shortsResource(_ channel: ChannelID) -> String { "shorts/\(channel.rawValue)" }
+
     private func performRefresh() async throws {
         switch mode {
         case .local(let router):

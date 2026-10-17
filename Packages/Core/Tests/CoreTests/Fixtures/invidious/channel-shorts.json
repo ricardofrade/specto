@@ -1,0 +1,254 @@
+{
+ "videos": [
+  {
+   "type": "video",
+   "title": "iPhone Duo is here",
+   "videoId": "R6yNUnRXZ64",
+   "author": "Marques Brownlee",
+   "authorId": "UCBJycsmduvYEL83R_U4JriQ",
+   "authorUrl": "/channel/UCBJycsmduvYEL83R_U4JriQ",
+   "authorVerified": false,
+   "videoThumbnails": [
+    {
+     "quality": "maxres",
+     "url": "https://instance.example/vi/R6yNUnRXZ64/maxres.jpg",
+     "width": 1280,
+     "height": 720
+    },
+    {
+     "quality": "maxresdefault",
+     "url": "https://instance.example/vi/R6yNUnRXZ64/maxresdefault.jpg",
+     "width": 1280,
+     "height": 720
+    },
+    {
+     "quality": "sddefault",
+     "url": "https://instance.example/vi/R6yNUnRXZ64/sddefault.jpg",
+     "width": 640,
+     "height": 480
+    },
+    {
+     "quality": "high",
+     "url": "https://instance.example/vi/R6yNUnRXZ64/hqdefault.jpg",
+     "width": 480,
+     "height": 360
+    },
+    {
+     "quality": "medium",
+     "url": "https://instance.example/vi/R6yNUnRXZ64/mqdefault.jpg",
+     "width": 320,
+     "height": 180
+    },
+    {
+     "quality": "default",
+     "url": "https://instance.example/vi/R6yNUnRXZ64/default.jpg",
+     "width": 120,
+     "height": 90
+    },
+    {
+     "quality": "start",
+     "url": "https://instance.example/vi/R6yNUnRXZ64/1.jpg",
+     "width": 120,
+     "height": 90
+    },
+    {
+     "quality": "middle",
+     "url": "https://instance.example/vi/R6yNUnRXZ64/2.jpg",
+     "width": 120,
+     "height": 90
+    },
+    {
+     "quality": "end",
+     "url": "https://instance.example/vi/R6yNUnRXZ64/3.jpg",
+     "width": 120,
+     "height": 90
+    }
+   ],
+   "description": "",
+   "descriptionHtml": "",
+   "viewCount": 8100000,
+   "viewCountText": "8.1M views",
+   "published": 0,
+   "publishedText": "56 years ago",
+   "lengthSeconds": 60,
+   "liveNow": false,
+   "premium": false,
+   "isUpcoming": false,
+   "premiereTimestamp": 0,
+   "isNew": false,
+   "is4k": false,
+   "is8k": false,
+   "isVr180": false,
+   "isVr360": false,
+   "is3d": false,
+   "hasCaptions": false
+  },
+  {
+   "type": "video",
+   "title": "This iPhone Duo Animation 👀",
+   "videoId": "uJdjKOBikTE",
+   "author": "Marques Brownlee",
+   "authorId": "UCBJycsmduvYEL83R_U4JriQ",
+   "authorUrl": "/channel/UCBJycsmduvYEL83R_U4JriQ",
+   "authorVerified": false,
+   "videoThumbnails": [
+    {
+     "quality": "maxres",
+     "url": "https://instance.example/vi/uJdjKOBikTE/maxres.jpg",
+     "width": 1280,
+     "height": 720
+    },
+    {
+     "quality": "maxresdefault",
+     "url": "https://instance.example/vi/uJdjKOBikTE/maxresdefault.jpg",
+     "width": 1280,
+     "height": 720
+    },
+    {
+     "quality": "sddefault",
+     "url": "https://instance.example/vi/uJdjKOBikTE/sddefault.jpg",
+     "width": 640,
+     "height": 480
+    },
+    {
+     "quality": "high",
+     "url": "https://instance.example/vi/uJdjKOBikTE/hqdefault.jpg",
+     "width": 480,
+     "height": 360
+    },
+    {
+     "quality": "medium",
+     "url": "https://instance.example/vi/uJdjKOBikTE/mqdefault.jpg",
+     "width": 320,
+     "height": 180
+    },
+    {
+     "quality": "default",
+     "url": "https://instance.example/vi/uJdjKOBikTE/default.jpg",
+     "width": 120,
+     "height": 90
+    },
+    {
+     "quality": "start",
+     "url": "https://instance.example/vi/uJdjKOBikTE/1.jpg",
+     "width": 120,
+     "height": 90
+    },
+    {
+     "quality": "middle",
+     "url": "https://instance.example/vi/uJdjKOBikTE/2.jpg",
+     "width": 120,
+     "height": 90
+    },
+    {
+     "quality": "end",
+     "url": "https://instance.example/vi/uJdjKOBikTE/3.jpg",
+     "width": 120,
+     "height": 90
+    }
+   ],
+   "description": "",
+   "descriptionHtml": "",
+   "viewCount": 7100000,
+   "viewCountText": "7.1M views",
+   "published": 0,
+   "publishedText": "56 years ago",
+   "lengthSeconds": 60,
+   "liveNow": false,
+   "premium": false,
+   "isUpcoming": false,
+   "premiereTimestamp": 0,
+   "isNew": false,
+   "is4k": false,
+   "is8k": false,
+   "isVr180": false,
+   "isVr360": false,
+   "is3d": false,
+   "hasCaptions": false
+  },
+  {
+   "type": "video",
+   "title": "The Wildest Camera Robot",
+   "videoId": "v-_d2e7x4KA",
+   "author": "Marques Brownlee",
+   "authorId": "UCBJycsmduvYEL83R_U4JriQ",
+   "authorUrl": "/channel/UCBJycsmduvYEL83R_U4JriQ",
+   "authorVerified": false,
+   "videoThumbnails": [
+    {
+     "quality": "maxres",
+     "url": "https://instance.example/vi/v-_d2e7x4KA/maxres.jpg",
+     "width": 1280,
+     "height": 720
+    },
+    {
+     "quality": "maxresdefault",
+     "url": "https://instance.example/vi/v-_d2e7x4KA/maxresdefault.jpg",
+     "width": 1280,
+     "height": 720
+    },
+    {
+     "quality": "sddefault",
+     "url": "https://instance.example/vi/v-_d2e7x4KA/sddefault.jpg",
+     "width": 640,
+     "height": 480
+    },
+    {
+     "quality": "high",
+     "url": "https://instance.example/vi/v-_d2e7x4KA/hqdefault.jpg",
+     "width": 480,
+     "height": 360
+    },
+    {
+     "quality": "medium",
+     "url": "https://instance.example/vi/v-_d2e7x4KA/mqdefault.jpg",
+     "width": 320,
+     "height": 180
+    },
+    {
+     "quality": "default",
+     "url": "https://instance.example/vi/v-_d2e7x4KA/default.jpg",
+     "width": 120,
+     "height": 90
+    },
+    {
+     "quality": "start",
+     "url": "https://instance.example/vi/v-_d2e7x4KA/1.jpg",
+     "width": 120,
+     "height": 90
+    },
+    {
+     "quality": "middle",
+     "url": "https://instance.example/vi/v-_d2e7x4KA/2.jpg",
+     "width": 120,
+     "height": 90
+    },
+    {
+     "quality": "end",
+     "url": "https://instance.example/vi/v-_d2e7x4KA/3.jpg",
+     "width": 120,
+     "height": 90
+    }
+   ],
+   "description": "",
+   "descriptionHtml": "",
+   "viewCount": 7500000,
+   "viewCountText": "7.5M views",
+   "published": 0,
+   "publishedText": "56 years ago",
+   "lengthSeconds": 60,
+   "liveNow": false,
+   "premium": false,
+   "isUpcoming": false,
+   "premiereTimestamp": 0,
+   "isNew": false,
+   "is4k": false,
+   "is8k": false,
+   "isVr180": false,
+   "isVr360": false,
+   "is3d": false,
+   "hasCaptions": false
+  }
+ ],
+ "continuation": "4qmFsgK9DBIYVUNCSnljc21kdXZZRUw4M1JfVTRKcmlRGqAMOGdhUENScU1DVktKQ1RLR0NRb2tNREF3TURBd01EQXRNREF3TUMwd01EQXdMVEF3TURBdE1EQXdNREF3TURBd01EQXdFdHNJUVdaelYydHNORUZKT0U5UmJ6QktiVU16VUUxc1kzaFZTVnBaZDNCWlVXeE5WMDl2T0UxbFl6RjFlbmR5YmpoemNXMDFXVnBIYlVONmRYVjRSalYxVjJ4WU1raFlkVVIxYTFwdVZIZGphVWxuWkdKd2JYUlRTVFI0UzFwcldISXpNVGg2VlZRdFdIbE1UVUp2ZUVKd1EyZFJPVEl3TmxSYVRFVmhNMk0yVDFRMVdXUk1aMHAzTkRWR05EVllja281WDFFdE9YbHFOblJRUTJKT2JGZDFkV2RwY2xodFowZGhjRUpSWTJaUWRFMVRielZLWlRBMFdtaHRTbVUwWkc1S1JqVnFabEJ6VFZsQ1NWSmxhV0ZVWlhKMFlWTlZaSFF5ZDNoa2IySlFZa1JrTTI5T1UyUlBlbE16VkZOVE5tOXlhblozTWtjek5qWXRaMVpZYXpGb2JtbFVWa281T1VnMGFtY3pXblZ3VmpWR2NITjZNbDl3VmxZdFVGZ3dRMjR4YkhRM01WbENSM05OU1dwV1MydE5SRGREZWpoTWJHMVFaVFUyTlVsemJXOU9kRmRwYWsweFJXSXlZMnRRTFV0bllUTlphM0U1WlcxbFlVMVlWM2R1UlZVMFZ6TXRkVFpmTVMxRmJtZzVOMjVCYzJka2JESjRZalJPU25aUmMyaFBYek4xVFZGRE1reDBkbEphWTJneVNEQkpRbTB3V1Y5MGMzcFNjRE0zU3pKTFUwODVkamQ0Y0VwdFh6UjVlbk5PUjBsdk1rbHBOR05GVFZGU1dGTTFZbEZsUkZGZmQwNUJTSGc0UkVkd1gxbEZXakZzY0hCRmQzVnJYMHc0ZFV3emRteFFXbmRyVEVKNFRHUlBkMmxuWTJoSlZIWjZPREJJUWtadWIzVTFaVmN3ZEdwMFNsVTJTMjlVTldoQ2NXdzBVSGt5TldaNWRFUTJVWFZxUTNsclptazVlVUUwTW5FeVpIVnViMU5QYjNGbVZYSkJUMHBpZDFacFNIQk1XV2hFU1c1cVVtNDBYM05XWmpreVNWcEtaVnB6VmtSVVRqRmpWemR6WVhaUFZFcDZiRXMyYzIxeE0xaHRkVmxVUlVGQlREVnpabTVUVlZKYVowWjBaMDVvWW5sRGNFeHNWekUwTkhsSmEzWjRRMjFLWVVGcVQzQlNiazFpUjNadVFtcHBXamRpWlZVd1RuRXpjWEYxVW1SdU1XZEtSazFCYUhwaWRYZ3diMDFJUnpsc04zZ3dWRVZvV1RoV1lUQk5NbWhyVkZBdFowNU1WR0Z4U0hOMFUyZFNTa0psYWpoWlMwWXpTMWxHTkROdlZtd3lUMXBVWW5SU01rWlZjVzUwWnpGNk5HNTVkM2RhUzA5aVdETlRNMGhvVFdSaFdWZzFjVlU0VFRKblFrTTRhbkpuVDBNeldIcGFRMVV0YTJWS1dubHlhSEJ5Y0RabFUwTTJNWEpTY1hreVpuQkJjRll3WVd0MGRXdHlXblpHVlVvelptSkJhRjgwUkRSd1duWmpibmN5YTFJM00ySnhOVTFwUjBac2FDMW5XRVV6VmtFMVZtTldYMmwwYm5Kb1h6ZEJaM0o2VERGaFExRk5ZMHBaWW1KSldYYzBYMlZvYW1sTmVWaFpjM1Z4YUZwNU9GUlhhMUEyUkRaUVptTkZaalE1V1Y5emRtcEljM0pOZURKdlprOVFiVVZUT0c5dFFWTnFZVWwzVGxKSE1FbDZYMlZoTWpaNFVGcEJjR1pGYm5Ca1ZuRmplVVIyT1ZWQmNHeExORXBPVVhoaGFIaDFhMDVTY1hSdVlURTJUV05VVjA5WVFVZElVMmw2WVhRd2VUZEljR2hxY1ZJMmJVbE1VRzkwWVdkWE1VaDFjVE4zZERoYWNFVkNSRkZYZFZBNFNraFdjekpzTlVOZlRIVnlTbmd4UVdvMVgzSXpWWFpOZWtsU2NscGphR2h6T0RSRFVtMXNNbThZQkElM0QlM0Q%3D"
+}

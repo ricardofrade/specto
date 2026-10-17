@@ -117,6 +117,14 @@ public struct InvidiousSource: VideoSource {
                                                                           nextCursor: next))
     }
 
+    public func channelShorts(_ id: ChannelID, cursor: String?) async throws -> Page<VideoSummary> {
+        var query: [URLQueryItem] = []
+        if let cursor { query.append(.init(name: "continuation", value: cursor)) }
+        let page: InvidiousDTO.ChannelVideos = try await api.get("api/v1/channels/\(id.rawValue)/shorts", query: query)
+        return Page(items: (page.videos ?? []).compactMap(\.videoSummary).map { $0.markedAsShort() },
+                    nextCursor: page.continuation.flatMap { $0.isEmpty ? nil : $0 })
+    }
+
     public func channelPlaylists(_ id: ChannelID, cursor: String?) async throws -> Page<PlaylistSummary> {
         var query: [URLQueryItem] = []
         if let cursor { query.append(.init(name: "continuation", value: cursor)) }

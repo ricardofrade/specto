@@ -22,6 +22,8 @@ struct RootView: View {
     /// The tallest a 16:9 video can be drawn in this window, in either orientation: no point
     /// decoding more (and less means AVPlayer can play it, with system PiP; ADR 0005).
     @State private var maxVideoPixels = 1080
+    /// Shorts are portrait: their long side runs along the screen's.
+    @State private var shortsPixels = 1920
     @State private var queuedIDs: Set<VideoID> = []
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Namespace private var zoom
@@ -55,7 +57,8 @@ struct RootView: View {
                                onOpenChannel: { router.openChannel($0, name: $1) },
                                onAddToQueue: { environment.addToQueue($0.video) },
                                onSetWatched: { environment.setWatched($0.video, $1) },
-                               onHideChannel: { environment.setHiddenFromHome($0.channelID, true) })
+                               onHideChannel: { environment.setHiddenFromHome($0.channelID, true) },
+                               onOpenShorts: { rows, start in router.openShorts(rows.map(\.video), start: start) })
                         .routes()
                         .onAppear {
                             onFirstFeedFrame()
@@ -100,7 +103,8 @@ struct RootView: View {
                         Tab(value: SceneRouter.Section.channel(channel.id)) {
                             NavigationStack(path: $router.channelPath) {
                                 ChannelScreen(model: channelModel(channel.id, name: channel.name), onSelect: { play($0) },
-                                              onOpenPlaylist: { router.push(.playlist($0)) })
+                                              onOpenPlaylist: { router.push(.playlist($0)) },
+                                              onOpenShorts: { router.openShorts($0, start: $1) })
                                     .routes()
                             }
                         } label: {
@@ -121,6 +125,7 @@ struct RootView: View {
         .onGeometryChange(for: CGSize.self) { $0.size } action: { size in
             let short = min(size.width, size.height), long = max(size.width, size.height)
             maxVideoPixels = Int(min(short, long * 9 / 16) * displayScale)
+            shortsPixels = Int(long * displayScale)
         }
         .onChange(of: settings.feedOptions) { _, options in
             feed.setOptions(options)
@@ -174,6 +179,16 @@ struct RootView: View {
         }
         // Full screen on every device: a sheet on iPad is a compact form sheet, which would
         // hide the band and side-panel layouts. The zoom transition makes it swipe-dismissible.
+        .fullScreenCover(item: $router.shorts) { content in
+            ShortsScreen(session: environment.session, content: content, onShow: { video in
+                // Auto-advance continues through the shelf's Shorts.
+                _ = environment.startPlaylist(content.videos, at: content.videos.firstIndex { $0.id == video.id } ?? 0)
+                Task { _ = try? await environment.play(video, surfaceHeight: shortsPixels) }
+            }, onClose: {
+                environment.session.stop()
+                router.shorts = nil
+            })
+        }
         .fullScreenCover(item: $router.watching) { content in
             NavigationStack(path: $router.watchPath) {
                 WatchScreen(session: environment.session, content: content,
@@ -192,7 +207,8 @@ struct RootView: View {
             switch route {
             case .channel(let id, let name):
                 .channel(ChannelScreen(model: channelModel(id, name: name), onSelect: { play($0) },
-                                       onOpenPlaylist: { router.push(.playlist($0)) }))
+                                       onOpenPlaylist: { router.push(.playlist($0)) },
+                                       onOpenShorts: { router.openShorts($0, start: $1) }))
             case .playlist(let summary):
                 .playlist(PlaylistScreen(model: PlaylistModel(summary: summary, store: PlaylistStore(environment.database),
                                                               load: { id, cursor in try await environment.playlist(id, cursor: cursor) }),
@@ -260,6 +276,7 @@ struct RootView: View {
                      isSubscribed: environment.isSubscribed(id),
                      load: { id, cursor in try await environment.channel(id, cursor: cursor) },
                      loadPlaylists: environment.channelPlaylistsLoader,
+                     loadShorts: { id, cursor in try await environment.channelShorts(id, cursor: cursor) },
                      setSubscribed: { channel, subscribed in try await environment.setSubscribed(channel, subscribed) })
     }
 

@@ -145,6 +145,8 @@ public struct SubscriptionStore: Sendable {
 public struct FeedStore: Sendable {
     public struct Options: Sendable, Equatable {
         public var hideShorts: Bool
+        /// Only Shorts (Home's Shorts shelf); wins over `hideShorts`.
+        public var onlyShorts = false
         public var hideWatched: Bool
         public var limit: Int
         /// DeArrow community titles in place of the originals.
@@ -169,14 +171,29 @@ public struct FeedStore: Sendable {
     }
 
     public func save(_ videos: [VideoSummary]) throws {
+        try save(videos, fetchedAt: { _ in .now })
+    }
+
+    /// A newest-first list without dates (a channel's Shorts tab): each gets a slightly earlier
+    /// `fetchedAt`, which orders undated videos.
+    public func saveNewestFirst(_ videos: [VideoSummary]) throws {
         let now = Date.now
+        try save(videos) { index in now.addingTimeInterval(-Double(index) / 1000) }
+    }
+
+    private func save(_ videos: [VideoSummary], fetchedAt: (Int) -> Date) throws {
         try database.writer.write { db in
-            for video in videos {
-                var record = VideoRecord(video, fetchedAt: now)
-                // Some sources omit durations (Invidious Atom feeds); never erase a known one.
-                if record.durationSeconds == nil,
+            for (index, video) in videos.enumerated() {
+                var record = VideoRecord(video, fetchedAt: fetchedAt(index))
+                // Some sources omit durations (Invidious Atom feeds) or dates (Shorts tabs);
+                // never erase known ones.
+                if record.durationSeconds == nil || record.publishedAt == nil,
                    let existing = try VideoRecord.fetchOne(db, key: video.id.rawValue) {
-                    record.durationSeconds = existing.durationSeconds
+                    record.durationSeconds = record.durationSeconds ?? existing.durationSeconds
+                    if record.publishedAt == nil {
+                        record.publishedAt = existing.publishedAt
+                        record.publishedText = existing.publishedText ?? record.publishedText
+                    }
                 }
                 try record.save(db)
             }
@@ -208,10 +225,13 @@ public struct FeedStore: Sendable {
     /// Drop videos older than `days` that nobody started watching, to bound the cache.
     public func prune(olderThan days: Int = 120) throws {
         let cutoff = Date.now.addingTimeInterval(-Double(days) * 86_400)
-        _ = try database.writer.write { db in
+        // Undated videos (Shorts tabs) go by when they were last fetched.
+        let undatedCutoff = Date.now.addingTimeInterval(-30 * 86_400)
+        try database.writer.write { db in
             try db.execute(sql: """
-                DELETE FROM video WHERE publishedAt < ? AND id NOT IN (SELECT videoID FROM watchState)
-                """, arguments: [cutoff])
+                DELETE FROM video WHERE (publishedAt < ? OR (publishedAt IS NULL AND fetchedAt < ?))
+                AND id NOT IN (SELECT videoID FROM watchState)
+                """, arguments: [cutoff, undatedCutoff])
         }
     }
 
@@ -227,10 +247,13 @@ public struct FeedStore: Sendable {
             LEFT JOIN branding ON branding.videoID = video.id
             """
         var conditions: [String] = []
-        if options.hideShorts { conditions.append("video.isShort = 0") }
+        if options.onlyShorts { conditions.append("video.isShort = 1") }
+        else if options.hideShorts { conditions.append("video.isShort = 0") }
         if options.hideWatched { conditions.append("IFNULL(watchState.isFinished, 0) = 0") }
         if !conditions.isEmpty { sql += " WHERE " + conditions.joined(separator: " AND ") }
-        sql += " ORDER BY video.publishedAt DESC LIMIT ?"
+        // The feed walks the publishedAt index (launch budget); undated Shorts sort by fetch order.
+        sql += options.onlyShorts ? " ORDER BY COALESCE(video.publishedAt, video.fetchedAt) DESC LIMIT ?"
+                                  : " ORDER BY video.publishedAt DESC LIMIT ?"
 
         let formatter = RowFormatter()
         return try Row.fetchAll(db, sql: sql, arguments: [options.limit]).map { row in

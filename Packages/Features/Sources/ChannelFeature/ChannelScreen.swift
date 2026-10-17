@@ -16,9 +16,16 @@ public final class ChannelModel {
     public private(set) var playlists: [PlaylistRow] = []
     public private(set) var loadedPlaylists = false
     public var hasPlaylists: Bool { loadPlaylists != nil }
+    /// The channel's Shorts, loaded when the Shorts tab first shows.
+    public private(set) var shorts: [FeedRow] = []
+    public private(set) var loadedShorts = false
+    public var hasShorts: Bool { loadShorts != nil }
 
     @ObservationIgnored private let load: @Sendable (ChannelID, String?) async throws -> ChannelPage
     @ObservationIgnored private let loadPlaylists: (@Sendable (ChannelID, String?) async throws -> Page<PlaylistSummary>)?
+    @ObservationIgnored private let loadShorts: (@Sendable (ChannelID, String?) async throws -> Page<VideoSummary>)?
+    @ObservationIgnored private var shortsCursor: String?
+    @ObservationIgnored private var loadingShorts = false
     @ObservationIgnored private var playlistsCursor: String?
     @ObservationIgnored private var loadingPlaylists = false
     @ObservationIgnored private let setSubscribed: @Sendable (ChannelSummary, Bool) async throws -> Void
@@ -31,7 +38,9 @@ public final class ChannelModel {
     public init(channelID: ChannelID, name: String, cached: [VideoSummary], isSubscribed: Bool,
                 load: @escaping @Sendable (ChannelID, String?) async throws -> ChannelPage,
                 loadPlaylists: (@Sendable (ChannelID, String?) async throws -> Page<PlaylistSummary>)? = nil,
+                loadShorts: (@Sendable (ChannelID, String?) async throws -> Page<VideoSummary>)? = nil,
                 setSubscribed: @escaping @Sendable (ChannelSummary, Bool) async throws -> Void) {
+        self.loadShorts = loadShorts
         self.channelID = channelID
         self.name = name
         self.isSubscribed = isSubscribed
@@ -66,6 +75,22 @@ public final class ChannelModel {
         let known = Set(rows.map(\.id))
         rows += Self.format(page.videos.items.filter { !known.contains($0.id) })
         self.cursor = page.videos.nextCursor
+    }
+
+    /// First call loads the first page; later calls (from the last card) load the next.
+    public func loadShortsIfNeeded(after id: VideoID? = nil) async {
+        guard let loadShorts, !loadingShorts else { return }
+        if loadedShorts { guard id == shorts.last?.id, shortsCursor != nil else { return } }
+        loadingShorts = true
+        defer { loadingShorts = false }
+        guard let page = try? await loadShorts(channelID, loadedShorts ? shortsCursor : nil) else {
+            loadedShorts = true
+            return
+        }
+        let known = Set(shorts.map(\.id))
+        shorts += Self.format(page.items.filter { !known.contains($0.id) })
+        shortsCursor = page.nextCursor
+        loadedShorts = true
     }
 
     /// First call loads the first page; later calls (from the last cell) load the next.
@@ -111,20 +136,23 @@ public struct ChannelScreen: View {
     private let makeModel: () -> ChannelModel
     private let onSelect: (VideoSummary) -> Void
     private let onOpenPlaylist: (PlaylistSummary) -> Void
+    private let onOpenShorts: ([VideoSummary], Int) -> Void
     @State private var model: ChannelModel?
 
     /// The model is created once per screen, on first appearance, however often the parent
     /// re-renders.
     public init(model: @escaping @autoclosure () -> ChannelModel, onSelect: @escaping (VideoSummary) -> Void,
-                onOpenPlaylist: @escaping (PlaylistSummary) -> Void = { _ in }) {
+                onOpenPlaylist: @escaping (PlaylistSummary) -> Void = { _ in },
+                onOpenShorts: @escaping (_ shorts: [VideoSummary], _ start: Int) -> Void = { _, _ in }) {
         self.makeModel = model
         self.onSelect = onSelect
         self.onOpenPlaylist = onOpenPlaylist
+        self.onOpenShorts = onOpenShorts
     }
 
     public var body: some View {
         if let model {
-            ChannelContent(model: model, onSelect: onSelect, onOpenPlaylist: onOpenPlaylist)
+            ChannelContent(model: model, onSelect: onSelect, onOpenPlaylist: onOpenPlaylist, onOpenShorts: onOpenShorts)
         } else {
             Color.clear.onAppear { model = makeModel() }
         }
@@ -132,11 +160,12 @@ public struct ChannelScreen: View {
 }
 
 private struct ChannelContent: View {
-    enum Tab: Hashable { case videos, playlists }
+    enum Tab: Hashable { case videos, shorts, playlists }
 
     let model: ChannelModel
     let onSelect: (VideoSummary) -> Void
     let onOpenPlaylist: (PlaylistSummary) -> Void
+    let onOpenShorts: ([VideoSummary], Int) -> Void
     @Environment(\.displayScale) private var displayScale
     @State private var columnWidth: CGFloat = 340
     @State private var tab = Tab.videos
@@ -147,10 +176,11 @@ private struct ChannelContent: View {
             if let error = model.error {
                 Text(error).foregroundStyle(Tokens.Colors.textSecondary).padding()
             }
-            if model.hasPlaylists {
+            if model.hasPlaylists || model.hasShorts {
                 Picker(selection: $tab) {
                     Text("Videos").tag(Tab.videos)
-                    Text("Playlists").tag(Tab.playlists)
+                    if model.hasShorts { Text("Shorts").tag(Tab.shorts) }
+                    if model.hasPlaylists { Text("Playlists").tag(Tab.playlists) }
                 } label: { Text("Show") }
                 .pickerStyle(.segmented)
                 .frame(maxWidth: 360)
@@ -158,9 +188,27 @@ private struct ChannelContent: View {
                 .padding(.bottom, Tokens.Spacing.l)
                 .accessibilityIdentifier("channel.tab")
             }
+            if tab == .shorts {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 110), spacing: Tokens.Spacing.s)],
+                          spacing: Tokens.Spacing.s) {
+                    ForEach(Array(model.shorts.enumerated()), id: \.element.id) { index, row in
+                        Button { onOpenShorts(model.shorts.map(\.video), index) } label: { ShortCard(row: row) }
+                            .buttonStyle(.plain)
+                            .accessibilityIdentifier("channel.short")
+                            .task { await model.loadShortsIfNeeded(after: row.id) }
+                    }
+                }
+                .padding(.horizontal, Tokens.Spacing.screenInset)
+                .task { await model.loadShortsIfNeeded() }
+                if model.loadedShorts, model.shorts.isEmpty {
+                    Text("No Shorts").foregroundStyle(Tokens.Colors.textSecondary).padding()
+                }
+            }
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 300), spacing: Tokens.Spacing.l)],
                       spacing: Tokens.Spacing.xl) {
                 switch tab {
+                case .shorts:
+                    EmptyView()
                 case .videos:
                     ForEach(model.rows) { row in
                         Button { onSelect(row.video) } label: {
@@ -222,6 +270,32 @@ private struct ChannelContent: View {
     static func columnWidth(for width: CGFloat) -> CGFloat {
         let columns = max(1, floor((width + Tokens.Spacing.l) / (300 + Tokens.Spacing.l)))
         return (width - (columns - 1) * Tokens.Spacing.l) / columns
+    }
+}
+
+/// A Short in the channel's grid: tall, title over the bottom.
+private struct ShortCard: View {
+    let row: FeedRow
+    @Environment(\.displayScale) private var displayScale
+
+    var body: some View {
+        Color.clear
+            .aspectRatio(9 / 16, contentMode: .fit)
+            .overlay {
+                RemoteImage(row.thumbnails.best(forPixelWidth: Int(200 * displayScale))?.url,
+                            pointSize: CGSize(width: 120, height: 213))
+            }
+            .overlay(alignment: .bottomLeading) {
+                Text(row.title)
+                    .font(Tokens.Typography.caption.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .lineLimit(2)
+                    .padding(Tokens.Spacing.xs)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(LinearGradient(colors: [.clear, .black.opacity(0.75)], startPoint: .top, endPoint: .bottom))
+            }
+            .clipShape(.rect(cornerRadius: Tokens.Radius.thumbnail))
+            .accessibilityElement(children: .combine)
     }
 }
 

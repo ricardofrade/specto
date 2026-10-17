@@ -117,6 +117,13 @@ public extension VideoSummary {
                      thumbnails: thumbnails, isLive: isLive, isShort: isShort)
     }
 
+    /// From a channel's Shorts tab, which some sources don't flag.
+    func markedAsShort() -> VideoSummary {
+        VideoSummary(id: id, title: title, channelID: channelID, channelName: channelName, duration: duration,
+                     publishedAt: publishedAt, publishedText: publishedText, viewCount: viewCount,
+                     thumbnails: thumbnails, isLive: isLive, isShort: true)
+    }
+
     func replacing(thumbnails: [Thumbnail]) -> VideoSummary {
         VideoSummary(id: id, title: title, channelID: channelID, channelName: channelName, duration: duration,
                      publishedAt: publishedAt, publishedText: publishedText, viewCount: viewCount,
@@ -481,6 +488,8 @@ public protocol VideoSource: Sendable {
     func playlist(_ id: PlaylistID, cursor: String?) async throws -> PlaylistPage
     /// A channel's own playlists, newest first as the channel orders them.
     func channelPlaylists(_ id: ChannelID, cursor: String?) async throws -> Page<PlaylistSummary>
+    /// A channel's Shorts, newest first. Sources give no upload dates here.
+    func channelShorts(_ id: ChannelID, cursor: String?) async throws -> Page<VideoSummary>
     func healthCheck() async -> HealthSample
 }
 
@@ -516,6 +525,9 @@ public extension VideoSource {
     }
     func channelPlaylists(_ id: ChannelID, cursor: String?) async throws -> Page<PlaylistSummary> {
         throw SourceError.unsupported(.playlists)
+    }
+    func channelShorts(_ id: ChannelID, cursor: String?) async throws -> Page<VideoSummary> {
+        throw SourceError.unsupported(.channel)
     }
 }
 

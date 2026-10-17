@@ -98,15 +98,26 @@ public struct PipedSource: VideoSource {
                                          nextCursor: Self.cursor(playlist.nextpage)))
     }
 
-    /// The playlists tab needs the channel's tab `data` on every page, so the cursor carries it
-    /// along with Piped's `nextpage`.
     public func channelPlaylists(_ id: ChannelID, cursor: String?) async throws -> Page<PlaylistSummary> {
+        let page = try await tab("playlists", of: id, cursor: cursor)
+        return Page(items: page.items.compactMap { if case .playlist(let playlist) = $0.searchResult { playlist } else { nil } },
+                    nextCursor: page.nextCursor)
+    }
+
+    public func channelShorts(_ id: ChannelID, cursor: String?) async throws -> Page<VideoSummary> {
+        let page = try await tab("shorts", of: id, cursor: cursor)
+        return Page(items: page.items.compactMap(\.videoSummary).map { $0.markedAsShort() }, nextCursor: page.nextCursor)
+    }
+
+    /// A channel tab needs the tab's `data` on every page, so the cursor carries it along with
+    /// Piped's `nextpage`.
+    private func tab(_ name: String, of id: ChannelID, cursor: String?) async throws -> Page<PipedDTO.ContentItem> {
         let state: TabCursor
         if let cursor, let decoded = try? JSONDecoder().decode(TabCursor.self, from: Data(cursor.utf8)) {
             state = decoded
         } else {
             let channel: PipedDTO.Channel = try await api.get("channel/\(id.rawValue)")
-            guard let tab = channel.tabs?.first(where: { $0.name == "playlists" }) else { return Page(items: [], nextCursor: nil) }
+            guard let tab = channel.tabs?.first(where: { $0.name == name }) else { return Page(items: [], nextCursor: nil) }
             state = TabCursor(data: tab.data, nextpage: nil)
         }
         var query = [URLQueryItem(name: "data", value: state.data)]
@@ -115,7 +126,7 @@ public struct PipedSource: VideoSource {
         let next = Self.cursor(page.nextpage).flatMap { nextpage in
             (try? JSONEncoder().encode(TabCursor(data: state.data, nextpage: nextpage))).map { String(decoding: $0, as: UTF8.self) }
         }
-        return Page(items: (page.content ?? []).compactMap(\.playlistSummary), nextCursor: next)
+        return Page(items: page.content ?? [], nextCursor: next)
     }
 
     private struct TabCursor: Codable {

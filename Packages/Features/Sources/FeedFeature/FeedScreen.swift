@@ -20,6 +20,7 @@ public struct FeedScreen: View {
     private let onAddToQueue: (FeedRow) -> Void
     private let onSetWatched: (FeedRow, Bool) -> Void
     private let onHideChannel: (FeedRow) -> Void
+    private let onOpenShorts: ([FeedRow], Int) -> Void
     private let transition: Namespace.ID?
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.displayScale) private var displayScale
@@ -37,7 +38,9 @@ public struct FeedScreen: View {
                 onOpenChannel: @escaping (ChannelID, String) -> Void = { _, _ in },
                 onAddToQueue: @escaping (FeedRow) -> Void = { _ in },
                 onSetWatched: @escaping (FeedRow, Bool) -> Void = { _, _ in },
-                onHideChannel: @escaping (FeedRow) -> Void = { _ in }) {
+                onHideChannel: @escaping (FeedRow) -> Void = { _ in },
+                onOpenShorts: @escaping (_ shorts: [FeedRow], _ start: Int) -> Void = { _, _ in }) {
+        self.onOpenShorts = onOpenShorts
         self.transition = transition
         self.onAddToQueue = onAddToQueue
         self.onSetWatched = onSetWatched
@@ -94,6 +97,9 @@ public struct FeedScreen: View {
                     if !model.queue.isEmpty {
                         Shelf(title: Text("Queue"), rows: model.queue, cardWidth: shelfCardWidth,
                               actions: rowActions, transition: transition)
+                    }
+                    if !model.shorts.isEmpty {
+                        ShortsShelf(rows: model.shorts) { onOpenShorts(model.shorts, $0) }
                     }
                     ForEach(model.sections) { section in
                         VStack(alignment: .leading, spacing: Tokens.Spacing.m) {

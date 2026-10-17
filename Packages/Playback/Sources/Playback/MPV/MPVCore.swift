@@ -67,6 +67,10 @@ final class MPVCore: @unchecked Sendable {
         set("cache-pause-wait", "0.5")
         set("stream-buffer-size", "512KiB")
         set("network-timeout", "15")
+        // googlevideo answers 403 to open-ended requests (no Range, or "bytes=0-") for many
+        // streams; bounded ranges work. FFmpeg (8.0+) fetches in bounded requests over one
+        // connection: a small first one to start quickly, then 4 MiB at a time.
+        set("stream-lavf-o", "request_size=4194304,initial_request_size=524288,multiple_requests=1")
         set("subs-fallback", "yes")
         set("audio-client-name", "Specto")
 

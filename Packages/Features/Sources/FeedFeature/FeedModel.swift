@@ -23,6 +23,9 @@ public final class FeedModel {
     /// Started but unfinished, most recent first.
     public private(set) var continueWatching: [FeedRow] = []
     public private(set) var queue: [FeedRow] = []
+    /// Shorts get their own shelf and vertical player instead of mixing into the grid; empty
+    /// when the person hides them.
+    public private(set) var shorts: [FeedRow] = []
     public private(set) var isRefreshing = false
     /// Shown above the list when a refresh fails; the cached rows stay visible.
     public private(set) var refreshError: String?
@@ -31,6 +34,7 @@ public final class FeedModel {
     @ObservationIgnored private var options: FeedStore.Options
     @ObservationIgnored private let refresher: @Sendable (_ force: Bool) async throws -> Void
     @ObservationIgnored private var observation: Task<Void, Never>?
+    @ObservationIgnored private var shortsObservation: Task<Void, Never>?
     @ObservationIgnored private var shelfObservations: [Task<Void, Never>] = []
     @ObservationIgnored private let watchState: WatchStateStore?
     @ObservationIgnored private let queueStore: QueueStore?
@@ -56,7 +60,7 @@ public final class FeedModel {
         // the feed immediately. The observation below then delivers the full list.
         var firstScreen = options
         firstScreen.limit = 30
-        rows = (try? store.rows(firstScreen)) ?? []
+        rows = (try? store.rows(Self.videosOnly(firstScreen))) ?? []
         indexByID = Self.index(rows)
         (featured, latest) = Self.split(rows)
         sections = FeedSection.group(latest)
@@ -97,6 +101,9 @@ public final class FeedModel {
         self.options = options
         observation?.cancel()
         observation = nil
+        shortsObservation?.cancel()
+        shortsObservation = nil
+        if options.hideShorts { shorts = [] }
         observe()
     }
 
@@ -123,11 +130,26 @@ public final class FeedModel {
         }
     }
 
+    /// Shorts never mix into the grid: they have their own shelf and player.
+    private static func videosOnly(_ options: FeedStore.Options) -> FeedStore.Options {
+        var query = options
+        query.hideShorts = true
+        return query
+    }
+
     private func observe() {
+        if shortsObservation == nil, !options.hideShorts {
+            var query = options
+            query.onlyShorts = true
+            query.limit = 30
+            shortsObservation = Task { [weak self, store, query] in
+                do { for try await rows in store.observe(query) { self?.shorts = rows } } catch {}
+            }
+        }
         if observation == nil {
             observation = Task { [weak self, store, options] in
                 do {
-                    for try await rows in store.observe(options) {
+                    for try await rows in store.observe(Self.videosOnly(options)) {
                         self?.rows = rows
                     }
                 } catch is CancellationError {

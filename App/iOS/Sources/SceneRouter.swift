@@ -41,12 +41,29 @@ final class SceneRouter {
     /// The open channel tab's stack (iPad sidebar); one tab shows at a time.
     var channelPath: [Route] = []
     var watching: WatchContent?
+    /// The vertical Shorts player, over everything.
+    var shorts: ShortsContent?
 
     /// The feed's empty-state actions (add an instance, import subscriptions) live on the
     /// instances screen, so go straight there.
     func openInstances() {
         section = .settings
         settingsPath = [.instances]
+    }
+
+    /// The Shorts player. From inside the Watch screen (its channel page), the player closes
+    /// first: one full-screen cover can't present over another.
+    func openShorts(_ videos: [VideoSummary], start: Int) {
+        let content = ShortsContent(videos: videos, start: start)
+        guard watching != nil else {
+            shorts = content
+            return
+        }
+        watching = nil
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(450))   // The cover's dismissal animation.
+            shorts = content
+        }
     }
 
     func openChannel(_ id: ChannelID, name: String) {
