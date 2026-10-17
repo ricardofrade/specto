@@ -236,6 +236,7 @@ private struct PlayerArea: View {
     /// Pinched open: the video fills the area, cropping its edges.
     @State private var fills = false
     @State private var jump: (forward: Bool, id: Int)?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @GestureState private var holding = false
     @State private var rateBeforeHold: Float?
 
@@ -251,9 +252,8 @@ private struct PlayerArea: View {
                 .accessibilityIdentifier("watch.surface")
                 // "<state> <engine> <height or -> <seconds>": read by UI tests (never stalls, engine policy, quality).
                 .accessibilityValue(Text(verbatim: "\(session.state) \(session.engineKind?.rawValue ?? "none") \(session.videoHeight.map { "\($0)p" } ?? "-") \(session.position.components.seconds)"))
-            SubtitleView(session.subtitle)
-                // Smaller in the portrait player, so a line fits between the controls and the bar.
-                .font(size.height < 320 ? .footnote.weight(.semibold) : .body.weight(.semibold))
+            // Smaller in the portrait player, so a line fits between the controls and the bar.
+            SubtitleView(session.subtitle, baseSize: size.height < 320 ? 13 : 17)
                 .frame(maxHeight: .infinity, alignment: .bottom)
                 .padding(.horizontal, Tokens.Spacing.xl)
                 .padding(.bottom, controlsVisible ? 56 : Tokens.Spacing.m)
@@ -269,7 +269,7 @@ private struct PlayerArea: View {
                 .glassEffect(in: .circle)
                 .frame(maxWidth: .infinity, alignment: jump.forward ? .trailing : .leading)
                 .padding(.horizontal, size.width * 0.12)
-                .transition(.opacity.combined(with: .scale))
+                .transition(.motion(.opacity.combined(with: .scale), reduceMotion: reduceMotion))
                 .id(jump.id)
             }
             if holding {

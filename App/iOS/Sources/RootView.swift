@@ -1,4 +1,5 @@
 import SwiftUI
+import DesignSystem
 import Core
 import Library
 import Playback
@@ -22,6 +23,7 @@ struct RootView: View {
     /// The tallest a 16:9 video can be drawn in this window, in either orientation: no point
     /// decoding more (and less means AVPlayer can play it, with system PiP; ADR 0005).
     @State private var maxVideoPixels = 1080
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// Shorts are portrait: their long side runs along the screen's.
     @State private var shortsPixels = 1920
     @State private var queuedIDs: Set<VideoID> = []
@@ -201,7 +203,7 @@ struct RootView: View {
                     .onAppear { environment.castDiscovery.start() }
                     .onDisappear { environment.castDiscovery.stop() }
             }
-            .navigationTransition(.zoom(sourceID: content.video.id, in: zoom))
+            .zoomTransition(sourceID: content.video.id, in: zoom, reduceMotion: reduceMotion)
         }
         .environment(\.routeDestination, RouteDestination { route in
             switch route {

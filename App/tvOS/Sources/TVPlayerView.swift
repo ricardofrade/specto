@@ -15,6 +15,7 @@ struct TVPlayerView: View {
     let environment: AppEnvironment
     let video: VideoSummary
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.displayScale) private var displayScale
     @State private var title: String
     @State private var channelName: String
@@ -52,8 +53,7 @@ struct TVPlayerView: View {
                 .accessibilityIdentifier("tv.player")
                 // "<state> <engine> <seconds>": read by UI tests.
                 .accessibilityValue(Text(verbatim: "\(session.state) \(session.engineKind?.rawValue ?? "none") \(session.position.components.seconds)"))
-            SubtitleView(session.subtitle)
-                .font(.title3.weight(.semibold))
+            SubtitleView(session.subtitle, baseSize: 38)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
                 .padding(.bottom, transportVisible || showsPanel ? 330 : 90)
                 .animation(Tokens.Motion.standard, value: transportVisible)
@@ -90,7 +90,7 @@ struct TVPlayerView: View {
                     closePanel()
                     Task { await play(video) }
                 }
-                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .transition(.motion(.move(edge: .bottom).combined(with: .opacity), reduceMotion: reduceMotion))
             } else if transportVisible || session.state != .playing {
                 TransportBar(title: title, channelName: channelName, text: transport,
                              isPlaying: session.state == .playing, hasChapters: true,

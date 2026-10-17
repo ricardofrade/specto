@@ -25,6 +25,7 @@ public struct ShortsScreen: View {
     let onShow: (VideoSummary) -> Void
     let onClose: () -> Void
     @State private var current: VideoID?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// - Parameters:
     ///   - onShow: play this Short (it's now on screen).
@@ -72,7 +73,7 @@ public struct ShortsScreen: View {
         // Auto-advance played the next one: scroll to it.
         .onChange(of: session.item?.videoID) { _, id in
             guard let id, id != current, video(id) != nil else { return }
-            withAnimation { current = id }
+            withAnimation(reduceMotion ? nil : .default) { current = id }
         }
     }
 
