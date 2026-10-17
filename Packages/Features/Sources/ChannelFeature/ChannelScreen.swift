@@ -31,7 +31,7 @@ public final class ChannelModel {
         rows = Self.format(cached)
     }
 
-    func loadFirstPage() async {
+    public func loadFirstPage() async {
         guard !loadedFirstPage else { return }
         isLoading = true
         defer { isLoading = false }
@@ -48,7 +48,7 @@ public final class ChannelModel {
         }
     }
 
-    func loadMoreIfNeeded(after id: VideoID) async {
+    public func loadMoreIfNeeded(after id: VideoID) async {
         guard id == rows.last?.id, let cursor, !isLoading else { return }
         isLoading = true
         defer { isLoading = false }
@@ -58,7 +58,7 @@ public final class ChannelModel {
         self.cursor = page.videos.nextCursor
     }
 
-    func toggleSubscription() async {
+    public func toggleSubscription() async {
         let target = !isSubscribed
         isSubscribed = target        // Optimistic; reverted on failure.
         do {
@@ -129,7 +129,7 @@ private struct ChannelContent: View {
             if model.isLoading { ProgressView().padding() }
         }
         .navigationTitle(model.name)
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
         .task { await model.loadFirstPage() }
     }
 

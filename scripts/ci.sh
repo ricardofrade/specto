@@ -51,6 +51,12 @@ run build-app xcodebuild build -project "$root/App/iOS/Player.xcodeproj" -scheme
 step "License gate (no GPL in the shipped mpv/FFmpeg)"
 "$root/scripts/check-licenses.sh" "$out/dd-app/Build/Products/Debug-iphonesimulator/Player.app"
 
+step "Generate and build the tvOS app (build only: no tvOS simulator runtime on CI)"
+xcodegen generate --spec "$root/App/tvOS/project.yml" --quiet
+run build-tv xcodebuild build -project "$root/App/tvOS/PlayerTV.xcodeproj" -scheme PlayerTV \
+    -destination "generic/platform=tvOS Simulator" -derivedDataPath "$out/dd-tv"
+"$root/scripts/check-licenses.sh" "$out/dd-tv/Build/Products/Debug-appletvsimulator/PlayerTV.app"
+
 step "App unit tests"
 run test-app xcodebuild test -project "$root/App/iOS/Player.xcodeproj" -scheme Player \
     -only-testing:PlayerTests -destination "$destination" -derivedDataPath "$out/dd-app"

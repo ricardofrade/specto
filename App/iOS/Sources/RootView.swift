@@ -198,26 +198,8 @@ struct RootView: View {
                 router.watching?.details = page.details
                 router.watching?.setChapters(page.manifest.chapters)
             } catch {
-                if router.watching?.video.id == video.id { router.watching?.error = Self.message(for: error) }
+                if router.watching?.video.id == video.id { router.watching?.error = AppEnvironment.message(for: error) }
             }
-        }
-    }
-
-    static func message(for error: Error) -> String {
-        switch error {
-        case SourceError.unavailable(let reason):
-            reason ?? String(localized: "This video isn't available.")
-        case SourceError.blockedUpstream:
-            String(localized: "Your instances are being blocked by YouTube right now. Try again later.")
-        case SourceError.unsupported:
-            String(localized: "None of your instances can play videos.")
-        case let error as PlaybackError:
-            switch error {
-            case .unsupportedFormat(let detail): detail
-            default: String(localized: "Playback failed.")
-            }
-        default:
-            String(localized: "Couldn't load this video.")
         }
     }
 }

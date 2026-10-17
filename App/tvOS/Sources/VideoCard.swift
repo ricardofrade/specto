@@ -1,0 +1,70 @@
+import SwiftUI
+import Core
+import Library
+import DesignSystem
+
+/// A focusable thumbnail card (the system card style lifts it under focus) with the title and
+/// channel below. Long press offers the channel and the queue.
+struct VideoCard: View {
+    let row: FeedRow
+    let actions: VideoActions
+    @Environment(\.displayScale) private var displayScale
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.m) {
+            Button { actions.play(row.video) } label: {
+                thumbnail
+            }
+            .buttonStyle(.card)
+            .contextMenu {
+                Button { actions.openChannel(row.channelID, row.channelName) } label: {
+                    Label { Text("Go to Channel") } icon: { Image(systemName: "person.crop.circle") }
+                }
+                Button { actions.addToQueue(row.video) } label: {
+                    Label { Text("Add to Queue") } icon: { Image(systemName: "text.badge.plus") }
+                }
+            }
+            VStack(alignment: .leading, spacing: Tokens.Spacing.xxs) {
+                Text(row.title).font(.callout.weight(.medium)).lineLimit(2)
+                Text(row.channelName).font(.caption).foregroundStyle(Tokens.Colors.textSecondary).lineLimit(1)
+                if !row.detail.isEmpty {
+                    Text(row.detail).font(.caption2).foregroundStyle(Tokens.Colors.textSecondary).lineLimit(1)
+                }
+            }
+        }
+    }
+
+    private var thumbnail: some View {
+        let pointSize = CGSize(width: TVMetrics.cardWidth, height: TVMetrics.cardWidth * 9 / 16)
+        return Color.clear
+            .aspectRatio(16 / 9, contentMode: .fit)
+            .overlay {
+                RemoteImage(row.thumbnails.best(forPixelWidth: Int(pointSize.width * displayScale))?.url,
+                            pointSize: pointSize)
+            }
+            .overlay(alignment: .bottomTrailing) {
+                if let duration = row.durationText {
+                    Text(duration).font(.caption2.monospacedDigit().weight(.semibold))
+                        .padding(.horizontal, Tokens.Spacing.s).padding(.vertical, Tokens.Spacing.xxs)
+                        .background(.black.opacity(0.75), in: .rect(cornerRadius: 6))
+                        .foregroundStyle(.white)
+                        .padding(Tokens.Spacing.s)
+                }
+            }
+            .overlay(alignment: .bottom) {
+                if let progress = row.progress {
+                    // Scaled rather than measured: no GeometryReader in cells.
+                    Rectangle().fill(Tokens.Colors.watchProgress)
+                        .frame(height: 6)
+                        .scaleEffect(x: progress, y: 1, anchor: .leading)
+                }
+            }
+    }
+}
+
+/// What a card can do; the root supplies the behaviour.
+struct VideoActions {
+    let play: (VideoSummary) -> Void
+    let openChannel: (ChannelID, String) -> Void
+    let addToQueue: (VideoSummary) -> Void
+}

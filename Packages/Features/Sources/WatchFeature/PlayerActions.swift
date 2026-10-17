@@ -138,7 +138,7 @@ struct SkipNotice: View {
     var body: some View {
         Group {
             if let visible {
-                Text("Skipped \(Self.name(visible.category))")
+                Text("Skipped \(visible.category.localizedName)")
                     .font(Tokens.Typography.caption.weight(.semibold))
                     .padding(.horizontal, Tokens.Spacing.m)
                     .padding(.vertical, Tokens.Spacing.s)
@@ -150,24 +150,11 @@ struct SkipNotice: View {
         .onChange(of: segment) { _, new in
             guard let new else { return }
             withAnimation(Tokens.Motion.standard) { visible = new }
-            UIAccessibility.post(notification: .announcement, argument: String(localized: "Skipped \(Self.name(new.category))"))
+            UIAccessibility.post(notification: .announcement, argument: String(localized: "Skipped \(new.category.localizedName)"))
             Task {
                 try? await Task.sleep(for: .seconds(2.5))
                 withAnimation(Tokens.Motion.standard) { if visible == new { visible = nil } }
             }
-        }
-    }
-
-    static func name(_ category: SkipSegment.Category) -> String {
-        switch category {
-        case .sponsor: String(localized: "sponsor")
-        case .selfpromo: String(localized: "self-promotion")
-        case .interaction: String(localized: "reminder to subscribe")
-        case .intro: String(localized: "intro")
-        case .outro: String(localized: "end cards")
-        case .preview: String(localized: "preview")
-        case .music_offtopic: String(localized: "non-music section")
-        case .filler: String(localized: "filler")
         }
     }
 }

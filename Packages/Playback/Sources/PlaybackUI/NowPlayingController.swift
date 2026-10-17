@@ -27,7 +27,11 @@ public final class NowPlayingController {
     /// Audio keeps playing in the background, with the ring switch off and through AirPlay.
     public static func configureAudioSession() {
         let audio = AVAudioSession.sharedInstance()
+        #if os(tvOS)
+        try? audio.setCategory(.playback, mode: .moviePlayback)
+        #else
         try? audio.setCategory(.playback, mode: .moviePlayback, policy: .longFormVideo)
+        #endif
     }
 
     // MARK: Remote commands

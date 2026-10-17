@@ -1,46 +1,19 @@
 import AVFoundation
 import SwiftUI
 import Core
-import Library
 import Playback
 import PlaybackUI
-import DesignSystem
 import Cast
 import WatchFeature
 
-/// M4: background audio, Now Playing, audio mode, PiP, AirPlay, Cast, SponsorBlock, DeArrow.
+/// iPhone and iPad only: PiP handoff, AirPlay engine switching and the Cast sender.
 extension AppEnvironment {
-    func startSystemIntegration() {
-        NowPlayingController.configureAudioSession()
-        nowPlaying = NowPlayingController(session: session) { url in
-            await ImagePipeline.shared.image(url, pixelSize: CGSize(width: 600, height: 600))
-        }
-        // AirPlay video needs AVPlayer; leaving AirPlay returns to mpv. Same position either way.
+    /// AirPlay video needs AVPlayer; leaving AirPlay returns to mpv. Same position either way.
+    func observeAudioRoute() {
         routeObserver = NotificationCenter.default.addObserver(
             forName: AVAudioSession.routeChangeNotification, object: nil, queue: .main) { [weak self] _ in
-            MainActor.assumeIsolated { Task { await self?.routeChanged() } }
+            MainActor.assumeIsolated { _ = Task { await self?.routeChanged() } }
         }
-    }
-
-    // MARK: Background
-
-    /// Background without PiP: keep audio, stop decoding video. Back to the foreground: resume.
-    func scenePhaseChanged(_ phase: ScenePhase) {
-        switch phase {
-        case .background where !pictureInPicture.isActive:
-            session.setVideoEnabled(false)
-        case .active:
-            session.setVideoEnabled(true)
-        default:
-            break
-        }
-    }
-
-    // MARK: Audio mode
-
-    func switchMode(to mode: PlaybackMode) async {
-        guard let page = currentPage, let request = try? plan(page, mode: mode, startAt: session.position) else { return }
-        await session.switchMode(to: mode, using: request)
     }
 
     // MARK: Picture-in-Picture
@@ -136,32 +109,5 @@ extension AppEnvironment {
             deviceName: device.name, isPlaying: castSession.state == .playing,
             togglePlayback: { [castSession] in castSession.state == .playing ? castSession.pause() : castSession.play() },
             stop: { [weak self] in self?.stopCasting() })
-    }
-
-    // MARK: SponsorBlock and DeArrow
-
-    func loadSkipSegments(for id: VideoID) {
-        guard AppSettings.shared.skipsSponsors else { return }
-        let community = self.community
-        Task {
-            let categories: Set<SkipSegment.Category> = [.sponsor, .selfpromo, .interaction]
-            if let segments = try? await community.skipSegments(for: id, categories: categories) {
-                session.setSkipSegments(segments, for: id)
-            }
-        }
-    }
-
-    func refreshBranding() {
-        guard AppSettings.shared.brandedTitles || AppSettings.shared.brandedThumbnails else { return }
-        let store = BrandingStore(database), community = self.community
-        Task.detached(priority: .utility) {
-            guard let ids = try? store.videosNeedingLookup(), !ids.isEmpty,
-                  let branding = try? await community.branding(for: ids) else { return }
-            try? store.save(branding, lookedUp: ids)
-        }
-    }
-
-    static func seconds(_ duration: Duration) -> Double {
-        Double(duration.components.seconds) + Double(duration.components.attoseconds) / 1e18
     }
 }

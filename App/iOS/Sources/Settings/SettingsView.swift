@@ -1,5 +1,6 @@
 import SwiftUI
 import Library
+import DesignSystem
 import InstancesFeature
 
 /// Settings: instances and subscriptions, feed, playback and community features, diagnostics,
@@ -109,35 +110,5 @@ struct SettingsView: View {
                                 onImported: { environment.subscriptionsChanged($0) })
             }
         }
-    }
-}
-
-/// Third-party notices (docs/licenses.md, bundled) and the LGPL source offer.
-private struct LicensesView: View {
-    private let text: AttributedString = {
-        guard let url = Bundle.main.url(forResource: "licenses", withExtension: "md"),
-              let markdown = try? String(contentsOf: url, encoding: .utf8) else { return AttributedString() }
-        return (try? AttributedString(markdown: markdown, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)))
-            ?? AttributedString(markdown)
-    }()
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                Text("This app includes mpv and FFmpeg under the GNU Lesser General Public License, in a separate, replaceable framework. The exact source code, including any modifications, is available on request from the developer and from the projects listed below.")
-                    .font(.callout)
-                Text(text).font(.footnote.monospaced()).textSelection(.enabled)
-            }
-            .padding()
-        }
-        .navigationTitle(Text("Open-Source Licences"))
-    }
-}
-
-private extension Bundle {
-    var versionString: String {
-        let version = infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
-        let build = infoDictionary?["CFBundleVersion"] as? String ?? "?"
-        return "\(version) (\(build))"
     }
 }

@@ -5,6 +5,20 @@ import Foundation
 public struct SkipSegment: Hashable, Sendable {
     public enum Category: String, Sendable, CaseIterable, Codable {
         case sponsor, selfpromo, interaction, intro, outro, preview, music_offtopic, filler
+
+        /// For "Skipped <name>" notices.
+        public var localizedName: String {
+            switch self {
+            case .sponsor: String(localized: "sponsor")
+            case .selfpromo: String(localized: "self-promotion")
+            case .interaction: String(localized: "reminder to subscribe")
+            case .intro: String(localized: "intro")
+            case .outro: String(localized: "end cards")
+            case .preview: String(localized: "preview")
+            case .music_offtopic: String(localized: "non-music section")
+            case .filler: String(localized: "filler")
+            }
+        }
     }
 
     public let category: Category

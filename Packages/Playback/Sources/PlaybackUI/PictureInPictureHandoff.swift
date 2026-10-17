@@ -55,7 +55,9 @@ public final class PictureInPictureHandoff: NSObject, AVPictureInPictureControll
 
         let controller = try AVPictureInPictureController(playerLayer: layer).unwrapped()
         controller.delegate = self
+        #if !os(tvOS)
         controller.canStartPictureInPictureAutomaticallyFromInline = true
+        #endif
         self.controller = controller
 
         try await waitUntil { item.status == .readyToPlay || item.status == .failed }

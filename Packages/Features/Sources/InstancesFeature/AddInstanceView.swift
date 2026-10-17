@@ -40,7 +40,7 @@ struct AddInstanceView: View {
             }
         }
         .navigationTitle(Text("Add Instance"))
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button { model.cancelPairing(); dismiss() } label: { Text("Cancel") }
@@ -72,7 +72,7 @@ private struct PairingSection: View {
             VStack(spacing: Tokens.Spacing.l) {
                 Text(code.userCode)
                     .font(.system(.largeTitle, design: .monospaced).weight(.bold))
-                    .textSelection(.enabled)
+                    .selectableText()
                     .accessibilityIdentifier("pairing.code")
                 if let image = Self.qrCode(for: code.verificationURLComplete ?? code.verificationURL) {
                     Image(uiImage: image)

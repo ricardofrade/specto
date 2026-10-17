@@ -50,16 +50,25 @@ public struct InstancesScreen: View {
             }
 
             Section {
+                #if os(tvOS)
+                // No files on Apple TV: import on iPhone or iPad, and sync brings the list here.
+                Text("^[\(subscriptionCount) channel](inflect: true)")
+                #else
                 Button { importing = true } label: {
                     Label { Text("Import Subscriptions…") } icon: { Image(systemName: "square.and.arrow.down") }
                 }
                 if let importMessage {
                     Text(importMessage).foregroundStyle(Tokens.Colors.textSecondary)
                 }
+                #endif
             } header: {
                 Text("Subscriptions")
             } footer: {
+                #if os(tvOS)
+                Text("Import subscriptions on your iPhone or iPad. They sync to Apple TV through iCloud or YT Zero.")
+                #else
                 Text("^[\(subscriptionCount) channel](inflect: true). Import a Google Takeout subscriptions.csv, or an export from NewPipe, FreeTube or Piped.")
+                #endif
             }
         }
         .navigationTitle(Text("Instances"))
@@ -67,10 +76,12 @@ public struct InstancesScreen: View {
         .sheet(item: $addModel) { model in
             NavigationStack { AddInstanceView(model: model) }
         }
+        #if !os(tvOS)
         .fileImporter(isPresented: $importing,
                       allowedContentTypes: [.commaSeparatedText, .json, .xml, .plainText, .data]) { result in
             importSubscriptions(result)
         }
+        #endif
     }
 
     private func reload() {

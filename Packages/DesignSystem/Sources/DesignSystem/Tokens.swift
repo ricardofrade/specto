@@ -22,14 +22,24 @@ public enum Tokens {
     }
 
     public enum Colors {
+        #if os(tvOS)
+        // tvOS has no system background colours: the system draws the backdrop.
+        public static let background = Color.clear
+        public static let surface = Color.white.opacity(0.08)
+        #else
         public static let background = Color(uiColor: .systemBackground)
         public static let surface = Color(uiColor: .secondarySystemBackground)
+        #endif
         public static let textPrimary = Color.primary
         public static let textSecondary = Color.secondary
         public static let separator = Color(uiColor: .separator)
         public static let accent = Color.accentColor
         /// Placeholder behind thumbnails while they load.
+        #if os(tvOS)
+        public static let thumbnailPlaceholder = Color.gray.opacity(0.2)
+        #else
         public static let thumbnailPlaceholder = Color(uiColor: .tertiarySystemFill)
+        #endif
         public static let liveBadge = Color.red
         /// Progress bar of a partly watched video.
         public static let watchProgress = Color.red

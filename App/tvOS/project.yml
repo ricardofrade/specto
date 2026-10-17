@@ -1,0 +1,110 @@
+# Source of truth for the tvOS app project. Regenerate with:
+#   xcodegen generate --spec App/tvOS/project.yml
+# The .xcodeproj and Info.plists are generated and not committed. App/Shared is the composition
+# root shared with the iOS app; Top Shelf reads a snapshot the app writes to the App Group.
+name: PlayerTV
+options:
+  bundleIdPrefix: dev.placeholder
+  deploymentTarget:
+    tvOS: "26.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+packages:
+  Core:
+    path: ../../Packages/Core
+  Library:
+    path: ../../Packages/Library
+  Playback:
+    path: ../../Packages/Playback
+  DesignSystem:
+    path: ../../Packages/DesignSystem
+  Features:
+    path: ../../Packages/Features
+  MPVRuntime:
+    path: ../../Packages/MPVRuntime
+targets:
+  PlayerTV:
+    type: application
+    platform: tvOS
+    sources:
+      - Sources
+      - TopShelfShared
+      - path: ../Shared
+        group: Shared
+      - path: ../../docs/licenses.md
+        buildPhase: resources
+      - path: ../iOS/Resources/PrivacyInfo.xcprivacy
+        buildPhase: resources
+    dependencies:
+      - package: Core
+      - package: DesignSystem
+      - package: Library
+      - package: Features
+        product: FeedFeature
+      - package: Features
+        product: SearchFeature
+      - package: Features
+        product: ChannelFeature
+      - package: Features
+        product: InstancesFeature
+      - package: Playback
+        product: Playback
+      - package: Playback
+        product: PlaybackUI
+      - target: TopShelf
+    info:
+      path: Info.plist
+      properties:
+        CFBundleDisplayName: Player
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        # iCloud container for sync; empty disables it. Set with the iCloud entitlement (ADR 0004).
+        CloudKitContainer: $(CLOUDKIT_CONTAINER)
+        UILaunchScreen: {}
+        UIBackgroundModes: [audio]
+        NSLocalNetworkUsageDescription: "Connect to your video instances on the local network."
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
+        # Top Shelf items open videos through this scheme (TopShelfSnapshot.urlScheme).
+        CFBundleURLTypes:
+          - CFBundleURLName: dev.placeholder.player.tv
+            CFBundleURLSchemes: [dev.placeholder.player.tv]
+    entitlements:
+      path: PlayerTV.entitlements
+      properties:
+        com.apple.security.application-groups: [group.dev.placeholder.player]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.player.tv
+        TARGETED_DEVICE_FAMILY: "3"
+        CODE_SIGN_STYLE: Automatic
+        SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+  TopShelf:
+    type: app-extension
+    platform: tvOS
+    sources:
+      - TopShelf
+      - TopShelfShared
+    dependencies:
+      - sdk: TVServices.framework
+    info:
+      path: TopShelf/Info.plist
+      properties:
+        CFBundleDisplayName: Player Top Shelf
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.tv-top-shelf
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ContentProvider
+    entitlements:
+      path: TopShelf.entitlements
+      properties:
+        com.apple.security.application-groups: [group.dev.placeholder.player]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.player.tv.topshelf
+        TARGETED_DEVICE_FAMILY: "3"
+        CODE_SIGN_STYLE: Automatic

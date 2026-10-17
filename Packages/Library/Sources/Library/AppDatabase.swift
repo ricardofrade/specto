@@ -21,10 +21,15 @@ public struct AppDatabase: Sendable {
         try AppDatabase(DatabaseQueue())
     }
 
-    /// `Application Support/Library/app.sqlite`.
+    /// `Application Support/Library/app.sqlite`. On tvOS, `Caches/Library/app.sqlite`: tvOS
+    /// keeps no persistent local storage, so there the database is a cache that sync refills.
     public static func defaultURL() throws -> URL {
-        try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask,
-                                    appropriateFor: nil, create: true)
+        #if os(tvOS)
+        let directory = FileManager.SearchPathDirectory.cachesDirectory
+        #else
+        let directory = FileManager.SearchPathDirectory.applicationSupportDirectory
+        #endif
+        return try FileManager.default.url(for: directory, in: .userDomainMask, appropriateFor: nil, create: true)
             .appending(path: "Library/app.sqlite")
     }
 
@@ -114,6 +119,16 @@ public struct AppDatabase: Sendable {
                 t.column("createdAt", .datetime).notNull()
                 t.column("completedAt", .datetime)
                 t.column("lastPlayedAt", .datetime)
+            }
+        }
+        // CloudKit sync (M7): a row needs uploading while `modifiedAt > uploadedAt`, and the
+        // sync engine's own state is kept here so it resumes where it left off.
+        migrator.registerMigration("v4-sync") { db in
+            try db.alter(table: "subscription") { t in t.add(column: "uploadedAt", .datetime) }
+            try db.alter(table: "watchState") { t in t.add(column: "uploadedAt", .datetime) }
+            try db.create(table: "syncState") { t in
+                t.primaryKey("id", .integer)
+                t.column("engineState", .blob)
             }
         }
         return migrator

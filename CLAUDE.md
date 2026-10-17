@@ -5,7 +5,7 @@ Users add their own self-hosted Piped, Invidious or YT Zero instance; the app ha
 App Review uses the owner's demo instance.
 
 Milestone plan (source of truth for scope): https://claude.ai/code/artifact/9bfaa959-0680-4460-8503-40b749eedc45
-Current milestone: **M7 — tvOS.** Briefs for finished milestones: `docs/milestones/M0.md`–`M6.md`.
+All milestones M0–M7 are built; what remains are owner actions and device checks (listed at the end of each brief). Briefs: `docs/milestones/M0.md`–`M7.md`.
 
 ## Non-negotiable decisions
 
@@ -13,14 +13,16 @@ Current milestone: **M7 — tvOS.** Briefs for finished milestones: `docs/milest
 - Swift 6 language mode with strict concurrency. App and feature targets use main-actor default isolation.
 - SwiftUI + Observation (`@Observable`). No TCA or other architecture frameworks.
 - Video playback: mpv (libmpv), **LGPL build only**. Audio-only mode, CarPlay and AirPlay: AVPlayer.
-- Persistence: GRDB for feeds, history and resume positions. SwiftData only for simple settings, if at all.
+- Persistence: GRDB for feeds, history and resume positions. SwiftData only for simple settings, if at all. On tvOS the database lives in Caches (tvOS has no persistent storage); subscriptions and watch state sync through CloudKit (ADR 0004).
 - Liquid Glass via system components first; custom glass only through `GlassEffectContainer`.
 - Every screen renders from the local database first, then refreshes from the network (stale-while-revalidate).
 
 ## Repository layout
 
 ```
-App/iOS/            Xcode app target (iOS + iPadOS) with its CarPlay scene; App/tvOS follows in M7
+App/iOS/            iOS + iPadOS app with its CarPlay scene (XcodeGen project: App/iOS/project.yml)
+App/tvOS/           Apple TV app and Top Shelf extension (XcodeGen project: App/tvOS/project.yml)
+App/Shared/         Composition root compiled into both apps; iOS-only parts behind #if os(iOS)
 Packages/
   Core/             Models, VideoSource protocol, Piped/Invidious/YT Zero adapters, routing, health checks
   Library/          GRDB persistence: subscriptions, feed items, history, resume positions
@@ -108,7 +110,8 @@ Tap-to-play hits 300 ms only if the manifest is already cached: prefetch manifes
 
 - Find simulators with `xcrun simctl list devices available`; prefer the newest iPhone Pro and an iPad.
 - Build with `xcodebuild` from the command line; fix errors before moving on.
-- The app project is generated: edit `App/iOS/project.yml`, never the `.xcodeproj`. Run `xcodegen generate --spec App/iOS/project.yml`, then build the `Player` scheme of `App/iOS/Player.xcodeproj`.
+- The app projects are generated: edit `App/iOS/project.yml` or `App/tvOS/project.yml`, never the `.xcodeproj`. Run `xcodegen generate --spec <project.yml>`, then build the `Player` scheme (iOS) or `PlayerTV` scheme (tvOS, `-destination 'generic/platform=tvOS Simulator'`).
+- Code in `App/Shared` compiles for both platforms: guard iOS-only APIs with `#if os(iOS)`, and iOS-only modifiers in packages with `DesignSystem/PlatformModifiers.swift`.
 - Run `scripts/check-dependencies.sh` after touching any `Package.swift`. A new package must be added to its allow-list deliberately.
 - Anything that needs a physical device (AV1 hardware decode, PiP, ProMotion, CarPlay, Apple TV) cannot be verified in the simulator. Say so explicitly and list the exact manual check for the owner to run.
 - Keep changes scoped to the current milestone brief. Briefs and this file are guidelines: if an item turns out wrong, fix the doc and say why rather than working around it.

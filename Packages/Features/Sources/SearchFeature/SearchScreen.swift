@@ -45,7 +45,7 @@ public final class SearchModel {
         }
     }
 
-    func loadMoreIfNeeded(after id: VideoID) async {
+    public func loadMoreIfNeeded(after id: VideoID) async {
         guard id == rows.last?.id, let cursor, !isLoadingMore else { return }
         isLoadingMore = true
         defer { isLoadingMore = false }

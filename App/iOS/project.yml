@@ -43,6 +43,8 @@ targets:
     platform: iOS
     sources:
       - Sources
+      - path: ../Shared
+        group: Shared
       - path: Resources
         buildPhase: resources
       - path: ../../docs/licenses.md
@@ -72,6 +74,8 @@ targets:
         CFBundleDisplayName: Player
         CFBundleShortVersionString: "0.1.0"
         CFBundleVersion: "1"
+        # iCloud container for sync; empty disables it. Set with the iCloud entitlement (ADR 0004).
+        CloudKitContainer: $(CLOUDKIT_CONTAINER)
         # Unlocks 120 Hz on ProMotion iPhones.
         CADisableMinimumFrameDurationOnPhone: true
         UILaunchScreen: {}
@@ -123,6 +127,8 @@ targets:
     platform: iOS
     sources:
       - UnitTests
+      # The tvOS Top Shelf link format, tested here because CI has no tvOS simulator runtime.
+      - ../tvOS/TopShelfShared
     dependencies:
       - target: Player
     settings:

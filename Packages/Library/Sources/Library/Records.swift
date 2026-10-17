@@ -26,7 +26,10 @@ struct SubscriptionRecord: Codable, FetchableRecord, PersistableRecord {
     var subscribedAt: Date
     var modifiedAt: Date
     var isDeleted: Bool
+    /// The CloudKit record's archived system fields (change tag), for conflict-free updates.
     var syncMetadata: Data?
+    /// The `modifiedAt` last uploaded; the row is pending while `modifiedAt` is newer.
+    var uploadedAt: Date? = nil
 
     var summary: ChannelSummary {
         ChannelSummary(id: ChannelID(rawValue: channelID), name: channelName,
@@ -82,6 +85,7 @@ struct WatchStateRecord: Codable, FetchableRecord, PersistableRecord {
     var modifiedAt: Date
     var isDeleted: Bool
     var syncMetadata: Data?
+    var uploadedAt: Date? = nil
 }
 
 struct RefreshRecord: Codable, FetchableRecord, PersistableRecord {

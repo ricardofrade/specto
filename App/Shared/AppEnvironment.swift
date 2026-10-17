@@ -4,8 +4,10 @@ import Library
 import Playback
 import DesignSystem
 import PlaybackUI
-import Cast
 import InstancesFeature
+#if os(iOS)
+import Cast
+#endif
 
 /// The composition root: builds sources from saved instances, routes between them, and owns
 /// the one `PlaybackSession` every scene shares.
@@ -28,12 +30,18 @@ final class AppEnvironment {
     /// The page now playing; audio mode, PiP, AirPlay and casting re-plan from it.
     @ObservationIgnored var currentPage: WatchPage?
     @ObservationIgnored var nowPlaying: NowPlayingController?
-    @ObservationIgnored let pictureInPicture = PictureInPictureHandoff()
     @ObservationIgnored let community = CommunityServices()
+    /// CloudKit sync of subscriptions and watch state, when configured and no YT Zero account
+    /// owns them (ADR 0002, ADR 0004).
+    @ObservationIgnored private(set) var cloudSync: CloudSync?
+    #if os(iOS)
+    // iPhone and iPad only: PiP handoff, Cast sender, AirPlay switching, MetricKit (none on tvOS).
+    @ObservationIgnored let pictureInPicture = PictureInPictureHandoff()
     let castDiscovery = CastDiscovery()
     let castSession = CastSession()
     @ObservationIgnored var routeObserver: (any NSObjectProtocol)?
     @ObservationIgnored let diagnostics = DiagnosticsCollector()
+    #endif
     #if OFFLINE_DOWNLOADS
     @ObservationIgnored let offlineAudio: OfflineAudio
     #endif
@@ -57,11 +65,13 @@ final class AppEnvironment {
         reloadSources()
         watchForExpiredStreams()
         startSystemIntegration()
+        #if os(iOS)
         diagnostics.start()
+        #endif
         watchForEndOfPlayback()
     }
 
-    /// One per app: the window scenes and the CarPlay scene share it (and its session).
+    /// One per app: the window scenes (and CarPlay on iOS) share it and its session.
     static let shared = live()
 
     static func live() -> AppEnvironment {
@@ -131,6 +141,7 @@ final class AppEnvironment {
         account = linkedAccount
         resumeStore.account = linkedAccount
         refresher = FeedRefresher(mode: linkedAccount.map { .account($0) } ?? .local(router), database: database)
+        updateCloudSync()
 
         // YT Zero serves thumbnails from its own image cache, which needs the Bearer token.
         let tokens = imageTokens
@@ -143,6 +154,29 @@ final class AppEnvironment {
                 return request
             }
         }
+    }
+
+    /// Runs sync only with a container in Info.plist (`CloudKitContainer`, set with the iCloud
+    /// entitlement; CloudKit traps without it) and no linked account.
+    private func updateCloudSync() {
+        let container = Bundle.main.object(forInfoDictionaryKey: "CloudKitContainer") as? String ?? ""
+        if account == nil, !container.isEmpty, !ProcessInfo.processInfo.arguments.contains("-UITestFreshStart") {
+            guard cloudSync == nil else { return }
+            let sync = CloudSync(containerIdentifier: container, database: database)
+            cloudSync = sync
+            Task { await sync.start() }
+        } else if let sync = cloudSync {
+            cloudSync = nil
+            Task { await sync.stop() }
+        }
+    }
+
+    /// Foreground: pull other devices' changes, then fill channels that arrived without videos.
+    func syncNow() async {
+        guard let cloudSync else { return }
+        await cloudSync.syncNow()
+        hasSubscriptions = !((try? SubscriptionStore(database).channels()) ?? []).isEmpty
+        await backfillEmptyChannels()
     }
 
     /// After the first frame: start mpv's core and open connections to the instances, so the
@@ -195,13 +229,19 @@ final class AppEnvironment {
     /// (batched feeds only carry recent uploads, and a channel new to the instance starts empty).
     func instancesChanged() {
         reloadSources()
-        let refresher = self.refresher, database = self.database
+        let refresher = self.refresher
         Task {
             try? await refresher.refresh()
-            let channels = (try? SubscriptionStore(database).channels()) ?? []
-            for channel in channels.prefix(50) where ((try? FeedStore(database).videos(channel: channel.id, limit: 1)) ?? []).isEmpty {
-                try? await refresher.backfill(channel.id)
-            }
+            await backfillEmptyChannels()
+        }
+    }
+
+    /// Batched feeds only carry recent uploads, and a channel new to the instance starts empty.
+    private func backfillEmptyChannels() async {
+        let refresher = self.refresher, database = self.database
+        let channels = (try? SubscriptionStore(database).channels()) ?? []
+        for channel in channels.prefix(50) where ((try? FeedStore(database).videos(channel: channel.id, limit: 1)) ?? []).isEmpty {
+            try? await refresher.backfill(channel.id)
         }
     }
 

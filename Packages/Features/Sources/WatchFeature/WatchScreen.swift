@@ -150,7 +150,7 @@ public struct WatchScreen: View {
                 Text(description)
                     .font(Tokens.Typography.body)
                     .lineLimit(6)
-                    .textSelection(.enabled)
+                    .selectableText()
             }
             if showsRelated, !content.relatedRows.isEmpty {
                 Text("Up next").font(.headline).padding(.top, Tokens.Spacing.m)

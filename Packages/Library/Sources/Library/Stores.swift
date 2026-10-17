@@ -55,12 +55,16 @@ public struct SubscriptionStore: Sendable {
     public func subscribe(_ channels: [ChannelSummary]) throws {
         try database.writer.write { db in
             for channel in channels {
-                var record = try SubscriptionRecord.fetchOne(db, key: channel.id.rawValue)
+                let existing = try SubscriptionRecord.fetchOne(db, key: channel.id.rawValue)
+                var record = existing
                     ?? SubscriptionRecord(channelID: channel.id.rawValue, channelName: channel.name, avatarURL: nil,
                                           subscribedAt: .now, modifiedAt: .now, isDeleted: false, syncMetadata: nil)
                 record.channelName = channel.name.isEmpty ? record.channelName : channel.name
                 record.avatarURL = channel.avatar?.url.absoluteString ?? record.avatarURL
                 record.isDeleted = false
+                // Only a real change counts as an edit: an unchanged row must not re-sync.
+                guard existing == nil || record.channelName != existing?.channelName
+                        || record.avatarURL != existing?.avatarURL || existing?.isDeleted == true else { continue }
                 record.modifiedAt = .now
                 try record.save(db)
             }
@@ -145,6 +149,11 @@ public struct FeedStore: Sendable {
 
     public func observe(_ options: Options = Options()) -> AsyncThrowingStream<[FeedRow], Error> {
         database.stream { db in try Self.fetchRows(db, options: options) }
+    }
+
+    /// One cached video (a deep link from Top Shelf or a notification names only the ID).
+    public func video(_ id: VideoID) throws -> VideoSummary? {
+        try database.writer.read { db in try VideoRecord.fetchOne(db, key: id.rawValue)?.summary }
     }
 
     /// Videos for one channel from the local cache.
@@ -258,9 +267,12 @@ public struct WatchStateStore: Sendable {
         let length = duration.map(Self.seconds)
         let finished = length.map { seconds >= $0 - max(30, $0 * 0.05) } ?? false
         try database.writer.write { db in
+            // Keep the sync fields: dropping the CloudKit change tag would make every upload a conflict.
+            let existing = try WatchStateRecord.fetchOne(db, key: id.rawValue)
             try WatchStateRecord(videoID: id.rawValue, positionSeconds: seconds, durationSeconds: length,
                                  isFinished: finished, lastWatchedAt: .now, modifiedAt: .now,
-                                 isDeleted: false, syncMetadata: nil).save(db)
+                                 isDeleted: false, syncMetadata: existing?.syncMetadata,
+                                 uploadedAt: existing?.uploadedAt).save(db)
         }
     }
 
@@ -276,7 +288,7 @@ public struct WatchStateStore: Sendable {
                                      durationSeconds: entry.video.duration.map(Self.seconds),
                                      isFinished: entry.isWatched, lastWatchedAt: existing?.lastWatchedAt ?? .now,
                                      modifiedAt: .now, isDeleted: false,
-                                     syncMetadata: existing?.syncMetadata).save(db)
+                                     syncMetadata: existing?.syncMetadata, uploadedAt: existing?.uploadedAt).save(db)
             }
         }
     }
