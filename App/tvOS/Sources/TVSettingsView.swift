@@ -28,6 +28,8 @@ struct TVSettingsView: View {
                         Label { Text("Instances & Subscriptions") } icon: { Image(systemName: "server.rack") }
                     }
                 }
+            } footer: {
+                Text("Each person on this Apple TV has their own instances, subscriptions and history, synced with their own iCloud account.")
             }
             Section {
                 Toggle(isOn: $settings.hideShorts) { Text("Hide Shorts") }

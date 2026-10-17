@@ -806,6 +806,16 @@
         }
       }
     },
+    "Each person on this Apple TV has their own instances, subscriptions and history, synced with their own iCloud account.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Cada pessoa nesta Apple TV tem as suas próprias instâncias, subscrições e histórico, sincronizados com a sua conta iCloud."
+          }
+        }
+      }
+    },
     "Earlier": {
       "localizations": {
         "pt-PT": {

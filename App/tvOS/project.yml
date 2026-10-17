@@ -83,6 +83,8 @@ targets:
       path: SpectoTV.entitlements
       properties:
         com.apple.security.application-groups: [group.dev.placeholder.specto]
+        # Apple TV profiles (ADR 0011): each person gets their own data, iCloud and keychain.
+        com.apple.developer.user-management: [runs-as-current-user]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.specto.tv
@@ -116,6 +118,8 @@ targets:
       path: TopShelf.entitlements
       properties:
         com.apple.security.application-groups: [group.dev.placeholder.specto]
+        # Top Shelf shows the current profile's videos, like the app.
+        com.apple.developer.user-management: [runs-as-current-user]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.specto.tv.topshelf
