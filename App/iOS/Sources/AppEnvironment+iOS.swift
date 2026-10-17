@@ -88,7 +88,8 @@ extension AppEnvironment {
         guard session.engineKind != engine else { return }
         // AVPlayer needs MP4 renditions (on-device HLS); without them, stay on mpv.
         let selector = FormatSelector(capabilities: DecodeCapabilities())
-        guard let audio = selector.selectAudio(from: page.manifest.audioStreams, for: engine, preferredLanguage: nil) else { return }
+        guard let audio = selector.selectAudio(from: page.manifest.audioStreams, for: engine,
+                                                preferredLanguage: AppSettings.shared.audioLanguage) else { return }
         let video = selector.select(from: page.manifest.videoStreams, for: engine, maxDisplayHeight: airPlaying ? 2160 : surfaceHeight,
                                     throughputBitsPerSecond: session.stats?.throughputBitsPerSecond, allowHDR: false)
         guard let video else { return }

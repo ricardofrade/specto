@@ -1,4 +1,5 @@
 {
+  "%@ (original)": "%@ (Original)",
   "%@ views": "%@ Aufrufe",
   "%lld": "%lld",
   "%lld crashes, %lld hangs": "%lld Abstürze, %lld Hänger",
@@ -21,6 +22,7 @@
   "Address": "Adresse",
   "AirPlay": "AirPlay",
   "Audio Only": "Nur Audio",
+  "Audio Track": "Tonspur",
   "Audio of queued videos is saved for listening without a connection, such as in the car. Watched items are removed first.": "Der Ton von Videos in der Warteschlange wird gespeichert, damit du ihn ohne Verbindung hören kannst, etwa im Auto. Angesehene Videos werden zuerst entfernt.",
   "Audio only": "Nur Audio",
   "Audio stream URL (optional)": "Audio-Stream-URL (optional)",
@@ -147,6 +149,7 @@
   "Open player": "Player öffnen",
   "Open-Source Licences": "Open-Source-Lizenzen",
   "Opens the channel": "Öffnet den Kanal",
+  "Original": "Original",
   "Pair with YT Zero": "Mit YT Zero koppeln",
   "Pause": "Pause",
   "Performance": "Leistung",

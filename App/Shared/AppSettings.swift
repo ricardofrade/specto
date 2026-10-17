@@ -65,6 +65,12 @@ final class AppSettings {
         didSet { defaults.set(cellularQualityLimit ?? 0, forKey: Keys.cellularQualityLimit) }
     }
 
+    /// The audio track to prefer on multi-language videos ("es"); nil plays the original.
+    /// Remembered across videos; a video without that language plays its original.
+    var audioLanguage: String? {
+        didSet { defaults.set(audioLanguage, forKey: Keys.audioLanguage) }
+    }
+
     /// Search suggestions while typing (from the instances). On by default.
     var searchSuggestions: Bool {
         didSet { defaults.set(searchSuggestions, forKey: Keys.searchSuggestions) }
@@ -85,6 +91,7 @@ final class AppSettings {
         captionLanguage = defaults.string(forKey: Keys.captionLanguage)
         notifiesNewUploads = defaults.bool(forKey: Keys.notifiesNewUploads)
         newUploadsSince = defaults.object(forKey: Keys.newUploadsSince) as? Date
+        audioLanguage = defaults.string(forKey: Keys.audioLanguage).flatMap { $0.isEmpty ? nil : $0 }
         searchSuggestions = Self.flag(defaults, Keys.searchSuggestions, default: true)
         wifiQualityLimit = Self.limit(defaults.integer(forKey: Keys.wifiQualityLimit))
         cellularQualityLimit = Self.limit(defaults.integer(forKey: Keys.cellularQualityLimit))
@@ -117,6 +124,7 @@ final class AppSettings {
         static let showsRelated = "watch.showsRelated"
         static let wifiQualityLimit = "playback.wifiQualityLimit"
         static let searchSuggestions = "search.suggestions"
+        static let audioLanguage = "playback.audioLanguage"
         static let cellularQualityLimit = "playback.cellularQualityLimit"
         static let skipsSponsors = "sponsorBlock.enabled"
         static let brandedTitles = "deArrow.titles"

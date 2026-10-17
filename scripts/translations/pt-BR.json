@@ -1,4 +1,5 @@
 {
+  "%@ (original)": "%@ (original)",
   "%@ views": "%@ visualizações",
   "%lld": "%lld",
   "%lld crashes, %lld hangs": "%lld falhas, %lld travamentos",
@@ -21,6 +22,7 @@
   "Address": "Endereço",
   "AirPlay": "AirPlay",
   "Audio Only": "Somente Áudio",
+  "Audio Track": "Faixa de Áudio",
   "Audio of queued videos is saved for listening without a connection, such as in the car. Watched items are removed first.": "O áudio dos vídeos na fila é salvo para ouvir sem conexão, por exemplo no carro. Os itens já assistidos são removidos primeiro.",
   "Audio only": "Somente áudio",
   "Audio stream URL (optional)": "URL do áudio (opcional)",
@@ -147,6 +149,7 @@
   "Open player": "Abrir player",
   "Open-Source Licences": "Licenças de Código Aberto",
   "Opens the channel": "Abre o canal",
+  "Original": "Original",
   "Pair with YT Zero": "Emparelhar com YT Zero",
   "Pause": "Pausar",
   "Performance": "Desempenho",

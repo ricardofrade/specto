@@ -248,6 +248,9 @@ struct RootView: View {
         actions.qualities = environment.availableQualities
         actions.selectedQuality = environment.manualQuality
         actions.selectQuality = { height in Task { await environment.selectQuality(height) } }
+        actions.audioTracks = environment.availableAudioTracks
+        actions.selectedAudio = environment.selectedAudioLanguage
+        actions.selectAudio = { language in Task { await environment.selectAudio(language) } }
         actions.sleepChoice = environment.sleepTimer.choice
         actions.sleepStatus = environment.sleepTimer.status
         actions.setSleep = { environment.sleepTimer.set($0) }

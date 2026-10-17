@@ -42,10 +42,22 @@ final class AppEnvironment {
             availableQualities = currentPage.map {
                 VideoQuality.heights(in: $0.manifest.videoStreams, capabilities: DecodeCapabilities(), allowHDR: false)
             } ?? []
+            availableAudioTracks = currentPage.map { AudioTracks.options(in: $0.manifest.audioStreams) } ?? []
         }
     }
     /// The heights the player's Quality picker offers for this video, tallest first.
     private(set) var availableQualities: [Int] = []
+    /// The audio tracks the player's Audio picker offers (empty: nothing to choose).
+    private(set) var availableAudioTracks: [AudioTrackOption] = []
+    /// The track playing: the remembered language when this video has it, else the original (nil).
+    var selectedAudioLanguage: String? {
+        AudioTracks.selected(AppSettings.shared.audioLanguage, in: availableAudioTracks)
+    }
+    var selectedAudioTrack: AudioTrackOption? {
+        let language = selectedAudioLanguage
+        return availableAudioTracks.first { $0.language == language }
+    }
+
     /// Picked in the player for this video; nil plans automatically (ADR 0007).
     private(set) var manualQuality: Int?
     /// The playlist being played through (Play All); auto-advance continues in it after the queue.
@@ -457,7 +469,7 @@ final class AppEnvironment {
     /// speed decide the stream (ADR 0007).
     func plan(_ page: WatchPage, mode: PlaybackMode, startAt: Duration) throws -> PlaybackRequest {
         let planner = PlaybackPlanner(selector: FormatSelector(capabilities: DecodeCapabilities()),
-                                      preferredAudioLanguage: nil)
+                                      preferredAudioLanguage: AppSettings.shared.audioLanguage)
         let network = NetworkMonitor.shared.status
         let maxHeight = VideoQuality.maxHeight(surface: surfaceHeight, manual: manualQuality,
                                                limit: AppSettings.shared.qualityLimit(onExpensiveNetwork: network.isExpensive),
@@ -474,8 +486,21 @@ final class AppEnvironment {
     func selectQuality(_ height: Int?) async {
         guard height != manualQuality else { return }
         manualQuality = height
-        guard let page = currentPage, let item = session.item, session.mode == .video,
-              let request = try? plan(page, mode: .video, startAt: session.position) else { return }
+        guard session.mode == .video else { return }
+        await replan()
+    }
+
+    /// From the player's Audio picker; remembered for the next videos (nil: the original).
+    func selectAudio(_ language: String?) async {
+        guard language != selectedAudioLanguage else { return }
+        AppSettings.shared.audioLanguage = language
+        await replan()
+    }
+
+    /// Plans the current video again and reloads it at the same position, in the same mode.
+    private func replan() async {
+        guard let page = currentPage, let item = session.item,
+              let request = try? plan(page, mode: session.mode, startAt: session.position) else { return }
         await session.play(item, request)
         loadSkipSegments(for: item.videoID)
         loadSelectedCaption(for: item.videoID)

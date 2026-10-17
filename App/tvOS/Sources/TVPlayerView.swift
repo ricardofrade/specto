@@ -81,6 +81,8 @@ struct TVPlayerView: View {
                           qualities: session.mode == .video ? environment.availableQualities : [],
                           selectedQuality: environment.manualQuality, playingHeight: session.videoHeight,
                           onQuality: { height in Task { await environment.selectQuality(height) } },
+                          audioTracks: environment.availableAudioTracks, selectedAudio: environment.selectedAudioTrack,
+                          onAudio: { language in Task { await environment.selectAudio(language) } },
                           sleepChoice: environment.sleepTimer.choice, sleepStatus: environment.sleepTimer.status,
                           onSleep: { environment.sleepTimer.set($0) },
                           focusUpNext: session.state == .ended) { chapter in
@@ -341,6 +343,9 @@ private struct InfoPanel: View {
     let selectedQuality: Int?
     let playingHeight: Int?
     let onQuality: (Int?) -> Void
+    let audioTracks: [AudioTrackOption]
+    let selectedAudio: AudioTrackOption?
+    let onAudio: (String?) -> Void
     let sleepChoice: SleepTimer.Choice?
     let sleepStatus: String?
     let onSleep: (SleepTimer.Choice?) -> Void
@@ -379,6 +384,15 @@ private struct InfoPanel: View {
                             Text("Off").tag(CaptionTrack?.none)
                             ForEach(captions, id: \.self) { track in Text(verbatim: track.label).tag(Optional(track)) }
                         } label: { Text("Subtitles") }
+                    }
+                }
+                if !audioTracks.isEmpty {
+                    settingMenu(.audio, title: Text("Audio Track"), value: Text(verbatim: selectedAudio?.label ?? "")) {
+                        Picker(selection: Binding(get: { selectedAudio?.language }, set: { onAudio($0) })) {
+                            ForEach(audioTracks) { track in
+                                Text(verbatim: track.label).tag(track.language)
+                            }
+                        } label: { Text("Audio Track") }
                     }
                 }
                 settingMenu(.speed, title: Text("Playback Speed"), value: Text(verbatim: SpeedOptions.label(for: rate))) {
@@ -439,7 +453,7 @@ private struct InfoPanel: View {
         return Text("Auto")
     }
 
-    enum Setting: Hashable { case subtitles, speed, quality, sleep }
+    enum Setting: Hashable { case subtitles, audio, speed, quality, sleep }
 
     /// A setting's name and current value; selecting it opens its choices.
     private func settingMenu(_ setting: Setting, title: Text, value: Text,

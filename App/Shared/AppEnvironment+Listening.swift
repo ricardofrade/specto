@@ -81,7 +81,8 @@ extension AppEnvironment {
         Task {
             guard let page = try? await router.perform(.streams, { try await $0.watchPage(for: video.id) }),
                   let audio = FormatSelector(capabilities: DecodeCapabilities())
-                    .selectAudio(from: page.manifest.audioStreams, for: .avPlayer, preferredLanguage: nil) else { return }
+                    .selectAudio(from: page.manifest.audioStreams, for: .avPlayer,
+                                 preferredLanguage: AppSettings.shared.audioLanguage) else { return }
             try? FeedStore(database).save([video])
             try? offline.download(video.id, audio: audio)
             offline.enforceLimit(limit)

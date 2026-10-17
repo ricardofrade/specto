@@ -28,6 +28,11 @@ public struct PlayerActions {
     public var qualities: [Int] = []
     public var selectedQuality: Int?
     public var selectQuality: (Int?) -> Void = { _ in }
+    /// Audio tracks of a multi-language video (empty: nothing to choose), the one playing
+    /// (nil: original), and how to change it.
+    public var audioTracks: [AudioTrackOption] = []
+    public var selectedAudio: String?
+    public var selectAudio: (String?) -> Void = { _ in }
     /// The sleep timer's choice (nil: off), its countdown, and how to change it.
     public var sleepChoice: SleepTimer.Choice?
     public var sleepStatus: String?
@@ -214,6 +219,17 @@ private struct PlaybackSettingsMenu: View {
                 }
                 .pickerStyle(.menu)
                 .accessibilityIdentifier("watch.quality")
+            }
+            if !actions.audioTracks.isEmpty {
+                Picker(selection: Binding(get: { actions.selectedAudio }, set: { actions.selectAudio($0) })) {
+                    ForEach(actions.audioTracks) { track in
+                        Text(verbatim: track.label).tag(track.language)
+                    }
+                } label: {
+                    Label { Text("Audio Track") } icon: { Image(systemName: "waveform") }
+                }
+                .pickerStyle(.menu)
+                .accessibilityIdentifier("watch.audioTrack")
             }
             Picker(selection: Binding(get: { session.rate }, set: { session.setRate($0) })) {
                 ForEach(SpeedOptions.all, id: \.self) { option in
