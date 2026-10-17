@@ -11,6 +11,20 @@ struct SettingsView: View {
     #if OFFLINE_DOWNLOADS
     @State private var offlineUsed = ""
     #endif
+    @State private var notificationsDenied = false
+
+    private func setNotifications(_ on: Bool) {
+        guard on else {
+            settings.notifiesNewUploads = false
+            return
+        }
+        Task {
+            let allowed = await NewUploadNotifier.requestAuthorization()
+            settings.notifiesNewUploads = allowed
+            notificationsDenied = !allowed
+            if allowed { NewUploadNotifier.markSeen() }
+        }
+    }
 
     var body: some View {
         Form {
@@ -40,6 +54,20 @@ struct SettingsView: View {
                 Text("Community")
             } footer: {
                 Text("SponsorBlock and DeArrow titles are looked up anonymously by a short hash, never the video itself. Community thumbnails ask DeArrow's thumbnail service for each video.")
+            }
+
+            Section {
+                Toggle(isOn: Binding(get: { settings.notifiesNewUploads }, set: { setNotifications($0) })) {
+                    Text("New videos from subscriptions")
+                }
+            } header: {
+                Text("Notifications")
+            } footer: {
+                if notificationsDenied {
+                    Text("Notifications are off for this app. Turn them on in the Settings app.")
+                } else {
+                    Text("Checked in the background a few times a day, from your own instances.")
+                }
             }
 
             #if OFFLINE_DOWNLOADS

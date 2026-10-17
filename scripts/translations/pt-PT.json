@@ -29,6 +29,7 @@
   "Channels": "Canais",
   "Chapters": "Capítulos",
   "Chapters & Up Next": "Capítulos e A seguir",
+  "Checked in the background a few times a day, from your own instances.": "Verificado em segundo plano algumas vezes por dia, a partir das suas instâncias.",
   "Clear History": "Limpar histórico",
   "Clear your watch history?": "Limpar o histórico de visualizações?",
   "Close player": "Fechar leitor",
@@ -84,6 +85,7 @@
   "Loading": "A carregar",
   "More": "Mais",
   "New uploads from your subscriptions show up here.": "Os novos vídeos das suas subscrições aparecem aqui.",
+  "New videos from subscriptions": "Novos vídeos das subscrições",
   "Next": "Seguinte",
   "No channels found in that file.": "Nenhum canal encontrado nesse ficheiro.",
   "No new videos": "Sem vídeos novos",
@@ -95,6 +97,8 @@
   "Nothing in progress": "Nada em curso",
   "Nothing is sent until you search.": "Nada é enviado até pesquisar.",
   "Nothing new": "Nada de novo",
+  "Notifications": "Notificações",
+  "Notifications are off for this app. Turn them on in the Settings app.": "As notificações estão desativadas para esta app. Ative-as na app Definições.",
   "Now": "Agora",
   "Off": "Desativadas",
   "Offline listening": "Ouvir sem ligação",
@@ -189,6 +193,10 @@
   "^[%lld like](inflect: true)": {
     "one": "%lld gosto",
     "other": "%lld gostos"
+  },
+  "^[%lld new video](inflect: true)": {
+    "one": "%lld vídeo novo",
+    "other": "%lld vídeos novos"
   },
   "^[%lld reply](inflect: true)": {
     "one": "%lld resposta",

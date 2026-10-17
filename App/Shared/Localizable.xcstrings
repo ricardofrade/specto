@@ -303,6 +303,16 @@
         }
       }
     },
+    "Checked in the background a few times a day, from your own instances.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Verificado em segundo plano algumas vezes por dia, a partir das suas instâncias."
+          }
+        }
+      }
+    },
     "Clear History": {
       "localizations": {
         "pt-PT": {
@@ -837,6 +847,16 @@
         }
       }
     },
+    "New videos from subscriptions": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Novos vídeos das subscrições"
+          }
+        }
+      }
+    },
     "Next": {
       "localizations": {
         "pt-PT": {
@@ -943,6 +963,26 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Nada de novo"
+          }
+        }
+      }
+    },
+    "Notifications": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Notificações"
+          }
+        }
+      }
+    },
+    "Notifications are off for this app. Turn them on in the Settings app.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "As notificações estão desativadas para esta app. Ative-as na app Definições."
           }
         }
       }
@@ -1836,6 +1876,28 @@
                 "stringUnit": {
                   "state": "needs_review",
                   "value": "%lld gostos"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "^[%lld new video](inflect: true)": {
+      "localizations": {
+        "pt-PT": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "needs_review",
+                  "value": "%lld vídeo novo"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "needs_review",
+                  "value": "%lld vídeos novos"
                 }
               }
             }

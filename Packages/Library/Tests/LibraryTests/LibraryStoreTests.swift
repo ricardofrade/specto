@@ -237,3 +237,20 @@ struct ListeningStoresTests {
         #expect(try queue.rows().map(\.id.rawValue) == ["c", "a", "b"])
     }
 }
+
+@Suite struct NewUploadsTests {
+    @Test func onlyVideosPublishedSinceTheLastLook() {
+        let now = Date.now
+        func row(_ id: String, hoursAgo: Double?, live: Bool = false) -> FeedRow {
+            RowFormatter().row(VideoSummary(id: VideoID(rawValue: id), title: id,
+                                            channelID: ChannelID(rawValue: "UCaaaaaaaaaaaaaaaaaaaaaa"), channelName: "A",
+                                            duration: .seconds(60), publishedAt: hoursAgo.map { now.addingTimeInterval(-$0 * 3600) },
+                                            viewCount: 1, thumbnails: [], isLive: live),
+                               positionSeconds: nil, durationSeconds: nil)
+        }
+        let rows = [row("old", hoursAgo: 10), row("new", hoursAgo: 1), row("newer", hoursAgo: 0.5),
+                    row("live", hoursAgo: 0.2, live: true), row("undated", hoursAgo: nil)]
+        let picked = NewUploads.select(from: rows, since: now.addingTimeInterval(-2 * 3600))
+        #expect(picked.map(\.id.rawValue) == ["newer", "new"])
+    }
+}

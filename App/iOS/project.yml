@@ -88,8 +88,9 @@ targets:
         CFBundleURLTypes:
           - CFBundleURLName: dev.placeholder.specto
             CFBundleURLSchemes: [dev.placeholder.specto]
-        # Background audio and Picture-in-Picture.
-        UIBackgroundModes: [audio]
+        # Background audio and Picture-in-Picture; feed refresh for widgets and notifications.
+        UIBackgroundModes: [audio, fetch]
+        BGTaskSchedulerPermittedIdentifiers: [dev.placeholder.specto.refresh]
         # Self-hosted instances on the home network.
         NSLocalNetworkUsageDescription: "Connect to your video instances and Chromecasts on the local network."
         NSBonjourServices: [_googlecast._tcp]

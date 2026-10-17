@@ -43,6 +43,15 @@ final class AppSettings {
         didSet { defaults.set(captionLanguage, forKey: Keys.captionLanguage) }
     }
 
+    /// Local notifications for new uploads (iPhone and iPad). Off until the person turns it on.
+    var notifiesNewUploads: Bool {
+        didSet { defaults.set(notifiesNewUploads, forKey: Keys.notifiesNewUploads) }
+    }
+    /// Uploads after this are "new": the last time the feed was seen or notified about.
+    var newUploadsSince: Date? {
+        didSet { defaults.set(newUploadsSince, forKey: Keys.newUploadsSince) }
+    }
+
     private let defaults: UserDefaults
 
     init(defaults: UserDefaults = .standard) {
@@ -55,6 +64,8 @@ final class AppSettings {
         downloadsQueue = defaults.object(forKey: Keys.downloadsQueue) as? Bool ?? true
         offlineLimitBytes = defaults.object(forKey: Keys.offlineLimit) as? Int64 ?? 2_000_000_000
         captionLanguage = defaults.string(forKey: Keys.captionLanguage)
+        notifiesNewUploads = defaults.bool(forKey: Keys.notifiesNewUploads)
+        newUploadsSince = defaults.object(forKey: Keys.newUploadsSince) as? Date
     }
 
     var feedOptions: FeedStore.Options {
@@ -64,6 +75,8 @@ final class AppSettings {
     private enum Keys {
         static let hideShorts = "feed.hideShorts"
         static let captionLanguage = "playback.captionLanguage"
+        static let notifiesNewUploads = "notifications.newUploads"
+        static let newUploadsSince = "notifications.newUploadsSince"
         static let showsRelated = "watch.showsRelated"
         static let skipsSponsors = "sponsorBlock.enabled"
         static let brandedTitles = "deArrow.titles"

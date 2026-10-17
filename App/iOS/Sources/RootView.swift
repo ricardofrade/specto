@@ -116,7 +116,14 @@ struct RootView: View {
             feed.setOptions(options)
             environment.refreshBranding()
         }
-        .onChange(of: scenePhase) { _, phase in environment.scenePhaseChanged(phase) }
+        .onChange(of: scenePhase) { _, phase in
+            environment.scenePhaseChanged(phase)
+            switch phase {
+            case .active: NewUploadNotifier.markSeen()
+            case .background: BackgroundRefresh.schedule()
+            default: break
+            }
+        }
         .onOpenURL { environment.open($0) }
         .onChange(of: environment.pendingVideo) { _, video in
             guard let video else { return }
