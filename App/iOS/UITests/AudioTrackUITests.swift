@@ -22,7 +22,7 @@ final class AudioTrackUITests: XCTestCase {
         choose(app, "Spanish")
         XCTAssertTrue(wait(surface, "value BEGINSWITH 'playing '", 30), "Not playing after picking a dub")
         XCTAssertGreaterThanOrEqual(try seconds(surface), before, "Restarted instead of continuing")
-        app.buttons["watch.settings"].tap()
+        app.playerControl("watch.settings").tap()
         app.buttons["Audio Track"].tap()
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = "audio-tracks"
@@ -35,7 +35,7 @@ final class AudioTrackUITests: XCTestCase {
 
     @MainActor
     private func choose(_ app: XCUIApplication, _ track: String) {
-        app.buttons["watch.settings"].tap()
+        app.playerControl("watch.settings").tap()
         XCTAssertTrue(app.buttons["Audio Track"].waitForExistence(timeout: 5), "No Audio Track menu")
         app.buttons["Audio Track"].tap()
         XCTAssertTrue(app.buttons[track].waitForExistence(timeout: 5), "No \(track) track")

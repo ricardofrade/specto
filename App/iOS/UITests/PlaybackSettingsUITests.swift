@@ -26,7 +26,7 @@ final class PlaybackSettingsUITests: XCTestCase {
                       "Not playing 360p: \(surface.value ?? "")")
         XCTAssertGreaterThanOrEqual(try seconds(surface), before, "Restarted instead of continuing")
 
-        app.buttons["watch.settings"].tap()
+        app.playerControl("watch.settings").tap()
         app.buttons["Quality"].tap()
         shot(app, "quality-menu")
         app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Auto'")).firstMatch.tap()
@@ -49,14 +49,14 @@ final class PlaybackSettingsUITests: XCTestCase {
         list.buttons.firstMatch.tap()
         XCTAssertTrue(wait(app.otherElements["watch.surface"], "value BEGINSWITH 'playing '", 45))
 
-        app.buttons["watch.settings"].tap()
+        app.playerControl("watch.settings").tap()
         XCTAssertTrue(app.buttons["Sleep Timer"].waitForExistence(timeout: 5), "No Sleep Timer menu")
         app.buttons["Sleep Timer"].tap()
         let fifteen = app.buttons.matching(NSPredicate(format: "label CONTAINS '15'")).firstMatch
         XCTAssertTrue(fifteen.waitForExistence(timeout: 5), "No 15-minute option")
         fifteen.tap()
 
-        app.buttons["watch.settings"].tap()
+        app.playerControl("watch.settings").tap()
         // The menu row's label carries the countdown ("Sleep Timer, 15 min left").
         let countdown = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS 'min left'")).firstMatch
         shot(app, "sleep-timer")
@@ -65,7 +65,7 @@ final class PlaybackSettingsUITests: XCTestCase {
 
     @MainActor
     private func choose(_ app: XCUIApplication, _ quality: String) {
-        app.buttons["watch.settings"].tap()
+        app.playerControl("watch.settings").tap()
         XCTAssertTrue(app.buttons["Quality"].waitForExistence(timeout: 5), "No Quality menu")
         app.buttons["Quality"].tap()
         XCTAssertTrue(app.buttons[quality].waitForExistence(timeout: 5), "No \(quality) option")

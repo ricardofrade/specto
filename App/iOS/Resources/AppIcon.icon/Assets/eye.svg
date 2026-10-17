@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- The eye: two arcs meeting in points. -->
+  <path d="M 204.8 512 Q 512 131.1 819.2 512 Q 512 892.9 204.8 512 Z" fill="none" stroke="#FFFFFF"
+        stroke-width="40" stroke-linejoin="round"/>
+</svg>

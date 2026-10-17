@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- The pupil: a rounded play triangle, optically centred. -->
+  <path d="M 452 404 L 452 620 L 648 512 Z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="34"
+        stroke-linejoin="round"/>
+</svg>

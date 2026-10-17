@@ -25,7 +25,9 @@ private struct FoldReader: ViewModifier {
     let action: (FoldState) -> Void
 
     func body(content: Content) -> some View {
-        #if os(iOS)
+        // The fold APIs are in the iOS 27 SDK (Xcode 27, Swift 6.4); older Xcodes (CI's hosted
+        // runners) build without them, as if there were no fold.
+        #if os(iOS) && compiler(>=6.4)
         if #available(iOS 27.1, *) {
             content.onGeometryChange(for: FoldState.self) { proxy in
                 let regions = proxy.reservedRegions(kind: .division, options: .includeInactive)

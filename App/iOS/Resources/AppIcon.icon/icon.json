@@ -1,0 +1,33 @@
+{
+  "fill" : {
+    "linear-gradient" : [
+      "display-p3:0.30196,0.13725,0.78431,1.00000",
+      "display-p3:0.94118,0.33725,0.47843,1.00000"
+    ],
+    "orientation" : {
+      "start" : { "x" : 0.15, "y" : 0.0 },
+      "stop" : { "x" : 0.85, "y" : 1.0 }
+    }
+  },
+  "groups" : [
+    {
+      "layers" : [
+        { "image-name" : "pupil.svg", "name" : "pupil", "glass" : true }
+      ],
+      "shadow" : { "kind" : "neutral", "opacity" : 0.5 },
+      "specular" : true,
+      "translucency" : { "enabled" : true, "value" : 0.3 }
+    },
+    {
+      "layers" : [
+        { "image-name" : "eye.svg", "name" : "eye", "glass" : true }
+      ],
+      "shadow" : { "kind" : "neutral", "opacity" : 0.4 },
+      "specular" : true,
+      "translucency" : { "enabled" : true, "value" : 0.4 }
+    }
+  ],
+  "supported-platforms" : {
+    "squares" : "shared"
+  }
+}

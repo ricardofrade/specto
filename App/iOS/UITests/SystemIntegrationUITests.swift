@@ -31,8 +31,7 @@ final class SystemIntegrationUITests: XCTestCase {
         let before = try seconds(surface)
 
         // Audio only: AVPlayer takes over at the same position.
-        app.buttons["watch.audioMode"].tap()
-        XCTAssertTrue(app.buttons["Video"].waitForExistence(timeout: 10), "Mode didn't switch")
+        app.chooseFromMoreMenu("Audio Only")
         XCTAssertTrue(wait(surface, "value BEGINSWITH 'playing '", 20), "Audio mode isn't playing")
         sleep(2)
         let after = try seconds(surface)
@@ -40,12 +39,12 @@ final class SystemIntegrationUITests: XCTestCase {
         XCTAssertLessThan(after, before + 10, "Position jumped across the switch")
 
         // Back to video.
-        app.buttons["watch.audioMode"].tap()
-        XCTAssertTrue(app.buttons["Audio only"].waitForExistence(timeout: 10))
+        app.chooseFromMoreMenu("Watch Video")
         XCTAssertTrue(wait(surface, "value BEGINSWITH 'playing '", 20))
 
         // Cast: the menu lists receivers on the network (nothing is selected).
-        let cast = app.buttons["watch.cast"]
+        app.buttons["watch.more"].tap()
+        let cast = app.buttons["Cast"]
         if cast.waitForExistence(timeout: 10) {
             cast.tap()
             let receivers = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'chromecast' OR label CONTAINS[c] 'bravia'"))

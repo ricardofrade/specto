@@ -1,7 +1,7 @@
 // Draws Specto's app icons with CoreGraphics and writes the asset catalogs.
 //   xcrun swiftc -O scripts/make-icons.swift -o build/make-icons && build/make-icons
-// iOS: a single 1024 pt icon with dark and tinted variants. tvOS: a layered (parallax) icon
-// stack, the App Store icon and the Top Shelf images. Edit the drawing here, never the PNGs.
+// tvOS: a layered (parallax) icon stack, the App Store icon and the Top Shelf images. Edit the
+// drawing here, never the PNGs. (iOS uses App/iOS/Resources/AppIcon.icon, see below.)
 import CoreGraphics
 import Foundation
 import ImageIO
@@ -92,38 +92,9 @@ func writeJSON(_ object: Any, _ url: URL) {
 let info: [String: Any] = ["author": "xcode", "version": 1]
 
 // MARK: iOS
-
-let iosAssets = root.appending(path: "App/iOS/Resources/Assets.xcassets")
-writeJSON(["info": info], iosAssets.appending(path: "Contents.json"))
-let iconSet = iosAssets.appending(path: "AppIcon.appiconset")
-do {
-    let full = CGRect(x: 0, y: 0, width: 1024, height: 1024)
-    let light = makeContext(1024, 1024, opaque: true)
-    fillGradient(light, full)
-    drawGlyph(light, in: full, scale: 0.6, fill: whiteFill, ring: color(0xFFFFFF, 0.9))
-    write(light, iconSet.appending(path: "AppIcon.png"))
-
-    // Dark: the glyph carries the gradient on a transparent background (the system adds the dark).
-    let dark = makeContext(1024, 1024, opaque: false)
-    drawGlyph(dark, in: full, scale: 0.6, fill: gradientFill, ring: color(0xB58CFF, 0.95))
-    write(dark, iconSet.appending(path: "AppIcon-Dark.png"))
-
-    // Tinted: a greyscale glyph the system tints.
-    let tinted = makeContext(1024, 1024, opaque: true)
-    tinted.setFillColor(color(0x000000)); tinted.fill(full)
-    drawGlyph(tinted, in: full, scale: 0.6, fill: whiteFill, ring: color(0xFFFFFF, 0.75))
-    write(tinted, iconSet.appending(path: "AppIcon-Tinted.png"))
-}
-writeJSON([
-    "images": [
-        ["filename": "AppIcon.png", "idiom": "universal", "platform": "ios", "size": "1024x1024"],
-        ["appearances": [["appearance": "luminosity", "value": "dark"]], "filename": "AppIcon-Dark.png",
-         "idiom": "universal", "platform": "ios", "size": "1024x1024"],
-        ["appearances": [["appearance": "luminosity", "value": "tinted"]], "filename": "AppIcon-Tinted.png",
-         "idiom": "universal", "platform": "ios", "size": "1024x1024"],
-    ],
-    "info": info,
-], iconSet.appending(path: "Contents.json"))
+// The iPhone/iPad icon is a layered Liquid Glass icon made for Icon Composer:
+// App/iOS/Resources/AppIcon.icon (icon.json plus the eye and pupil as SVG layers). Open it in
+// Icon Composer (Xcode → Open Developer Tool) to preview light, dark, clear and tinted.
 
 // MARK: tvOS
 

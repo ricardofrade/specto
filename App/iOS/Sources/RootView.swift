@@ -271,6 +271,14 @@ struct RootView: View {
         actions.selectAudio = { language in Task { await environment.selectAudio(language) } }
         if let video = router.watching?.video {
             actions.saveToPlaylist = { router.savingToPlaylist = video }
+            // YouTube's own address: it opens in any app, this one included (descriptions,
+            // Handoff), and says nothing about the instance.
+            actions.shareURL = URL(string: "https://www.youtube.com/watch?v=\(video.id.rawValue)")
+            let session = environment.session
+            actions.shareURLAtCurrentTime = {
+                let seconds = Int(session.position.components.seconds)
+                return URL(string: "https://www.youtube.com/watch?v=\(video.id.rawValue)&t=\(seconds)s")
+            }
         }
         actions.upNext = environment.upNext
         actions.cancelUpNext = { environment.cancelUpNext() }

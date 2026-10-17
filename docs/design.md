@@ -58,3 +58,13 @@ Apple's guidance (Tech Talks 111461–111466) is to adapt rather than build a la
   - **Up Next** also appears when a video ends with nothing queued.
 - **Artwork:** YouTube artwork is 16:9, so Apple's vertical posters don't apply; the billboard carries the theatrical feel instead.
 - **Verified:** `TVBrowseAndPlayUITests` drives the Siri Remote against a real instance.
+
+## 2026 refresh (October 2026)
+
+Compared with Apple's own apps under iOS 26/27, Specto's building blocks were current but its composition wasn't. These changes close that gap:
+
+- **Brand colour.** The violet from the icon is the app's accent (`AccentColor`: `#6A2CF0`, and `#A88BFF` in dark mode for contrast) in both apps, instead of system blue.
+- **Layered Liquid Glass icon.** `App/iOS/Resources/AppIcon.icon` is made for Icon Composer: a violet-to-coral gradient, the eye and the play-shaped pupil on separate glass layers. The system renders it in light, dark, clear and tinted Home Screen styles. The tvOS icon stack still comes from `scripts/make-icons.swift`.
+- **The player, like Apple's TV app.**
+  - **On the video:** PiP, AirPlay and Settings (subtitles, audio track, quality, speed, sleep timer) float at the top right and fade with the transport controls. They fade rather than disappear, so an open menu survives the controls hiding. They also skip redraws, because the player redraws several times a second and an open menu would close if rebuilt.
+  - **Under the title:** Save, Queue and Share with their names (icons alone when a name doesn't fit), and "…" for Audio Only, Share at Current Time and Cast. Share sends YouTube's own link.

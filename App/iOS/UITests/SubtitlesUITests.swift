@@ -17,8 +17,11 @@ final class SubtitlesUITests: XCTestCase {
         list.buttons.firstMatch.tap()
         XCTAssertTrue(wait(app.otherElements["watch.surface"], "value BEGINSWITH 'playing '", 45))
 
-        let menu = app.buttons["watch.subtitles"]
-        XCTAssertTrue(menu.waitForExistence(timeout: 15), "No subtitles menu")
+        // Settings over the video → Subtitles.
+        sleep(3)   // The tracks arrive with the details.
+        app.playerControl("watch.settings").tap()
+        let menu = app.buttons["Subtitles"]
+        XCTAssertTrue(menu.waitForExistence(timeout: 15), "No Subtitles in Settings")
         menu.tap()
         let english = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'English'")).firstMatch
         XCTAssertTrue(english.waitForExistence(timeout: 5), "No English track listed")

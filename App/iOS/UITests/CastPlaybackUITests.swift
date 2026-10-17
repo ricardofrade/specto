@@ -29,7 +29,9 @@ final class CastPlaybackUITests: XCTestCase {
 
         let surface = app.otherElements["watch.surface"]
         XCTAssertTrue(wait(surface, "value BEGINSWITH 'playing '", 45), "Never played locally")
-        let cast = app.buttons["watch.cast"]
+        sleep(10)   // Discovery.
+        app.buttons["watch.more"].tap()
+        let cast = app.buttons["Cast"]
         XCTAssertTrue(cast.waitForExistence(timeout: 15), "No Cast receivers discovered")
         cast.tap()
         let target = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", receiver)).firstMatch

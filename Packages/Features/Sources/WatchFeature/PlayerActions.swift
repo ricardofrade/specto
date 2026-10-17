@@ -20,6 +20,9 @@ public struct PlayerActions {
     public var toggleQueue: () -> Void = {}
     /// Opens "Save to Playlist" (Watch Later and the person's playlists); nil hides the button.
     public var saveToPlaylist: (() -> Void)?
+    /// The video's link, for Share; and one that starts at the current position.
+    public var shareURL: URL?
+    public var shareURLAtCurrentTime: (() -> URL?)?
     /// Subtitle tracks, the one showing, and how to change it.
     public var captions: [CaptionTrack] = []
     public var selectedCaption: CaptionTrack?
@@ -76,83 +79,127 @@ public struct PlayerActions {
                                            cast: { _ in }, casting: nil)
 }
 
-/// Audio-only, PiP, AirPlay and Cast, in one glass row under the video.
-struct PlayerActionsBar: View {
+/// Over the video, top trailing, shown and faded with the transport controls (as in Apple's TV
+/// app): Picture in Picture, AirPlay, and Settings (subtitles, audio track, quality, speed,
+/// sleep timer).
+struct PlayerTopControls: View, Equatable {
+    let session: PlaybackSession
+    let actions: PlayerActions
+
+    /// The player redraws several times a second (position); rebuilding an open menu closes it.
+    /// Only what the menus show counts; the session's own values update them through
+    /// observation.
+    nonisolated static func == (lhs: Self, rhs: Self) -> Bool {
+        MainActor.assumeIsolated {
+            lhs.session === rhs.session
+                && lhs.actions.captions == rhs.actions.captions && lhs.actions.selectedCaption == rhs.actions.selectedCaption
+                && lhs.actions.qualities == rhs.actions.qualities && lhs.actions.selectedQuality == rhs.actions.selectedQuality
+                && lhs.actions.audioTracks == rhs.actions.audioTracks && lhs.actions.selectedAudio == rhs.actions.selectedAudio
+                && lhs.actions.sleepChoice == rhs.actions.sleepChoice && lhs.actions.sleepStatus == rhs.actions.sleepStatus
+                && (lhs.actions.startPictureInPicture == nil) == (rhs.actions.startPictureInPicture == nil)
+        }
+    }
+
+    var body: some View {
+        GlassEffectContainer(spacing: Tokens.Spacing.s) {
+            HStack(spacing: Tokens.Spacing.s) {
+                if let startPiP = actions.startPictureInPicture, session.mode == .video {
+                    Button(action: startPiP) {
+                        Label { Text("Picture in Picture") } icon: { Image(systemName: "pip.enter") }
+                            .labelStyle(.iconOnly)
+                            .frame(width: 22, height: 22)
+                    }
+                    .accessibilityIdentifier("watch.pip")
+                }
+                RoutePicker()
+                    .frame(width: 22, height: 22)
+                    .padding(Tokens.Spacing.s)
+                    .glassEffect(.regular.interactive(), in: .circle)
+                PlaybackSettingsMenu(session: session, actions: actions)
+            }
+            .buttonStyle(.glass)
+            .buttonBorderShape(.circle)
+            .font(.body.weight(.semibold))
+        }
+    }
+}
+
+/// Under the title: Save, Queue and Share with their names, and "…" for the rest (audio only,
+/// casting, a link at the current time).
+struct WatchActionRow: View {
     let session: PlaybackSession
     let actions: PlayerActions
 
     var body: some View {
         GlassEffectContainer(spacing: Tokens.Spacing.s) {
             HStack(spacing: Tokens.Spacing.s) {
-                Button {
-                    actions.switchMode(session.mode == .audioOnly ? .video : .audioOnly)
-                } label: {
-                    Label { Text(session.mode == .audioOnly ? "Video" : "Audio only") } icon: {
-                        Image(systemName: session.mode == .audioOnly ? "play.rectangle" : "headphones")
-                    }
-                    .labelStyle(.iconOnly)
-                }
-                .accessibilityIdentifier("watch.audioMode")
-                Button(action: actions.toggleQueue) {
-                    Label { Text(actions.isQueued ? "Queued" : "Add to Queue") } icon: {
-                        Image(systemName: actions.isQueued ? "checkmark" : "text.badge.plus")
-                    }
-                    .labelStyle(.iconOnly)
-                }
-                .accessibilityIdentifier("watch.queue")
                 if let save = actions.saveToPlaylist {
                     Button(action: save) {
-                        Label { Text("Save to Playlist") } icon: { Image(systemName: "bookmark") }
-                            .labelStyle(.iconOnly)
+                        Label { Text("Save") } icon: { Image(systemName: "bookmark") }
                     }
                     .accessibilityIdentifier("watch.save")
                 }
-                if !actions.captions.isEmpty {
-                    Menu {
-                        Picker(selection: Binding(get: { actions.selectedCaption }, set: { actions.selectCaption($0) })) {
-                            Text("Off").tag(CaptionTrack?.none)
-                            // Instances label tracks themselves, e.g. "English (auto-generated)".
-                            ForEach(actions.captions, id: \.self) { track in
-                                Text(verbatim: track.label).tag(Optional(track))
+                Button(action: actions.toggleQueue) {
+                    Label { Text(actions.isQueued ? "Queued" : "Queue") } icon: {
+                        Image(systemName: actions.isQueued ? "checkmark" : "text.badge.plus")
+                    }
+                }
+                .accessibilityIdentifier("watch.queue")
+                if let link = actions.shareURL {
+                    ShareLink(item: link) {
+                        Label { Text("Share") } icon: { Image(systemName: "square.and.arrow.up") }
+                    }
+                    .accessibilityIdentifier("watch.share")
+                }
+                Menu {
+                    Button {
+                        actions.switchMode(session.mode == .audioOnly ? .video : .audioOnly)
+                    } label: {
+                        Label { Text(session.mode == .audioOnly ? "Watch Video" : "Audio Only") } icon: {
+                            Image(systemName: session.mode == .audioOnly ? "play.rectangle" : "headphones")
+                        }
+                    }
+                    .accessibilityIdentifier("watch.audioMode")
+                    if let link = actions.shareURLAtCurrentTime?() {
+                        ShareLink(item: link) {
+                            Label { Text("Share at Current Time") } icon: { Image(systemName: "clock.arrow.circlepath") }
+                        }
+                    }
+                    if !actions.castTargets.isEmpty {
+                        Menu {
+                            ForEach(actions.castTargets) { target in
+                                Button(target.name) { actions.cast(target) }
                             }
-                        } label: { Text("Subtitles") }
-                    } label: {
-                        Label { Text("Subtitles") } icon: {
-                            Image(systemName: actions.selectedCaption == nil ? "captions.bubble" : "captions.bubble.fill")
+                        } label: {
+                            Label { Text("Cast") } icon: { Image(systemName: "tv.badge.wifi") }
                         }
+                        .accessibilityIdentifier("watch.cast")
+                    }
+                } label: {
+                    Label { Text("More") } icon: { Image(systemName: "ellipsis") }
                         .labelStyle(.iconOnly)
-                    }
-                    .accessibilityIdentifier("watch.subtitles")
+                        .frame(height: 20)
                 }
-                PlaybackSettingsMenu(session: session, actions: actions)
-                if let startPiP = actions.startPictureInPicture, session.mode == .video {
-                    Button(action: startPiP) {
-                        Label { Text("Picture in Picture") } icon: { Image(systemName: "pip.enter") }
-                            .labelStyle(.iconOnly)
-                    }
-                    .accessibilityIdentifier("watch.pip")
-                }
-                RoutePicker()
-                    .frame(width: 32, height: 32)
-                    .padding(.horizontal, Tokens.Spacing.xs)
-                if !actions.castTargets.isEmpty {
-                    Menu {
-                        ForEach(actions.castTargets) { target in
-                            Button(target.name) { actions.cast(target) }
-                        }
-                    } label: {
-                        Label { Text("Cast") } icon: { Image(systemName: "tv.badge.wifi") }
-                            .labelStyle(.iconOnly)
-                    }
-                    .accessibilityIdentifier("watch.cast")
-                }
+                .accessibilityIdentifier("watch.more")
             }
             .buttonStyle(.glass)
-            .font(Tokens.Typography.cellMeta)
+            .font(Tokens.Typography.cellMeta.weight(.semibold))
+            .labelStyle(ActionLabelStyle())
         }
-        .padding(.horizontal, Tokens.Spacing.screenInset)
-        .padding(.vertical, Tokens.Spacing.s)
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+/// Icon and name; just the icon when the name wouldn't fit (large text, longer languages).
+private struct ActionLabelStyle: LabelStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: Tokens.Spacing.xs) {
+                configuration.icon
+                configuration.title.lineLimit(1)
+            }
+            configuration.icon
+        }
     }
 }
 
@@ -217,6 +264,21 @@ private struct PlaybackSettingsMenu: View {
 
     var body: some View {
         Menu {
+            if !actions.captions.isEmpty {
+                Picker(selection: Binding(get: { actions.selectedCaption }, set: { actions.selectCaption($0) })) {
+                    Text("Off").tag(CaptionTrack?.none)
+                    // Instances label tracks themselves, e.g. "English (auto-generated)".
+                    ForEach(actions.captions, id: \.self) { track in
+                        Text(verbatim: track.label).tag(Optional(track))
+                    }
+                } label: {
+                    Label { Text("Subtitles") } icon: {
+                        Image(systemName: actions.selectedCaption == nil ? "captions.bubble" : "captions.bubble.fill")
+                    }
+                }
+                .pickerStyle(.menu)
+                .accessibilityIdentifier("watch.subtitles")
+            }
             if session.mode == .video, !actions.qualities.isEmpty {
                 Picker(selection: Binding(get: { actions.selectedQuality }, set: { actions.selectQuality($0) })) {
                     if let height = session.videoHeight, actions.selectedQuality == nil {
@@ -267,6 +329,7 @@ private struct PlaybackSettingsMenu: View {
         } label: {
             Label { Text("Playback Settings") } icon: { Image(systemName: "gearshape") }
                 .labelStyle(.iconOnly)
+                .frame(width: 22, height: 22)
         }
         .accessibilityIdentifier("watch.settings")
     }

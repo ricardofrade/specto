@@ -13,6 +13,8 @@ public struct WatchContent: Sendable, Equatable {
     public private(set) var channelID: ChannelID
     public private(set) var channelName: String
     public private(set) var channelInitial: String
+    /// The title, from the details when the video arrived by link (only its ID known).
+    public private(set) var title: String
     public var details: VideoDetails? {
         didSet { applyDetails() }
     }
@@ -32,6 +34,7 @@ public struct WatchContent: Sendable, Equatable {
         channelID = video.channelID
         channelName = video.channelName
         channelInitial = Self.initial(video.channelName)
+        title = video.title
         self.details = details
         self.error = error
         applyDetails()
@@ -41,6 +44,7 @@ public struct WatchContent: Sendable, Equatable {
         relatedRows = Self.format(details?.related ?? [])
         descriptionText = details.map { DescriptionText.attributed($0.description) }
         descriptionIsLong = details.map { DescriptionText.isLong($0.description) } ?? false
+        if let summary = details?.summary, !summary.title.isEmpty { title = summary.title }
         if let summary = details?.summary, !summary.channelName.isEmpty {
             channelID = summary.channelID
             channelName = summary.channelName
@@ -123,14 +127,12 @@ public struct WatchScreen: View {
 
     @ViewBuilder
     private var layout: some View {
+        #if compiler(>=6.4)
         if #available(iOS 27.1, *), fold != nil {
             // A partly folded iPhone Duo: the system splits at the fold, top and bottom on a
             // table (video above, controls on the stable half) or side by side like a book.
             ArrangementView {
-                VStack(spacing: 0) {
-                    player.frame(maxHeight: .infinity)
-                    PlayerActionsBar(session: session, actions: actions)
-                }
+                player.frame(maxHeight: .infinity)
             } secondary: {
                 WatchTabs(content: content, comments: comments, session: session) { details(showsChapters: false) }
             }
@@ -138,6 +140,9 @@ public struct WatchScreen: View {
         } else {
             sizedLayout
         }
+        #else
+        sizedLayout     // Built with an SDK before iOS 27: no fold arrangement.
+        #endif
     }
 
     @ViewBuilder
@@ -150,23 +155,18 @@ public struct WatchScreen: View {
         case .compact:
             VStack(spacing: 0) {
                 player
-                PlayerActionsBar(session: session, actions: actions)
                 ScrollView { details(showsChapters: true) }
                     .scrollEdgeEffectStyle(.soft, for: .top)
             }
         case .band:
             VStack(spacing: 0) {
                 player
-                PlayerActionsBar(session: session, actions: actions)
                 WatchTabs(content: content, comments: comments, session: session) { details(showsChapters: false) }
             }
         case .sidePanel:
             HStack(spacing: 0) {
-                VStack(spacing: 0) {
-                    player.frame(maxHeight: .infinity)
-                    PlayerActionsBar(session: session, actions: actions)
-                }
-                .background(.black)
+                player.frame(maxHeight: .infinity)
+                    .background(.black)
                 WatchTabs(content: content, comments: comments, session: session) { details(showsChapters: false) }
                     .frame(width: min(400, size.width * 0.34))
             }
@@ -181,8 +181,8 @@ public struct WatchScreen: View {
 
     /// The player in whatever box the layout gives it (16:9, or the whole screen in landscape).
     private var playerArea: some View {
-        PlayerArea(session: session, captionsAvailable: !actions.captions.isEmpty, toggleCaptions: actions.toggleCaptions,
-                   storyboard: content.storyboard, chapters: content.chapters)
+        PlayerArea(session: session, actions: actions, captionsAvailable: !actions.captions.isEmpty,
+                   toggleCaptions: actions.toggleCaptions, storyboard: content.storyboard, chapters: content.chapters)
             .overlay {
                 if let casting = actions.casting { CastingOverlay(casting: casting) }
             }
@@ -201,7 +201,7 @@ public struct WatchScreen: View {
     /// - Parameter showsChapters: the band and side panel have a Chapters tab instead.
     private func details(showsChapters: Bool) -> some View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.l) {
-            Text(content.video.title)
+            Text(content.title)
                 .font(Tokens.Typography.sectionTitle)
                 .accessibilityAddTraits(.isHeader)
             Button { onOpenChannel(content.channelID, content.channelName) } label: {
@@ -222,6 +222,7 @@ public struct WatchScreen: View {
             .buttonStyle(.glass)
             .accessibilityIdentifier("watch.channel")
             .accessibilityHint(Text("Opens the channel"))
+            WatchActionRow(session: session, actions: actions)
             if showsChapters, !content.chapters.isEmpty {
                 ChapterChips(chapters: content.chapters, session: session)
             }
@@ -254,6 +255,8 @@ public struct WatchScreen: View {
 /// Double-tap a side to jump 10 seconds, hold for 2× while held, pinch to fill the screen.
 private struct PlayerArea: View {
     let session: PlaybackSession
+    /// For the controls over the video (PiP, AirPlay, Settings).
+    let actions: PlayerActions
     let captionsAvailable: Bool
     let toggleCaptions: () -> Void
     let storyboard: Storyboard?
@@ -342,6 +345,19 @@ private struct PlayerArea: View {
         .simultaneousGesture(MagnifyGesture().onEnded { value in
             withAnimation(Tokens.Motion.standard) { fills = value.magnification > 1 }
         })
+        // After the video's gestures, so tapping these never also toggles the controls (which
+        // would close a menu as it opens).
+        // Faded, never removed: removing them would also close a menu that's open.
+        .overlay(alignment: .topTrailing) {
+            PlayerTopControls(session: session, actions: actions)
+                .equatable()
+                .simultaneousGesture(TapGesture().onEnded { show(lingering: true) })
+                .padding(Tokens.Spacing.m)
+                .opacity(controlsVisible ? 1 : 0)
+                .allowsHitTesting(controlsVisible)
+                .accessibilityHidden(!controlsVisible)
+                .animation(Tokens.Motion.standard, value: controlsVisible)
+        }
         .onChange(of: holding) { _, isHolding in
             if isHolding {
                 rateBeforeHold = session.rate
@@ -389,10 +405,12 @@ private struct PlayerArea: View {
         if controlsVisible { hide() } else { show(); scheduleHide() }
     }
 
-    private func show() {
+    /// - Parameter lingering: a menu over the video was opened: stay long enough to choose
+    ///   (hiding the controls would close it).
+    private func show(lingering: Bool = false) {
         hideTask?.cancel()
         withAnimation(Tokens.Motion.standard) { controlsVisible = true }
-        scheduleHide()
+        scheduleHide(after: lingering ? .seconds(15) : Tokens.Motion.controlsAutoHide)
     }
 
     /// Controls stay up under VoiceOver, which can't reach controls that fade away.
@@ -401,11 +419,11 @@ private struct PlayerArea: View {
         withAnimation(Tokens.Motion.standard) { controlsVisible = false }
     }
 
-    private func scheduleHide() {
+    private func scheduleHide(after delay: Duration = Tokens.Motion.controlsAutoHide) {
         hideTask?.cancel()
         guard session.state == .playing else { return }
         hideTask = Task {
-            try? await Task.sleep(for: Tokens.Motion.controlsAutoHide)
+            try? await Task.sleep(for: delay)
             if !Task.isCancelled { hide() }
         }
     }
