@@ -1,0 +1,1729 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%@ %@": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "%1$@ %2$@"
+          }
+        }
+      }
+    },
+    "%@ views": {
+      "comment": "View count; the number is already abbreviated, e.g. 1.2M",
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "%@ visualizações"
+          }
+        }
+      }
+    },
+    "%lld": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "%lld"
+          }
+        }
+      }
+    },
+    "%lld crashes, %lld hangs": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "%1$lld falhas, %2$lld bloqueios"
+          }
+        }
+      }
+    },
+    "1 GB": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "1 GB"
+          }
+        }
+      }
+    },
+    "2 GB": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "2 GB"
+          }
+        }
+      }
+    },
+    "5 GB": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "5 GB"
+          }
+        }
+      }
+    },
+    "500 MB": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "500 MB"
+          }
+        }
+      }
+    },
+    "About": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Acerca"
+          }
+        }
+      }
+    },
+    "Add Instance": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Adicionar instância"
+          }
+        }
+      }
+    },
+    "Add to Queue": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Adicionar à fila"
+          }
+        }
+      }
+    },
+    "Add videos to your queue on your iPhone": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Adicione vídeos à fila no iPhone"
+          }
+        }
+      }
+    },
+    "Add your Piped, Invidious or YT Zero instance in Settings.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Adicione a sua instância Piped, Invidious ou YT Zero nas Definições."
+          }
+        }
+      }
+    },
+    "Address": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Endereço"
+          }
+        }
+      }
+    },
+    "AirPlay": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "AirPlay"
+          }
+        }
+      }
+    },
+    "Audio of queued videos is saved for listening without a connection, such as in the car. Watched items are removed first.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "O áudio dos vídeos em fila é guardado para ouvir sem ligação, por exemplo no carro. Os itens já vistos são removidos primeiro."
+          }
+        }
+      }
+    },
+    "Audio only": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Só áudio"
+          }
+        }
+      }
+    },
+    "Audio stream URL (optional)": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "URL do áudio (opcional)"
+          }
+        }
+      }
+    },
+    "Back 10 seconds": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Recuar 10 segundos"
+          }
+        }
+      }
+    },
+    "Bring your own server": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Traga o seu servidor"
+          }
+        }
+      }
+    },
+    "Buffered": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Em memória"
+          }
+        }
+      }
+    },
+    "Can't play this video": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Não é possível reproduzir este vídeo"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Cancelar"
+          }
+        }
+      }
+    },
+    "Captions": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Legendas"
+          }
+        }
+      }
+    },
+    "Captions available": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Legendas disponíveis"
+          }
+        }
+      }
+    },
+    "Cast": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Transmitir"
+          }
+        }
+      }
+    },
+    "Channels": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Canais"
+          }
+        }
+      }
+    },
+    "Chapters": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Capítulos"
+          }
+        }
+      }
+    },
+    "Chapters & Up Next": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Capítulos e A seguir"
+          }
+        }
+      }
+    },
+    "Close player": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Fechar leitor"
+          }
+        }
+      }
+    },
+    "Comments": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Comentários"
+          }
+        }
+      }
+    },
+    "Comments couldn't be loaded.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Não foi possível carregar os comentários."
+          }
+        }
+      }
+    },
+    "Community": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Comunidade"
+          }
+        }
+      }
+    },
+    "Community thumbnails (DeArrow)": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Miniaturas da comunidade (DeArrow)"
+          }
+        }
+      }
+    },
+    "Community titles (DeArrow)": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Títulos da comunidade (DeArrow)"
+          }
+        }
+      }
+    },
+    "Continue": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Continuar"
+          }
+        }
+      }
+    },
+    "Continue Watching": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Continuar a ver"
+          }
+        }
+      }
+    },
+    "Couldn't import: %@": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Não foi possível importar: %@"
+          }
+        }
+      }
+    },
+    "Couldn't load this channel.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Não foi possível carregar este canal."
+          }
+        }
+      }
+    },
+    "Couldn't load this video.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Não foi possível carregar este vídeo."
+          }
+        }
+      }
+    },
+    "Couldn't reach that address. Check it and your connection.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Não foi possível aceder a esse endereço. Verifique-o e a sua ligação."
+          }
+        }
+      }
+    },
+    "Couldn't reach your instance. Showing saved videos.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Não foi possível aceder à sua instância. A mostrar vídeos guardados."
+          }
+        }
+      }
+    },
+    "Couldn't refresh the feed. Showing saved videos.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Não foi possível atualizar o feed. A mostrar vídeos guardados."
+          }
+        }
+      }
+    },
+    "Couldn't update the subscription.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Não foi possível atualizar a subscrição."
+          }
+        }
+      }
+    },
+    "Crashes and hangs": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Falhas e bloqueios"
+          }
+        }
+      }
+    },
+    "Decoder": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Descodificador"
+          }
+        }
+      }
+    },
+    "Delete All Downloads": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Apagar todas as transferências"
+          }
+        }
+      }
+    },
+    "Delete All Reports": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Apagar todos os relatórios"
+          }
+        }
+      }
+    },
+    "Details": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Detalhes"
+          }
+        }
+      }
+    },
+    "Diagnostics": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Diagnóstico"
+          }
+        }
+      }
+    },
+    "Done": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "OK"
+          }
+        }
+      }
+    },
+    "Download queued videos": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Transferir vídeos em fila"
+          }
+        }
+      }
+    },
+    "Downloaded": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Transferido"
+          }
+        }
+      }
+    },
+    "Dropped frames": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Fotogramas perdidos"
+          }
+        }
+      }
+    },
+    "Expect ~120 on a ProMotion iPhone.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Espere ~120 num iPhone com ProMotion."
+          }
+        }
+      }
+    },
+    "Feed": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Feed"
+          }
+        }
+      }
+    },
+    "Forward 10 seconds": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Avançar 10 segundos"
+          }
+        }
+      }
+    },
+    "Go to Channel": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ir para o canal"
+          }
+        }
+      }
+    },
+    "Hide Shorts": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ocultar Shorts"
+          }
+        }
+      }
+    },
+    "Home": {
+      "comment": "Home screen title",
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Início"
+          }
+        }
+      }
+    },
+    "Import Subscriptions": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Importar subscrições"
+          }
+        }
+      }
+    },
+    "Import Subscriptions…": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Importar subscrições…"
+          }
+        }
+      }
+    },
+    "Import subscriptions on your iPhone or iPad. They sync to Apple TV through iCloud or YT Zero.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Importe as subscrições no iPhone ou iPad. São sincronizadas com a Apple TV através do iCloud ou do YT Zero."
+          }
+        }
+      }
+    },
+    "Import your subscriptions from YouTube, NewPipe, FreeTube or Piped.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Importe as suas subscrições do YouTube, NewPipe, FreeTube ou Piped."
+          }
+        }
+      }
+    },
+    "Imported %lld channels.": {
+      "localizations": {
+        "pt-PT": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "needs_review",
+                  "value": "Importado %lld canal."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "needs_review",
+                  "value": "Importados %lld canais."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Instance added": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Instância adicionada"
+          }
+        }
+      }
+    },
+    "Instances": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Instâncias"
+          }
+        }
+      }
+    },
+    "Instances & Subscriptions": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Instâncias e subscrições"
+          }
+        }
+      }
+    },
+    "Jumps to this chapter": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Salta para este capítulo"
+          }
+        }
+      }
+    },
+    "LIVE": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "EM DIRETO"
+          }
+        }
+      }
+    },
+    "Latest": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mais recentes"
+          }
+        }
+      }
+    },
+    "Launch times recorded": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tempos de arranque registados"
+          }
+        }
+      }
+    },
+    "Live": {
+      "comment": "Badge text for a live stream",
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Em direto"
+          }
+        }
+      }
+    },
+    "Loading": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A carregar"
+          }
+        }
+      }
+    },
+    "New uploads from your subscriptions show up here.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Os novos vídeos das suas subscrições aparecem aqui."
+          }
+        }
+      }
+    },
+    "Next": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Seguinte"
+          }
+        }
+      }
+    },
+    "No channels found in that file.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Nenhum canal encontrado nesse ficheiro."
+          }
+        }
+      }
+    },
+    "No new videos": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sem vídeos novos"
+          }
+        }
+      }
+    },
+    "No reports yet. iOS delivers them about once a day.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ainda sem relatórios. O iOS envia-os cerca de uma vez por dia."
+          }
+        }
+      }
+    },
+    "No subscriptions": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sem subscrições"
+          }
+        }
+      }
+    },
+    "None of your instances can load a subscription feed.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Nenhuma das suas instâncias consegue carregar um feed de subscrições."
+          }
+        }
+      }
+    },
+    "None of your instances can play videos.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Nenhuma das suas instâncias consegue reproduzir vídeos."
+          }
+        }
+      }
+    },
+    "Nothing in progress": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Nada em curso"
+          }
+        }
+      }
+    },
+    "Nothing is sent until you search.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Nada é enviado até pesquisar."
+          }
+        }
+      }
+    },
+    "Nothing new": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Nada de novo"
+          }
+        }
+      }
+    },
+    "Now": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Agora"
+          }
+        }
+      }
+    },
+    "Offline listening": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ouvir sem ligação"
+          }
+        }
+      }
+    },
+    "Open %@ where you're signed in to YT Zero and enter this code, or scan it with another device.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Abra %@ onde tem sessão iniciada no YT Zero e introduza este código, ou leia-o com outro dispositivo."
+          }
+        }
+      }
+    },
+    "Open Pairing Page": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Abrir página de emparelhamento"
+          }
+        }
+      }
+    },
+    "Open player": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Abrir leitor"
+          }
+        }
+      }
+    },
+    "Open-Source Licences": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Licenças de código aberto"
+          }
+        }
+      }
+    },
+    "Opens the channel": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Abre o canal"
+          }
+        }
+      }
+    },
+    "Pair with YT Zero": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Emparelhar com YT Zero"
+          }
+        }
+      }
+    },
+    "Pause": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Pausa"
+          }
+        }
+      }
+    },
+    "Performance": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Desempenho"
+          }
+        }
+      }
+    },
+    "Performance and crash reports from iOS, kept on this device. Nothing is sent unless you share a report.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Relatórios de desempenho e falhas do iOS, guardados neste dispositivo. Nada é enviado a menos que partilhe um relatório."
+          }
+        }
+      }
+    },
+    "Performance and crash reports stay on this device unless you share them.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Os relatórios de desempenho e falhas ficam neste dispositivo, a menos que os partilhe."
+          }
+        }
+      }
+    },
+    "Picture in Picture": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Imagem na imagem"
+          }
+        }
+      }
+    },
+    "Pinned": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Fixado"
+          }
+        }
+      }
+    },
+    "Play": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Reproduzir"
+          }
+        }
+      }
+    },
+    "Playback failed.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A reprodução falhou."
+          }
+        }
+      }
+    },
+    "Playback spike": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Teste de reprodução"
+          }
+        }
+      }
+    },
+    "Playing on %@": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A reproduzir em %@"
+          }
+        }
+      }
+    },
+    "Position": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Posição"
+          }
+        }
+      }
+    },
+    "QR code for the pairing page": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Código QR da página de emparelhamento"
+          }
+        }
+      }
+    },
+    "Queue": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Fila"
+          }
+        }
+      }
+    },
+    "Queued": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Na fila"
+          }
+        }
+      }
+    },
+    "Resolution": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Resolução"
+          }
+        }
+      }
+    },
+    "Scroll hitches: %@": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Engasgos ao deslizar: %@"
+          }
+        }
+      }
+    },
+    "Search": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Pesquisar"
+          }
+        }
+      }
+    },
+    "Search failed": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A pesquisa falhou"
+          }
+        }
+      }
+    },
+    "Search failed. Check your instances and try again.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A pesquisa falhou. Verifique as suas instâncias e tente novamente."
+          }
+        }
+      }
+    },
+    "Search your instances": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Pesquisar nas suas instâncias"
+          }
+        }
+      }
+    },
+    "Section": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Secção"
+          }
+        }
+      }
+    },
+    "Settings": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Definições"
+          }
+        }
+      }
+    },
+    "Show “Up next” suggestions": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mostrar sugestões “A seguir”"
+          }
+        }
+      }
+    },
+    "Skip sponsors (SponsorBlock)": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Saltar patrocínios (SponsorBlock)"
+          }
+        }
+      }
+    },
+    "Skipped %@": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Saltado: %@"
+          }
+        }
+      }
+    },
+    "Skipped %@ · ◀︎ to watch it": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Saltado: %@ · ◀︎ para ver"
+          }
+        }
+      }
+    },
+    "Something went wrong: %@": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Algo correu mal: %@"
+          }
+        }
+      }
+    },
+    "SponsorBlock and DeArrow titles are looked up anonymously by a short hash, never the video itself.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Os dados do SponsorBlock e os títulos do DeArrow são pesquisados de forma anónima através de um hash curto, nunca do próprio vídeo."
+          }
+        }
+      }
+    },
+    "SponsorBlock and DeArrow titles are looked up anonymously by a short hash, never the video itself. Community thumbnails ask DeArrow's thumbnail service for each video.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Os dados do SponsorBlock e os títulos do DeArrow são pesquisados de forma anónima através de um hash curto, nunca do próprio vídeo. As miniaturas da comunidade pedem cada vídeo ao serviço de miniaturas do DeArrow."
+          }
+        }
+      }
+    },
+    "Start PiP": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Iniciar PiP"
+          }
+        }
+      }
+    },
+    "State": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Estado"
+          }
+        }
+      }
+    },
+    "Stop": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Parar"
+          }
+        }
+      }
+    },
+    "Stop Casting": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Parar transmissão"
+          }
+        }
+      }
+    },
+    "Stop PiP": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Parar PiP"
+          }
+        }
+      }
+    },
+    "Storage limit": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Limite de armazenamento"
+          }
+        }
+      }
+    },
+    "Streams": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Fluxos"
+          }
+        }
+      }
+    },
+    "Subscribe": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Subscrever"
+          }
+        }
+      }
+    },
+    "Subscribed": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Subscrito"
+          }
+        }
+      }
+    },
+    "Subscriptions": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Subscrições"
+          }
+        }
+      }
+    },
+    "That doesn't look like a web address.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Isso não parece um endereço web."
+          }
+        }
+      }
+    },
+    "That file isn't a subscriptions export this app understands.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Esse ficheiro não é uma exportação de subscrições que esta app compreenda."
+          }
+        }
+      }
+    },
+    "That isn't a Piped API, Invidious or YT Zero instance. For Piped, use the API address, not the website.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Isso não é uma instância Piped API, Invidious ou YT Zero. No Piped, use o endereço da API, não o do site."
+          }
+        }
+      }
+    },
+    "The app works out whether it's Piped, Invidious or YT Zero.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A app deteta se é Piped, Invidious ou YT Zero."
+          }
+        }
+      }
+    },
+    "The pairing code expired. Try again.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "O código de emparelhamento expirou. Tente novamente."
+          }
+        }
+      }
+    },
+    "This app has no servers and collects no data. It talks only to the instances you add.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Esta app não tem servidores e não recolhe dados. Comunica apenas com as instâncias que adicionar."
+          }
+        }
+      }
+    },
+    "This app has no servers of its own and collects no data. It talks only to the instances you add.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Esta app não tem servidores próprios e não recolhe dados. Comunica apenas com as instâncias que adicionar."
+          }
+        }
+      }
+    },
+    "This app includes mpv and FFmpeg under the GNU Lesser General Public License, in a separate, replaceable framework. The exact source code, including any modifications, is available on request from the developer and from the projects listed below.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Esta app inclui o mpv e o FFmpeg ao abrigo da GNU Lesser General Public License, numa framework separada e substituível. O código-fonte exato, incluindo quaisquer modificações, está disponível mediante pedido ao programador e nos projetos indicados abaixo."
+          }
+        }
+      }
+    },
+    "This app plays videos through a Piped, Invidious or YT Zero server that you run or trust. It has no servers of its own and collects nothing. Add yours to see your subscriptions here.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Esta app reproduz vídeos através de um servidor Piped, Invidious ou YT Zero que gere ou em que confia. Não tem servidores próprios e não recolhe nada. Adicione o seu para ver aqui as suas subscrições."
+          }
+        }
+      }
+    },
+    "This video isn't available.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Este vídeo não está disponível."
+          }
+        }
+      }
+    },
+    "Throughput": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Débito"
+          }
+        }
+      }
+    },
+    "Up Next": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A seguir"
+          }
+        }
+      }
+    },
+    "Up next": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A seguir"
+          }
+        }
+      }
+    },
+    "Used": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Utilizado"
+          }
+        }
+      }
+    },
+    "Version": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Versão"
+          }
+        }
+      }
+    },
+    "Video": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vídeo"
+          }
+        }
+      }
+    },
+    "Video stream URL": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "URL do vídeo"
+          }
+        }
+      }
+    },
+    "Videos": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vídeos"
+          }
+        }
+      }
+    },
+    "Waiting for approval…": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A aguardar aprovação…"
+          }
+        }
+      }
+    },
+    "Your instance is being blocked by YouTube right now. Showing saved videos.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A sua instância está a ser bloqueada pelo YouTube neste momento. A mostrar vídeos guardados."
+          }
+        }
+      }
+    },
+    "Your instances are being blocked by YouTube right now. Try again later.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "As suas instâncias estão a ser bloqueadas pelo YouTube neste momento. Tente mais tarde."
+          }
+        }
+      }
+    },
+    "Your own Piped, Invidious or YT Zero server. Nothing is sent anywhere else.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "O seu próprio servidor Piped, Invidious ou YT Zero. Nada é enviado para mais lado nenhum."
+          }
+        }
+      }
+    },
+    "^[%lld channel](inflect: true)": {
+      "localizations": {
+        "pt-PT": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "needs_review",
+                  "value": "%lld canal"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "needs_review",
+                  "value": "%lld canais"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "^[%lld channel](inflect: true). Import a Google Takeout subscriptions.csv, or an export from NewPipe, FreeTube or Piped.": {
+      "localizations": {
+        "pt-PT": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "needs_review",
+                  "value": "%lld canal. Importe um subscriptions.csv do Google Takeout, ou uma exportação do NewPipe, FreeTube ou Piped."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "needs_review",
+                  "value": "%lld canais. Importe um subscriptions.csv do Google Takeout, ou uma exportação do NewPipe, FreeTube ou Piped."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "^[%lld like](inflect: true)": {
+      "localizations": {
+        "pt-PT": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "needs_review",
+                  "value": "%lld gosto"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "needs_review",
+                  "value": "%lld gostos"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "^[%lld reply](inflect: true)": {
+      "localizations": {
+        "pt-PT": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "needs_review",
+                  "value": "%lld resposta"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "needs_review",
+                  "value": "%lld respostas"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "end cards": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "ecrãs finais"
+          }
+        }
+      }
+    },
+    "filler": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "conteúdo de enchimento"
+          }
+        }
+      }
+    },
+    "intro": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "introdução"
+          }
+        }
+      }
+    },
+    "non-music section": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "secção sem música"
+          }
+        }
+      }
+    },
+    "preview": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "pré-visualização"
+          }
+        }
+      }
+    },
+    "reminder to subscribe": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "lembrete para subscrever"
+          }
+        }
+      }
+    },
+    "self-promotion": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "autopromoção"
+          }
+        }
+      }
+    },
+    "sponsor": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "patrocínio"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

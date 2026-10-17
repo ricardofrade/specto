@@ -58,6 +58,7 @@ Dependency rules (enforced by `scripts/check-dependencies.sh`; never work around
 - Images: decode and downsample to the exact pixel size off the main thread; request the thumbnail size that matches the cell.
 - Never stack glass on glass. Player controls show on tap and fade during playback.
 - Layouts are chosen by available size and size class, never by device model. On iPhone Duo, use the documented fold APIs only: `onFoldChange` (DesignSystem, `ReservedRegion`) and `ArrangementView` (iOS 27.1). See `docs/design.md`.
+- All user-facing text is localizable: `Text("…")` and `String(localized:)`, never string concatenation. One catalog, `App/Shared/Localizable.xcstrings`, serves both apps and every package (packages use the main bundle's default). After adding or changing text run `scripts/sync-strings.py`; add translations in `scripts/translations/<lang>.json` (they enter the catalog as "needs review" until a person checks them).
 - Every screen supports light and dark appearance; check both (`DesignTourUITests` with `xcrun simctl ui <device> appearance dark`).
 
 ## Playback rules
