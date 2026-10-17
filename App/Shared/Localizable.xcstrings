@@ -983,7 +983,7 @@
         "de": {
           "stringUnit": {
             "state": "needs_review",
-            "value": "Nächsten Vorschlag automatisch abspielen"
+            "value": "Automatisch weiterspielen"
           }
         },
         "es": {
@@ -5262,6 +5262,40 @@
         }
       }
     },
+    "Notifications off": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mitteilungen aus"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Notificaciones desactivadas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Notifications désactivées"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Notificações desativadas"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Notificações desligadas"
+          }
+        }
+      }
+    },
     "Now": {
       "localizations": {
         "de": {
@@ -9509,6 +9543,74 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Em destaque"
+          }
+        }
+      }
+    },
+    "Turn Off Notifications": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mitteilungen deaktivieren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Desactivar notificaciones"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Désactiver les notifications"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Desativar notificações"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Desligar notificações"
+          }
+        }
+      }
+    },
+    "Turn On Notifications": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mitteilungen aktivieren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Activar notificaciones"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Activer les notifications"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ativar notificações"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ligar notificações"
           }
         }
       }

@@ -10,12 +10,15 @@ public struct ChannelRow: Identifiable, Hashable, Sendable {
     public let avatar: VideoCellContent.Avatar
     /// Subscribed, but kept off Home.
     public let isHiddenFromHome: Bool
+    /// On Home, but no new-upload notifications.
+    public let mutesNotifications: Bool
     public var id: ChannelID { channel.id }
     public var name: String { channel.name }
 
-    init(_ channel: ChannelSummary, hidden: Bool) {
+    init(_ channel: ChannelSummary, hidden: Bool, muted: Bool) {
         self.channel = channel
         isHiddenFromHome = hidden
+        mutesNotifications = muted
         avatar = VideoCellContent.Avatar(url: channel.avatar?.url, initial: RowFormatter.initial(channel.name))
     }
 }
@@ -32,6 +35,7 @@ public final class ChannelsModel {
     @ObservationIgnored private var all: [ChannelRow] = []
     @ObservationIgnored private var channels: [ChannelSummary] = []
     @ObservationIgnored private var hidden: Set<ChannelID> = []
+    @ObservationIgnored private var muted: Set<ChannelID> = []
     @ObservationIgnored private let store: SubscriptionStore
     @ObservationIgnored private var observations: [Task<Void, Never>] = []
 
@@ -39,6 +43,7 @@ public final class ChannelsModel {
         store = subscriptions
         channels = (try? subscriptions.channels()) ?? []
         hidden = (try? subscriptions.hiddenFromHome()) ?? []
+        muted = (try? subscriptions.mutedChannels()) ?? []
         update()
     }
 
@@ -46,12 +51,16 @@ public final class ChannelsModel {
     public func start() async {
         guard observations.isEmpty else { return }
         let changes = store.observe(), hiddenChanges = store.observeHiddenFromHome()
+        let mutedChanges = store.observeMutedChannels()
         observations = [
             Task { [weak self] in
                 do { for try await list in changes { self?.channels = list; self?.update() } } catch {}
             },
             Task { [weak self] in
                 do { for try await set in hiddenChanges { self?.hidden = set; self?.update() } } catch {}
+            },
+            Task { [weak self] in
+                do { for try await set in mutedChanges { self?.muted = set; self?.update() } } catch {}
             },
         ]
     }
@@ -61,8 +70,13 @@ public final class ChannelsModel {
         try? store.setHiddenFromHome(row.id, !row.isHiddenFromHome)
     }
 
+    /// Stop or restart new-upload notifications for the channel.
+    public func toggleNotifications(_ row: ChannelRow) {
+        try? store.setMutesNotifications(row.id, !row.mutesNotifications)
+    }
+
     private func update() {
-        all = channels.map { ChannelRow($0, hidden: hidden.contains($0.id)) }   // The store sorts by name.
+        all = channels.map { ChannelRow($0, hidden: hidden.contains($0.id), muted: muted.contains($0.id)) }   // The store sorts by name.
         total = all.count
         applyQuery()
     }

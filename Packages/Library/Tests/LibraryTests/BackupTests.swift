@@ -14,6 +14,7 @@ import Core
         let db = try AppDatabase.inMemory()
         try SubscriptionStore(db).subscribe([blender, other])
         try SubscriptionStore(db).setHiddenFromHome(other.id, true)
+        try SubscriptionStore(db).setMutesNotifications(blender.id, true)
         try FeedStore(db).save([video])
         try WatchStateStore(db).save(.seconds(120), duration: .seconds(635), for: video.id)
         try PlaylistStore(db).save(PlaylistSummary(id: PlaylistID(rawValue: "PLx"), title: "Talks", channelName: "Blender",
@@ -33,6 +34,7 @@ import Core
         let summary = try BackupStore(fresh).restore(backup)
         #expect(summary == Backup.Summary(subscriptions: 2, history: 1, playlists: 1, instances: 1))
         #expect(try SubscriptionStore(fresh).hiddenFromHome() == [other.id])
+        #expect(try SubscriptionStore(fresh).mutedChannels() == [blender.id])
         #expect(try WatchStateStore(fresh).position(for: video.id) == .seconds(120))
         #expect(try WatchStateStore(fresh).history().first?.title == "Big Buck Bunny")
         #expect(try PlaylistStore(fresh).all().map(\.title) == ["Talks"])

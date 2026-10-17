@@ -13,6 +13,7 @@ enum CloudRecords {
         static let avatarURL = "avatarURL"
         static let subscribedAt = "subscribedAt"
         static let hiddenFromHome = "hiddenFromHome"
+        static let mutesNotifications = "mutesNotifications"
         static let positionSeconds = "positionSeconds"
         static let durationSeconds = "durationSeconds"
         static let isFinished = "isFinished"
@@ -49,7 +50,8 @@ enum CloudRecords {
             ?? CKRecord(recordType: change.key.type.rawValue, recordID: recordID(for: change.key))
         record[Field.modifiedAt] = change.modifiedAt
         switch change.values {
-        case let .subscription(channelName, avatarURL, subscribedAt, isDeleted, hiddenFromHome):
+        case let .subscription(channelName, avatarURL, subscribedAt, isDeleted, hiddenFromHome, mutesNotifications):
+            record[Field.mutesNotifications] = mutesNotifications
             record[Field.channelName] = channelName
             record[Field.avatarURL] = avatarURL
             record[Field.subscribedAt] = subscribedAt
@@ -97,7 +99,8 @@ enum CloudRecords {
                   let subscribedAt = record[Field.subscribedAt] as? Date else { return nil }
             values = .subscription(channelName: name, avatarURL: record[Field.avatarURL] as? String,
                                    subscribedAt: subscribedAt, isDeleted: isDeleted,
-                                   hiddenFromHome: record[Field.hiddenFromHome] as? Bool ?? false)
+                                   hiddenFromHome: record[Field.hiddenFromHome] as? Bool ?? false,
+                                   mutesNotifications: record[Field.mutesNotifications] as? Bool ?? false)
         case .watchState:
             guard let position = record[Field.positionSeconds] as? Double,
                   let lastWatchedAt = record[Field.lastWatchedAt] as? Date else { return nil }

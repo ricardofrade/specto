@@ -58,7 +58,9 @@ enum NewUploadNotifier {
         let since = settings.newUploadsSince ?? .now
         settings.newUploadsSince = .now
         guard settings.notifiesNewUploads else { return }
-        let fresh = NewUploads.select(from: (try? FeedStore(database).rows(settings.feedOptions)) ?? [], since: since)
+        let muted = (try? SubscriptionStore(database).mutedChannels()) ?? []
+        let fresh = NewUploads.select(from: (try? FeedStore(database).rows(settings.feedOptions)) ?? [], since: since,
+                                      excluding: muted)
         guard !fresh.isEmpty else { return }
         let center = UNUserNotificationCenter.current()
         if fresh.count <= 3 {

@@ -185,6 +185,12 @@ public struct AppDatabase: Sendable {
                 t.column("uploadedAt", .datetime)
             }
         }
+        // A channel can stay on Home but out of new-upload notifications. Synced.
+        migrator.registerMigration("v10-channel-notifications") { db in
+            try db.alter(table: "subscription") { t in
+                t.add(column: "mutesNotifications", .boolean).notNull().defaults(to: false)
+            }
+        }
         return migrator
     }
 }

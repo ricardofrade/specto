@@ -276,6 +276,9 @@ struct ListeningStoresTests {
                     row("live", hoursAgo: 0.2, live: true), row("undated", hoursAgo: nil)]
         let picked = NewUploads.select(from: rows, since: now.addingTimeInterval(-2 * 3600))
         #expect(picked.map(\.id.rawValue) == ["newer", "new"])
+        // A muted channel never notifies.
+        #expect(NewUploads.select(from: rows, since: now.addingTimeInterval(-2 * 3600),
+                                  excluding: [ChannelID(rawValue: "UCaaaaaaaaaaaaaaaaaaaaaa")]).isEmpty)
     }
 }
 
@@ -320,6 +323,22 @@ struct ListeningStoresTests {
         #expect(try FeedStore(db).rows().count == 2)
     }
 
+    @Test func aMutedChannelStaysOnHomeAndSyncs() throws {
+        let db = try AppDatabase.inMemory()
+        let subscriptions = SubscriptionStore(db)
+        try subscriptions.subscribe([channel, other])
+        try subscriptions.setMutesNotifications(channel.id, true)
+        #expect(try subscriptions.mutedChannels() == [channel.id])
+        #expect(try subscriptions.hiddenFromHome().isEmpty)
+        let change = try SyncStore(db).change(for: SyncStore.Key(.subscription, channel.id.rawValue))
+        #expect(change?.values.mutesNotifications == true)
+
+        // Unsubscribing and subscribing again notifies again.
+        try subscriptions.unsubscribe(channel.id)
+        try subscriptions.subscribe([channel])
+        #expect(try subscriptions.mutedChannels().isEmpty)
+    }
+
     @Test func subscribingAgainShowsTheChannelAgain() throws {
         let db = try AppDatabase.inMemory()
         let subscriptions = SubscriptionStore(db)
@@ -349,7 +368,12 @@ struct ListeningStoresTests {
 
 private extension SyncStore.Values {
     var isHiddenFromHome: Bool {
-        if case let .subscription(_, _, _, _, hidden) = self { return hidden }
+        if case let .subscription(_, _, _, _, hidden, _) = self { return hidden }
+        return false
+    }
+
+    var mutesNotifications: Bool {
+        if case let .subscription(_, _, _, _, _, muted) = self { return muted }
         return false
     }
 }

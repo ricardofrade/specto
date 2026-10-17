@@ -76,7 +76,10 @@ public struct SubscriptionStore: Sendable {
                                           subscribedAt: .now, modifiedAt: .now, isDeleted: false, syncMetadata: nil)
                 record.channelName = channel.name.isEmpty ? record.channelName : channel.name
                 record.avatarURL = channel.avatar?.url.absoluteString ?? record.avatarURL
-                if record.isDeleted { record.hiddenFromHome = false }   // Subscribing again starts fresh.
+                if record.isDeleted {   // Subscribing again starts fresh.
+                    record.hiddenFromHome = false
+                    record.mutesNotifications = false
+                }
                 record.isDeleted = false
                 // Only a real change counts as an edit: an unchanged row must not re-sync.
                 guard existing == nil || record.channelName != existing?.channelName
@@ -96,6 +99,31 @@ public struct SubscriptionStore: Sendable {
             record.modifiedAt = .now
             try record.update(db)
         }
+    }
+
+    /// Keeps the channel on Home but out of new-upload notifications (or back in). Synced.
+    public func setMutesNotifications(_ channel: ChannelID, _ muted: Bool) throws {
+        try database.writer.write { db in
+            guard var record = try SubscriptionRecord.fetchOne(db, key: channel.rawValue),
+                  record.mutesNotifications != muted else { return }
+            record.mutesNotifications = muted
+            record.modifiedAt = .now
+            try record.update(db)
+        }
+    }
+
+    /// The subscribed channels that don't notify about new uploads.
+    public func mutedChannels() throws -> Set<ChannelID> {
+        try database.writer.read(Self.fetchMuted)
+    }
+
+    public func observeMutedChannels() -> AsyncThrowingStream<Set<ChannelID>, Error> {
+        database.stream(Self.fetchMuted)
+    }
+
+    private static func fetchMuted(_ db: Database) throws -> Set<ChannelID> {
+        Set(try String.fetchAll(db, sql: "SELECT channelID FROM subscription WHERE isDeleted = 0 AND mutesNotifications = 1")
+            .map(ChannelID.init(rawValue:)))
     }
 
     /// The subscribed channels whose videos stay off Home.

@@ -30,6 +30,10 @@ public struct ChannelsScreen: View {
                             Label { Text("Hidden from Home") } icon: { Image(systemName: "rectangle.slash") }
                                 .font(Tokens.Typography.caption)
                                 .foregroundStyle(Tokens.Colors.textSecondary)
+                        } else if row.mutesNotifications {
+                            Label { Text("Notifications off") } icon: { Image(systemName: "bell.slash") }
+                                .font(Tokens.Typography.caption)
+                                .foregroundStyle(Tokens.Colors.textSecondary)
                         }
                     }
                 }
@@ -50,8 +54,11 @@ public struct ChannelsScreen: View {
                     }
                 }
                 .tint(.indigo)
+                Button { model.toggleNotifications(row) } label: { notificationsLabel(row) }
+                    .tint(.orange)
             }
             .contextMenu {
+                Button { model.toggleNotifications(row) } label: { notificationsLabel(row) }
                 Button { model.toggleHidden(row) } label: {
                     if row.isHiddenFromHome {
                         Label { Text("Show on Home") } icon: { Image(systemName: "rectangle") }
@@ -80,6 +87,15 @@ public struct ChannelsScreen: View {
         .navigationTitle(Text("Channels"))
         .accessibilityIdentifier("channels.list")
         .task { await model.start() }
+    }
+
+    @ViewBuilder
+    private func notificationsLabel(_ row: ChannelRow) -> some View {
+        if row.mutesNotifications {
+            Label { Text("Turn On Notifications") } icon: { Image(systemName: "bell") }
+        } else {
+            Label { Text("Turn Off Notifications") } icon: { Image(systemName: "bell.slash") }
+        }
     }
 }
 #endif

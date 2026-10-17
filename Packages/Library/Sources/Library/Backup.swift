@@ -31,6 +31,8 @@ public struct Backup: Codable, Sendable, Equatable {
         public var avatarURL: String?
         public var subscribedAt: Date
         public var hiddenFromHome: Bool
+        /// Optional: backups from before per-channel notifications don't have it.
+        public var mutesNotifications: Bool?
     }
 
     public struct Watched: Codable, Sendable, Equatable {
@@ -76,7 +78,8 @@ public struct BackupStore: Sendable {
             let subscriptions = try SubscriptionRecord.filter(Column("isDeleted") == false)
                 .order(Column("channelName").collating(.localizedCaseInsensitiveCompare)).fetchAll(db)
                 .map { Backup.Subscription(channelID: $0.channelID, name: $0.channelName, avatarURL: $0.avatarURL,
-                                           subscribedAt: $0.subscribedAt, hiddenFromHome: $0.hiddenFromHome) }
+                                           subscribedAt: $0.subscribedAt, hiddenFromHome: $0.hiddenFromHome,
+                                           mutesNotifications: $0.mutesNotifications ? true : nil) }
             let states = try WatchStateRecord.filter(Column("isDeleted") == false)
                 .order(Column("lastWatchedAt").desc).fetchAll(db)
             let videos = try VideoRecord.filter(keys: states.map(\.videoID)).fetchAll(db)
@@ -123,6 +126,9 @@ public struct BackupStore: Sendable {
         })
         for subscription in missing where subscription.hiddenFromHome {
             try subscriptions.setHiddenFromHome(ChannelID(rawValue: subscription.channelID), true)
+        }
+        for subscription in missing where subscription.mutesNotifications == true {
+            try subscriptions.setMutesNotifications(ChannelID(rawValue: subscription.channelID), true)
         }
         summary.subscriptions = missing.count
 

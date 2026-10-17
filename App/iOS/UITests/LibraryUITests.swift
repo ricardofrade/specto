@@ -31,6 +31,16 @@ final class LibraryUITests: XCTestCase {
         search.buttons.firstMatch.tap()   // Clear: every channel again.
 
         XCTAssertTrue(row.waitForExistence(timeout: 5))
+        // Notifications off for this channel, from its menu; the row says so.
+        row.press(forDuration: 1.0)
+        XCTAssertTrue(app.buttons["Turn Off Notifications"].waitForExistence(timeout: 5))
+        app.buttons["Turn Off Notifications"].tap()
+        XCTAssertTrue(wait(row, "label CONTAINS 'Notifications off'", 5), "Row doesn't say notifications are off: \(row.label)")
+        row.press(forDuration: 1.0)
+        XCTAssertTrue(app.buttons["Turn On Notifications"].waitForExistence(timeout: 5))
+        app.buttons["Turn On Notifications"].tap()
+        XCTAssertTrue(wait(row, "NOT (label CONTAINS 'Notifications off')", 5))
+
         row.swipeLeft()
         let unsubscribe = app.buttons["Unsubscribe"].firstMatch
         XCTAssertTrue(unsubscribe.waitForExistence(timeout: 5), "No Unsubscribe action")

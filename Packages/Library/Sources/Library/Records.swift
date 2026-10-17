@@ -55,6 +55,8 @@ struct SubscriptionRecord: Codable, FetchableRecord, PersistableRecord {
     var uploadedAt: Date? = nil
     /// Subscribed, but its videos stay off Home (and so out of new-upload notifications).
     var hiddenFromHome = false
+    /// On Home, but no new-upload notifications for it.
+    var mutesNotifications = false
 
     var summary: ChannelSummary {
         ChannelSummary(id: ChannelID(rawValue: channelID), name: channelName,
