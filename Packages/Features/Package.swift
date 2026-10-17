@@ -36,6 +36,7 @@ let package = Package(
                 swiftSettings: featureSettings),
         .target(name: "LibraryFeature", dependencies: ["Core", "Library", "DesignSystem"],
                 swiftSettings: featureSettings),
-        .testTarget(name: "WatchFeatureTests", dependencies: ["WatchFeature"])
+        .testTarget(name: "WatchFeatureTests", dependencies: ["WatchFeature"]),
+        .testTarget(name: "FeedFeatureTests", dependencies: ["FeedFeature"])
     ]
 )

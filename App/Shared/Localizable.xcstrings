@@ -563,6 +563,16 @@
         }
       }
     },
+    "Earlier": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Anteriores"
+          }
+        }
+      }
+    },
     "Expect ~120 on a ProMotion iPhone.": {
       "localizations": {
         "pt-PT": {
@@ -1107,6 +1117,16 @@
         }
       }
     },
+    "Playback position": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Posição de reprodução"
+          }
+        }
+      }
+    },
     "Playback spike": {
       "localizations": {
         "pt-PT": {
@@ -1517,6 +1537,16 @@
         }
       }
     },
+    "This Week": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Esta semana"
+          }
+        }
+      }
+    },
     "This app has no servers and collects no data. It talks only to the instances you add.": {
       "localizations": {
         "pt-PT": {
@@ -1573,6 +1603,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Débito"
+          }
+        }
+      }
+    },
+    "Today": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Hoje"
           }
         }
       }
@@ -1663,6 +1703,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "A aguardar aprovação…"
+          }
+        }
+      }
+    },
+    "Yesterday": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ontem"
           }
         }
       }

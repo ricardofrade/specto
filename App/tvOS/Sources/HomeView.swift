@@ -30,21 +30,22 @@ struct HomeView: View {
                 if !feed.queue.isEmpty {
                     Shelf(title: Text("Queue"), rows: feed.queue, actions: actions)
                 }
-                if !feed.latest.isEmpty {
+                if let error = feed.refreshError {
+                    Label(error, systemImage: "exclamationmark.triangle")
+                        .foregroundStyle(Tokens.Colors.textSecondary)
+                }
+                ForEach(feed.sections) { section in
                     VStack(alignment: .leading, spacing: TVMetrics.gridSpacing) {
-                        Text("Latest").font(.title3.weight(.semibold))
-                        if let error = feed.refreshError {
-                            Label(error, systemImage: "exclamationmark.triangle")
-                                .foregroundStyle(Tokens.Colors.textSecondary)
-                        }
+                        Text(verbatim: section.title).font(.title3.weight(.semibold))
                         LazyVGrid(columns: [GridItem(.adaptive(minimum: TVMetrics.cardWidth), spacing: TVMetrics.gridSpacing,
                                                      alignment: .top)],
                                   spacing: TVMetrics.rowSpacing) {
-                            ForEach(feed.latest) { row in
-                                VideoCard(row: row, actions: actions)
+                            ForEach(section.rows) { row in
+                                VideoCard(row: row, actions: actions, showsAvatar: true)
                             }
                         }
                     }
+                    .focusSection()
                 }
             }
         }

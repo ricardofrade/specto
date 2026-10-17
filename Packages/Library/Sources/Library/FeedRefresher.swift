@@ -49,6 +49,10 @@ public actor FeedRefresher {
         guard case .local(let router) = mode else { return }
         let page = try await router.perform(.channel) { try await $0.channel(channel, cursor: nil) }
         try feed.save(page.videos.items)
+        // Imports (Takeout CSV) carry no avatar or proper name; the channel page has both.
+        if try subscriptions.channels().contains(where: { $0.id == channel }) {
+            try subscriptions.subscribe([ChannelSummary(id: channel, name: page.name, avatar: page.avatar)])
+        }
     }
 
     private func performRefresh() async throws {

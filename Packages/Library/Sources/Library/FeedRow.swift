@@ -18,6 +18,9 @@ public struct FeedRow: Identifiable, Hashable, Sendable {
     public let progress: Double?
     /// The underlying video, for navigation.
     public let video: VideoSummary
+    /// The channel's avatar (from the subscription), and its first letter as a fallback.
+    public var channelAvatar: URL? = nil
+    public let channelInitial: String
 }
 
 /// Formats rows for the current locale. Create one per observation pass, not per row.
@@ -54,7 +57,11 @@ public struct RowFormatter: Sendable {
                        detail: parts.joined(separator: " · "),
                        durationText: video.isLive ? nil : video.duration.map(Self.clock),
                        thumbnails: video.thumbnails, isLive: video.isLive, isShort: video.isShort,
-                       progress: progress, video: video)
+                       progress: progress, video: video, channelInitial: Self.initial(video.channelName))
+    }
+
+    static func initial(_ name: String) -> String {
+        name.first.map { String($0).uppercased() } ?? "•"
     }
 
     /// 754 s → "12:34"; 3723 s → "1:02:03".

@@ -1,6 +1,7 @@
 import SwiftUI
 
-/// A subtitle line over the video: white on a translucent black box, centred, sized by Dynamic Type.
+/// A subtitle line over the video: white on a translucent black box, centred. The player sets the
+/// font (it knows how much room there is).
 public struct SubtitleView: View {
     private let text: String?
 
@@ -11,7 +12,6 @@ public struct SubtitleView: View {
     public var body: some View {
         if let text {
             Text(verbatim: text)
-                .font(.body.weight(.semibold))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.white)
                 .padding(.horizontal, Tokens.Spacing.s)

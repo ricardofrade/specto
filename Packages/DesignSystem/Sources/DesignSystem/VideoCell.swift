@@ -10,9 +10,22 @@ public struct VideoCellContent: Hashable, Sendable {
     public var isLive: Bool
     /// Watched fraction (0…1), or nil.
     public var progress: Double?
+    /// Shown beside the title when set (Home); a monogram stands in for a missing image.
+    public var avatar: Avatar?
+
+    public struct Avatar: Hashable, Sendable {
+        public let url: URL?
+        public let initial: String
+
+        public init(url: URL?, initial: String) {
+            self.url = url
+            self.initial = initial
+        }
+    }
 
     public init(title: String, channelName: String, detail: String, durationText: String?, thumbnailURL: URL?,
-                isLive: Bool, progress: Double?) {
+                isLive: Bool, progress: Double?, avatar: Avatar? = nil) {
+        self.avatar = avatar
         self.title = title
         self.channelName = channelName
         self.detail = detail
@@ -50,7 +63,12 @@ public struct VideoCell: View, Equatable {
         case .stacked:
             VStack(alignment: .leading, spacing: Tokens.Spacing.s) {
                 thumbnail
-                text(titleLines: 2)
+                HStack(alignment: .top, spacing: Tokens.Spacing.m) {
+                    if let avatar = content.avatar, !typeSize.isAccessibilitySize {
+                        AvatarView(avatar: avatar)
+                    }
+                    text(titleLines: 2)
+                }
             }
             .accessibilityElement(children: .combine)
             .accessibilityAddTraits(.isButton)
@@ -143,5 +161,23 @@ private struct ProgressBar: View {
                     .scaleEffect(x: fraction, anchor: .leading)
             }
             .accessibilityHidden(true)
+    }
+}
+
+/// A channel's round avatar, or its first letter while there's no image.
+struct AvatarView: View {
+    let avatar: VideoCellContent.Avatar
+    static let size: CGFloat = 32
+
+    var body: some View {
+        ZStack {
+            Circle().fill(Tokens.Colors.accent.opacity(0.2))
+            Text(verbatim: avatar.initial).font(.subheadline.weight(.bold)).foregroundStyle(Tokens.Colors.accent)
+            if let url = avatar.url {
+                RemoteImage(url, pointSize: CGSize(width: Self.size, height: Self.size)).clipShape(.circle)
+            }
+        }
+        .frame(width: Self.size, height: Self.size)
+        .accessibilityHidden(true)
     }
 }

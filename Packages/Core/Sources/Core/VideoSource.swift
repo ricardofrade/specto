@@ -344,13 +344,15 @@ public struct StreamManifest: Sendable, Codable {
     /// A DASH manifest the instance serves; casting uses it (a Cast receiver fetches media itself).
     public let dashURL: URL?
     public let captions: [CaptionTrack]
+    /// Scrubbing previews, smallest frames first; empty when the source has none.
+    public let storyboards: [Storyboard]
     public let chapters: [Chapter]
     /// Stream URLs from YouTube expire; refetch the manifest after this date.
     public let expiresAt: Date?
 
     public init(videoID: VideoID, videoStreams: [VideoStream], audioStreams: [AudioStream],
                 hlsURL: URL?, muxedURL: URL? = nil, dashURL: URL? = nil, captions: [CaptionTrack] = [],
-                chapters: [Chapter], expiresAt: Date?) {
+                storyboards: [Storyboard] = [], chapters: [Chapter], expiresAt: Date?) {
         self.videoID = videoID
         self.videoStreams = videoStreams
         self.audioStreams = audioStreams
@@ -358,6 +360,7 @@ public struct StreamManifest: Sendable, Codable {
         self.muxedURL = muxedURL
         self.dashURL = dashURL
         self.captions = captions
+        self.storyboards = storyboards
         self.chapters = chapters
         self.expiresAt = expiresAt
     }

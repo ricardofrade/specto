@@ -14,6 +14,11 @@ struct WatchLayoutTests {
         (CGSize(width: 1376, height: 1032), .regular, .sidePanel),
         // Regular but too narrow for anything but compact (a slim Stage Manager window).
         (CGSize(width: 500, height: 700), .regular, .compact),
+        // A phone turned sideways (compact or, on the larger phones, regular): video only.
+        (CGSize(width: 874, height: 402), .compact, .fullScreen),
+        (CGSize(width: 956, height: 440), .regular, .fullScreen),
+        // A short but not wide window stays compact.
+        (CGSize(width: 480, height: 420), .compact, .compact),
     ])
     func layoutFollowsAvailableSpace(_ size: CGSize, _ sizeClass: UserInterfaceSizeClass, _ expected: WatchLayout) {
         #expect(WatchLayout.choose(width: size.width, height: size.height, horizontal: sizeClass) == expected)

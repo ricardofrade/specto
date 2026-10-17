@@ -14,6 +14,8 @@ public struct WatchContent: Sendable, Equatable {
         didSet { relatedRows = Self.format(details?.related ?? []) }
     }
     public private(set) var chapters: [ChapterRow] = []
+    /// Scrubbing previews for this video, sized for the phone's preview bubble.
+    public var storyboard: Storyboard?
     public var error: String?
     /// Pre-formatted once when details arrive, never in `body`.
     public private(set) var relatedRows: [FeedRow] = []
@@ -117,6 +119,10 @@ public struct WatchScreen: View {
     @ViewBuilder
     private var sizedLayout: some View {
         switch WatchLayout.choose(width: size.width, height: size.height, horizontal: horizontalSizeClass) {
+        case .fullScreen:
+            playerArea
+                .ignoresSafeArea()
+                .persistentSystemOverlays(.hidden)
         case .compact:
             VStack(spacing: 0) {
                 player
@@ -146,12 +152,17 @@ public struct WatchScreen: View {
     /// Changing layout rebuilds this area: the new surface attaches and the session ignores the
     /// old one's late detach, so the video layer just moves and playback never reloads.
     private var player: some View {
-        PlayerArea(session: session, captionsAvailable: !actions.captions.isEmpty, toggleCaptions: actions.toggleCaptions)
-            .aspectRatio(16 / 9, contentMode: .fit)
+        playerArea.aspectRatio(16 / 9, contentMode: .fit)
+    }
+
+    /// The player in whatever box the layout gives it (16:9, or the whole screen in landscape).
+    private var playerArea: some View {
+        PlayerArea(session: session, captionsAvailable: !actions.captions.isEmpty, toggleCaptions: actions.toggleCaptions,
+                   storyboard: content.storyboard, chapters: content.chapters)
             .overlay {
                 if let casting = actions.casting { CastingOverlay(casting: casting) }
             }
-            .overlay(alignment: .bottom) {
+            .overlay(alignment: .top) {
                 SkipNotice(segment: session.lastSkipped).padding(Tokens.Spacing.m)
             }
     }
@@ -212,49 +223,130 @@ public struct WatchScreen: View {
 }
 
 /// The surface plus transport controls that show on tap and fade during playback.
+/// Double-tap a side to jump 10 seconds, hold for 2× while held, pinch to fill the screen.
 private struct PlayerArea: View {
     let session: PlaybackSession
     let captionsAvailable: Bool
     let toggleCaptions: () -> Void
+    let storyboard: Storyboard?
+    let chapters: [ChapterRow]
     @State private var controlsVisible = true
     @State private var hideTask: Task<Void, Never>?
+    @State private var size = CGSize(width: 16, height: 9)
+    /// Pinched open: the video fills the area, cropping its edges.
+    @State private var fills = false
+    @State private var jump: (forward: Bool, id: Int)?
+    @GestureState private var holding = false
+    @State private var rateBeforeHold: Float?
 
     var body: some View {
         ZStack {
             PlayerSurface(session: session)
+                .scaleEffect(fills ? fillScale : 1)
                 .accessibilityIdentifier("watch.surface")
                 // "<state> <engine> <seconds>": read by UI tests (playback never stalls, engine policy).
                 .accessibilityValue(Text(verbatim: "\(session.state) \(session.engineKind?.rawValue ?? "none") \(session.position.components.seconds)"))
             SubtitleView(session.subtitle)
+                // Smaller in the portrait player, so a line fits between the controls and the bar.
+                .font(size.height < 320 ? .footnote.weight(.semibold) : .body.weight(.semibold))
                 .frame(maxHeight: .infinity, alignment: .bottom)
                 .padding(.horizontal, Tokens.Spacing.xl)
-                .padding(.bottom, Tokens.Spacing.m)
+                .padding(.bottom, controlsVisible ? 56 : Tokens.Spacing.m)
+                .animation(Tokens.Motion.standard, value: controlsVisible)
+            if let jump {
+                Label { Text(jump.forward ? "Forward 10 seconds" : "Back 10 seconds") } icon: {
+                    Image(systemName: jump.forward ? "goforward.10" : "gobackward.10")
+                }
+                .labelStyle(.iconOnly)
+                .font(.title2.weight(.semibold))
+                .foregroundStyle(.white)
+                .padding(Tokens.Spacing.l)
+                .glassEffect(in: .circle)
+                .frame(maxWidth: .infinity, alignment: jump.forward ? .trailing : .leading)
+                .padding(.horizontal, size.width * 0.12)
+                .transition(.opacity.combined(with: .scale))
+                .id(jump.id)
+            }
+            if holding {
+                Label { Text(verbatim: "2×") } icon: { Image(systemName: "forward.fill") }
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, Tokens.Spacing.m).padding(.vertical, Tokens.Spacing.s)
+                    .glassEffect(in: .capsule)
+                    .frame(maxHeight: .infinity, alignment: .top)
+                    .padding(.top, Tokens.Spacing.m)
+            }
             if controlsVisible {
                 PlayerControlCluster(isPlaying: session.state == .playing,
                                      captionsAvailable: captionsAvailable) { action in
                     handle(action)
                 }
                 .transition(.opacity)
+                PlayerScrubber(session: session, storyboard: storyboard, chapters: chapters,
+                               onInteraction: { show() })
+                    .padding(.horizontal, Tokens.Spacing.l)
+                    .padding(.bottom, Tokens.Spacing.s)
+                    .frame(maxHeight: .infinity, alignment: .bottom)
+                    .transition(.opacity)
             }
             if session.state == .loading || session.state == .buffering {
                 ProgressView().tint(.white)
                     .accessibilityLabel(Text("Loading"))
             }
         }
+        .clipped()
         .background(.black)
         .contentShape(.rect)
-        .onTapGesture { toggleControls() }
+        .onGeometryChange(for: CGSize.self) { $0.size } action: { size = $0 }
+        .gesture(SpatialTapGesture(count: 2)
+            .onEnded { value in skip(forward: value.location.x > size.width / 2) }
+            .exclusively(before: TapGesture().onEnded { toggleControls() }))
+        .simultaneousGesture(LongPressGesture(minimumDuration: 0.5)
+            .sequenced(before: DragGesture(minimumDistance: 0))
+            .updating($holding) { value, state, _ in
+                if case .second(true, _) = value { state = true }
+            })
+        .simultaneousGesture(MagnifyGesture().onEnded { value in
+            withAnimation(Tokens.Motion.standard) { fills = value.magnification > 1 }
+        })
+        .onChange(of: holding) { _, isHolding in
+            if isHolding {
+                rateBeforeHold = session.rate
+                session.setRate(2)
+            } else if let rate = rateBeforeHold {
+                session.setRate(rate)
+                rateBeforeHold = nil
+            }
+        }
+        .sensoryFeedback(.impact(weight: .light), trigger: holding) { _, isHolding in isHolding }
         .onChange(of: session.state) { _, state in
             if state == .playing { scheduleHide() } else { show() }
         }
         .sensoryFeedback(.selection, trigger: session.state == .playing)
     }
 
+    /// How much to scale a 16:9 picture so it covers the whole area.
+    private var fillScale: CGFloat {
+        let box = size.width / max(size.height, 1), video: CGFloat = 16 / 9
+        return box > video ? box / video : video / box
+    }
+
+    private func skip(forward: Bool) {
+        let target = forward ? session.position + .seconds(10) : max(.zero, session.position - .seconds(10))
+        Task { await session.seek(to: target, precise: true) }
+        let id = (jump?.id ?? 0) + 1
+        withAnimation(Tokens.Motion.snappy) { jump = (forward, id) }
+        Task {
+            try? await Task.sleep(for: .milliseconds(700))
+            withAnimation(Tokens.Motion.standard) { if jump?.id == id { jump = nil } }
+        }
+    }
+
     private func handle(_ action: PlayerControlAction) {
         switch action {
         case .togglePlayback: session.state == .playing ? session.pause() : session.resume()
-        case .skipBack: Task { await session.seek(to: max(.zero, session.position - .seconds(10))) }
-        case .skipForward: Task { await session.seek(to: session.position + .seconds(10)) }
+        case .skipBack: Task { await session.seek(to: max(.zero, session.position - .seconds(10)), precise: true) }
+        case .skipForward: Task { await session.seek(to: session.position + .seconds(10), precise: true) }
         case .captions: toggleCaptions()
         }
         scheduleHide()
@@ -267,6 +359,7 @@ private struct PlayerArea: View {
     private func show() {
         hideTask?.cancel()
         withAnimation(Tokens.Motion.standard) { controlsVisible = true }
+        scheduleHide()
     }
 
     /// Controls stay up under VoiceOver, which can't reach controls that fade away.

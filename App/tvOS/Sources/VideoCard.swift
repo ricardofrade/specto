@@ -10,6 +10,8 @@ struct VideoCard: View {
     let actions: VideoActions
     /// Shown last in the long-press menu (Library: "Remove from History").
     var remove: (label: Text, action: () -> Void)?
+    /// The channel's avatar beside the title (Home).
+    var showsAvatar = false
     @Environment(\.displayScale) private var displayScale
 
     var body: some View {
@@ -31,12 +33,28 @@ struct VideoCard: View {
                     }
                 }
             }
-            VStack(alignment: .leading, spacing: Tokens.Spacing.xxs) {
-                Text(row.title).font(.callout.weight(.medium)).lineLimit(2)
-                Text(row.channelName).font(.caption).foregroundStyle(Tokens.Colors.textSecondary).lineLimit(1)
-                if !row.detail.isEmpty {
-                    Text(row.detail).font(.caption2).foregroundStyle(Tokens.Colors.textSecondary).lineLimit(1)
+            HStack(alignment: .top, spacing: 14) {
+                if showsAvatar {
+                    ZStack {
+                        Circle().fill(Tokens.Colors.accent.opacity(0.25))
+                        Text(verbatim: row.channelInitial).font(.caption.weight(.bold))
+                        if let avatar = row.channelAvatar {
+                            RemoteImage(avatar, pointSize: CGSize(width: 44, height: 44)).clipShape(.circle)
+                        }
+                    }
+                    .frame(width: 44, height: 44)
                 }
+                titles
+            }
+        }
+    }
+
+    private var titles: some View {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.xxs) {
+            Text(row.title).font(.callout.weight(.medium)).lineLimit(2)
+            Text(row.channelName).font(.caption).foregroundStyle(Tokens.Colors.textSecondary).lineLimit(1)
+            if !row.detail.isEmpty {
+                Text(row.detail).font(.caption2).foregroundStyle(Tokens.Colors.textSecondary).lineLimit(1)
             }
         }
     }

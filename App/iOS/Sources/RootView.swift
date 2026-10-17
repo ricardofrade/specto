@@ -220,6 +220,7 @@ struct RootView: View {
                 guard router.watching?.video.id == video.id else { return }
                 router.watching?.details = page.details
                 router.watching?.setChapters(page.manifest.chapters)
+                router.watching?.storyboard = page.manifest.storyboards.best(forFrameWidth: 160)
             } catch {
                 if router.watching?.video.id == video.id { router.watching?.error = AppEnvironment.message(for: error) }
             }

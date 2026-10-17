@@ -32,6 +32,10 @@ struct PipedSourceTests {
         #expect(manifest.captions.count == 3)
         #expect(manifest.captions.allSatisfy { $0.url.query?.contains("fmt=vtt") == true })
 
+        // Scrubbing previews come through the instance's proxy.
+        #expect(manifest.storyboards.map(\.frameWidth) == [80, 160])
+        #expect(manifest.storyboards.allSatisfy { $0.pages.allSatisfy { $0.host() == "proxy.instance.example" } })
+
         #expect(page.details.summary.duration == .seconds(213))
         #expect(page.details.summary.channelID.rawValue.hasPrefix("UC"))
         #expect(page.details.summary.publishedAt == Date(timeIntervalSince1970: 1_256_453_853))

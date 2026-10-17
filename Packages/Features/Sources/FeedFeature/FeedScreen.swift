@@ -89,15 +89,15 @@ public struct FeedScreen: View {
                         Shelf(title: Text("Queue"), rows: model.queue, cardWidth: shelfCardWidth,
                               actions: rowActions, transition: transition)
                     }
-                    if !model.latest.isEmpty {
+                    ForEach(model.sections) { section in
                         VStack(alignment: .leading, spacing: Tokens.Spacing.m) {
-                            Text("Latest").font(Tokens.Typography.sectionTitle)
+                            Text(verbatim: section.title).font(Tokens.Typography.sectionTitle)
                                 .accessibilityAddTraits(.isHeader)
                             // One column on a phone, more as width allows (unfolded, iPad, wide windows).
                             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Tokens.Spacing.l,
                                                                          alignment: .top), count: columns),
                                       spacing: Tokens.Spacing.xl) {
-                                ForEach(model.latest) { row in
+                                ForEach(section.rows) { row in
                                     VideoCell(VideoCellContent(row: row, pixelWidth: Int(thumbnailWidth * displayScale)),
                                               thumbnailWidth: thumbnailWidth)
                                         .equatable()

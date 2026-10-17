@@ -10,8 +10,12 @@ nonisolated public enum WatchLayout: Equatable, Sendable {
     case band
     /// Video beside a tabbed side panel.
     case sidePanel
+    /// Only the video, edge to edge: a phone turned sideways.
+    case fullScreen
 
     public static func choose(width: CGFloat, height: CGFloat, horizontal: UserInterfaceSizeClass?) -> WatchLayout {
+        // Too short for anything below a 16:9 video: give the video the whole screen.
+        if height < 500, width > height * 1.3 { return .fullScreen }
         guard horizontal == .regular, width >= 600 else { return .compact }
         // Side panel only when the video keeps most of the width at a useful height.
         return width / max(height, 1) >= 1.25 && width >= 900 ? .sidePanel : .band

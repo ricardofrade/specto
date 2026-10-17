@@ -25,6 +25,24 @@ private struct StubSource: VideoSource {
     }
 
     func healthCheck() async -> HealthSample { HealthSample(instanceID: instance.id, isHealthy: true, latency: nil) }
+
+    func channel(_ id: ChannelID, cursor: String?) async throws -> ChannelPage {
+        ChannelPage(id: id, name: "Blender", avatar: Thumbnail(url: URL(string: "https://stub.example/avatar.jpg")!, width: 88, height: 88),
+                    videos: Page(items: videos, nextCursor: nil))
+    }
+}
+
+@Suite struct BackfillTests {
+    @Test func backfillFillsTheChannelsNameAndAvatar() async throws {
+        let db = try AppDatabase.inMemory()
+        let channel = ChannelID(rawValue: "UCaaaaaaaaaaaaaaaaaaaaaa")
+        try SubscriptionStore(db).subscribe([ChannelSummary(id: channel, name: "", avatar: nil)])   // As a CSV import leaves it.
+        let refresher = FeedRefresher(mode: .local(StubRouter(videos: [], requested: LockedBox([]))), database: db)
+        try await refresher.backfill(channel)
+        let saved = try #require(try SubscriptionStore(db).channels().first)
+        #expect(saved.name == "Blender")
+        #expect(saved.avatar?.url.absoluteString == "https://stub.example/avatar.jpg")
+    }
 }
 
 private struct StubAccount: SubscriptionAccount {

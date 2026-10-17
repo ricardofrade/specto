@@ -178,7 +178,7 @@ public struct FeedStore: Sendable {
         var sql = """
             SELECT video.*, watchState.positionSeconds AS position, watchState.durationSeconds AS length,
                    watchState.isFinished AS finished, branding.title AS brandedTitle,
-                   branding.thumbnailTime AS brandedThumbnailTime
+                   branding.thumbnailTime AS brandedThumbnailTime, subscription.avatarURL AS avatarURL
             FROM video
             JOIN subscription ON subscription.channelID = video.channelID AND subscription.isDeleted = 0
             LEFT JOIN watchState ON watchState.videoID = video.id AND watchState.isDeleted = 0
@@ -202,9 +202,11 @@ public struct FeedStore: Sendable {
                let thumbnail = Branding.thumbnail(for: video.id, at: time) {
                 video = video.replacing(thumbnails: [thumbnail])
             }
-            return formatter.row(video,
-                                 positionSeconds: finished ? (row["length"] ?? row["position"]) : row["position"],
-                                 durationSeconds: row["length"])
+            var formatted = formatter.row(video,
+                                          positionSeconds: finished ? (row["length"] ?? row["position"]) : row["position"],
+                                          durationSeconds: row["length"])
+            formatted.channelAvatar = (row["avatarURL"] as String?).flatMap(URL.init(string:))
+            return formatted
         }
     }
 }

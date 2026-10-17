@@ -70,6 +70,7 @@ struct PlayerActionsBar: View {
                     Label { Text(session.mode == .audioOnly ? "Video" : "Audio only") } icon: {
                         Image(systemName: session.mode == .audioOnly ? "play.rectangle" : "headphones")
                     }
+                    .labelStyle(.iconOnly)
                 }
                 .accessibilityIdentifier("watch.audioMode")
                 Button(action: actions.toggleQueue) {

@@ -247,10 +247,14 @@ final class AppEnvironment {
     }
 
     /// Batched feeds only carry recent uploads, and a channel new to the instance starts empty.
+    /// Also fills channels still missing their avatar (imports carry none); once saved, they stay.
     private func backfillEmptyChannels() async {
         let refresher = self.refresher, database = self.database
         let channels = (try? SubscriptionStore(database).channels()) ?? []
-        for channel in channels.prefix(50) where ((try? FeedStore(database).videos(channel: channel.id, limit: 1)) ?? []).isEmpty {
+        let needing = channels.filter { channel in
+            channel.avatar == nil || ((try? FeedStore(database).videos(channel: channel.id, limit: 1)) ?? []).isEmpty
+        }
+        for channel in needing.prefix(50) {
             try? await refresher.backfill(channel.id)
         }
     }

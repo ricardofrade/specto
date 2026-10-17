@@ -24,9 +24,12 @@ struct TVPlayerView: View {
     @State private var error: String?
     @State private var transportVisible = true
     @State private var showsPanel = false
+    @State private var storyboard: Storyboard?
+    /// The swiped-to position while scrubbing with the remote, and where the swipe started.
+    @State private var scrub: (target: Duration, from: Duration)?
     /// The video's related videos ("Up next"), formatted once per page.
     @State private var related: [FeedRow] = []
-    @State private var transport = TransportText()
+    @State private var transport = TransportClock()
     @State private var skipped: (segment: SkipSegment, at: ContinuousClock.Instant)?
     @State private var hideTransport: Task<Void, Never>?
     @FocusState private var playerFocused: Bool
@@ -43,6 +46,8 @@ struct TVPlayerView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             Color.black
+            RemoteSwipe { translation in scrubbed(translation) }
+                .allowsHitTesting(false)
             PlayerSurface(session: session)
                 .accessibilityIdentifier("tv.player")
                 // "<state> <engine> <seconds>": read by UI tests.
@@ -83,7 +88,8 @@ struct TVPlayerView: View {
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             } else if transportVisible || session.state != .playing {
                 TransportBar(title: title, channelName: channelName, text: transport,
-                             isPlaying: session.state == .playing, hasChapters: true)
+                             isPlaying: session.state == .playing, hasChapters: true,
+                             segments: segmentFractions, scrub: scrubDisplay)
                     .transition(.opacity)
             }
         }
@@ -128,6 +134,7 @@ struct TVPlayerView: View {
             adoptCurrentItem()
             let formatter = RowFormatter()
             related = page.details.related.map { formatter.row($0, positionSeconds: nil, durationSeconds: nil) }
+            storyboard = page.manifest.storyboards.best(forFrameWidth: 320)
             // A Top Shelf link names only the ID; the page has the rest.
             if title.isEmpty { title = page.details.summary.title }
             if channelName.isEmpty { channelName = page.details.summary.channelName }
@@ -143,6 +150,36 @@ struct TVPlayerView: View {
         chapters = item.chapters
         chapterStarts = chapters.map { RowFormatter.clock($0.start) }
         error = nil
+    }
+
+    /// SponsorBlock segments as fractions of the video, for the progress bar.
+    private var segmentFractions: [ClosedRange<Double>] {
+        guard let duration = session.duration, duration > .zero else { return [] }
+        return session.skipSegments.map { max(0, $0.start / duration)...min(1, $0.end / duration) }
+    }
+
+    private var scrubDisplay: TransportBar.Scrub? {
+        guard let scrub, let duration = session.duration, duration > .zero else { return nil }
+        return TransportBar.Scrub(fraction: min(1, max(0, scrub.target / duration)),
+                                  time: TransportClock.format(scrub.target, longest: duration),
+                                  frame: storyboard.flatMap { board in board.frame(at: scrub.target).map { (board, $0) } })
+    }
+
+    /// A swipe across the whole surface moves a quarter of the video (at least a minute); lifting
+    /// the finger jumps there.
+    private func scrubbed(_ translation: CGFloat?) {
+        guard !showsPanel, let duration = session.duration, duration > .zero else { return }
+        guard let translation else {
+            if let scrub { Task { await session.seek(to: scrub.target, precise: true) } }
+            withAnimation(Tokens.Motion.standard) { scrub = nil }
+            revealTransport()
+            return
+        }
+        let from = scrub?.from ?? session.position
+        let span = max(Duration.seconds(60), duration / 4)
+        let target = min(duration, max(.zero, from + span * Double(translation / 1000)))
+        scrub = (target, from)
+        revealTransport()
     }
 
     private func togglePlayback() {
@@ -202,37 +239,25 @@ struct TVPlayerView: View {
     }
 
     private func updateTransport() {
-        transport = TransportText(position: session.position, duration: session.duration, chapters: chapters)
+        transport = TransportClock(position: session.position, duration: session.duration, chapters: chapters)
     }
 }
 
-/// Pre-formatted transport strings, rebuilt when the position changes (not in `body`).
-struct TransportText: Equatable {
-    var elapsed = ""
-    var remaining = ""
-    var fraction = 0.0
-    var chapterTitle: String?
-    var chapterIndex: Int?
-
-    init() {}
-
-    init(position: Duration, duration: Duration?, chapters: [Chapter]) {
-        elapsed = RowFormatter.clock(position)
-        if let duration, duration > .zero {
-            remaining = "-" + RowFormatter.clock(max(.zero, duration - position))
-            fraction = min(1, max(0, position / duration))
-        }
-        chapterIndex = chapters.lastIndex { $0.start <= position }
-        chapterTitle = chapterIndex.map { chapters[$0].title }
-    }
-}
-
-private struct TransportBar: View {
+struct TransportBar: View {
+    @State private var barWidth: CGFloat = 1
     let title: String
     let channelName: String
-    let text: TransportText
+    let text: TransportClock
     let isPlaying: Bool
     let hasChapters: Bool
+    let segments: [ClosedRange<Double>]
+    let scrub: Scrub?
+
+    struct Scrub {
+        let fraction: Double
+        let time: String
+        let frame: (Storyboard, Storyboard.Frame)?
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -249,12 +274,36 @@ private struct TransportBar: View {
             Capsule().fill(.white.opacity(0.25))
                 .frame(height: 10)
                 .overlay(alignment: .leading) {
+                    ForEach(segments, id: \.lowerBound) { segment in
+                        Rectangle().fill(Color.yellow.opacity(0.85))
+                            .frame(width: max(3, barWidth * (segment.upperBound - segment.lowerBound)))
+                            .offset(x: barWidth * segment.lowerBound)
+                    }
+                }
+                .overlay(alignment: .leading) {
                     Capsule().fill(.white)
-                        .scaleEffect(x: text.fraction, y: 1, anchor: .leading)
+                        .scaleEffect(x: scrub?.fraction ?? text.fraction, y: 1, anchor: .leading)
+                }
+                .clipShape(.capsule)
+                .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { barWidth = $0 }
+                .overlay(alignment: .bottomLeading) {
+                    if let scrub {
+                        VStack(spacing: 10) {
+                            if let (board, frame) = scrub.frame {
+                                StoryboardFrameView(page: frame.page, origin: CGPoint(x: frame.x, y: frame.y),
+                                                    frameSize: CGSize(width: board.frameWidth, height: board.frameHeight),
+                                                    pageSize: CGSize(width: board.pageWidth, height: board.pageHeight),
+                                                    displayWidth: 400)
+                                    .clipShape(.rect(cornerRadius: 12))
+                            }
+                            Text(verbatim: scrub.time).font(.callout.monospacedDigit().weight(.semibold))
+                        }
+                        .offset(x: min(max(0, barWidth * scrub.fraction - 200), max(0, barWidth - 400)), y: -30)
+                    }
                 }
             HStack {
                 Image(systemName: isPlaying ? "pause.fill" : "play.fill")
-                Text(text.elapsed).monospacedDigit()
+                Text(verbatim: scrub?.time ?? text.elapsed).monospacedDigit()
                 Spacer()
                 if hasChapters {
                     Label { Text("More") } icon: { Image(systemName: "chevron.down") }

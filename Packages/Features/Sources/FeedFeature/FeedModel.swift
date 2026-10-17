@@ -11,12 +11,15 @@ public final class FeedModel {
         didSet {
             indexByID = Self.index(rows)
             (featured, latest) = Self.split(rows)
+            sections = FeedSection.group(latest)
         }
     }
     /// The newest video not started yet, shown large at the top of Home.
     public private(set) var featured: FeedRow?
     /// Everything else, newest first.
     public private(set) var latest: [FeedRow] = []
+    /// `latest` by when it was published: Today, Yesterday, This Week, Earlier.
+    public private(set) var sections: [FeedSection] = []
     /// Started but unfinished, most recent first.
     public private(set) var continueWatching: [FeedRow] = []
     public private(set) var queue: [FeedRow] = []
@@ -56,6 +59,7 @@ public final class FeedModel {
         rows = (try? store.rows(firstScreen)) ?? []
         indexByID = Self.index(rows)
         (featured, latest) = Self.split(rows)
+        sections = FeedSection.group(latest)
         continueWatching = (try? watchState?.inProgress()) ?? []
         self.queue = (try? queue?.rows()) ?? []
     }
@@ -160,5 +164,42 @@ public final class FeedModel {
         default:
             String(localized: "Couldn't refresh the feed. Showing saved videos.")
         }
+    }
+}
+
+/// A run of feed rows published in the same period, with its title already localized.
+nonisolated public struct FeedSection: Identifiable, Sendable, Equatable {
+    public enum Period: Int, Sendable { case today, yesterday, thisWeek, earlier }
+
+    public let period: Period
+    public let rows: [FeedRow]
+    public var id: Period { period }
+
+    public var title: String {
+        switch period {
+        case .today: String(localized: "Today")
+        case .yesterday: String(localized: "Yesterday")
+        case .thisWeek: String(localized: "This Week")
+        case .earlier: String(localized: "Earlier")
+        }
+    }
+
+    /// Rows keep their order (newest first); videos without a date go under Earlier.
+    static func group(_ rows: [FeedRow], now: Date = .now, calendar: Calendar = .current) -> [FeedSection] {
+        let weekAgo = calendar.date(byAdding: .day, value: -7, to: calendar.startOfDay(for: now)) ?? now
+        var buckets: [Period: [FeedRow]] = [:]
+        for row in rows {
+            let period: Period
+            if let date = row.video.publishedAt {
+                if calendar.isDateInToday(date) { period = .today }
+                else if calendar.isDateInYesterday(date) { period = .yesterday }
+                else if date >= weekAgo { period = .thisWeek }
+                else { period = .earlier }
+            } else {
+                period = .earlier
+            }
+            buckets[period, default: []].append(row)
+        }
+        return buckets.sorted { $0.key.rawValue < $1.key.rawValue }.map { FeedSection(period: $0.key, rows: $0.value) }
     }
 }
