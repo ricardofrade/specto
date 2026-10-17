@@ -44,9 +44,7 @@ targets:
     sources:
       - Sources
       - path: ../Shared
-        group: Shared
       - path: ../SnapshotShared
-        group: SnapshotShared
       - path: Resources
         buildPhase: resources
       - path: ../../docs/licenses.md
@@ -146,10 +144,8 @@ targets:
     sources:
       - ../Widgets
       - path: ../SnapshotShared
-        group: SnapshotShared
       # The app's string catalog: the extension runs from its own bundle.
       - path: ../Shared/Localizable.xcstrings
-        group: Shared
     dependencies:
       - sdk: WidgetKit.framework
       - sdk: SwiftUI.framework

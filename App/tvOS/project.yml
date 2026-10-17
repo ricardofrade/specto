@@ -32,11 +32,9 @@ targets:
     sources:
       - Sources
       - path: ../SnapshotShared
-        group: SnapshotShared
       - path: Resources
         buildPhase: resources
       - path: ../Shared
-        group: Shared
       - path: ../../docs/licenses.md
         buildPhase: resources
       - path: ../iOS/Resources/PrivacyInfo.xcprivacy
@@ -104,7 +102,6 @@ targets:
     sources:
       - TopShelf
       - path: ../SnapshotShared
-        group: SnapshotShared
     dependencies:
       - sdk: TVServices.framework
     info:
