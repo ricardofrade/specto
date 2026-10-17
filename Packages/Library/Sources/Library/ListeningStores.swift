@@ -87,6 +87,39 @@ public extension WatchStateStore {
         database.stream { db in try Self.fetchHistory(db, limit: limit) }
     }
 
+    /// Watched videos whose title or channel holds every word of `query`, ignoring case and
+    /// accents ("cafe" finds "Café"), most recent first. Searches the whole history, not just
+    /// the rows Library shows.
+    func searchHistory(_ query: String, limit: Int = 100) throws -> [FeedRow] {
+        let words = query.split(whereSeparator: \.isWhitespace).map(String.init)
+        guard !words.isEmpty else { return [] }
+        return try database.writer.read { db in
+            // Titles first (cheap), then full rows only for the matches.
+            let candidates = try Row.fetchAll(db, sql: """
+                SELECT video.id, video.title, video.channelName
+                FROM watchState JOIN video ON video.id = watchState.videoID
+                WHERE watchState.isDeleted = 0
+                ORDER BY watchState.lastWatchedAt DESC
+                """)
+            let ids: [String] = candidates.lazy.filter { row in
+                let title: String = row["title"], channel: String = row["channelName"]
+                return words.allSatisfy { title.localizedStandardContains($0) || channel.localizedStandardContains($0) }
+            }.prefix(limit).map { $0["id"] }
+            guard !ids.isEmpty else { return [] }
+            let formatter = RowFormatter()
+            let rows = try Row.fetchAll(db, sql: """
+                SELECT video.*, watchState.positionSeconds AS position, watchState.durationSeconds AS length
+                FROM watchState JOIN video ON video.id = watchState.videoID
+                WHERE watchState.isDeleted = 0 AND video.id IN (\(databaseQuestionMarks(count: ids.count)))
+                ORDER BY watchState.lastWatchedAt DESC
+                """, arguments: StatementArguments(ids))
+            return try rows.map { row in
+                formatter.row(try VideoRecord(row: row).summary, positionSeconds: row["position"],
+                              durationSeconds: row["length"])
+            }
+        }
+    }
+
     /// A tombstone, so the removal syncs; watching it again brings it back.
     func removeFromHistory(_ id: VideoID) throws {
         try database.writer.write { db in

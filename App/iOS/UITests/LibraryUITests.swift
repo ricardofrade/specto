@@ -38,6 +38,34 @@ final class LibraryUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["No channels"].waitForExistence(timeout: 5), "Still subscribed")
     }
 
+    /// Offline: the search field finds watched videos by title words, and only those.
+    @MainActor
+    func testHistorySearch() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-UITestFreshStart", "-SeedDemoFeed", "6", "-SeedHistory", "4", "-AppleLanguages", "(en)"]
+        app.launch()
+        app.buttons["Library"].firstMatch.tap()
+        XCTAssertTrue(app.descendants(matching: .any)["library.history"].firstMatch.waitForExistence(timeout: 10))
+        let search = app.searchFields.firstMatch
+        if !search.exists { app.swipeDown() }
+        XCTAssertTrue(search.waitForExistence(timeout: 5), "No search field")
+        search.tap()
+        search.typeText("VIDEO 4")
+        let result = app.descendants(matching: .any).matching(identifier: "library.historyResult")
+        XCTAssertTrue(result.firstMatch.waitForExistence(timeout: 5), "No results")
+        XCTAssertEqual(result.count, 1)
+        XCTAssertTrue(result.firstMatch.label.contains("Demo video 4"), result.firstMatch.label)
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = "history-search"
+        shot.lifetime = .keepAlways
+        add(shot)
+
+        search.typeText(" zzz")
+        XCTAssertTrue(app.staticTexts["No Results for “VIDEO 4 zzz”"].waitForExistence(timeout: 5), "Didn't show no results")
+        search.buttons.firstMatch.tap()   // Clear: the Library again.
+        XCTAssertTrue(app.descendants(matching: .any)["library.history"].firstMatch.waitForExistence(timeout: 5))
+    }
+
     @MainActor
     func testWatchedVideoAppearsAndCanBeRemoved() throws {
         guard let piped = ProcessInfo.processInfo.environment["PIPED_URL"] else {

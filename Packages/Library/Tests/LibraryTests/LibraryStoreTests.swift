@@ -230,6 +230,29 @@ struct ListeningStoresTests {
         #expect(try watch.history().isEmpty)
     }
 
+    @Test func historySearchMatchesEveryWordIgnoringCaseAndAccents() throws {
+        let db = try AppDatabase.inMemory()
+        func titled(_ id: String, _ title: String, channel: String) -> VideoSummary {
+            VideoSummary(id: VideoID(rawValue: id), title: title, channelID: ChannelID(rawValue: "UCaaaaaaaaaaaaaaaaaaaaaa"),
+                         channelName: channel, duration: .seconds(600), publishedAt: .now, viewCount: 1, thumbnails: [])
+        }
+        try FeedStore(db).save([titled("a", "Café da manhã", channel: "Cozinha"),
+                                titled("b", "Blender Conference", channel: "Blender"),
+                                titled("c", "Unwatched café", channel: "Cozinha")])
+        let watch = WatchStateStore(db)
+        try watch.save(.seconds(30), duration: .seconds(600), for: VideoID(rawValue: "a"))
+        Thread.sleep(forTimeInterval: 0.05)
+        try watch.save(.seconds(30), duration: .seconds(600), for: VideoID(rawValue: "b"))
+
+        #expect(try watch.searchHistory("CAFE").map(\.id.rawValue) == ["a"])        // Not "c": never watched.
+        #expect(try watch.searchHistory("cafe cozinha").map(\.id.rawValue) == ["a"])  // Title and channel words.
+        #expect(try watch.searchHistory("blender").map(\.id.rawValue) == ["b"])
+        #expect(try watch.searchHistory("cafe blender").isEmpty)
+        #expect(try watch.searchHistory("  ").isEmpty)
+        try watch.removeFromHistory(VideoID(rawValue: "a"))
+        #expect(try watch.searchHistory("cafe").isEmpty)
+    }
+
     @Test func queueKeepsTheDraggedOrder() throws {
         let db = try AppDatabase.inMemory()
         let queue = QueueStore(db)

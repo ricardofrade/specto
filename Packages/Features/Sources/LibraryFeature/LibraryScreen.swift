@@ -13,6 +13,7 @@ public struct LibraryScreen: View {
     private let onOpenChannels: () -> Void
     private let onOpenPlaylists: () -> Void
     @State private var confirmingClear = false
+    @State private var query = ""
     @Environment(\.displayScale) private var displayScale
 
     public init(model: LibraryModel, onSelect: @escaping (FeedRow) -> Void,
@@ -27,7 +28,9 @@ public struct LibraryScreen: View {
 
     public var body: some View {
         Group {
-            if model.isEmpty {
+            if let results = model.historyResults {
+                searchResults(results)
+            } else if model.isEmpty {
                 ContentUnavailableView {
                     Label { Text("Nothing here yet") } icon: { Image(systemName: "books.vertical") }
                 } description: {
@@ -38,6 +41,12 @@ public struct LibraryScreen: View {
             }
         }
         .navigationTitle(Text("Library"))
+        .searchable(text: $query, prompt: Text("Search History"))
+        .task(id: query) {
+            if !query.isEmpty { try? await Task.sleep(for: .milliseconds(200)) }   // Settle while typing.
+            guard !Task.isCancelled else { return }
+            await model.searchHistory(query)
+        }
         .task { await model.start() }
         .confirmationDialog(Text("Clear your watch history?"), isPresented: $confirmingClear, titleVisibility: .visible) {
             Button(role: .destructive) { model.clearHistory() } label: { Text("Clear History") }
@@ -114,6 +123,24 @@ public struct LibraryScreen: View {
         }
         .listStyle(.insetGrouped)
         .accessibilityIdentifier("library.list")
+    }
+
+    @ViewBuilder
+    private func searchResults(_ results: [FeedRow]) -> some View {
+        if results.isEmpty {
+            ContentUnavailableView.search(text: query)
+        } else {
+            List {
+                Section {
+                    ForEach(results) { row in
+                        cell(row).accessibilityIdentifier("library.historyResult")
+                    }
+                } header: {
+                    Text("History")
+                }
+            }
+            .listStyle(.insetGrouped)
+        }
     }
 
     /// A row that pushes a list (Channels, Playlists), with its count, like Music's Library.

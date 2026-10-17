@@ -126,7 +126,8 @@ final class AppEnvironment {
     /// Launch-argument hooks for UI and performance tests (in-memory only, never the user's data;
     /// kept in Release because the performance gates run there).
     /// `-UITestFreshStart`: empty in-memory state. `-SeedSubscriptions UC…,UC…`: subscribe
-    /// without the file picker, which UI tests can't drive. `-SeedDemoFeed N`: N cached videos.
+    /// without the file picker, which UI tests can't drive. `-SeedDemoFeed N`: N cached videos
+    /// (`-SeedHistory N` marks the first N watched).
     /// `-SeedInstance <Piped API URL>`: an instance without typing (the TV keyboard).
     private static func forUITests() -> AppEnvironment? {
         let arguments = ProcessInfo.processInfo.arguments
@@ -153,6 +154,14 @@ final class AppEnvironment {
                              publishedAt: Date.now.addingTimeInterval(-Double(index) * 3600),
                              viewCount: index * 1_311 % 900_000, thumbnails: [])
             })
+        }
+        // `-SeedHistory N`: the first N demo videos, watched for a minute each.
+        if let index = arguments.firstIndex(of: "-SeedHistory"), arguments.indices.contains(index + 1),
+           let count = Int(arguments[index + 1]) {
+            let watch = WatchStateStore(database)
+            for video in 0..<count {
+                try? watch.save(.seconds(60), duration: .seconds(600), for: VideoID(rawValue: "demo\(video)"))
+            }
         }
         return AppEnvironment(database: database, secrets: InMemorySecretStore())
     }

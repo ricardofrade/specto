@@ -10,6 +10,8 @@ public final class LibraryModel {
     public private(set) var continueWatching: [FeedRow]
     public private(set) var queue: [FeedRow]
     public private(set) var history: [FeedRow]
+    /// History rows matching the search field, or nil while it's empty.
+    public private(set) var historyResults: [FeedRow]?
     /// How many channels the person subscribes to, for the Channels row.
     public private(set) var channelCount: Int
     /// How many playlists are saved, for the Playlists row.
@@ -84,6 +86,16 @@ public final class LibraryModel {
     }
 
     public var isEmpty: Bool { continueWatching.isEmpty && queue.isEmpty && history.isEmpty && channelCount == 0 && playlistCount == 0 }
+
+    /// Searches the whole history off the main actor; an empty query clears the results.
+    public func searchHistory(_ query: String) async {
+        let trimmed = query.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { historyResults = nil; return }
+        let store = watchState
+        let rows = await Task.detached(priority: .userInitiated) { (try? store.searchHistory(trimmed)) ?? [] }.value
+        guard !Task.isCancelled else { return }
+        historyResults = rows
+    }
 
     public func removeFromHistory(_ id: VideoID) {
         try? watchState.removeFromHistory(id)
