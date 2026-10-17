@@ -9,6 +9,7 @@ import WatchFeature
 final class SceneRouter {
     enum Section: Hashable {
         case feed
+        case library
         case search
         case settings
         case channel(ChannelID)
@@ -27,6 +28,7 @@ final class SceneRouter {
     var section = Section.feed
     var settingsPath: [SettingsRoute] = []
     var feedPath: [Route] = []
+    var libraryPath: [Route] = []
     var searchPath: [Route] = []
     var watchPath: [Route] = []
     var watching: WatchContent?
@@ -43,6 +45,8 @@ final class SceneRouter {
             watchPath.append(.channel(id, name: name))
         } else if section == .search {
             searchPath.append(.channel(id, name: name))
+        } else if section == .library {
+            libraryPath.append(.channel(id, name: name))
         } else {
             section = .feed
             feedPath.append(.channel(id, name: name))

@@ -206,3 +206,34 @@ struct ListeningStoresTests {
         #expect(try downloads.watched().map(\.videoID.rawValue) == ["watched"])
     }
 }
+
+@Suite struct HistoryAndQueueOrderTests {
+    private func video(_ id: String) -> VideoSummary {
+        VideoSummary(id: VideoID(rawValue: id), title: id, channelID: ChannelID(rawValue: "UCaaaaaaaaaaaaaaaaaaaaaa"),
+                     channelName: "A", duration: .seconds(600), publishedAt: .now, viewCount: 1, thumbnails: [])
+    }
+
+    @Test func historyIsMostRecentFirstAndRemovalsSync() throws {
+        let db = try AppDatabase.inMemory()
+        try FeedStore(db).save([video("a"), video("b")])
+        let watch = WatchStateStore(db)
+        try watch.save(.seconds(30), duration: .seconds(600), for: VideoID(rawValue: "a"))
+        try watch.save(.seconds(600), duration: .seconds(600), for: VideoID(rawValue: "b"))   // Finished, still history.
+        #expect(try watch.history().map(\.id.rawValue) == ["b", "a"])
+
+        try watch.removeFromHistory(VideoID(rawValue: "b"))
+        #expect(try watch.history().map(\.id.rawValue) == ["a"])
+        #expect(try SyncStore(db).pendingKeys().contains(SyncStore.Key(.watchState, "b")))   // The tombstone uploads.
+
+        try watch.clearHistory()
+        #expect(try watch.history().isEmpty)
+    }
+
+    @Test func queueKeepsTheDraggedOrder() throws {
+        let db = try AppDatabase.inMemory()
+        let queue = QueueStore(db)
+        for id in ["a", "b", "c"] { try queue.add(video(id)) }
+        try queue.reorder(["c", "a", "b"].map { VideoID(rawValue: $0) })
+        #expect(try queue.rows().map(\.id.rawValue) == ["c", "a", "b"])
+    }
+}

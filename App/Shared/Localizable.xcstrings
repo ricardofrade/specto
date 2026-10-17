@@ -293,6 +293,26 @@
         }
       }
     },
+    "Clear History": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Limpar histórico"
+          }
+        }
+      }
+    },
+    "Clear your watch history?": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Limpar o histórico de visualizações?"
+          }
+        }
+      }
+    },
     "Close player": {
       "localizations": {
         "pt-PT": {
@@ -593,6 +613,16 @@
         }
       }
     },
+    "History": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Histórico"
+          }
+        }
+      }
+    },
     "Home": {
       "comment": "Home screen title",
       "localizations": {
@@ -736,6 +766,16 @@
         }
       }
     },
+    "Library": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Biblioteca"
+          }
+        }
+      }
+    },
     "Live": {
       "comment": "Badge text for a live stream",
       "localizations": {
@@ -843,6 +883,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Nenhuma das suas instâncias consegue reproduzir vídeos."
+          }
+        }
+      }
+    },
+    "Nothing here yet": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ainda não há nada aqui"
           }
         }
       }
@@ -1117,12 +1167,52 @@
         }
       }
     },
+    "Remove": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Remover"
+          }
+        }
+      }
+    },
+    "Remove from History": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Remover do histórico"
+          }
+        }
+      }
+    },
+    "Remove from Queue": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Remover da fila"
+          }
+        }
+      }
+    },
     "Resolution": {
       "localizations": {
         "pt-PT": {
           "stringUnit": {
             "state": "needs_review",
             "value": "Resolução"
+          }
+        }
+      }
+    },
+    "Resume positions are forgotten too, on every device that syncs.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "As posições de retoma também são esquecidas, em todos os dispositivos sincronizados."
           }
         }
       }
@@ -1553,6 +1643,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Vídeos"
+          }
+        }
+      }
+    },
+    "Videos you watch and queue show up here.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Os vídeos que vê e coloca na fila aparecem aqui."
           }
         }
       }

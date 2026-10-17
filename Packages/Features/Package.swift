@@ -12,7 +12,8 @@ let package = Package(
         .library(name: "InstancesFeature", targets: ["InstancesFeature"]),
         .library(name: "WatchFeature", targets: ["WatchFeature"]),
         .library(name: "SearchFeature", targets: ["SearchFeature"]),
-        .library(name: "ChannelFeature", targets: ["ChannelFeature"])
+        .library(name: "ChannelFeature", targets: ["ChannelFeature"]),
+        .library(name: "LibraryFeature", targets: ["LibraryFeature"])
     ],
     dependencies: [
         .package(path: "../Core"),
@@ -32,6 +33,8 @@ let package = Package(
         .target(name: "SearchFeature", dependencies: ["Core", "Library", "DesignSystem"],
                 swiftSettings: featureSettings),
         .target(name: "ChannelFeature", dependencies: ["Core", "Library", "DesignSystem"],
+                swiftSettings: featureSettings),
+        .target(name: "LibraryFeature", dependencies: ["Core", "Library", "DesignSystem"],
                 swiftSettings: featureSettings),
         .testTarget(name: "WatchFeatureTests", dependencies: ["WatchFeature"])
     ]

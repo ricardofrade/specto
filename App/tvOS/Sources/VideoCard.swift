@@ -8,6 +8,8 @@ import DesignSystem
 struct VideoCard: View {
     let row: FeedRow
     let actions: VideoActions
+    /// Shown last in the long-press menu (Library: "Remove from History").
+    var remove: (label: Text, action: () -> Void)?
     @Environment(\.displayScale) private var displayScale
 
     var body: some View {
@@ -22,6 +24,11 @@ struct VideoCard: View {
                 }
                 Button { actions.addToQueue(row.video) } label: {
                     Label { Text("Add to Queue") } icon: { Image(systemName: "text.badge.plus") }
+                }
+                if let remove {
+                    Button(role: .destructive, action: remove.action) {
+                        Label { remove.label } icon: { Image(systemName: "trash") }
+                    }
                 }
             }
             VStack(alignment: .leading, spacing: Tokens.Spacing.xxs) {

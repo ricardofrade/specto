@@ -2,6 +2,7 @@ import SwiftUI
 import Core
 import Library
 import FeedFeature
+import LibraryFeature
 import SearchFeature
 import ChannelFeature
 import InstancesFeature
@@ -14,6 +15,8 @@ struct TVRootView: View {
     let onFirstFeedFrame: () -> Void
     @State private var feed: FeedModel
     @State private var search: SearchModel
+    @State private var library: LibraryModel
+    @State private var libraryPath: [TVRoute] = []
     @State private var homePath: [TVRoute] = []
     @State private var searchPath: [TVRoute] = []
     @State private var playing: VideoSummary?
@@ -28,6 +31,8 @@ struct TVRootView: View {
                                               queue: QueueStore(environment.database)) { force in
             try await environment.refreshFeed(force: force)
         })
+        _library = State(initialValue: LibraryModel(watchState: WatchStateStore(environment.database),
+                                                    queue: QueueStore(environment.database)))
         _search = State(initialValue: SearchModel { query, cursor in
             try await environment.search(query, cursor: cursor)
         })
@@ -44,6 +49,14 @@ struct TVRootView: View {
                 }
             } label: {
                 Text("Home")
+            }
+            Tab {
+                NavigationStack(path: $libraryPath) {
+                    TVLibraryView(model: library, actions: actions { libraryPath.append(.channel($0, $1)) })
+                        .routes(environment: environment, actions: actions { libraryPath.append(.channel($0, $1)) })
+                }
+            } label: {
+                Text("Library")
             }
             Tab(role: .search) {
                 NavigationStack(path: $searchPath) {

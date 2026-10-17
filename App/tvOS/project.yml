@@ -47,6 +47,8 @@ targets:
       - package: Features
         product: FeedFeature
       - package: Features
+        product: LibraryFeature
+      - package: Features
         product: SearchFeature
       - package: Features
         product: ChannelFeature

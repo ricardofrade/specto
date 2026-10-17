@@ -55,6 +55,8 @@ targets:
       - package: Features
         product: FeedFeature
       - package: Features
+        product: LibraryFeature
+      - package: Features
         product: InstancesFeature
       - package: Features
         product: WatchFeature

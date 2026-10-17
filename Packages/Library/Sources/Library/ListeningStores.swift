@@ -24,6 +24,15 @@ public struct QueueStore: Sendable {
         _ = try database.writer.write { db in try QueueRecord.deleteOne(db, key: id.rawValue) }
     }
 
+    /// The queue in this order (after a drag in the Library).
+    public func reorder(_ ids: [VideoID]) throws {
+        try database.writer.write { db in
+            for (index, id) in ids.enumerated() {
+                try db.execute(sql: "UPDATE queueItem SET position = ? WHERE videoID = ?", arguments: [Double(index), id.rawValue])
+            }
+        }
+    }
+
     public func contains(_ id: VideoID) throws -> Bool {
         try database.writer.read { db in try QueueRecord.exists(db, key: id.rawValue) }
     }
@@ -67,6 +76,42 @@ public extension WatchStateStore {
     /// The same list, re-emitted whenever watch state or the cached videos change.
     func observeInProgress(limit: Int = 20) -> AsyncThrowingStream<[FeedRow], Error> {
         database.stream { db in try Self.fetchInProgress(db, limit: limit) }
+    }
+
+    /// Everything watched, most recent first, finished or not.
+    func history(limit: Int = 300) throws -> [FeedRow] {
+        try database.writer.read { db in try Self.fetchHistory(db, limit: limit) }
+    }
+
+    func observeHistory(limit: Int = 300) -> AsyncThrowingStream<[FeedRow], Error> {
+        database.stream { db in try Self.fetchHistory(db, limit: limit) }
+    }
+
+    /// A tombstone, so the removal syncs; watching it again brings it back.
+    func removeFromHistory(_ id: VideoID) throws {
+        try database.writer.write { db in
+            try db.execute(sql: "UPDATE watchState SET isDeleted = 1, modifiedAt = ? WHERE videoID = ?",
+                           arguments: [Date.now, id.rawValue])
+        }
+    }
+
+    func clearHistory() throws {
+        try database.writer.write { db in
+            try db.execute(sql: "UPDATE watchState SET isDeleted = 1, modifiedAt = ? WHERE isDeleted = 0", arguments: [Date.now])
+        }
+    }
+
+    private static func fetchHistory(_ db: Database, limit: Int) throws -> [FeedRow] {
+        let formatter = RowFormatter()
+        return try Row.fetchAll(db, sql: """
+            SELECT video.*, watchState.positionSeconds AS position, watchState.durationSeconds AS length
+            FROM watchState JOIN video ON video.id = watchState.videoID
+            WHERE watchState.isDeleted = 0
+            ORDER BY watchState.lastWatchedAt DESC LIMIT ?
+            """, arguments: [limit]).map { row in
+            formatter.row(try VideoRecord(row: row).summary, positionSeconds: row["position"],
+                          durationSeconds: row["length"])
+        }
     }
 
     private static func fetchInProgress(_ db: Database, limit: Int) throws -> [FeedRow] {

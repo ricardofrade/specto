@@ -3,6 +3,7 @@ import Core
 import Library
 import Playback
 import FeedFeature
+import LibraryFeature
 import InstancesFeature
 import WatchFeature
 import SearchFeature
@@ -15,6 +16,7 @@ struct RootView: View {
     @State private var settings = AppSettings.shared
     @State private var feed: FeedModel
     @State private var search: SearchModel
+    @State private var library: LibraryModel
     @State private var channels: [ChannelSummary] = []
     /// The tallest a 16:9 video can be drawn in this window, in either orientation: no point
     /// decoding more (and less means AVPlayer can play it, with system PiP; ADR 0005).
@@ -35,6 +37,8 @@ struct RootView: View {
                                               queue: QueueStore(environment.database)) { force in
             try await environment.refreshFeed(force: force)
         })
+        _library = State(initialValue: LibraryModel(watchState: WatchStateStore(environment.database),
+                                                    queue: QueueStore(environment.database)))
         _search = State(initialValue: SearchModel { query, cursor in
             try await environment.search(query, cursor: cursor)
         })
@@ -57,6 +61,15 @@ struct RootView: View {
                 }
             } label: {
                 Label { Text("Home") } icon: { Image(systemName: "house") }
+            }
+            Tab(value: SceneRouter.Section.library) {
+                NavigationStack(path: $router.libraryPath) {
+                    LibraryScreen(model: library, onSelect: { play($0.video) },
+                                  onOpenChannel: { router.openChannel($0, name: $1) })
+                        .routes()
+                }
+            } label: {
+                Label { Text("Library") } icon: { Image(systemName: "books.vertical") }
             }
             Tab(value: SceneRouter.Section.settings) {
                 NavigationStack(path: $router.settingsPath) { settingsScreen }
