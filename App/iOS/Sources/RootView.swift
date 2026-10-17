@@ -200,6 +200,9 @@ struct RootView: View {
         actions.selectedCaption = environment.selectedCaption
         actions.selectCaption = { environment.selectCaption($0) }
         actions.toggleCaptions = { environment.toggleCaptions() }
+        actions.qualities = environment.availableQualities
+        actions.selectedQuality = environment.manualQuality
+        actions.selectQuality = { height in Task { await environment.selectQuality(height) } }
         if let video = router.watching?.video {
             actions.isQueued = queuedIDs.contains(video.id)
             actions.toggleQueue = {

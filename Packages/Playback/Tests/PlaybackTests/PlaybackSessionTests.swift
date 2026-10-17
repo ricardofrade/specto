@@ -310,6 +310,18 @@ struct PlaybackSessionTests {
         #expect(mpv.seeks.isEmpty)
     }
 
+    @Test func reportsThePlannedVideoHeight() async {
+        let (session, _, _) = makeSession(MemoryResumeStore())
+        let stream = VideoStream(url: URL(string: "https://proxy.example/v")!, codec: .h264, container: .mp4,
+                                 width: 1280, height: 720, fps: 30, bitrate: nil, isHDR: false)
+        var video = request(a)
+        if case .adaptive(_, let audio) = video.source { video.source = .adaptive(video: stream, audio: audio) }
+        await session.play(item(a), video)
+        #expect(session.videoHeight == 720)
+        await session.play(item(b), request(b, mode: .audioOnly))
+        #expect(session.videoHeight == nil)
+    }
+
     @Test func requestEngineOverridesTheModesEngine() async {
         let (session, mpv, av) = makeSession(MemoryResumeStore())
         var airplay = request(a)

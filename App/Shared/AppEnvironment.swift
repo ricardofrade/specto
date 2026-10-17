@@ -34,7 +34,17 @@ final class AppEnvironment {
     @ObservationIgnored private var lastRecovery: (id: VideoID, at: ContinuousClock.Instant)?
     @ObservationIgnored var surfaceHeight = 1080
     /// The page now playing; audio mode, PiP, AirPlay and casting re-plan from it.
-    @ObservationIgnored var currentPage: WatchPage?
+    @ObservationIgnored var currentPage: WatchPage? {
+        didSet {
+            availableQualities = currentPage.map {
+                VideoQuality.heights(in: $0.manifest.videoStreams, capabilities: DecodeCapabilities(), allowHDR: false)
+            } ?? []
+        }
+    }
+    /// The heights the player's Quality picker offers for this video, tallest first.
+    private(set) var availableQualities: [Int] = []
+    /// Picked in the player for this video; nil plans automatically (ADR 0007).
+    private(set) var manualQuality: Int?
     @ObservationIgnored var nowPlaying: NowPlayingController?
     @ObservationIgnored let community = CommunityServices()
     /// CloudKit sync, when configured: instances always (so the TV gets the phone's), the
@@ -375,6 +385,7 @@ final class AppEnvironment {
             try? manifests.store(page)
         }
         self.surfaceHeight = surfaceHeight
+        manualQuality = nil
         let request = try plan(page, mode: mode, startAt: .zero)
         let item = NowPlayingItem(videoID: video.id, title: video.title, channelName: video.channelName,
                                   artworkURL: video.thumbnails.first?.url, chapters: page.manifest.chapters)
@@ -386,12 +397,32 @@ final class AppEnvironment {
         return page
     }
 
+    /// The surface, the data-saver limit for this network (or a manual pick) and the measured
+    /// speed decide the stream (ADR 0007).
     func plan(_ page: WatchPage, mode: PlaybackMode, startAt: Duration) throws -> PlaybackRequest {
         let planner = PlaybackPlanner(selector: FormatSelector(capabilities: DecodeCapabilities()),
                                       preferredAudioLanguage: nil)
-        return try planner.request(for: page, mode: mode, maxDisplayHeight: surfaceHeight,
-                                   throughputBitsPerSecond: session.stats?.throughputBitsPerSecond,
-                                   allowHDR: false, startAt: startAt)
+        let network = NetworkMonitor.shared.status
+        let maxHeight = VideoQuality.maxHeight(surface: surfaceHeight, manual: manualQuality,
+                                               limit: AppSettings.shared.qualityLimit(onExpensiveNetwork: network.isExpensive),
+                                               isConstrained: network.isConstrained)
+        // A manual pick is what the person asked for, even if the connection seems slow.
+        var request = try planner.request(for: page, mode: mode, maxDisplayHeight: maxHeight,
+                                          throughputBitsPerSecond: manualQuality == nil ? session.stats?.throughputBitsPerSecond : nil,
+                                          allowHDR: false, startAt: startAt)
+        request.maxVideoHeight = maxHeight
+        return request
+    }
+
+    /// From the player's Quality picker: nil goes back to automatic. Reloads at the same position.
+    func selectQuality(_ height: Int?) async {
+        guard height != manualQuality else { return }
+        manualQuality = height
+        guard let page = currentPage, let item = session.item, session.mode == .video,
+              let request = try? plan(page, mode: .video, startAt: session.position) else { return }
+        await session.play(item, request)
+        loadSkipSegments(for: item.videoID)
+        loadSelectedCaption(for: item.videoID)
     }
 
     /// Stream URLs expire (YouTube's ~6 h, YT Zero's 15-minute tickets). When the engine reports

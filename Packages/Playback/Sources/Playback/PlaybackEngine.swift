@@ -94,6 +94,9 @@ public struct PlaybackRequest: Sendable {
     public var mode: PlaybackMode
     /// Forces an engine (AirPlay video needs AVPlayer); nil picks by mode.
     public var engine: EngineKind?
+    /// The tallest rendition an HLS source may switch to (data saver, ADR 0007). Adaptive
+    /// sources are already chosen at a height; mpv ignores this for HLS.
+    public var maxVideoHeight: Int?
 
     public init(videoID: VideoID, source: MediaSource, caption: CaptionTrack? = nil,
                 startAt: Duration = .zero, mode: PlaybackMode, engine: EngineKind? = nil) {

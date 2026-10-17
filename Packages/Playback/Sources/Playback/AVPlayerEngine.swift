@@ -49,6 +49,9 @@ public final class AVPlayerEngine: PlaybackEngine {
         }
         let item = AVPlayerItem(asset: asset)
         item.preferredForwardBufferDuration = 30
+        if let height = request.maxVideoHeight {
+            item.preferredMaximumResolution = CGSize(width: height * 16 / 9, height: height)
+        }
         player.replaceCurrentItem(with: item)
         observe(item)
 

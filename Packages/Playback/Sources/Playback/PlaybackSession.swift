@@ -50,6 +50,8 @@ public final class PlaybackSession {
     @ObservationIgnored private var subtitleCues: [SubtitleCue] = []
     /// Which engine is playing (AirPlay moves video from mpv to AVPlayer and back).
     public private(set) var engineKind: EngineKind?
+    /// The planned video stream's height; nil for audio-only, HLS and single-file sources.
+    public private(set) var videoHeight: Int?
 
     @ObservationIgnored private let engineFactory: @MainActor (EngineKind) -> any PlaybackEngine
     @ObservationIgnored private let resumeStore: any ResumeStore
@@ -110,6 +112,11 @@ public final class PlaybackSession {
         self.skipped = []
         self.current = next
         self.engineKind = next.kind
+        if request.mode == .video, case .adaptive(let video?, _) = request.source {
+            videoHeight = video.height
+        } else {
+            videoHeight = nil
+        }
         if request.mode == .video, let host {
             next.attach(host)
         }

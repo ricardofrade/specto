@@ -52,6 +52,15 @@ final class AppSettings {
         didSet { defaults.set(newUploadsSince, forKey: Keys.newUploadsSince) }
     }
 
+    /// Data saver (ADR 0007): the tallest video on Wi-Fi, and on cellular or a hotspot; nil for
+    /// no limit beyond the screen. Low Data Mode caps at 480p on top of these.
+    var wifiQualityLimit: Int? {
+        didSet { defaults.set(wifiQualityLimit ?? 0, forKey: Keys.wifiQualityLimit) }
+    }
+    var cellularQualityLimit: Int? {
+        didSet { defaults.set(cellularQualityLimit ?? 0, forKey: Keys.cellularQualityLimit) }
+    }
+
     private let defaults: UserDefaults
 
     init(defaults: UserDefaults = .standard) {
@@ -66,7 +75,16 @@ final class AppSettings {
         captionLanguage = defaults.string(forKey: Keys.captionLanguage)
         notifiesNewUploads = defaults.bool(forKey: Keys.notifiesNewUploads)
         newUploadsSince = defaults.object(forKey: Keys.newUploadsSince) as? Date
+        wifiQualityLimit = Self.limit(defaults.integer(forKey: Keys.wifiQualityLimit))
+        cellularQualityLimit = Self.limit(defaults.integer(forKey: Keys.cellularQualityLimit))
     }
+
+    /// The limit for the network playback is on now.
+    func qualityLimit(onExpensiveNetwork: Bool) -> Int? {
+        onExpensiveNetwork ? cellularQualityLimit : wifiQualityLimit
+    }
+
+    private static func limit(_ stored: Int) -> Int? { stored > 0 ? stored : nil }
 
     var feedOptions: FeedStore.Options {
         .init(hideShorts: hideShorts, brandedTitles: brandedTitles, brandedThumbnails: brandedThumbnails)
@@ -78,6 +96,8 @@ final class AppSettings {
         static let notifiesNewUploads = "notifications.newUploads"
         static let newUploadsSince = "notifications.newUploadsSince"
         static let showsRelated = "watch.showsRelated"
+        static let wifiQualityLimit = "playback.wifiQualityLimit"
+        static let cellularQualityLimit = "playback.cellularQualityLimit"
         static let skipsSponsors = "sponsorBlock.enabled"
         static let brandedTitles = "deArrow.titles"
         static let brandedThumbnails = "deArrow.thumbnails"

@@ -47,6 +47,17 @@ struct SettingsView: View {
             }
 
             Section {
+                QualityLimitPicker(title: Text("On Wi-Fi"), limit: $settings.wifiQualityLimit)
+                    .accessibilityIdentifier("settings.wifiQuality")
+                QualityLimitPicker(title: Text("On cellular"), limit: $settings.cellularQualityLimit)
+                    .accessibilityIdentifier("settings.cellularQuality")
+            } header: {
+                Text("Video quality")
+            } footer: {
+                Text("The highest quality to play. Cellular includes personal hotspots, and Low Data Mode plays at up to 480p. You can still pick a quality for a video in the player.")
+            }
+
+            Section {
                 Toggle(isOn: $settings.skipsSponsors) { Text("Skip sponsors (SponsorBlock)") }
                 Toggle(isOn: $settings.brandedTitles) { Text("Community titles (DeArrow)") }
                 Toggle(isOn: $settings.brandedThumbnails) { Text("Community thumbnails (DeArrow)") }

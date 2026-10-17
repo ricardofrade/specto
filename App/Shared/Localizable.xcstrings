@@ -205,6 +205,26 @@
         }
       }
     },
+    "Auto": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Automática"
+          }
+        }
+      }
+    },
+    "Auto (%@)": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Automática (%@)"
+          }
+        }
+      }
+    },
     "Back 10 Seconds": {
       "localizations": {
         "pt-PT": {
@@ -221,6 +241,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Recuar 10 segundos"
+          }
+        }
+      }
+    },
+    "Best available": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Melhor disponível"
           }
         }
       }
@@ -1070,6 +1100,26 @@
         }
       }
     },
+    "On Wi-Fi": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Em Wi-Fi"
+          }
+        }
+      }
+    },
+    "On cellular": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Em dados móveis"
+          }
+        }
+      }
+    },
     "Open %@ where you're signed in to YT Zero and enter this code, or scan it with another device.": {
       "localizations": {
         "pt-PT": {
@@ -1250,6 +1300,16 @@
         }
       }
     },
+    "Playback Settings": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Definições de reprodução"
+          }
+        }
+      }
+    },
     "Playback Speed": {
       "localizations": {
         "pt-PT": {
@@ -1316,6 +1376,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Código QR da página de emparelhamento"
+          }
+        }
+      }
+    },
+    "Quality": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Qualidade"
           }
         }
       }
@@ -1700,6 +1770,16 @@
         }
       }
     },
+    "The highest quality to play. Cellular includes personal hotspots, and Low Data Mode plays at up to 480p. You can still pick a quality for a video in the player.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A qualidade máxima a reproduzir. Dados móveis inclui hotspots pessoais, e o modo de poucos dados reproduz até 480p. Pode sempre escolher a qualidade de um vídeo no leitor."
+          }
+        }
+      }
+    },
     "The pairing code expired. Try again.": {
       "localizations": {
         "pt-PT": {
@@ -1846,6 +1926,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Vídeo"
+          }
+        }
+      }
+    },
+    "Video quality": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Qualidade de vídeo"
           }
         }
       }

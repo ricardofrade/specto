@@ -249,8 +249,8 @@ private struct PlayerArea: View {
             PlayerSurface(session: session)
                 .scaleEffect(fills ? fillScale : 1)
                 .accessibilityIdentifier("watch.surface")
-                // "<state> <engine> <seconds>": read by UI tests (playback never stalls, engine policy).
-                .accessibilityValue(Text(verbatim: "\(session.state) \(session.engineKind?.rawValue ?? "none") \(session.position.components.seconds)"))
+                // "<state> <engine> <height or -> <seconds>": read by UI tests (never stalls, engine policy, quality).
+                .accessibilityValue(Text(verbatim: "\(session.state) \(session.engineKind?.rawValue ?? "none") \(session.videoHeight.map { "\($0)p" } ?? "-") \(session.position.components.seconds)"))
             SubtitleView(session.subtitle)
                 // Smaller in the portrait player, so a line fits between the controls and the bar.
                 .font(size.height < 320 ? .footnote.weight(.semibold) : .body.weight(.semibold))

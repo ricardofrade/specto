@@ -8,7 +8,7 @@ import DesignSystem
 /// Full-screen playback with the Siri Remote:
 /// - Select or Play/Pause toggles playback.
 /// - Left/right skip back 10 s and forward 10 s. Right after a SponsorBlock skip, left undoes it.
-/// - Down opens subtitles, speed, chapters and Up Next (shown by itself when a video ends
+/// - Down opens chapters, subtitles, speed, quality and Up Next (shown by itself when a video ends
 ///   with nothing queued).
 /// - Menu (Back) closes that panel, then the player.
 struct TVPlayerView: View {
@@ -78,6 +78,9 @@ struct TVPlayerView: View {
                           captions: environment.captionTracks, selectedCaption: environment.selectedCaption,
                           onCaption: { environment.selectCaption($0) },
                           rate: session.rate, onRate: { session.setRate($0) },
+                          qualities: session.mode == .video ? environment.availableQualities : [],
+                          selectedQuality: environment.manualQuality, playingHeight: session.videoHeight,
+                          onQuality: { height in Task { await environment.selectQuality(height) } },
                           focusUpNext: session.state == .ended) { chapter in
                     Task { await session.seek(to: chapter.start, precise: false) }
                     closePanel()
@@ -332,13 +335,17 @@ private struct InfoPanel: View {
     let onCaption: (CaptionTrack?) -> Void
     let rate: Float
     let onRate: (Float) -> Void
+    let qualities: [Int]
+    let selectedQuality: Int?
+    let playingHeight: Int?
+    let onQuality: (Int?) -> Void
     /// At the end of a video, focus starts on Up Next.
     let focusUpNext: Bool
     let onChapter: (Chapter) -> Void
     let onPlay: (VideoSummary) -> Void
     @FocusState private var focused: Focus?
 
-    enum Focus: Hashable { case chapter(Int), video(VideoID), caption(String), speed(Float) }
+    enum Focus: Hashable { case chapter(Int), video(VideoID), caption(String), speed(Float), quality(Int?) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 30) {
@@ -380,6 +387,20 @@ private struct InfoPanel: View {
                     .focused($focused, equals: .speed(option.rate))
                 }
             }
+            if !qualities.isEmpty {
+                shelf(Text("Quality")) {
+                    qualityButton(nil) {
+                        if let playingHeight, selectedQuality == nil {
+                            Text("Auto (\(VideoQuality.label(playingHeight)))")
+                        } else {
+                            Text("Auto")
+                        }
+                    }
+                    ForEach(qualities, id: \.self) { height in
+                        qualityButton(height) { Text(verbatim: VideoQuality.label(height)) }
+                    }
+                }
+            }
             if !related.isEmpty {
                 shelf(Text("Up Next")) {
                     ForEach(related) { row in
@@ -406,6 +427,19 @@ private struct InfoPanel: View {
             else if !chapters.isEmpty { focused = .chapter(current ?? 0) }
             else if let first = related.first { focused = .video(first.id) }
         }
+    }
+
+    private func qualityButton(_ height: Int?, @ViewBuilder label: () -> some View) -> some View {
+        Button { onQuality(height) } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "checkmark").opacity(height == selectedQuality ? 1 : 0)
+                label()
+            }
+            .font(.callout)
+            .padding(.horizontal, 24).padding(.vertical, 14)
+        }
+        .buttonStyle(.card)
+        .focused($focused, equals: .quality(height))
     }
 
     private func captionButton(_ track: CaptionTrack?, @ViewBuilder label: () -> some View) -> some View {

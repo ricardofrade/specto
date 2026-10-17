@@ -23,6 +23,11 @@ public struct PlayerActions {
     public var selectedCaption: CaptionTrack?
     public var selectCaption: (CaptionTrack?) -> Void = { _ in }
     public var toggleCaptions: () -> Void = {}
+    /// Heights the Quality picker offers (tallest first), the manual pick (nil: automatic),
+    /// and how to change it.
+    public var qualities: [Int] = []
+    public var selectedQuality: Int?
+    public var selectQuality: (Int?) -> Void = { _ in }
     /// nil when PiP isn't available for this playback.
     public var startPictureInPicture: (() -> Void)?
     public var castTargets: [CastTarget]
@@ -97,18 +102,7 @@ struct PlayerActionsBar: View {
                     }
                     .accessibilityIdentifier("watch.subtitles")
                 }
-                Menu {
-                    Picker(selection: Binding(get: { session.rate }, set: { session.setRate($0) })) {
-                        ForEach(SpeedOptions.all, id: \.self) { option in
-                            Text(verbatim: option.label).tag(option.rate)
-                        }
-                    } label: { Text("Playback Speed") }
-                } label: {
-                    Label { Text("Playback Speed") } icon: { Image(systemName: "gauge.with.dots.needle.67percent") }
-                        .labelStyle(.iconOnly)
-                }
-                .accessibilityValue(Text(verbatim: SpeedOptions.label(for: session.rate)))
-                .accessibilityIdentifier("watch.speed")
+                PlaybackSettingsMenu(session: session, actions: actions)
                 if let startPiP = actions.startPictureInPicture, session.mode == .video {
                     Button(action: startPiP) {
                         Label { Text("Picture in Picture") } icon: { Image(systemName: "pip.enter") }
@@ -191,5 +185,45 @@ struct SkipNotice: View {
                 withAnimation(Tokens.Motion.standard) { if visible == new { visible = nil } }
             }
         }
+    }
+}
+
+/// Quality and speed, each a submenu showing its current value.
+private struct PlaybackSettingsMenu: View {
+    let session: PlaybackSession
+    let actions: PlayerActions
+
+    var body: some View {
+        Menu {
+            if session.mode == .video, !actions.qualities.isEmpty {
+                Picker(selection: Binding(get: { actions.selectedQuality }, set: { actions.selectQuality($0) })) {
+                    if let height = session.videoHeight, actions.selectedQuality == nil {
+                        Text("Auto (\(VideoQuality.label(height)))").tag(Int?.none)
+                    } else {
+                        Text("Auto").tag(Int?.none)
+                    }
+                    ForEach(actions.qualities, id: \.self) { height in
+                        Text(verbatim: VideoQuality.label(height)).tag(Optional(height))
+                    }
+                } label: {
+                    Label { Text("Quality") } icon: { Image(systemName: "slider.horizontal.3") }
+                }
+                .pickerStyle(.menu)
+                .accessibilityIdentifier("watch.quality")
+            }
+            Picker(selection: Binding(get: { session.rate }, set: { session.setRate($0) })) {
+                ForEach(SpeedOptions.all, id: \.self) { option in
+                    Text(verbatim: option.label).tag(option.rate)
+                }
+            } label: {
+                Label { Text("Playback Speed") } icon: { Image(systemName: "gauge.with.dots.needle.67percent") }
+            }
+            .pickerStyle(.menu)
+            .accessibilityIdentifier("watch.speed")
+        } label: {
+            Label { Text("Playback Settings") } icon: { Image(systemName: "gearshape") }
+                .labelStyle(.iconOnly)
+        }
+        .accessibilityIdentifier("watch.settings")
     }
 }
