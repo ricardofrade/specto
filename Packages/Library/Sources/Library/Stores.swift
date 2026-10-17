@@ -76,6 +76,7 @@ public struct SubscriptionStore: Sendable {
                                           subscribedAt: .now, modifiedAt: .now, isDeleted: false, syncMetadata: nil)
                 record.channelName = channel.name.isEmpty ? record.channelName : channel.name
                 record.avatarURL = channel.avatar?.url.absoluteString ?? record.avatarURL
+                if record.isDeleted { record.hiddenFromHome = false }   // Subscribing again starts fresh.
                 record.isDeleted = false
                 // Only a real change counts as an edit: an unchanged row must not re-sync.
                 guard existing == nil || record.channelName != existing?.channelName
@@ -84,6 +85,31 @@ public struct SubscriptionStore: Sendable {
                 try record.save(db)
             }
         }
+    }
+
+    /// Keeps the subscription but takes its videos off Home (or puts them back). Synced.
+    public func setHiddenFromHome(_ channel: ChannelID, _ hidden: Bool) throws {
+        try database.writer.write { db in
+            guard var record = try SubscriptionRecord.fetchOne(db, key: channel.rawValue),
+                  record.hiddenFromHome != hidden else { return }
+            record.hiddenFromHome = hidden
+            record.modifiedAt = .now
+            try record.update(db)
+        }
+    }
+
+    /// The subscribed channels whose videos stay off Home.
+    public func hiddenFromHome() throws -> Set<ChannelID> {
+        try database.writer.read(Self.fetchHidden)
+    }
+
+    public func observeHiddenFromHome() -> AsyncThrowingStream<Set<ChannelID>, Error> {
+        database.stream(Self.fetchHidden)
+    }
+
+    private static func fetchHidden(_ db: Database) throws -> Set<ChannelID> {
+        Set(try String.fetchAll(db, sql: "SELECT channelID FROM subscription WHERE isDeleted = 0 AND hiddenFromHome = 1")
+            .map(ChannelID.init(rawValue:)))
     }
 
     /// A tombstone, so the deletion syncs.
@@ -196,6 +222,7 @@ public struct FeedStore: Sendable {
                    branding.thumbnailTime AS brandedThumbnailTime, subscription.avatarURL AS avatarURL
             FROM video
             JOIN subscription ON subscription.channelID = video.channelID AND subscription.isDeleted = 0
+                AND subscription.hiddenFromHome = 0
             LEFT JOIN watchState ON watchState.videoID = video.id AND watchState.isDeleted = 0
             LEFT JOIN branding ON branding.videoID = video.id
             """
@@ -221,6 +248,7 @@ public struct FeedStore: Sendable {
                                           positionSeconds: finished ? (row["length"] ?? row["position"]) : row["position"],
                                           durationSeconds: row["length"])
             formatted.channelAvatar = (row["avatarURL"] as String?).flatMap(URL.init(string:))
+            formatted.isWatched = finished
             return formatted
         }
     }
@@ -291,6 +319,24 @@ public struct WatchStateStore: Sendable {
                                  isDeleted: false, syncMetadata: existing?.syncMetadata,
                                  uploadedAt: existing?.uploadedAt).save(db)
         }
+    }
+
+    /// "Mark as Watched" from a menu: finished, so it leaves Continue Watching and shows a full bar.
+    public func markWatched(_ id: VideoID, duration: Duration?) throws {
+        let length = duration.map(Self.seconds)
+        try database.writer.write { db in
+            let existing = try WatchStateRecord.fetchOne(db, key: id.rawValue)
+            let total = length ?? existing?.durationSeconds
+            try WatchStateRecord(videoID: id.rawValue, positionSeconds: total ?? existing?.positionSeconds ?? 0,
+                                 durationSeconds: total, isFinished: true, lastWatchedAt: .now, modifiedAt: .now,
+                                 isDeleted: false, syncMetadata: existing?.syncMetadata,
+                                 uploadedAt: existing?.uploadedAt).save(db)
+        }
+    }
+
+    /// "Mark as Unwatched": forgotten, as if removed from History (a tombstone, so it syncs).
+    public func markUnwatched(_ id: VideoID) throws {
+        try removeFromHistory(id)
     }
 
     /// Mirror positions reported by an account (YT Zero), without touching newer local ones.

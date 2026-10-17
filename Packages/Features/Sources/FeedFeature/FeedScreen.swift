@@ -18,6 +18,8 @@ public struct FeedScreen: View {
     private let onPrefetch: (FeedRow) -> Void
     private let onOpenChannel: (ChannelID, String) -> Void
     private let onAddToQueue: (FeedRow) -> Void
+    private let onSetWatched: (FeedRow, Bool) -> Void
+    private let onHideChannel: (FeedRow) -> Void
     private let transition: Namespace.ID?
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.displayScale) private var displayScale
@@ -33,9 +35,13 @@ public struct FeedScreen: View {
                 onEmptyAction: @escaping () -> Void,
                 onSelect: @escaping (FeedRow) -> Void, onPrefetch: @escaping (FeedRow) -> Void = { _ in },
                 onOpenChannel: @escaping (ChannelID, String) -> Void = { _, _ in },
-                onAddToQueue: @escaping (FeedRow) -> Void = { _ in }) {
+                onAddToQueue: @escaping (FeedRow) -> Void = { _ in },
+                onSetWatched: @escaping (FeedRow, Bool) -> Void = { _, _ in },
+                onHideChannel: @escaping (FeedRow) -> Void = { _ in }) {
         self.transition = transition
         self.onAddToQueue = onAddToQueue
+        self.onSetWatched = onSetWatched
+        self.onHideChannel = onHideChannel
         self.onOpenChannel = onOpenChannel
         self.model = model
         self.emptyReason = emptyReason
@@ -124,7 +130,8 @@ public struct FeedScreen: View {
     static let minimumColumnWidth: CGFloat = 320
 
     private var rowActions: RowActions {
-        RowActions(select: onSelect, prefetch: onPrefetch, openChannel: onOpenChannel, addToQueue: onAddToQueue)
+        RowActions(select: onSelect, prefetch: onPrefetch, openChannel: onOpenChannel, addToQueue: onAddToQueue,
+                   setWatched: onSetWatched, hideChannel: onHideChannel)
     }
 
     /// Full width; on wide windows `HeroCard` caps the height, so it stays a hero, not a wall.
@@ -201,6 +208,8 @@ struct RowActions {
     let prefetch: (FeedRow) -> Void
     let openChannel: (ChannelID, String) -> Void
     let addToQueue: (FeedRow) -> Void
+    let setWatched: (FeedRow, Bool) -> Void
+    let hideChannel: (FeedRow) -> Void
 }
 
 /// Tap to play (zooming from this view), touch-down prefetch, and the context menu.
@@ -217,8 +226,19 @@ struct RowInteractions: ViewModifier {
                 Button { actions.addToQueue(row) } label: {
                     Label { Text("Add to Queue") } icon: { Image(systemName: "text.badge.plus") }
                 }
+                Button { actions.setWatched(row, !row.isWatched) } label: {
+                    if row.isWatched {
+                        Label { Text("Mark as Unwatched") } icon: { Image(systemName: "eye.slash") }
+                    } else {
+                        Label { Text("Mark as Watched") } icon: { Image(systemName: "checkmark.circle") }
+                    }
+                }
                 Button { actions.openChannel(row.channelID, row.channelName) } label: {
                     Label { Text("Go to Channel") } icon: { Image(systemName: "person.crop.circle") }
+                }
+                Divider()
+                Button(role: .destructive) { actions.hideChannel(row) } label: {
+                    Label { Text("Hide \(row.channelName) from Home") } icon: { Image(systemName: "rectangle.slash") }
                 }
             }
             .onTapGesture { actions.select(row) }

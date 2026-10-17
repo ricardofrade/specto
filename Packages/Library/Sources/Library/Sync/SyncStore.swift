@@ -27,7 +27,8 @@ public struct SyncStore: Sendable {
     /// A synced row's values. Deletions are tombstones (`isDeleted`), so they carry a timestamp
     /// and win or lose like any other edit.
     public enum Values: Sendable, Equatable {
-        case subscription(channelName: String, avatarURL: String?, subscribedAt: Date, isDeleted: Bool)
+        case subscription(channelName: String, avatarURL: String?, subscribedAt: Date, isDeleted: Bool,
+                          hiddenFromHome: Bool = false)
         case watchState(positionSeconds: Double, durationSeconds: Double?, isFinished: Bool,
                         lastWatchedAt: Date, isDeleted: Bool)
         case instance(kind: String, displayName: String, apiURL: String, sortOrder: Int, addedAt: Date,
@@ -83,7 +84,8 @@ public struct SyncStore: Sendable {
             case .subscription:
                 try SubscriptionRecord.fetchOne(db, key: key.id).map { record in
                     Change(key: key, values: .subscription(channelName: record.channelName, avatarURL: record.avatarURL,
-                                                            subscribedAt: record.subscribedAt, isDeleted: record.isDeleted),
+                                                            subscribedAt: record.subscribedAt, isDeleted: record.isDeleted,
+                                                            hiddenFromHome: record.hiddenFromHome),
                            modifiedAt: record.modifiedAt, systemFields: record.syncMetadata)
                 }
             case .watchState:
@@ -143,7 +145,7 @@ public struct SyncStore: Sendable {
         return try database.writer.write { db in
             let key = change.key
             switch change.values {
-            case let .subscription(channelName, avatarURL, subscribedAt, isDeleted):
+            case let .subscription(channelName, avatarURL, subscribedAt, isDeleted, hiddenFromHome):
                 let local = try SubscriptionRecord.fetchOne(db, key: key.id)
                 guard Self.remoteWins(change.modifiedAt, over: local?.modifiedAt) else {
                     try Self.keepSystemFields(change, db)
@@ -151,7 +153,8 @@ public struct SyncStore: Sendable {
                 }
                 try SubscriptionRecord(channelID: key.id, channelName: channelName, avatarURL: avatarURL,
                                        subscribedAt: subscribedAt, modifiedAt: change.modifiedAt, isDeleted: isDeleted,
-                                       syncMetadata: change.systemFields, uploadedAt: change.modifiedAt).save(db)
+                                       syncMetadata: change.systemFields, uploadedAt: change.modifiedAt,
+                                       hiddenFromHome: hiddenFromHome).save(db)
             case let .watchState(position, duration, isFinished, lastWatchedAt, isDeleted):
                 let local = try WatchStateRecord.fetchOne(db, key: key.id)
                 guard Self.remoteWins(change.modifiedAt, over: local?.modifiedAt) else {

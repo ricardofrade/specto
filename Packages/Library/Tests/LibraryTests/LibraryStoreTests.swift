@@ -276,3 +276,57 @@ struct ListeningStoresTests {
         #expect(try store.all().isEmpty)
     }
 }
+
+@Suite struct FeedHousekeepingTests {
+    private let channel = ChannelSummary(id: ChannelID(rawValue: "UCaaaaaaaaaaaaaaaaaaaaaa"), name: "A", avatar: nil)
+    private let other = ChannelSummary(id: ChannelID(rawValue: "UCbbbbbbbbbbbbbbbbbbbbbb"), name: "B", avatar: nil)
+
+    @Test func aHiddenChannelLeavesHomeButStaysSubscribed() throws {
+        let db = try AppDatabase.inMemory()
+        let subscriptions = SubscriptionStore(db)
+        try subscriptions.subscribe([channel, other])
+        try FeedStore(db).save([video("a1", channel: channel.id.rawValue), video("b1", channel: other.id.rawValue)])
+        try subscriptions.setHiddenFromHome(channel.id, true)
+        #expect(try FeedStore(db).rows().map(\.id.rawValue) == ["b1"])
+        #expect(try subscriptions.channels().count == 2)
+        #expect(try subscriptions.hiddenFromHome() == [channel.id])
+        // Synced: the pending change carries the flag.
+        #expect(try SyncStore(db).change(for: SyncStore.Key(.subscription, channel.id.rawValue))?.values.isHiddenFromHome == true)
+
+        try subscriptions.setHiddenFromHome(channel.id, false)
+        #expect(try FeedStore(db).rows().count == 2)
+    }
+
+    @Test func subscribingAgainShowsTheChannelAgain() throws {
+        let db = try AppDatabase.inMemory()
+        let subscriptions = SubscriptionStore(db)
+        try subscriptions.subscribe([channel])
+        try subscriptions.setHiddenFromHome(channel.id, true)
+        try subscriptions.unsubscribe(channel.id)
+        try subscriptions.subscribe([channel])
+        #expect(try subscriptions.hiddenFromHome().isEmpty)
+    }
+
+    @Test func markWatchedAndUnwatched() throws {
+        let db = try AppDatabase.inMemory()
+        try SubscriptionStore(db).subscribe([channel])
+        try FeedStore(db).save([video("a1", channel: channel.id.rawValue)])
+        let store = WatchStateStore(db)
+        try store.markWatched(VideoID(rawValue: "a1"), duration: .seconds(754))
+        let row = try #require(try FeedStore(db).rows().first)
+        #expect(row.isWatched && row.progress == 1)
+        #expect(try store.position(for: VideoID(rawValue: "a1")) == nil)   // Plays from the start.
+        #expect(try store.inProgress().isEmpty)
+
+        try store.markUnwatched(VideoID(rawValue: "a1"))
+        let again = try #require(try FeedStore(db).rows().first)
+        #expect(!again.isWatched && again.progress == nil)
+    }
+}
+
+private extension SyncStore.Values {
+    var isHiddenFromHome: Bool {
+        if case let .subscription(_, _, _, _, hidden) = self { return hidden }
+        return false
+    }
+}

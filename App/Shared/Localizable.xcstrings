@@ -806,12 +806,52 @@
         }
       }
     },
+    "Hidden from Home": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Oculto do Início"
+          }
+        }
+      }
+    },
+    "Hide %@ from Home": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ocultar %@ do Início"
+          }
+        }
+      }
+    },
     "Hide Shorts": {
       "localizations": {
         "pt-PT": {
           "stringUnit": {
             "state": "needs_review",
             "value": "Ocultar Shorts"
+          }
+        }
+      }
+    },
+    "Hide from Home": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ocultar do Início"
+          }
+        }
+      }
+    },
+    "Hide watched videos": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ocultar vídeos vistos"
           }
         }
       }
@@ -1014,6 +1054,26 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "A carregar"
+          }
+        }
+      }
+    },
+    "Mark as Unwatched": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Marcar como não visto"
+          }
+        }
+      }
+    },
+    "Mark as Watched": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Marcar como visto"
           }
         }
       }
@@ -1765,6 +1825,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Mostrar"
+          }
+        }
+      }
+    },
+    "Show on Home": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mostrar no Início"
           }
         }
       }

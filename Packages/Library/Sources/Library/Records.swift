@@ -53,6 +53,8 @@ struct SubscriptionRecord: Codable, FetchableRecord, PersistableRecord {
     var syncMetadata: Data?
     /// The `modifiedAt` last uploaded; the row is pending while `modifiedAt` is newer.
     var uploadedAt: Date? = nil
+    /// Subscribed, but its videos stay off Home (and so out of new-upload notifications).
+    var hiddenFromHome = false
 
     var summary: ChannelSummary {
         ChannelSummary(id: ChannelID(rawValue: channelID), name: channelName,

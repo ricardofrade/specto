@@ -27,6 +27,16 @@ struct VideoCard: View {
                 Button { actions.addToQueue(row.video) } label: {
                     Label { Text("Add to Queue") } icon: { Image(systemName: "text.badge.plus") }
                 }
+                Button { actions.setWatched(row.video, !row.isWatched) } label: {
+                    if row.isWatched {
+                        Label { Text("Mark as Unwatched") } icon: { Image(systemName: "eye.slash") }
+                    } else {
+                        Label { Text("Mark as Watched") } icon: { Image(systemName: "checkmark.circle") }
+                    }
+                }
+                Button { actions.hideChannel(row.channelID) } label: {
+                    Label { Text("Hide \(row.channelName) from Home") } icon: { Image(systemName: "rectangle.slash") }
+                }
                 if let remove {
                     Button(role: .destructive, action: remove.action) {
                         Label { remove.label } icon: { Image(systemName: "trash") }
@@ -95,4 +105,6 @@ struct VideoActions {
     let openPlaylist: (PlaylistSummary) -> Void
     /// Plays `videos[start]`, then the rest in order.
     let playPlaylist: (_ videos: [VideoSummary], _ start: Int) -> Void
+    let setWatched: (VideoSummary, Bool) -> Void
+    let hideChannel: (ChannelID) -> Void
 }

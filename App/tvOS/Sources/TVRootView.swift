@@ -97,7 +97,9 @@ struct TVRootView: View {
                      openPlaylist: { push(.playlist($0)) },
                      playPlaylist: { videos, start in
                          if let video = environment.startPlaylist(videos, at: start) { play(video) }
-                     })
+                     },
+                     setWatched: { environment.setWatched($0, $1) },
+                     hideChannel: { environment.setHiddenFromHome($0, true) })
     }
 
     private func play(_ video: VideoSummary) {

@@ -23,7 +23,15 @@ public struct ChannelsScreen: View {
             Button { onOpen(row.channel) } label: {
                 HStack(spacing: Tokens.Spacing.m) {
                     AvatarView(row.avatar, size: 44)
-                    Text(row.name).font(.body).lineLimit(1)
+                        .opacity(row.isHiddenFromHome ? 0.5 : 1)
+                    VStack(alignment: .leading, spacing: Tokens.Spacing.xxs) {
+                        Text(row.name).font(.body).lineLimit(1)
+                        if row.isHiddenFromHome {
+                            Label { Text("Hidden from Home") } icon: { Image(systemName: "rectangle.slash") }
+                                .font(Tokens.Typography.caption)
+                                .foregroundStyle(Tokens.Colors.textSecondary)
+                        }
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(.rect)
@@ -32,6 +40,28 @@ public struct ChannelsScreen: View {
             .accessibilityIdentifier("channels.row")
             .swipeActions {
                 Button(role: .destructive) { onUnsubscribe(row.channel) } label: { Text("Unsubscribe") }
+            }
+            .swipeActions(edge: .leading) {
+                Button { model.toggleHidden(row) } label: {
+                    if row.isHiddenFromHome {
+                        Label { Text("Show on Home") } icon: { Image(systemName: "rectangle") }
+                    } else {
+                        Label { Text("Hide from Home") } icon: { Image(systemName: "rectangle.slash") }
+                    }
+                }
+                .tint(.indigo)
+            }
+            .contextMenu {
+                Button { model.toggleHidden(row) } label: {
+                    if row.isHiddenFromHome {
+                        Label { Text("Show on Home") } icon: { Image(systemName: "rectangle") }
+                    } else {
+                        Label { Text("Hide from Home") } icon: { Image(systemName: "rectangle.slash") }
+                    }
+                }
+                Button(role: .destructive) { onUnsubscribe(row.channel) } label: {
+                    Label { Text("Unsubscribe") } icon: { Image(systemName: "person.badge.minus") }
+                }
             }
         }
         .listStyle(.plain)

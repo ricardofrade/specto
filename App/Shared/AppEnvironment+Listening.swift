@@ -5,6 +5,20 @@ import Playback
 
 /// M6: the listening queue, auto-advance, and offline audio.
 extension AppEnvironment {
+    // MARK: Feed housekeeping
+
+    /// Mark as Watched / Unwatched; a linked account hears about it too.
+    func setWatched(_ video: VideoSummary, _ watched: Bool) {
+        let store = WatchStateStore(database)
+        if watched { try? store.markWatched(video.id, duration: video.duration) } else { try? store.markUnwatched(video.id) }
+        if let account { Task { try? await account.setWatched(watched, for: video.id) } }
+    }
+
+    /// Keeps the subscription, takes its videos off Home (undo in Library → Channels).
+    func setHiddenFromHome(_ channel: ChannelID, _ hidden: Bool) {
+        try? SubscriptionStore(database).setHiddenFromHome(channel, hidden)
+    }
+
     // MARK: Queue
 
     func addToQueue(_ video: VideoSummary) {

@@ -53,7 +53,9 @@ struct RootView: View {
                                onEmptyAction: { router.openInstances() },
                                onSelect: { play($0.video) }, onPrefetch: { environment.prefetch($0.video) },
                                onOpenChannel: { router.openChannel($0, name: $1) },
-                               onAddToQueue: { environment.addToQueue($0.video) })
+                               onAddToQueue: { environment.addToQueue($0.video) },
+                               onSetWatched: { environment.setWatched($0.video, $1) },
+                               onHideChannel: { environment.setHiddenFromHome($0.channelID, true) })
                         .routes()
                         .onAppear {
                             onFirstFeedFrame()

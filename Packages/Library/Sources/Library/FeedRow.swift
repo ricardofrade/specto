@@ -21,6 +21,8 @@ public struct FeedRow: Identifiable, Hashable, Sendable {
     /// The channel's avatar (from the subscription), and its first letter as a fallback.
     public var channelAvatar: URL? = nil
     public let channelInitial: String
+    /// Finished (watched to the end, or marked as watched).
+    public var isWatched = false
 }
 
 /// Formats rows for the current locale. Create one per observation pass, not per row.

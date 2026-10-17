@@ -165,6 +165,12 @@ public struct AppDatabase: Sendable {
                 t.column("searchedAt", .datetime).notNull()
             }
         }
+        // A channel can stay subscribed (Channels, sidebar) but out of Home and notifications. Synced.
+        migrator.registerMigration("v8-hidden-channels") { db in
+            try db.alter(table: "subscription") { t in
+                t.add(column: "hiddenFromHome", .boolean).notNull().defaults(to: false)
+            }
+        }
         return migrator
     }
 }

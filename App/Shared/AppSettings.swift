@@ -11,6 +11,10 @@ final class AppSettings {
     var hideShorts: Bool {
         didSet { defaults.set(hideShorts, forKey: Keys.hideShorts) }
     }
+    /// Finished videos leave Home (they stay in Library → History). Off by default.
+    var hideWatched: Bool {
+        didSet { defaults.set(hideWatched, forKey: Keys.hideWatched) }
+    }
     /// YouTube's own "Up next" suggestions on the Watch screen.
     var showsRelated: Bool {
         didSet { defaults.set(showsRelated, forKey: Keys.showsRelated) }
@@ -71,6 +75,7 @@ final class AppSettings {
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         hideShorts = defaults.object(forKey: Keys.hideShorts) as? Bool ?? true
+        hideWatched = defaults.bool(forKey: Keys.hideWatched)
         showsRelated = defaults.object(forKey: Keys.showsRelated) as? Bool ?? true
         skipsSponsors = defaults.object(forKey: Keys.skipsSponsors) as? Bool ?? true
         brandedTitles = defaults.object(forKey: Keys.brandedTitles) as? Bool ?? false
@@ -93,11 +98,13 @@ final class AppSettings {
     private static func limit(_ stored: Int) -> Int? { stored > 0 ? stored : nil }
 
     var feedOptions: FeedStore.Options {
-        .init(hideShorts: hideShorts, brandedTitles: brandedTitles, brandedThumbnails: brandedThumbnails)
+        .init(hideShorts: hideShorts, hideWatched: hideWatched, brandedTitles: brandedTitles,
+              brandedThumbnails: brandedThumbnails)
     }
 
     private enum Keys {
         static let hideShorts = "feed.hideShorts"
+        static let hideWatched = "feed.hideWatched"
         static let captionLanguage = "playback.captionLanguage"
         static let notifiesNewUploads = "notifications.newUploads"
         static let newUploadsSince = "notifications.newUploadsSince"

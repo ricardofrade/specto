@@ -41,6 +41,7 @@ struct SettingsView: View {
 
             Section {
                 Toggle(isOn: $settings.hideShorts) { Text("Hide Shorts") }
+                Toggle(isOn: $settings.hideWatched) { Text("Hide watched videos") }
                 Toggle(isOn: $settings.showsRelated) { Text("Show “Up next” suggestions") }
             } header: {
                 Text("Feed")
