@@ -61,13 +61,8 @@ final class AdaptiveLayoutUITests: XCTestCase {
         app.launch()
         XCTAssertTrue(app.scrollViews["feed.list"].waitForExistence(timeout: 10))
         try audit(app, "feed", [.dynamicType, .sufficientElementDescription, .hitRegion, .textClipped])
-        app.buttons["Settings"].firstMatch.tap()
-        try audit(app, "settings", [.dynamicType, .sufficientElementDescription, .hitRegion, .textClipped])
-        app.buttons["Search"].firstMatch.tap()
-        try audit(app, "search", [.dynamicType, .sufficientElementDescription, .hitRegion, .textClipped])
 
         // Save to Playlist sheet, then Library → Playlists.
-        app.buttons["Home"].firstMatch.tap()
         let video = app.scrollViews["feed.list"].buttons.firstMatch
         video.press(forDuration: 1.0)
         XCTAssertTrue(app.buttons["Save to Playlist…"].waitForExistence(timeout: 5))
@@ -85,6 +80,12 @@ final class AdaptiveLayoutUITests: XCTestCase {
         XCTAssertTrue(app.buttons["playlists.watchLater"].waitForExistence(timeout: 5))
         try audit(app, "playlists", [.dynamicType, .sufficientElementDescription, .hitRegion, .textClipped],
                   wrapsWithoutClipping: ["New Playlist"])
+
+        app.buttons["Settings"].firstMatch.tap()
+        try audit(app, "settings", [.dynamicType, .sufficientElementDescription, .hitRegion, .textClipped])
+        // Search last: on iOS 26 the search tab collapses the tab bar, so no tab is left to tap.
+        app.buttons["Search"].firstMatch.tap()
+        try audit(app, "search", [.dynamicType, .sufficientElementDescription, .hitRegion, .textClipped])
     }
 
     /// The screens that need a real instance: Explore (Home with no subscriptions), and the
