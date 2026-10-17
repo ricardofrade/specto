@@ -125,10 +125,12 @@ extension AppEnvironment {
     func loadSkipSegments(for id: VideoID) {
         guard AppSettings.shared.skipsSponsors else { return }
         let community = self.community
+        let actions = AppSettings.shared.sponsorActions
+        let categories = Set(actions.filter { $0.value != .off }.keys)
+        let manual = Set(actions.filter { $0.value == .ask }.keys)
         Task {
-            let categories: Set<SkipSegment.Category> = [.sponsor, .selfpromo, .interaction]
             if let segments = try? await community.skipSegments(for: id, categories: categories) {
-                session.setSkipSegments(segments, for: id)
+                session.setSkipSegments(segments, for: id, manual: manual)
             }
         }
     }

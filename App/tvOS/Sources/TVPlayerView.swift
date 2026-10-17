@@ -73,6 +73,16 @@ struct TVPlayerView: View {
                     .padding(60)
                     .transition(.opacity)
             }
+            if skipped == nil, let offered = session.skippable {
+                Text("▶︎ to skip \(offered.category.localizedName)")
+                    .font(.callout.weight(.semibold))
+                    .padding(.horizontal, 30).padding(.vertical, 14)
+                    .glassEffect(in: .capsule)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                    .padding(60)
+                    .transition(.opacity)
+                    .accessibilityIdentifier("tv.skipOffer")
+            }
             if showsPanel {
                 InfoPanel(chapters: chapters, starts: chapterStarts, current: transport.chapterIndex, related: related,
                           upNextTitle: environment.upNext?.label,
@@ -206,7 +216,8 @@ struct TVPlayerView: View {
                 seek(by: .seconds(-10))
             }
         case .right:
-            seek(by: .seconds(10))
+            // While a by-hand segment plays, right skips it rather than 10 seconds.
+            if session.skippable != nil { session.skipOffered() } else { seek(by: .seconds(10)) }
         case .down:
             withAnimation(Tokens.Motion.standard) { showsPanel = true }
         default:

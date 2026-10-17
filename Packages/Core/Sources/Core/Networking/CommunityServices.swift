@@ -6,6 +6,20 @@ public struct SkipSegment: Hashable, Sendable {
     public enum Category: String, Sendable, CaseIterable, Codable {
         case sponsor, selfpromo, interaction, intro, outro, preview, music_offtopic, filler
 
+        /// For settings: "Sponsor", "Intro".
+        public var title: String {
+            switch self {
+            case .sponsor: String(localized: "Sponsor")
+            case .selfpromo: String(localized: "Self-promotion")
+            case .interaction: String(localized: "Interaction reminder")
+            case .intro: String(localized: "Intro")
+            case .outro: String(localized: "End cards and credits")
+            case .preview: String(localized: "Preview and recap")
+            case .music_offtopic: String(localized: "Non-music section")
+            case .filler: String(localized: "Filler and tangents")
+            }
+        }
+
         /// For "Skipped <name>" notices.
         public var localizedName: String {
             switch self {

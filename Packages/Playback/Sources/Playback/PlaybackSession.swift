@@ -43,6 +43,11 @@ public final class PlaybackSession {
     public private(set) var skipSegments: [SkipSegment] = []
     /// The most recent automatic skip, for a brief "Skipped sponsor" notice.
     public private(set) var lastSkipped: SkipSegment?
+    /// A segment the playhead is in whose category the viewer skips by hand: the player
+    /// offers "Skip intro" while it plays. Nil outside one, or once skipped.
+    public private(set) var skippable: SkipSegment?
+    /// Categories offered as a button instead of skipped automatically.
+    @ObservationIgnored private var manualCategories: Set<SkipSegment.Category> = []
     /// Playback speed (1 is normal). Kept across videos and engine switches.
     public private(set) var rate: Float = 1
     /// The subtitle line to show now, or nil.
@@ -107,6 +112,8 @@ public final class PlaybackSession {
         self.position = request.startAt
         self.skipSegments = []
         self.lastSkipped = nil
+        self.skippable = nil
+        self.manualCategories = []
         self.subtitleCues = []
         self.subtitle = nil
         self.skipped = []
@@ -166,9 +173,21 @@ public final class PlaybackSession {
         if text != subtitle { subtitle = text }
     }
 
-    public func setSkipSegments(_ segments: [SkipSegment], for id: VideoID) {
+    /// - Parameter manual: categories to offer with a Skip button rather than skip on their own.
+    public func setSkipSegments(_ segments: [SkipSegment], for id: VideoID,
+                                manual: Set<SkipSegment.Category> = []) {
         guard item?.videoID == id else { return }
         skipSegments = segments
+        manualCategories = manual
+    }
+
+    /// Skips the segment `skippable` offers.
+    public func skipOffered() {
+        guard let segment = skippable else { return }
+        skipped.insert(segment)
+        skippable = nil
+        let engine = current
+        Task { await engine?.seek(to: segment.end, precise: false) }
     }
 
     public func setVideoEnabled(_ enabled: Bool) {
@@ -279,9 +298,14 @@ public final class PlaybackSession {
     }
 
     private func skipSegmentIfNeeded() {
-        guard let segment = skipSegments.first(where: { segment in
+        let inside = skipSegments.first { segment in
             position >= segment.start && position < segment.end - .milliseconds(500) && !skipped.contains(segment)
-        }) else { return }
+        }
+        guard let segment = inside, !manualCategories.contains(segment.category) else {
+            if skippable != inside { skippable = inside }
+            return
+        }
+        skippable = nil
         skipped.insert(segment)
         lastSkipped = segment
         let engine = current

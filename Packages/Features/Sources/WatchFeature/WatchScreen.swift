@@ -196,6 +196,15 @@ public struct WatchScreen: View {
             .overlay(alignment: .top) {
                 SkipNotice(segment: session.lastSkipped).padding(Tokens.Spacing.m)
             }
+            .overlay(alignment: .bottomTrailing) {
+                if let segment = session.skippable {
+                    SkipOfferButton(segment: segment, skip: session.skipOffered)
+                        .padding(Tokens.Spacing.m)
+                        .padding(.bottom, 40)   // Clear of the scrubber.
+                        .transition(.opacity)
+                }
+            }
+            .animation(Tokens.Motion.standard, value: session.skippable)
     }
 
     /// - Parameter showsChapters: the band and side panel have a Chapters tab instead.

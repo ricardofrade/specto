@@ -228,6 +228,21 @@ struct CastingOverlay: View {
     }
 }
 
+/// "Skip intro": offered while a segment plays whose category skips by hand.
+struct SkipOfferButton: View {
+    let segment: SkipSegment
+    let skip: () -> Void
+
+    var body: some View {
+        Button(action: skip) {
+            Label { Text("Skip \(segment.category.localizedName)") } icon: { Image(systemName: "forward.end.fill") }
+                .font(Tokens.Typography.caption.weight(.semibold))
+        }
+        .buttonStyle(.glass)
+        .accessibilityIdentifier("watch.skipSegment")
+    }
+}
+
 /// A brief notice after SponsorBlock skips a segment.
 struct SkipNotice: View {
     let segment: SkipSegment?

@@ -1,5 +1,24 @@
 import SwiftUI
+import Core
 import Library
+
+/// What SponsorBlock does with a category of segment.
+enum SponsorAction: String, CaseIterable, Sendable {
+    /// Skip it automatically, with a brief notice.
+    case skip
+    /// Offer a Skip button while it plays.
+    case ask
+    /// Play it.
+    case off
+
+    var title: LocalizedStringKey {
+        switch self {
+        case .skip: "Skip"
+        case .ask: "Show a Skip button"
+        case .off: "Don't skip"
+        }
+    }
+}
 
 /// Simple preferences (UserDefaults; CLAUDE.md keeps GRDB for user data only).
 @MainActor
@@ -23,6 +42,13 @@ final class AppSettings {
     /// SponsorBlock auto-skip (hash-prefix lookups, private by design). On by default.
     var skipsSponsors: Bool {
         didSet { defaults.set(skipsSponsors, forKey: Keys.skipsSponsors) }
+    }
+    /// Per category; categories not stored take `SponsorAction.defaults`.
+    var sponsorActions: [SkipSegment.Category: SponsorAction] {
+        didSet {
+            defaults.set(Dictionary(uniqueKeysWithValues: sponsorActions.map { ($0.key.rawValue, $0.value.rawValue) }),
+                         forKey: Keys.sponsorActions)
+        }
     }
     /// DeArrow community titles (hash-prefix lookups). Off by default.
     var brandedTitles: Bool {
@@ -89,6 +115,7 @@ final class AppSettings {
         hideWatched = defaults.bool(forKey: Keys.hideWatched)
         showsRelated = Self.flag(defaults, Keys.showsRelated, default: true)
         skipsSponsors = Self.flag(defaults, Keys.skipsSponsors, default: true)
+        sponsorActions = Self.sponsorActions(defaults.dictionary(forKey: Keys.sponsorActions) as? [String: String] ?? [:])
         brandedTitles = Self.flag(defaults, Keys.brandedTitles, default: false)
         brandedThumbnails = Self.flag(defaults, Keys.brandedThumbnails, default: false)
         downloadsQueue = Self.flag(defaults, Keys.downloadsQueue, default: true)
@@ -109,6 +136,14 @@ final class AppSettings {
     }
 
     private static func limit(_ stored: Int) -> Int? { stored > 0 ? stored : nil }
+
+    /// Sponsors, self-promotion and "subscribe" reminders skip; the rest play until chosen.
+    private static func sponsorActions(_ stored: [String: String]) -> [SkipSegment.Category: SponsorAction] {
+        let automatic: Set<SkipSegment.Category> = [.sponsor, .selfpromo, .interaction]
+        return Dictionary(uniqueKeysWithValues: SkipSegment.Category.allCases.map { category in
+            (category, stored[category.rawValue].flatMap(SponsorAction.init) ?? (automatic.contains(category) ? .skip : .off))
+        })
+    }
 
     /// `bool(forKey:)` also reads "YES"/"NO" from launch arguments (`-feed.hideShorts NO`),
     /// which arrive as strings; a missing key takes the default.
@@ -134,6 +169,7 @@ final class AppSettings {
         static let audioLanguage = "playback.audioLanguage"
         static let cellularQualityLimit = "playback.cellularQualityLimit"
         static let skipsSponsors = "sponsorBlock.enabled"
+        static let sponsorActions = "sponsorBlock.actions"
         static let brandedTitles = "deArrow.titles"
         static let brandedThumbnails = "deArrow.thumbnails"
         static let downloadsQueue = "offline.downloadsQueue"

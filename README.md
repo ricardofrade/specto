@@ -9,7 +9,7 @@ A privacy-respecting video app for iPhone, iPad, Apple TV and CarPlay that plays
 **Watching**
 - **Native playback:** mpv (an LGPL-only build) for VP9, AV1 and high resolutions, and AVPlayer when it's just as good, for system Picture in Picture, AirPlay and lower power use.
 - **Player settings:** quality (with a cellular data saver), audio tracks for dubbed videos, speed, subtitles in your system caption style, and a sleep timer.
-- **Navigation within a video:** chapters, scrubbing previews, SponsorBlock skipping, double-tap to skip, hold for 2×.
+- **Navigation within a video:** chapters, scrubbing previews, SponsorBlock (skip each kind of segment automatically, on a button, or not at all), double-tap to skip, hold for 2×.
 - **Continuity:** autoplay with an "Up next" countdown, a queue, audio-only mode, CarPlay, Handoff, Shortcuts and Siri.
 - **Shorts:** a vertical, swipeable player.
 

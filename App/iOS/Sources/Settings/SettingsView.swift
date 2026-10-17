@@ -71,7 +71,7 @@ struct SettingsView: View {
             }
 
             Section {
-                Toggle(isOn: $settings.skipsSponsors) { Text("Skip sponsors (SponsorBlock)") }
+                SponsorBlockSettingsLink(settings: settings)
                 Toggle(isOn: $settings.brandedTitles) { Text("Community titles (DeArrow)") }
                 Toggle(isOn: $settings.brandedThumbnails) { Text("Community thumbnails (DeArrow)") }
             } header: {

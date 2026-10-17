@@ -266,6 +266,46 @@ struct PlaybackSessionTests {
         #expect(mpv.seeks == [.seconds(60)])
     }
 
+    @Test func offersManualSegmentsInsteadOfSkipping() async {
+        let (session, mpv, _) = makeSession(MemoryResumeStore())
+        await session.play(item(a), request(a))
+        let intro = SkipSegment(category: .intro, start: .seconds(5), end: .seconds(20))
+        let sponsor = SkipSegment(category: .sponsor, start: .seconds(30), end: .seconds(60))
+        session.setSkipSegments([intro, sponsor], for: a, manual: [.intro])
+        mpv.emit(.position(.seconds(6), duration: .seconds(600)))
+        await settle()
+        #expect(mpv.seeks.isEmpty)
+        #expect(session.skippable == intro)
+
+        session.skipOffered()
+        await settle()
+        #expect(mpv.seeks == [.seconds(20)])
+        #expect(session.skippable == nil)
+
+        // Back in the intro after skipping it: no second offer. Past it: none either.
+        mpv.emit(.position(.seconds(10), duration: .seconds(600)))
+        await settle()
+        #expect(session.skippable == nil)
+        // Automatic categories still skip.
+        mpv.emit(.position(.seconds(31), duration: .seconds(600)))
+        await settle()
+        #expect(mpv.seeks == [.seconds(20), .seconds(60)])
+    }
+
+    @Test func theOfferEndsWhenPlaybackLeavesTheSegment() async {
+        let (session, mpv, _) = makeSession(MemoryResumeStore())
+        await session.play(item(a), request(a))
+        let intro = SkipSegment(category: .intro, start: .seconds(5), end: .seconds(20))
+        session.setSkipSegments([intro], for: a, manual: [.intro])
+        mpv.emit(.position(.seconds(6), duration: .seconds(600)))
+        await settle()
+        #expect(session.skippable == intro)
+        mpv.emit(.position(.seconds(25), duration: .seconds(600)))
+        await settle()
+        #expect(session.skippable == nil)
+        #expect(mpv.seeks.isEmpty)
+    }
+
     @Test func skipsSponsorSegmentsInAudioMode() async {
         let (session, mpv, av) = makeSession(MemoryResumeStore())
         await session.play(item(a), request(a, mode: .audioOnly))
