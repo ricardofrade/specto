@@ -16,6 +16,10 @@ public struct InstancesScreen: View {
     private let startsAdding: Bool
     private let signIn: ((InstanceConfig, String, String) async throws -> Void)?
     private let signOut: ((InstanceConfig) -> Void)?
+    /// The YouTube instance asked first ("Prefer"); nil lets the fastest go first.
+    @Binding private var preferred: UUID?
+    /// Subscriptions and watch state sync through iCloud (said so in the explanations).
+    private let syncsWithICloud: Bool
     /// Instances with a stored sign-in, and the one that owns subscriptions (the first).
     @State private var signedIn: Set<UUID> = []
     @State private var signingIn: InstanceConfig?
@@ -37,7 +41,10 @@ public struct InstancesScreen: View {
                 onImported: @escaping ([ChannelSummary]) -> Void,
                 checkHealth: (() async -> [HealthSample])? = nil, startsAdding: Bool = false,
                 signIn: ((InstanceConfig, String, String) async throws -> Void)? = nil,
-                signOut: ((InstanceConfig) -> Void)? = nil) {
+                signOut: ((InstanceConfig) -> Void)? = nil,
+                preferred: Binding<UUID?> = .constant(nil), syncsWithICloud: Bool = false) {
+        _preferred = preferred
+        self.syncsWithICloud = syncsWithICloud
         self.startsAdding = startsAdding
         self.signIn = signIn
         self.signOut = signOut
@@ -52,24 +59,38 @@ public struct InstancesScreen: View {
 
     public var body: some View {
         List {
-            Section {
-                ForEach(list) { instance in
-                    InstanceRow(instance: instance, status: status[instance.id] ?? (checkHealth == nil ? nil : .checking),
-                                account: accountState(instance))
-                        .contextMenu { accountActions(instance) }
-                        #if os(iOS)
-                        .swipeActions(edge: .leading) { accountActions(instance) }
-                        #endif
+            // One section per network: each works differently, and the footers say how.
+            if !youTube.isEmpty {
+                Section {
+                    rows(youTube)
+                } header: {
+                    Text(verbatim: "YouTube")
+                } footer: {
+                    VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+                        ForEach(youTubeExplanation, id: \.self) { Text($0) }
+                    }
                 }
-                .onDelete(perform: delete)
+            }
+            if !peerTube.isEmpty {
+                Section {
+                    rows(peerTube)
+                } header: {
+                    Text(verbatim: "PeerTube")
+                } footer: {
+                    Text(syncsWithICloud
+                         ? "Your PeerTube subscriptions stay in the app and sync to your devices through iCloud. Videos play from their own server, and Search looks on every server here."
+                         : "Your PeerTube subscriptions stay in the app on this device. Videos play from their own server, and Search looks on every server here.")
+                }
+            }
+            Section {
                 Button { startAdding() } label: {
                     Label { Text("Add Instance") } icon: { Image(systemName: "plus") }
                 }
                 .accessibilityIdentifier("instances.add")
             } header: {
-                Text("Instances")
+                if list.isEmpty { Text("Instances") }
             } footer: {
-                Text("Your own Piped, Invidious or YT Zero server. Nothing is sent anywhere else.")
+                Text("Your own Piped, Invidious or YT Zero server for YouTube, or a PeerTube server. Nothing is sent anywhere else.")
             }
 
             Section {
@@ -121,6 +142,48 @@ public struct InstancesScreen: View {
         #endif
     }
 
+    private var youTube: [InstanceConfig] { list.filter { $0.kind.isYouTube } }
+    private var peerTube: [InstanceConfig] { list.filter { $0.kind == .peerTube } }
+
+    private func rows(_ instances: [InstanceConfig]) -> some View {
+        ForEach(instances) { instance in
+            InstanceRow(instance: instance, status: status[instance.id] ?? (checkHealth == nil ? nil : .checking),
+                        account: accountState(instance), isPreferred: isPreferred(instance))
+                .contextMenu { actions(instance) }
+                #if os(iOS)
+                .swipeActions(edge: .leading) { actions(instance) }
+                #endif
+        }
+        .onDelete { delete(instances, at: $0) }
+    }
+
+    /// Who keeps YouTube subscriptions, and which instance is asked first.
+    private var youTubeExplanation: [String] {
+        let owner = youTube.first { accountState($0) == .subscriptions }
+        let subscriptions = if let owner {
+            String(localized: "Your YouTube subscriptions are kept in your account on \(owner.displayName).")
+        } else if syncsWithICloud {
+            String(localized: "Your YouTube subscriptions stay in the app and sync to your devices through iCloud.")
+        } else {
+            String(localized: "Your YouTube subscriptions stay in the app on this device.")
+        }
+        guard youTube.count > 1 else { return [subscriptions] }
+        let order = if let first = youTube.first(where: isPreferred) {
+            String(localized: "\(first.displayName) is asked first; the others take over if it fails.")
+        } else {
+            #if os(tvOS)
+            String(localized: "The fastest one online is asked first; the others take over if it fails. Press and hold one to prefer it.")
+            #else
+            String(localized: "The fastest one online is asked first; the others take over if it fails. Touch and hold one to prefer it.")
+            #endif
+        }
+        return [subscriptions, order]
+    }
+
+    private func isPreferred(_ instance: InstanceConfig) -> Bool {
+        instance.kind.isYouTube && instance.id == preferred
+    }
+
     private func reload() {
         list = (try? instances.all()) ?? []
         signedIn = Set(list.filter { secrets.secret(for: InstanceConfig.tokenKey(for: $0.id)) != nil }.map(\.id))
@@ -141,7 +204,19 @@ public struct InstancesScreen: View {
     }
 
     @ViewBuilder
-    private func accountActions(_ instance: InstanceConfig) -> some View {
+    private func actions(_ instance: InstanceConfig) -> some View {
+        if instance.kind.isYouTube, youTube.count > 1 {
+            if isPreferred(instance) {
+                Button { preferred = nil; onChange() } label: {
+                    Label { Text("Stop Preferring") } icon: { Image(systemName: "star.slash") }
+                }
+            } else {
+                Button { preferred = instance.id; onChange() } label: {
+                    Label { Text("Prefer") } icon: { Image(systemName: "star") }
+                }
+                .tint(.orange)
+            }
+        }
         if signIn != nil, instance.kind == .piped || instance.kind == .invidious {
             if signedIn.contains(instance.id) {
                 Button(role: .destructive) { signOut?(instance); reload() } label: {
@@ -163,9 +238,10 @@ public struct InstancesScreen: View {
         }
     }
 
-    private func delete(_ offsets: IndexSet) {
+    private func delete(_ section: [InstanceConfig], at offsets: IndexSet) {
         for index in offsets {
-            let instance = list[index]
+            let instance = section[index]
+            if instance.id == preferred { preferred = nil }
             try? instances.remove(instance.id)
             secrets.setSecret(nil, for: AddInstanceModel.tokenKey(for: instance.id))
         }
@@ -234,6 +310,7 @@ private struct InstanceRow: View {
     let instance: InstanceConfig
     let status: InstanceStatus?
     let account: Account
+    let isPreferred: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.xxs) {
@@ -251,6 +328,10 @@ private struct InstanceRow: View {
             }
             .font(Tokens.Typography.caption)
             .foregroundStyle(Tokens.Colors.textSecondary)
+            if isPreferred {
+                Label { Text("Preferred · Asked first") } icon: { Image(systemName: "star.fill").foregroundStyle(.orange) }
+                    .font(Tokens.Typography.caption).foregroundStyle(Tokens.Colors.textSecondary)
+            }
             switch account {
             case .none: EmptyView()
             case .signedIn:

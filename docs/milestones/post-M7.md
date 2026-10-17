@@ -35,6 +35,10 @@ M0–M7 built the app the plan asked for. This brief records what came after M7,
 - [x] **Descriptions are clickable:** links, timestamps, and YouTube links that open in the app.
 
 **Everywhere**
+- [x] **YouTube and PeerTube together** (ADR 0018):
+  - Instances grouped by network, each section saying who keeps the subscriptions; "Prefer" puts one YouTube instance first.
+  - Search switches between YouTube and PeerTube, and searches every PeerTube server at once.
+  - PeerTube's videos carry a mark when YouTube's are around too; PeerTube channels name their server.
 - [x] **Instances:**
   - Instances sync to every device, the YT Zero token included (ADR 0006).
   - Settings → Instances shows whether each one is reachable, and its latency.

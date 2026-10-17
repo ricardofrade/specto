@@ -26,7 +26,9 @@ struct TVSettingsView: View {
                                         try await environment.signIn(instance, username: username, password: password,
                                                                      deviceName: "Apple TV")
                                     },
-                                    signOut: { environment.signOut($0) })
+                                    signOut: { environment.signOut($0) },
+                                    preferred: $settings.preferredInstance,
+                                    syncsWithICloud: environment.cloudSync != nil)
                 } label: {
                     LabeledContent {
                         Text("\(environment.instances.count)")

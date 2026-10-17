@@ -47,6 +47,8 @@ public enum Tokens {
         public static let thumbnailPlaceholder = Color(uiColor: .tertiarySystemFill)
         #endif
         public static let liveBadge = Color.red
+        /// PeerTube's orange, darkened so white caption text on it stays readable (4.5:1).
+        public static let peerTube = Color(red: 0.76, green: 0.32, blue: 0.04)
         /// Progress bar of a partly watched video.
         public static let watchProgress = Color.red
     }

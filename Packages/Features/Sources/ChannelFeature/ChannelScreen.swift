@@ -10,6 +10,10 @@ public final class ChannelModel {
     public private(set) var avatarURL: URL?
     /// The channel's header art, when it has one.
     public private(set) var bannerURL: URL?
+    /// A PeerTube channel's home server ("video.blender.org"), from its `name@host` handle.
+    public var server: String? {
+        channelID.peerTube.flatMap { $0.handle.split(separator: "@").last.map(String.init) }
+    }
     public private(set) var rows: [FeedRow] = []
     public private(set) var isSubscribed: Bool
     public private(set) var isLoading = false
@@ -288,6 +292,9 @@ private struct ChannelContent: View {
             }
             .accessibilityHidden(true)
             Text(model.name).font(.title2.weight(.semibold)).multilineTextAlignment(.center)
+            if let server = model.server {
+                ServerLabel(server: server)
+            }
             Button { Task { await model.toggleSubscription() } } label: {
                 Text(model.isSubscribed ? "Subscribed" : "Subscribe")
                     .frame(minWidth: 140)
@@ -343,6 +350,6 @@ extension VideoCellContent {
     init(row: FeedRow, pixelWidth: Int) {
         self.init(title: row.title, channelName: row.channelName, detail: row.detail, durationText: row.durationText,
                   thumbnailURL: row.thumbnails.best(forPixelWidth: pixelWidth)?.url, isLive: row.isLive,
-                  progress: row.progress)
+                  progress: row.progress, isPeerTube: row.id.isPeerTube)
     }
 }

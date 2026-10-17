@@ -35,6 +35,9 @@ struct InstanceHealth: Sendable {
 /// to the next one when an error is `isRetryableElsewhere`.
 public actor InstanceRouter: SourceRouting {
     private var sources: [any VideoSource]
+    /// The person's pick ("Prefer"): asked first while it isn't cooling down; the others by
+    /// speed after it (ADR 0018).
+    private var preferred: UUID?
     private var health: [Key: InstanceHealth] = [:]
     private let clock = ContinuousClock()
 
@@ -43,8 +46,9 @@ public actor InstanceRouter: SourceRouting {
         let capability: UInt32
     }
 
-    public init(sources: [any VideoSource]) {
+    public init(sources: [any VideoSource], preferred: UUID? = nil) {
         self.sources = sources
+        self.preferred = preferred
     }
 
     public func replaceSources(_ sources: [any VideoSource]) {
@@ -85,8 +89,18 @@ public actor InstanceRouter: SourceRouting {
         throw lastError
     }
 
-    /// Closed circuits first, then by latency (unknown latency last), keeping the user's order on ties.
+    /// The preferred instance first when it's available; then closed circuits by latency
+    /// (unknown latency last), keeping the user's order on ties.
     func rankedSources(for capability: SourceCapabilities) -> [any VideoSource] {
+        let ranked = rankedBySpeed(for: capability)
+        guard let preferred, let index = ranked.firstIndex(where: { $0.instance.id == preferred }),
+              !(health[key(ranked[index], capability)]?.isOpen(at: clock.now) ?? false) else { return ranked }
+        var list = ranked
+        list.insert(list.remove(at: index), at: 0)
+        return list
+    }
+
+    private func rankedBySpeed(for capability: SourceCapabilities) -> [any VideoSource] {
         let now = clock.now
         let supporting = sources.enumerated().filter { $0.element.capabilities.contains(capability) }
         let available = supporting.filter { !(health[key($0.element, capability)]?.isOpen(at: now) ?? false) }

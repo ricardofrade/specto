@@ -48,6 +48,40 @@
         }
       }
     },
+    "%@ is asked first; the others take over if it fails.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "%@ wird zuerst gefragt; fällt sie aus, übernehmen die anderen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Se pregunta primero a %@; las demás toman el relevo si falla."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "%@ est sollicitée en premier ; les autres prennent le relais en cas d’échec."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "%@ é consultada primeiro; as outras assumem se ela falhar."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "%@ é a primeira a ser consultada; as outras assumem se falhar."
+          }
+        }
+      }
+    },
     "%@ views": {
       "comment": "View count; the number is already abbreviated, e.g. 1.2M",
       "localizations": {
@@ -3907,6 +3941,40 @@
         }
       }
     },
+    "From PeerTube": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Von PeerTube"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "De PeerTube"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "De PeerTube"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Do PeerTube"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Do PeerTube"
+          }
+        }
+      }
+    },
     "Gaming": {
       "localizations": {
         "de": {
@@ -6472,6 +6540,40 @@
         }
       }
     },
+    "On PeerTube, %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Auf PeerTube, %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "En PeerTube, %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sur PeerTube, %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "No PeerTube, %@"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "No PeerTube, %@"
+          }
+        }
+      }
+    },
     "On Wi-Fi": {
       "localizations": {
         "de": {
@@ -7833,6 +7935,74 @@
         }
       }
     },
+    "Prefer": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Bevorzugen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Preferir"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Préférer"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Preferir"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Preferir"
+          }
+        }
+      }
+    },
+    "Preferred · Asked first": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Bevorzugt · Wird zuerst gefragt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Preferida · Se pregunta primero"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Préférée · Sollicitée en premier"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Preferida · Consultada primeiro"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Preferida · Consultada primeiro"
+          }
+        }
+      }
+    },
     "Preview and recap": {
       "localizations": {
         "de": {
@@ -8917,6 +9087,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "A pesquisa falhou. Verifique as suas instâncias e tente novamente."
+          }
+        }
+      }
+    },
+    "Search on": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Suchen auf"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Buscar en"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Rechercher sur"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Buscar em"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Pesquisar em"
           }
         }
       }
@@ -10317,6 +10521,40 @@
         }
       }
     },
+    "Stop Preferring": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Nicht mehr bevorzugen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Dejar de preferir"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ne plus préférer"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Deixar de preferir"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Deixar de preferir"
+          }
+        }
+      }
+    },
     "Storage limit": {
       "localizations": {
         "de": {
@@ -10892,6 +11130,74 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "A app descobre se é Piped, Invidious, YT Zero ou PeerTube."
+          }
+        }
+      }
+    },
+    "The fastest one online is asked first; the others take over if it fails. Press and hold one to prefer it.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Die schnellste erreichbare wird zuerst gefragt; fällt sie aus, übernehmen die anderen. Halte eine gedrückt, um sie zu bevorzugen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Se pregunta primero a la más rápida disponible; las demás toman el relevo si falla. Mantén pulsada una para preferirla."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "La plus rapide en ligne est sollicitée en premier ; les autres prennent le relais en cas d’échec. Maintenez-en une enfoncée pour la préférer."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A mais rápida disponível é consultada primeiro; as outras assumem se ela falhar. Mantenha uma pressionada para preferi-la."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A mais rápida disponível é consultada primeiro; as outras assumem se falhar. Mantenha uma premida para a preferir."
+          }
+        }
+      }
+    },
+    "The fastest one online is asked first; the others take over if it fails. Touch and hold one to prefer it.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Die schnellste erreichbare wird zuerst gefragt; fällt sie aus, übernehmen die anderen. Halte eine gedrückt, um sie zu bevorzugen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Se pregunta primero a la más rápida disponible; las demás toman el relevo si falla. Mantén pulsada una para preferirla."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "La plus rapide en ligne est sollicitée en premier ; les autres prennent le relais en cas d’échec. Touchez-en une de manière prolongée pour la préférer."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A mais rápida disponível é consultada primeiro; as outras assumem se ela falhar. Toque e segure uma para preferi-la."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A mais rápida disponível é consultada primeiro; as outras assumem se falhar. Toque sem soltar numa para a preferir."
           }
         }
       }
@@ -12667,6 +12973,74 @@
         }
       }
     },
+    "Your PeerTube subscriptions stay in the app and sync to your devices through iCloud. Videos play from their own server, and Search looks on every server here.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Deine PeerTube-Abos bleiben in der App und werden über iCloud mit deinen Geräten synchronisiert. Videos laufen von ihrem eigenen Server, und die Suche durchsucht jeden Server hier."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tus suscripciones de PeerTube se quedan en la app y se sincronizan con tus dispositivos a través de iCloud. Los vídeos se reproducen desde su propio servidor, y la búsqueda mira en todos los servidores de aquí."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vos abonnements PeerTube restent dans l’app et se synchronisent avec vos appareils via iCloud. Les vidéos sont lues depuis leur propre serveur, et la recherche couvre tous les serveurs ci-dessus."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Suas inscrições do PeerTube ficam no app e sincronizam com seus dispositivos pelo iCloud. Os vídeos tocam a partir do próprio servidor, e a busca procura em todos os servidores daqui."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "As suas subscrições do PeerTube ficam na app e sincronizam com os seus dispositivos através do iCloud. Os vídeos são reproduzidos a partir do próprio servidor, e a pesquisa procura em todos os servidores aqui."
+          }
+        }
+      }
+    },
+    "Your PeerTube subscriptions stay in the app on this device. Videos play from their own server, and Search looks on every server here.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Deine PeerTube-Abos bleiben in der App auf diesem Gerät. Videos laufen von ihrem eigenen Server, und die Suche durchsucht jeden Server hier."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tus suscripciones de PeerTube se quedan en la app de este dispositivo. Los vídeos se reproducen desde su propio servidor, y la búsqueda mira en todos los servidores de aquí."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vos abonnements PeerTube restent dans l’app sur cet appareil. Les vidéos sont lues depuis leur propre serveur, et la recherche couvre tous les serveurs ci-dessus."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Suas inscrições do PeerTube ficam no app neste dispositivo. Os vídeos tocam a partir do próprio servidor, e a busca procura em todos os servidores daqui."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "As suas subscrições do PeerTube ficam na app neste dispositivo. Os vídeos são reproduzidos a partir do próprio servidor, e a pesquisa procura em todos os servidores aqui."
+          }
+        }
+      }
+    },
     "Your Playlists": {
       "localizations": {
         "de": {
@@ -12731,6 +13105,108 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "O nome de utilizador e a palavra-passe do YT Zero aprovam este dispositivo. Só são enviados para a sua instância."
+          }
+        }
+      }
+    },
+    "Your YouTube subscriptions are kept in your account on %@.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Deine YouTube-Abos werden in deinem Konto auf %@ gespeichert."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tus suscripciones de YouTube se guardan en tu cuenta de %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vos abonnements YouTube sont conservés dans votre compte sur %@."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Suas inscrições do YouTube ficam guardadas na sua conta em %@."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "As suas subscrições do YouTube ficam guardadas na sua conta em %@."
+          }
+        }
+      }
+    },
+    "Your YouTube subscriptions stay in the app and sync to your devices through iCloud.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Deine YouTube-Abos bleiben in der App und werden über iCloud mit deinen Geräten synchronisiert."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tus suscripciones de YouTube se quedan en la app y se sincronizan con tus dispositivos a través de iCloud."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vos abonnements YouTube restent dans l’app et se synchronisent avec vos appareils via iCloud."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Suas inscrições do YouTube ficam no app e sincronizam com seus dispositivos pelo iCloud."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "As suas subscrições do YouTube ficam na app e sincronizam com os seus dispositivos através do iCloud."
+          }
+        }
+      }
+    },
+    "Your YouTube subscriptions stay in the app on this device.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Deine YouTube-Abos bleiben in der App auf diesem Gerät."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tus suscripciones de YouTube se quedan en la app de este dispositivo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vos abonnements YouTube restent dans l’app sur cet appareil."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Suas inscrições do YouTube ficam no app neste dispositivo."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "As suas subscrições do YouTube ficam na app neste dispositivo."
           }
         }
       }
@@ -12803,7 +13279,42 @@
         }
       }
     },
+    "Your own Piped, Invidious or YT Zero server for YouTube, or a PeerTube server. Nothing is sent anywhere else.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Dein eigener Piped-, Invidious- oder YT-Zero-Server für YouTube oder ein PeerTube-Server. Nichts wird anderswohin gesendet."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tu propio servidor Piped, Invidious o YT Zero para YouTube, o un servidor PeerTube. No se envía nada a ningún otro sitio."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Votre propre serveur Piped, Invidious ou YT Zero pour YouTube, ou un serveur PeerTube. Rien n’est envoyé ailleurs."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Seu próprio servidor Piped, Invidious ou YT Zero para o YouTube, ou um servidor PeerTube. Nada é enviado para nenhum outro lugar."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "O seu próprio servidor Piped, Invidious ou YT Zero para o YouTube, ou um servidor PeerTube. Nada é enviado para mais lado nenhum."
+          }
+        }
+      }
+    },
     "Your own Piped, Invidious or YT Zero server. Nothing is sent anywhere else.": {
+      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {

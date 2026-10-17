@@ -35,6 +35,28 @@ struct SearchModelTests {
         #expect(await filters.values == [.videos, .channels])
     }
 
+    @Test func switchingNetworkSearchesThereAndIsRemembered() async {
+        let asked = Recorder<ContentNetwork>()
+        let remembered = Recorder<ContentNetwork>()
+        let video = self.video
+        let model = SearchModel(search: { _, _, network, _ in
+            await asked.add(network)
+            return Page(items: [.video(video)], nextCursor: nil)
+        }, networkChanged: { network in Task { await remembered.add(network) } })
+        model.networks = [.youTube, .peerTube]
+        model.query = "blender"
+        await model.submit()
+        model.network = .peerTube   // Searches the same query again, on PeerTube.
+        try? await Task.sleep(for: .milliseconds(300))
+        #expect(await asked.values == [.youTube, .peerTube])
+        #expect(await remembered.values == [.peerTube])
+
+        model.networks = []   // PeerTube removed: back to where search can go.
+        #expect(model.network == .peerTube)   // Only a list without it moves the pick.
+        model.networks = [.youTube]
+        #expect(model.network == .youTube)
+    }
+
     @Test func suggestionsWaitForTypingToStop() async {
         let asked = Recorder<String>()
         let model = SearchModel(search: { _, _, _ in Page(items: [], nextCursor: nil) },

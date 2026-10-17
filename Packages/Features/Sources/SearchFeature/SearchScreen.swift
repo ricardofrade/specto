@@ -46,7 +46,24 @@ public struct SearchScreen: View {
                 }
             }
             .onSubmit(of: .search) { Task { await model.submit() } }
+            .safeAreaInset(edge: .top, spacing: 0) { networkPicker }
             .task { await model.start() }
+    }
+
+    /// YouTube or PeerTube, with both set up: the same query searches the other.
+    @ViewBuilder
+    private var networkPicker: some View {
+        if model.networks.count > 1 {
+            Picker(selection: $model.network) {
+                ForEach(model.networks, id: \.self) { Text(verbatim: $0.title).tag($0) }
+            } label: {
+                Text("Search on")
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal, Tokens.Spacing.screenInset)
+            .padding(.vertical, Tokens.Spacing.s)
+            .accessibilityIdentifier("search.network")
+        }
     }
 
     @ViewBuilder
@@ -218,7 +235,7 @@ extension VideoCellContent {
     init(row: FeedRow, pixelWidth: Int) {
         self.init(title: row.title, channelName: row.channelName, detail: row.detail, durationText: row.durationText,
                   thumbnailURL: row.thumbnails.best(forPixelWidth: pixelWidth)?.url, isLive: row.isLive,
-                  progress: row.progress)
+                  progress: row.progress, isPeerTube: row.id.isPeerTube)
     }
 
     init(playlist row: PlaylistRow, pixelWidth: Int) {

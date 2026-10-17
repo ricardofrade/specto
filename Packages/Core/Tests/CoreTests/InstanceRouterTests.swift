@@ -43,6 +43,17 @@ struct InstanceRouterTests {
         #expect(blocked.callCount == 1 && healthy.callCount == 1)
     }
 
+    @Test func thePreferredInstanceGoesFirstUntilItFails() async throws {
+        let fast = ScriptedSource("a", results: [ok])
+        let preferred = ScriptedSource("b", results: [.failure(.blockedUpstream), ok])
+        let router = InstanceRouter(sources: [fast, preferred], preferred: preferred.instance.id)
+        _ = try await router.perform(.trending) { try await $0.trending(region: nil) }
+        #expect(preferred.callCount == 1 && fast.callCount == 1)   // Tried first, failed over.
+        // Blocked: cooling down, so the other goes first now.
+        _ = try await router.perform(.trending) { try await $0.trending(region: nil) }
+        #expect(preferred.callCount == 1 && fast.callCount == 2)
+    }
+
     @Test func doesNotRetryContentErrorsElsewhere() async {
         let first = ScriptedSource("a", results: [.failure(.unavailable(reason: "Private video"))])
         let second = ScriptedSource("b", results: [ok])

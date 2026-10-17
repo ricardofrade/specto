@@ -71,6 +71,25 @@ struct PeerTubeSourceTests {
         #expect(page.items.first?.text == "Video not playing")
     }
 
+    @Test func searchAcrossServersShowsAFederatedVideoOnce() async throws {
+        func server(_ host: String, fails: Bool = false) -> PeerTubeSource {
+            let client = FixtureClient()
+            if fails { client.on("/api/v1/search/videos", status: 500, body: Data()) }
+            else { client.on("/api/v1/search/videos", fixture: "peertube/search.json") }
+            return PeerTubeSource(instance: instance(.peerTube, "https://\(host)"), client: client)
+        }
+        let one = try await server("a.example").search("blender", filter: .videos, cursor: nil)
+        // Both servers index the same videos: each appears once, from the first server.
+        let both = try await PeerTubeSearch.search([server("a.example"), server("b.example"), server("c.example", fails: true)],
+                                                   query: "blender", filter: .videos, cursor: nil)
+        #expect(both.items.count == one.items.count && !both.items.isEmpty)
+        #expect(both.items.allSatisfy { if case .video(let v) = $0 { v.id.peerTube?.host == "a.example" } else { false } })
+        #expect(both.nextCursor == one.nextCursor)
+        await #expect(throws: SourceError.self) {
+            try await PeerTubeSearch.search([server("c.example", fails: true)], query: "x", filter: .videos, cursor: nil)
+        }
+    }
+
     @Test func searchFindsVideosAndChannels() async throws {
         let pt = source {
             $0.on("/api/v1/search/videos", fixture: "peertube/search.json")

@@ -14,6 +14,8 @@ public struct VideoCellContent: Hashable, Sendable {
     public var avatar: Avatar?
     /// An SF Symbol before the badge text: a playlist shows its video count with a list icon.
     public var badgeSymbol: String?
+    /// From PeerTube: marked when YouTube's videos are around too (`marksPeerTube`).
+    public var isPeerTube: Bool
 
     public struct Avatar: Hashable, Sendable {
         public let url: URL?
@@ -26,7 +28,9 @@ public struct VideoCellContent: Hashable, Sendable {
     }
 
     public init(title: String, channelName: String, detail: String, durationText: String?, thumbnailURL: URL?,
-                isLive: Bool, progress: Double?, avatar: Avatar? = nil, badgeSymbol: String? = nil) {
+                isLive: Bool, progress: Double?, avatar: Avatar? = nil, badgeSymbol: String? = nil,
+                isPeerTube: Bool = false) {
+        self.isPeerTube = isPeerTube
         self.avatar = avatar
         self.badgeSymbol = badgeSymbol
         self.title = title
@@ -49,6 +53,7 @@ public struct VideoCell: View, Equatable {
     /// The thumbnail's laid-out width in points; the image pipeline requests exactly that.
     private let thumbnailWidth: CGFloat
     @Environment(\.dynamicTypeSize) private var typeSize
+    @Environment(\.marksPeerTube) private var marksPeerTube
 
     public init(_ content: VideoCellContent, style: Style = .stacked, thumbnailWidth: CGFloat) {
         self.content = content
@@ -103,6 +108,9 @@ public struct VideoCell: View, Equatable {
                 if let progress = content.progress {
                     ProgressBar(fraction: progress)
                 }
+            }
+            .overlay(alignment: .topLeading) {
+                if content.isPeerTube, marksPeerTube { PeerTubeMark() }
             }
             .clipShape(.rect(cornerRadius: Tokens.Radius.thumbnail))
             .overlay {
@@ -205,5 +213,53 @@ public struct AvatarView: View {
         }
         .frame(width: size, height: size)
         .accessibilityHidden(true)
+    }
+}
+
+extension EnvironmentValues {
+    /// YouTube and PeerTube are both set up: PeerTube's videos and channels carry a mark, so a
+    /// mixed Home or history shows where each one comes from. Alone, PeerTube needs none.
+    @Entry public var marksPeerTube = false
+}
+
+/// "PeerTube" in a corner of the thumbnail (or beside a channel's name).
+public struct PeerTubeMark: View {
+    /// Inset from a thumbnail's corner; off beside text.
+    let inset: Bool
+
+    public init(inset: Bool = true) {
+        self.inset = inset
+    }
+
+    public var body: some View {
+        Text(verbatim: "PeerTube")
+            .font(.caption2.weight(.bold))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(Tokens.Colors.peerTube, in: Capsule())
+            .padding(inset ? Tokens.Spacing.xs : 0)
+            .accessibilityLabel(Text("From PeerTube"))
+    }
+}
+
+/// Under a PeerTube channel's name: the server it lives on.
+public struct ServerLabel: View {
+    let server: String
+
+    public init(server: String) {
+        self.server = server
+    }
+
+    public var body: some View {
+        HStack(spacing: Tokens.Spacing.xs) {
+            PeerTubeMark(inset: false)
+            Text(verbatim: server)
+        }
+        .font(Tokens.Typography.caption)
+        .foregroundStyle(Tokens.Colors.textSecondary)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("On PeerTube, \(server)"))
+        .accessibilityIdentifier("channel.server")
     }
 }

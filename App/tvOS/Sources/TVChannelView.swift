@@ -19,7 +19,10 @@ struct TVChannelView: View {
                     RemoteImage(model.avatarURL, pointSize: CGSize(width: 120, height: 120))
                         .frame(width: 120, height: 120)
                         .clipShape(.circle)
-                    Text(model.name).font(.title2.weight(.semibold))
+                    VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+                        Text(model.name).font(.title2.weight(.semibold))
+                        if let server = model.server { ServerLabel(server: server) }
+                    }
                     Spacer()
                     Button { Task { await model.toggleSubscription() } } label: {
                         Text(model.isSubscribed ? "Subscribed" : "Subscribe")

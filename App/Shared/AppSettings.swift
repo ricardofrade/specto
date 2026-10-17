@@ -117,6 +117,16 @@ final class AppSettings {
     }
 
     /// The format to play when the person hasn't picked one for a video (ADR 0017). Auto.
+    /// The YouTube instance to ask first ("Prefer"); nil lets the fastest go first.
+    var preferredInstance: UUID? {
+        didSet { defaults.set(preferredInstance?.uuidString, forKey: Keys.preferredInstance) }
+    }
+
+    /// Search's last network, with YouTube and PeerTube both set up.
+    var searchNetwork: ContentNetwork {
+        didSet { defaults.set(searchNetwork.rawValue, forKey: Keys.searchNetwork) }
+    }
+
     /// The country for trending lists (ISO code); nil follows the device's region.
     var trendingRegion: String? {
         didSet { defaults.set(trendingRegion, forKey: Keys.trendingRegion) }
@@ -154,6 +164,8 @@ final class AppSettings {
         homePreviews = Self.flag(defaults, Keys.homePreviews, default: true)
         preferredFormat = defaults.string(forKey: Keys.preferredFormat).flatMap(StreamFormat.init) ?? .auto
         trendingRegion = defaults.string(forKey: Keys.trendingRegion)
+        preferredInstance = defaults.string(forKey: Keys.preferredInstance).flatMap(UUID.init)
+        searchNetwork = defaults.string(forKey: Keys.searchNetwork).flatMap(ContentNetwork.init) ?? .youTube
         wifiQualityLimit = Self.limit(defaults.integer(forKey: Keys.wifiQualityLimit))
         cellularQualityLimit = Self.limit(defaults.integer(forKey: Keys.cellularQualityLimit))
     }
@@ -197,6 +209,8 @@ final class AppSettings {
         static let homePreviews = "home.previews"
         static let preferredFormat = "playback.format"
         static let trendingRegion = "explore.region"
+        static let preferredInstance = "instances.preferred"
+        static let searchNetwork = "search.network"
         static let autoplay = "playback.autoplay"
         static let audioLanguage = "playback.audioLanguage"
         static let cellularQualityLimit = "playback.cellularQualityLimit"

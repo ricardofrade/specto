@@ -29,6 +29,8 @@ final class AppEnvironment {
     var captionTracks: [CaptionTrack] = []
     var selectedCaption: CaptionTrack?
     @ObservationIgnored private(set) var router = InstanceRouter(sources: [])
+    /// Every PeerTube server, answering general queries: Search's PeerTube side asks them all.
+    @ObservationIgnored private var peerTubeServers: [any VideoSource] = []
     @ObservationIgnored private(set) var refresher: FeedRefresher
     @ObservationIgnored private(set) var account: (any SubscriptionAccount)?
     @ObservationIgnored private let manifests: ManifestCache
@@ -158,6 +160,15 @@ final class AppEnvironment {
            let url = URL(string: arguments[index + 1]) {
             try? InstanceStore(database).add(InstanceConfig(kind: .invidious, displayName: url.host() ?? "Invidious", apiURL: url))
         }
+        // `-SeedYTZero <URL> <token>`: a linked YT Zero (a token from device pairing), so all
+        // four kinds can be tested together. The token lives only in this in-memory store.
+        let secrets = InMemorySecretStore()
+        if let index = arguments.firstIndex(of: "-SeedYTZero"), arguments.indices.contains(index + 2),
+           let url = URL(string: arguments[index + 1]) {
+            let config = InstanceConfig(kind: .ytZero, displayName: url.host() ?? "YT Zero", apiURL: url)
+            try? InstanceStore(database).add(config)
+            secrets.setSecret(arguments[index + 2], for: InstanceConfig.tokenKey(for: config.id))
+        }
         if let index = arguments.firstIndex(of: "-SeedDemoFeed"), arguments.indices.contains(index + 1),
            let count = Int(arguments[index + 1]) {
             let channel = ChannelSummary(id: ChannelID(rawValue: "UCdemo000000000000000000"), name: "Demo", avatar: nil)
@@ -179,7 +190,7 @@ final class AppEnvironment {
                 try? watch.save(.seconds(60), duration: .seconds(600), for: VideoID(rawValue: "demo\(video)"))
             }
         }
-        return AppEnvironment(database: database, secrets: InMemorySecretStore())
+        return AppEnvironment(database: database, secrets: secrets)
     }
 
     /// Rebuild sources after instances change. Piped and Invidious first (AV1/VP9, higher
@@ -188,6 +199,7 @@ final class AppEnvironment {
         instances = (try? InstanceStore(database).all()) ?? []
         hasSubscriptions = !((try? SubscriptionStore(database).channels()) ?? []).isEmpty
         var sources: [any VideoSource] = []
+        var peerTubeServers: [any VideoSource] = []
         var ytZero: YTZeroSource?
         // The first signed-in instance in the person's order owns YouTube subscriptions
         // (ADR 0002, 0017): YT Zero, Piped or Invidious.
@@ -207,6 +219,7 @@ final class AppEnvironment {
                 if let secret, linkedAccount == nil { linkedAccount = InvidiousAccount(instance: instance, session: secret) }
             case .peerTube:
                 sources.append(PeerTubeSource(instance: instance, servesGeneralQueries: !hasYouTube))
+                peerTubeServers.append(PeerTubeSource(instance: instance))
             case .ytZero:
                 guard let token = secret else { continue }
                 let source = YTZeroSource(instance: instance, token: token)
@@ -218,8 +231,10 @@ final class AppEnvironment {
         // YT Zero streams last (the others give more formats).
         if let ytZero { sources.append(YouTubeOnly(ytZero)) }
 
-        let router = InstanceRouter(sources: sources)
+        let preferred = AppSettings.shared.preferredInstance.flatMap { id in instances.contains { $0.id == id } ? id : nil }
+        let router = InstanceRouter(sources: sources, preferred: preferred)
         self.router = router
+        self.peerTubeServers = peerTubeServers
         account = linkedAccount
         resumeStore.account = linkedAccount
         refresher = FeedRefresher(mode: linkedAccount.map { .account($0, router: router) } ?? .local(router), database: database)
@@ -337,10 +352,21 @@ final class AppEnvironment {
 
     // MARK: Browsing
 
-    func search(_ query: String, filter: SearchFilter, cursor: String?) async throws -> Page<SearchResult> {
+    /// YouTube through the router; PeerTube from every server at once (ADR 0018). With one
+    /// kind of instance only, the network doesn't matter: the router finds what can answer.
+    func search(_ query: String, filter: SearchFilter, network: ContentNetwork,
+                cursor: String?) async throws -> Page<SearchResult> {
+        // Beside YouTube, PeerTube when picked; on its own, every server once there are several.
+        let servers = peerTubeServers
+        if !servers.isEmpty, hasYouTube ? network == .peerTube : servers.count > 1 {
+            return try await PeerTubeSearch.search(servers, query: query, filter: filter, cursor: cursor)
+        }
         let router = self.router
         return try await router.perform(.search) { try await $0.search(query, filter: filter, cursor: cursor) }
     }
+
+    /// Both networks set up: Search offers a switch between them.
+    var searchNetworks: [ContentNetwork] { hasYouTube && hasPeerTube ? [.youTube, .peerTube] : [] }
 
     /// Completions from the first instance that answers; none when turned off in Settings.
     func suggestions(for query: String) async -> [String] {
@@ -357,10 +383,11 @@ final class AppEnvironment {
 
     /// The search model both apps use: filters, suggestions, and this device's recent searches.
     func makeSearchModel() -> SearchModel {
-        SearchModel(search: { [weak self] query, filter, cursor in
+        SearchModel(search: { [weak self] query, filter, network, cursor in
             guard let self else { return Page(items: [], nextCursor: nil) }
-            return try await self.search(query, filter: filter, cursor: cursor)
-        }, suggest: { [weak self] query in
+            return try await self.search(query, filter: filter, network: network, cursor: cursor)
+        }, network: AppSettings.shared.searchNetwork, networkChanged: { AppSettings.shared.searchNetwork = $0 },
+           suggest: { [weak self] query in
             await self?.suggestions(for: query) ?? []
         }, recent: RecentSearchStore(database), searchesAsYouType: Self.isTV,
            subscriptions: SubscriptionStore(database), trending: TrendingStore(database))

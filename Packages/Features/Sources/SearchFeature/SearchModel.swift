@@ -46,6 +46,23 @@ public final class SearchModel {
             Task { await run(submitted) }
         }
     }
+    /// With YouTube and PeerTube both set up, the two to choose between (the switch above the
+    /// results); empty otherwise, and every search goes where it can.
+    public var networks: [ContentNetwork] = [] {
+        didSet {
+            guard networks != oldValue else { return }
+            if !networks.isEmpty, !networks.contains(network) { network = networks[0] }
+        }
+    }
+    /// Changing it searches the submitted query again.
+    public var network = ContentNetwork.youTube {
+        didSet {
+            guard network != oldValue else { return }
+            networkChanged(network)
+            guard !submitted.isEmpty else { return }
+            Task { await run(submitted) }
+        }
+    }
     public private(set) var rows: [Row] = []
     public private(set) var phase = Phase.idle
     public private(set) var isLoadingMore = false
@@ -65,7 +82,8 @@ public final class SearchModel {
     /// What the search field offers: recent searches before typing, suggestions after.
     public var completions: [String] { query.isEmpty ? recent : suggestions }
 
-    @ObservationIgnored private let search: @Sendable (String, SearchFilter, String?) async throws -> Page<SearchResult>
+    @ObservationIgnored private let search: @Sendable (String, SearchFilter, ContentNetwork, String?) async throws -> Page<SearchResult>
+    @ObservationIgnored private let networkChanged: (ContentNetwork) -> Void
     @ObservationIgnored private let suggest: ((String) async -> [String])?
     @ObservationIgnored private let recentStore: RecentSearchStore?
     /// Apple TV: the inline keyboard has no return key, so typing searches (debounced).
@@ -80,15 +98,27 @@ public final class SearchModel {
     @ObservationIgnored private var idleObservations: [Task<Void, Never>] = []
 
     /// - Parameters:
-    ///   - search: (query, filter, cursor) → a page of results, through the app's router.
+    ///   - search: (query, filter, network, cursor) → a page of results, through the app's router.
+    ///   - network: the network last searched; `networkChanged` remembers a new pick.
     ///   - suggest: completions for a partial query; nil turns suggestions off.
     ///   - recent: where recent searches are kept; nil keeps none.
     ///   - searchesAsYouType: search after typing pauses (Apple TV) rather than on submit.
     ///   - subscriptions, trending: what the starting screen shows before typing (nil: nothing).
-    public init(search: @escaping @Sendable (String, SearchFilter, String?) async throws -> Page<SearchResult>,
+    public convenience init(search: @escaping @Sendable (String, SearchFilter, String?) async throws -> Page<SearchResult>,
+                            suggest: ((String) async -> [String])? = nil, recent: RecentSearchStore? = nil,
+                            searchesAsYouType: Bool = false,
+                            subscriptions: SubscriptionStore? = nil, trending: TrendingStore? = nil) {
+        self.init(search: { query, filter, _, cursor in try await search(query, filter, cursor) }, suggest: suggest,
+                  recent: recent, searchesAsYouType: searchesAsYouType, subscriptions: subscriptions, trending: trending)
+    }
+
+    public init(search: @escaping @Sendable (String, SearchFilter, ContentNetwork, String?) async throws -> Page<SearchResult>,
+                network: ContentNetwork = .youTube, networkChanged: @escaping (ContentNetwork) -> Void = { _ in },
                 suggest: ((String) async -> [String])? = nil, recent: RecentSearchStore? = nil,
                 searchesAsYouType: Bool = false,
                 subscriptions: SubscriptionStore? = nil, trending: TrendingStore? = nil) {
+        self.network = network
+        self.networkChanged = networkChanged
         self.subscriptions = subscriptions
         self.trendingStore = trending
         channels = Self.idle((try? subscriptions?.channels()) ?? [])
@@ -166,8 +196,9 @@ public final class SearchModel {
         guard id == rows.last?.id, let cursor, !isLoadingMore else { return }
         isLoadingMore = true
         defer { isLoadingMore = false }
-        let text = submitted, filter = self.filter
-        guard let page = try? await search(text, filter, cursor), text == submitted, filter == self.filter else { return }
+        let text = submitted, filter = self.filter, network = self.network
+        guard let page = try? await search(text, filter, network, cursor),
+              text == submitted, filter == self.filter, network == self.network else { return }
         let known = Set(rows.map(\.id))
         rows += Self.format(page.items).filter { !known.contains($0.id) }
         self.cursor = page.nextCursor
@@ -183,17 +214,17 @@ public final class SearchModel {
 
     private func run(_ text: String) async {
         submitted = text
-        let filter = self.filter
+        let filter = self.filter, network = self.network
         phase = .loading
         rows = []
         do {
-            let page = try await search(text, filter, nil)
-            guard text == submitted, filter == self.filter else { return }
+            let page = try await search(text, filter, network, nil)
+            guard text == submitted, filter == self.filter, network == self.network else { return }
             rows = Self.format(page.items)
             cursor = page.nextCursor
             phase = rows.isEmpty ? .empty : .results
         } catch {
-            guard text == submitted, filter == self.filter else { return }
+            guard text == submitted, filter == self.filter, network == self.network else { return }
             phase = .failed(String(localized: "Search failed. Check your instances and try again."))
         }
     }
@@ -213,7 +244,8 @@ public final class SearchModel {
     private func scheduleSuggestions() {
         suggestionTask?.cancel()
         let text = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let suggest, !text.isEmpty, text != submitted else {
+        // Suggestions come from YouTube; a PeerTube search keeps its words off YouTube.
+        guard let suggest, network == .youTube, !text.isEmpty, text != submitted else {
             suggestions = []
             return
         }
@@ -238,6 +270,16 @@ public final class SearchModel {
             case .playlist(let playlist):
                 .playlist(PlaylistRow(playlist))
             }
+        }
+    }
+}
+
+extension ContentNetwork {
+    /// The network's own name, untranslated.
+    public var title: String {
+        switch self {
+        case .youTube: "YouTube"
+        case .peerTube: "PeerTube"
         }
     }
 }

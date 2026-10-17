@@ -276,10 +276,13 @@ struct RootView: View {
                 router.feedPath.append(.channel(id, name: channels.first { $0.id == id }?.name ?? ""))
             }
         }
+        // Mixed setups mark PeerTube's videos and channels, so each shows where it's from.
+        .environment(\.marksPeerTube, environment.hasYouTube && environment.hasPeerTube)
         .onChange(of: environment.instances, initial: true) {
             explore.setCategoriesAvailable(environment.supportsTrendingCategories,
                                            peerTube: environment.hasPeerTube && environment.hasYouTube,
                                            onlyPeerTube: environment.hasPeerTube && !environment.hasYouTube)
+            search.networks = environment.searchNetworks
         }
         .task(id: environment.hasSubscriptions) {
             channels = (try? SubscriptionStore(environment.database).channels()) ?? []

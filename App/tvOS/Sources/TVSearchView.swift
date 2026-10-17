@@ -12,6 +12,21 @@ struct TVSearchView: View {
 
     var body: some View {
         ScrollView {
+            if model.networks.count > 1 {
+                // YouTube or PeerTube, with both set up; the same query searches the other.
+                HStack(spacing: TVMetrics.gridSpacing) {
+                    ForEach(model.networks, id: \.self) { network in
+                        Button { model.network = network } label: {
+                            Text(verbatim: network.title)
+                                .fontWeight(network == model.network ? .bold : .regular)
+                        }
+                        .accessibilityAddTraits(network == model.network ? .isSelected : [])
+                    }
+                    Spacer()
+                }
+                .padding(.bottom, TVMetrics.gridSpacing)
+                .accessibilityIdentifier("search.network")
+            }
             switch model.phase {
             case .idle:
                 EmptyView()

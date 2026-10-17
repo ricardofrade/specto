@@ -13,6 +13,7 @@ struct VideoCard: View {
     /// The channel's avatar beside the title (Home).
     var showsAvatar = false
     @Environment(\.displayScale) private var displayScale
+    @Environment(\.marksPeerTube) private var marksPeerTube
 
     var body: some View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.m) {
@@ -88,6 +89,9 @@ struct VideoCard: View {
                         .foregroundStyle(.white)
                         .padding(Tokens.Spacing.s)
                 }
+            }
+            .overlay(alignment: .topLeading) {
+                if marksPeerTube, row.id.isPeerTube { PeerTubeMark() }
             }
             .overlay(alignment: .bottom) {
                 if let progress = row.progress {

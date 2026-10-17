@@ -8,6 +8,10 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 if [[ -f "$root/.env.local" ]]; then set -a; . "$root/.env.local"; set +a; fi
 [[ -n "${PIPED_URL:-}" ]] || { echo "No PIPED_URL; nothing to test against."; exit 0; }
 export TEST_RUNNER_PIPED_URL="$PIPED_URL"
+# The four-instance test also needs Invidious and a paired YT Zero (token in .ytzero-test-token).
+[[ -n "${INVIDIOUS_URL:-}" ]] && export TEST_RUNNER_INVIDIOUS_URL="$INVIDIOUS_URL"
+[[ -n "${YTZERO_URL:-}" ]] && export TEST_RUNNER_YTZERO_URL="$YTZERO_URL"
+[[ -f "$root/.ytzero-test-token" ]] && export TEST_RUNNER_YTZERO_TOKEN="$(cat "$root/.ytzero-test-token")"
 out="${CI_OUTPUT:-$root/build}"
 mkdir -p "$out"
 

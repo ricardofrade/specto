@@ -114,10 +114,13 @@ struct TVRootView: View {
         .onChange(of: scenePhase) { _, phase in
             environment.scenePhaseChanged(phase)
         }
+        // Mixed setups mark PeerTube's videos and channels, so each shows where it's from.
+        .environment(\.marksPeerTube, environment.hasYouTube && environment.hasPeerTube)
         .onChange(of: environment.instances, initial: true) {
             explore.setCategoriesAvailable(environment.supportsTrendingCategories,
                                            peerTube: environment.hasPeerTube && environment.hasYouTube,
                                            onlyPeerTube: environment.hasPeerTube && !environment.hasYouTube)
+            search.networks = environment.searchNetworks
         }
         .task { environment.warmUp() }
     }

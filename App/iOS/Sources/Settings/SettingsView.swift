@@ -124,7 +124,9 @@ struct SettingsView: View {
                                     try await environment.signIn(instance, username: username, password: password,
                                                                  deviceName: UIDevice.current.name)
                                 },
-                                signOut: { environment.signOut($0) })
+                                signOut: { environment.signOut($0) },
+                                preferred: $settings.preferredInstance,
+                                syncsWithICloud: environment.cloudSync != nil)
             }
         }
     }
