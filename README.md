@@ -1,6 +1,6 @@
 # Specto
 
-A privacy-respecting video app for iPhone, iPad, Apple TV and CarPlay that plays YouTube through **your own** [Piped](https://github.com/TeamPiped/Piped), [Invidious](https://invidious.io) or YT Zero instance. Specto has no servers of its own, no accounts and no analytics. It talks only to the instances you add (and, if you turn it on, iCloud).
+A privacy-respecting video app for iPhone, iPad, Apple TV and CarPlay that plays YouTube through **your own** [Piped](https://github.com/TeamPiped/Piped), [Invidious](https://invidious.io) or [YT Zero](https://ytzero.app/) instance. Specto has no servers of its own, no accounts and no analytics. It talks only to the instances you add (and, if you turn it on, iCloud).
 
 *Specto* is Latin for "I watch". The icon is an eye whose pupil is a play button.
 

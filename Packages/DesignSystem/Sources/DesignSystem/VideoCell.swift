@@ -171,7 +171,8 @@ private struct ProgressBar: View {
     }
 }
 
-/// A channel's round avatar, or its first letter while there's no image.
+/// A channel's round avatar; until the image arrives (or without one), the system Contacts
+/// style: white initial on a soft grey gradient, or a person glyph when there's no name.
 public struct AvatarView: View {
     let avatar: VideoCellContent.Avatar
     let size: CGFloat
@@ -183,9 +184,16 @@ public struct AvatarView: View {
 
     public var body: some View {
         ZStack {
-            Circle().fill(Tokens.Colors.accent.opacity(0.2))
-            Text(verbatim: avatar.initial).font(size > 40 ? .title3.weight(.bold) : .subheadline.weight(.bold))
-                .foregroundStyle(Tokens.Colors.accent)
+            Circle().fill(LinearGradient(colors: [Color(white: 0.66), Color(white: 0.52)], startPoint: .top, endPoint: .bottom))
+            if avatar.initial.isEmpty || avatar.initial == "•" {
+                Image(systemName: "person.fill")
+                    .font(.system(size: size * 0.5))
+                    .foregroundStyle(.white)
+            } else {
+                Text(verbatim: avatar.initial)
+                    .font(.system(size: size * 0.45, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.white)
+            }
             if let url = avatar.url {
                 RemoteImage(url, pointSize: CGSize(width: size, height: size)).clipShape(.circle)
             }

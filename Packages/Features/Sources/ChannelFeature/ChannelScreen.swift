@@ -240,7 +240,15 @@ private struct ChannelContent: View {
             if tab == .playlists, model.loadedPlaylists, model.playlists.isEmpty {
                 Text("No playlists").foregroundStyle(Tokens.Colors.textSecondary).padding()
             }
-            if model.isLoading { ProgressView().padding() }
+            if model.isLoading {
+                if model.rows.isEmpty {
+                    // The first page: the grid's shape at once.
+                    LoadingPlaceholders(count: 3, style: .stacked, thumbnailWidth: columnWidth)
+                        .padding(.horizontal, Tokens.Spacing.screenInset)
+                } else {
+                    ProgressView().padding()
+                }
+            }
         }
         .navigationTitle(model.name)
         .inlineNavigationTitle()

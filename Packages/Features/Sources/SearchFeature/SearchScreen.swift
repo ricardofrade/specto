@@ -55,7 +55,10 @@ public struct SearchScreen: View {
                 recentList
             }
         case .loading:
-            ProgressView()
+            ScrollView {
+                LoadingPlaceholders()
+                    .padding(Tokens.Spacing.screenInset)
+            }
         case .empty:
             ContentUnavailableView.search(text: model.query)
         case .failed(let message):

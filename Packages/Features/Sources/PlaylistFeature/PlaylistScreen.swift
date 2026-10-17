@@ -39,7 +39,13 @@ public struct PlaylistScreen: View {
                     .accessibilityIdentifier("playlist.video")
                     .task { await model.loadMoreIfNeeded(after: row.id) }
                 }
-                if model.isLoading { ProgressView().frame(maxWidth: .infinity) }
+                if model.isLoading {
+                    if model.rows.isEmpty {
+                        LoadingPlaceholders(count: 5)
+                    } else {
+                        ProgressView().frame(maxWidth: .infinity)
+                    }
+                }
             }
         }
         .listStyle(.plain)

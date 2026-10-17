@@ -206,10 +206,7 @@ public struct WatchScreen: View {
                 .accessibilityAddTraits(.isHeader)
             Button { onOpenChannel(content.channelID, content.channelName) } label: {
                 HStack(spacing: Tokens.Spacing.s) {
-                    Text(content.channelInitial)
-                        .font(.subheadline.weight(.bold))
-                        .frame(width: 30, height: 30)
-                        .background(Tokens.Colors.accent.opacity(0.25), in: .circle)
+                    AvatarView(VideoCellContent.Avatar(url: nil, initial: content.channelInitial), size: 30)
                     Text(content.channelName)
                         .font(Tokens.Typography.cellMeta.weight(.semibold))
                     Image(systemName: "chevron.right").font(.caption.weight(.semibold))

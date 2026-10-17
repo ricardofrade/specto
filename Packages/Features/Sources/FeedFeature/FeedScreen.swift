@@ -115,16 +115,30 @@ public struct FeedScreen: View {
                         VStack(alignment: .leading, spacing: Tokens.Spacing.m) {
                             Text(verbatim: section.title).font(Tokens.Typography.sectionTitle)
                                 .accessibilityAddTraits(.isHeader)
-                            // One column on a phone, more as width allows (unfolded, iPad, wide windows).
-                            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Tokens.Spacing.l,
-                                                                         alignment: .top), count: columns),
-                                      spacing: Tokens.Spacing.xl) {
-                                ForEach(section.rows) { row in
-                                    VideoCell(VideoCellContent(row: row, pixelWidth: Int(thumbnailWidth * displayScale)),
-                                              thumbnailWidth: thumbnailWidth)
-                                        .equatable()
-                                        .modifier(RowInteractions(row: row, actions: rowActions, transition: transition))
-                                        .onAppear { model.rowAppeared(row.id) }
+                            if columns == 1, section.period != .today {
+                                // A phone: older videos as compact rows, about three per card's height.
+                                LazyVStack(alignment: .leading, spacing: Tokens.Spacing.m) {
+                                    ForEach(section.rows) { row in
+                                        VideoCell(VideoCellContent(row: row, pixelWidth: Int(Self.rowThumbnailWidth * displayScale)),
+                                                  style: .row, thumbnailWidth: Self.rowThumbnailWidth)
+                                            .equatable()
+                                            .modifier(RowInteractions(row: row, actions: rowActions, transition: transition))
+                                            .onAppear { model.rowAppeared(row.id) }
+                                    }
+                                }
+                            } else {
+                                // Today as large cards on a phone; more columns as width allows
+                                // (unfolded, iPad, wide windows).
+                                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Tokens.Spacing.l,
+                                                                             alignment: .top), count: columns),
+                                          spacing: Tokens.Spacing.xl) {
+                                    ForEach(section.rows) { row in
+                                        VideoCell(VideoCellContent(row: row, pixelWidth: Int(thumbnailWidth * displayScale)),
+                                                  thumbnailWidth: thumbnailWidth)
+                                            .equatable()
+                                            .modifier(RowInteractions(row: row, actions: rowActions, transition: transition))
+                                            .onAppear { model.rowAppeared(row.id) }
+                                    }
                                 }
                             }
                         }
@@ -144,6 +158,8 @@ public struct FeedScreen: View {
     }
 
     static let minimumColumnWidth: CGFloat = 320
+    /// Compact rows' thumbnail width on a phone.
+    static let rowThumbnailWidth: CGFloat = 160
 
     private var rowActions: RowActions {
         RowActions(select: onSelect, prefetch: onPrefetch, openChannel: onOpenChannel, addToQueue: onAddToQueue,
@@ -245,7 +261,10 @@ public struct FeedScreen: View {
             }
         case nil:
             if model.isRefreshing {
-                ProgressView()
+                ScrollView {
+                    LoadingPlaceholders(count: 4, style: .stacked, thumbnailWidth: thumbnailWidth)
+                        .padding(Tokens.Spacing.screenInset)
+                }
             } else {
                 ContentUnavailableView {
                     Label { Text("Nothing new") } icon: { Image(systemName: "checkmark.circle") }

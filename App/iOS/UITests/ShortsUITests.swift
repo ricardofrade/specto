@@ -28,6 +28,15 @@ final class ShortsUITests: XCTestCase {
         XCTAssertTrue(played, "First Short never played: \(surface.exists ? (surface.value as? String ?? "?") : "no surface")")
         let first = try XCTUnwrap((surface.value as? String)?.split(separator: " ")[1])
         shot(app, "playing")
+        XCTAssertTrue(app.buttons["shorts.channel"].firstMatch.exists)
+        XCTAssertTrue(app.buttons["shorts.share"].firstMatch.exists)
+        // Neighbouring pages are rendered too: use the rail of the Short on screen.
+        let save = try XCTUnwrap(app.buttons.matching(identifier: "shorts.save").allElementsBoundByIndex
+            .first { $0.isHittable })
+        save.tap()
+        let marked = wait(save, "selected == true", 5)
+        shot(app, "saved")
+        XCTAssertTrue(marked, "Save didn't mark the Short as saved: \(app.debugDescription)")
 
         app.swipeUp()
         XCTAssertTrue(wait(surface, "value BEGINSWITH 'playing ' AND NOT (value CONTAINS '\(first)')", 45),

@@ -196,6 +196,11 @@ struct RootView: View {
             }, onClose: {
                 environment.session.stop()
                 router.shorts = nil
+            }, onSave: { environment.saveToWatchLater($0) },
+            onOpenChannel: { video in
+                environment.session.stop()
+                router.shorts = nil
+                router.openChannel(video.channelID, name: video.channelName)
             })
         }
         .fullScreenCover(item: $router.watching) { content in

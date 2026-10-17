@@ -162,7 +162,11 @@ public struct RemoteImage: View {
         .task(id: url) {
             guard let url else { image = nil; return }
             image = ImagePipeline.shared.cached(url, pixelSize: pixelSize)
-            if image == nil { image = await ImagePipeline.shared.image(url, pixelSize: pixelSize) }
+            if image == nil {
+                // From the network: fade in rather than pop (from the cache it's there at once).
+                let loaded = await ImagePipeline.shared.image(url, pixelSize: pixelSize)
+                withAnimation(.easeOut(duration: 0.2)) { image = loaded }
+            }
         }
     }
 }
