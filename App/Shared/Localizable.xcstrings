@@ -739,6 +739,40 @@
         }
       }
     },
+    "All": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Alle"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Todos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tous"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Todos"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Todos"
+          }
+        }
+      }
+    },
     "Audio Only": {
       "localizations": {
         "de": {
@@ -8046,6 +8080,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Mostrar sugestões “A seguir”"
+          }
+        }
+      }
+    },
+    "Shows only this channel's videos": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Zeigt nur die Videos dieses Kanals"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Muestra solo los vídeos de este canal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Affiche uniquement les vidéos de cette chaîne"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mostra só os vídeos deste canal"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mostra só os vídeos deste canal"
           }
         }
       }

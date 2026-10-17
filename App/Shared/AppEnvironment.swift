@@ -416,6 +416,7 @@ final class AppEnvironment {
         #if os(iOS)
         if !AppSettings.shared.hideShorts { Task { await refresher.refreshShorts() } }
         #endif
+        Task { await refresher.refreshMissingAvatars() }
     }
 
     /// A channel's Shorts tab; cached, so they also reach Home's shelf.

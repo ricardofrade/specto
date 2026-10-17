@@ -77,6 +77,23 @@ public actor FeedRefresher {
 
     static func shortsResource(_ channel: ChannelID) -> String { "shorts/\(channel.rawValue)" }
 
+    /// Channels still without an avatar (an import whose backfill failed or never ran) get
+    /// theirs from the channel page: a few per call, each tried at most every `retryAfter`.
+    public func refreshMissingAvatars(channelsPerPass: Int = 4, retryAfter: TimeInterval = 86_400) async {
+        guard case .local = mode, let channels = try? subscriptions.channels() else { return }
+        let due = channels.filter { channel in
+            guard channel.avatar == nil else { return false }
+            let last = (try? log.lastRefresh(Self.avatarResource(channel.id))) ?? nil
+            return last.map { $0 < Date.now.addingTimeInterval(-retryAfter) } ?? true
+        }.prefix(channelsPerPass)
+        for channel in due {
+            try? log.markRefreshed(Self.avatarResource(channel.id))
+            try? await backfill(channel.id)
+        }
+    }
+
+    static func avatarResource(_ channel: ChannelID) -> String { "avatar/\(channel.rawValue)" }
+
     private func performRefresh() async throws {
         switch mode {
         case .local(let router):

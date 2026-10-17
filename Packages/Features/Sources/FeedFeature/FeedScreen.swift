@@ -93,6 +93,10 @@ public struct FeedScreen: View {
                         .foregroundStyle(Tokens.Colors.textSecondary)
                         .padding(.horizontal, Tokens.Spacing.screenInset)
                     }
+                    if model.channels.count > 1 {
+                        ChannelStrip(channels: model.channels, selected: model.channelFilter) { model.filter(to: $0) }
+                            .equatable()
+                    }
                     if let featured = model.featured {
                         HeroCard(VideoCellContent(row: featured, pixelWidth: Int(heroWidth * displayScale)), width: heroWidth)
                             .equatable()
@@ -100,15 +104,16 @@ public struct FeedScreen: View {
                             .onAppear { model.rowAppeared(featured.id) }
                             .padding(.horizontal, Tokens.Spacing.screenInset)
                     }
-                    if !model.continueWatching.isEmpty {
+                    // One channel's videos only: the shelves step aside.
+                    if model.channelFilter == nil, !model.continueWatching.isEmpty {
                         Shelf(title: Text("Continue Watching"), rows: model.continueWatching,
                               cardWidth: shelfCardWidth, actions: rowActions, transition: transition)
                     }
-                    if !model.queue.isEmpty {
+                    if model.channelFilter == nil, !model.queue.isEmpty {
                         Shelf(title: Text("Queue"), rows: model.queue, cardWidth: shelfCardWidth,
                               actions: rowActions, transition: transition)
                     }
-                    if !model.shorts.isEmpty {
+                    if model.channelFilter == nil, !model.shorts.isEmpty {
                         ShortsShelf(rows: model.shorts) { onOpenShorts(model.shorts, $0) }
                     }
                     ForEach(model.sections) { section in

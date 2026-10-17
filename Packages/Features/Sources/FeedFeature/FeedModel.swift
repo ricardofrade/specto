@@ -14,6 +14,10 @@ public final class FeedModel {
             sections = FeedSection.group(latest)
         }
     }
+    /// Channels with videos on Home, most recent upload first, for the strip above it.
+    public private(set) var channels: [FeedChannel] = []
+    /// Home shows only this channel's videos; nil shows everyone's.
+    public private(set) var channelFilter: ChannelID?
     /// The newest video not started yet, shown large at the top of Home.
     public private(set) var featured: FeedRow?
     /// Everything else, newest first.
@@ -43,6 +47,8 @@ public final class FeedModel {
     @ObservationIgnored private let watchState: WatchStateStore?
     @ObservationIgnored private let queueStore: QueueStore?
     @ObservationIgnored private var indexByID: [VideoID: Int] = [:]
+    /// Every video the cache holds; `rows` is these, filtered by channel.
+    @ObservationIgnored private var allRows: [FeedRow] = []
     @ObservationIgnored private var lastAppeared = 0
     @ObservationIgnored private var warmedManifests = false
     /// Set by the screen: the thumbnail's size in pixels.
@@ -66,7 +72,9 @@ public final class FeedModel {
         // the feed immediately. The observation below then delivers the full list.
         var firstScreen = options
         firstScreen.limit = 30
-        rows = (try? store.rows(Self.videosOnly(firstScreen))) ?? []
+        allRows = (try? store.rows(Self.videosOnly(firstScreen))) ?? []
+        channels = FeedChannel.list(allRows)
+        rows = allRows
         indexByID = Self.index(rows)
         (featured, latest) = Self.split(rows)
         sections = FeedSection.group(latest)
@@ -109,6 +117,25 @@ public final class FeedModel {
         guard let videos = try? await loadTrending() else { return }
         let formatter = RowFormatter()
         trending = videos.filter { !$0.isShort }.map { formatter.row($0, positionSeconds: nil, durationSeconds: nil) }
+    }
+
+    /// Show one channel's videos (the strip above Home); the same channel again, or nil, shows all.
+    public func filter(to channel: ChannelID?) {
+        channelFilter = channel == channelFilter ? nil : channel
+        applyFilter()
+    }
+
+    private func setAllRows(_ new: [FeedRow]) {
+        allRows = new
+        let list = FeedChannel.list(new)
+        if list != channels { channels = list }
+        applyFilter()
+    }
+
+    private func applyFilter() {
+        // A channel that left Home (hidden, unsubscribed) ends its filter.
+        if let id = channelFilter, !channels.contains(where: { $0.id == id }) { channelFilter = nil }
+        rows = channelFilter.map { id in allRows.filter { $0.channelID == id } } ?? allRows
     }
 
     /// Settings changed (for example hiding Shorts): re-query the cache.
@@ -166,7 +193,7 @@ public final class FeedModel {
             observation = Task { [weak self, store, options] in
                 do {
                     for try await rows in store.observe(Self.videosOnly(options)) {
-                        self?.rows = rows
+                        self?.setAllRows(rows)
                     }
                 } catch is CancellationError {
                 } catch {
@@ -206,6 +233,23 @@ public final class FeedModel {
 }
 
 /// A run of feed rows published in the same period, with its title already localized.
+/// A channel in the strip above Home.
+nonisolated public struct FeedChannel: Identifiable, Sendable, Equatable {
+    public let id: ChannelID
+    public let name: String
+    public let avatar: VideoCellContent.Avatar
+
+    /// One per channel, in the order its newest video appears (the feed is newest first).
+    static func list(_ rows: [FeedRow]) -> [FeedChannel] {
+        var seen = Set<ChannelID>()
+        return rows.compactMap { row in
+            guard seen.insert(row.channelID).inserted else { return nil }
+            return FeedChannel(id: row.channelID, name: row.channelName,
+                               avatar: .init(url: row.channelAvatar, initial: row.channelInitial))
+        }
+    }
+}
+
 nonisolated public struct FeedSection: Identifiable, Sendable, Equatable {
     public enum Period: Int, Sendable { case today, yesterday, thisWeek, earlier }
 

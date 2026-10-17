@@ -52,6 +52,19 @@ private struct StubSource: VideoSource {
         #expect(saved.name == "Blender")
         #expect(saved.avatar?.url.absoluteString == "https://stub.example/avatar.jpg")
     }
+
+    @Test func missingAvatarsFillAFewChannelsPerPass() async throws {
+        let db = try AppDatabase.inMemory()
+        let channels = (0..<5).map { ChannelSummary(id: ChannelID(rawValue: "UC\($0)aaaaaaaaaaaaaaaaaaaaa"), name: "", avatar: nil) }
+        try SubscriptionStore(db).subscribe(channels)
+        let refresher = FeedRefresher(mode: .local(StubRouter(videos: [], requested: LockedBox([]))), database: db)
+        func withAvatar() throws -> Int { try SubscriptionStore(db).channels().filter { $0.avatar != nil }.count }
+
+        await refresher.refreshMissingAvatars(channelsPerPass: 3)
+        #expect(try withAvatar() == 3)
+        await refresher.refreshMissingAvatars(channelsPerPass: 3)
+        #expect(try withAvatar() == 5)
+    }
 }
 
 private struct StubAccount: SubscriptionAccount {

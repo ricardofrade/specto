@@ -21,7 +21,9 @@ A privacy-respecting video app for iPhone, iPad, Apple TV and CarPlay that plays
 **Finding things**
 - Search videos, channels and playlists, with suggestions and recent searches.
 - When you have no subscriptions yet, Home shows what's trending in your region.
-- Mark videos as watched, or hide a channel from Home without unsubscribing.
+- Tap a channel in the strip above Home to see only its videos.
+- Mark videos as watched, hide a channel from Home without unsubscribing, or turn off its notifications.
+- Search your watch history.
 
 **Everywhere**
 - **iPhone and iPad:** Liquid Glass design, light and dark mode, iPad windows and keyboard shortcuts, layouts for the foldable iPhone, Home Screen widgets.
