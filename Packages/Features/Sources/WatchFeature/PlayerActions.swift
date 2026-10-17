@@ -144,6 +144,8 @@ struct WatchActionRow: View {
                         Image(systemName: actions.isQueued ? "checkmark" : "text.badge.plus")
                     }
                 }
+                // Short on screen to fit the row; VoiceOver says what it does.
+                .accessibilityLabel(actions.isQueued ? Text("Queued") : Text("Add to Queue"))
                 .accessibilityIdentifier("watch.queue")
                 if let link = actions.shareURL {
                     ShareLink(item: link) {
