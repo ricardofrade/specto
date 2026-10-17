@@ -17,3 +17,6 @@ App/Widgets/*.entitlements
 build/
 .env.local
 .ytzero-test-token
+
+# Local signing (App/Signing.xcconfig): your team and bundle prefix.
+App/Local.xcconfig

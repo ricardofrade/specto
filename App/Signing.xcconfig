@@ -1,0 +1,10 @@
+// Signing for device builds (simulator builds need none). The defaults are placeholders:
+// put your own in App/Local.xcconfig, which isn't committed. See docs/distribution.md:
+//
+//   SPECTO_BUNDLE_PREFIX = com.yourname
+//   DEVELOPMENT_TEAM = ABCDE12345
+//
+SPECTO_BUNDLE_PREFIX = dev.placeholder
+SPECTO_APP_GROUP = group.$(SPECTO_BUNDLE_PREFIX).specto
+
+#include? "Local.xcconfig"

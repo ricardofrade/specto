@@ -18,8 +18,10 @@ nonisolated struct HomeSnapshot: Codable, Sendable, Equatable {
     var continueWatching: [Item]
     var latest: [Item]
 
-    /// Placeholder until the owner's real team ID and bundle ID (docs/distribution.md).
-    static let appGroup = "group.dev.placeholder.specto"
+    /// From each target's Info.plist, set in App/Signing.xcconfig: it follows the bundle IDs of
+    /// whoever signs the build (docs/distribution.md).
+    static let appGroup = Bundle.main.object(forInfoDictionaryKey: "SpectoAppGroup") as? String
+        ?? "group.dev.placeholder.specto"
     /// Matches CFBundleURLSchemes in each app's project.yml.
     #if os(tvOS)
     static let urlScheme = "dev.placeholder.specto.tv"
