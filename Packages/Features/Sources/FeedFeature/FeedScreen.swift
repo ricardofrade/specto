@@ -78,10 +78,14 @@ public struct FeedScreen: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: Tokens.Spacing.section) {
                     if let error = model.refreshError {
-                        Label(error, systemImage: "exclamationmark.triangle")
-                            .font(Tokens.Typography.caption)
-                            .foregroundStyle(Tokens.Colors.textSecondary)
-                            .padding(.horizontal, Tokens.Spacing.screenInset)
+                        // The text takes the row's width, so longer languages (German) wrap, never clip.
+                        HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.s) {
+                            Image(systemName: "exclamationmark.triangle").accessibilityHidden(true)
+                            Text(error).frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .font(Tokens.Typography.caption)
+                        .foregroundStyle(Tokens.Colors.textSecondary)
+                        .padding(.horizontal, Tokens.Spacing.screenInset)
                     }
                     if let featured = model.featured {
                         HeroCard(VideoCellContent(row: featured, pixelWidth: Int(heroWidth * displayScale)), width: heroWidth)

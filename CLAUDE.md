@@ -57,9 +57,9 @@ Dependency rules (enforced by `scripts/check-dependencies.sh`; never work around
 - Start with `LazyVStack`/`LazyVGrid`. Switch a screen to `UICollectionView` + `UIHostingConfiguration` only if Instruments shows it can't hold 120 Hz.
 - Images: decode and downsample to the exact pixel size off the main thread; request the thumbnail size that matches the cell.
 - Never stack glass on glass. Player controls show on tap and fade during playback.
-- Layouts are chosen by available size and size class, never by device model.
-- The iPhone/iPad app also runs on Apple silicon Macs ("Designed for iPad"); CI builds it. Branch on `ProcessInfo.processInfo.isiOSAppOnMac` only for what a Mac lacks (cellular), never for layout. On iPhone Duo, use the documented fold APIs only: `onFoldChange` (DesignSystem, `ReservedRegion`) and `ArrangementView` (iOS 27.1). See `docs/design.md`.
-- All user-facing text is localizable: `Text("…")` and `String(localized:)`, never string concatenation. One catalog, `App/Shared/Localizable.xcstrings`, serves both apps and every package (packages use the main bundle's default). After adding or changing text run `scripts/sync-strings.py`; add translations in `scripts/translations/<lang>.json` (they enter the catalog as "needs review" until a person checks them).
+- Layouts are chosen by available size and size class, never by device model. On iPhone Duo, use the documented fold APIs only: `onFoldChange` (DesignSystem, `ReservedRegion`) and `ArrangementView` (iOS 27.1). See `docs/design.md`.
+- The iPhone/iPad app also runs on Apple silicon Macs ("Designed for iPad"); CI builds it. Branch on `ProcessInfo.processInfo.isiOSAppOnMac` only for what a Mac lacks (cellular), never for layout.
+- All user-facing text is localizable: `Text("…")` and `String(localized:)`, never string concatenation. One catalog, `App/Shared/Localizable.xcstrings`, serves both apps and every package (packages use the main bundle's default). After adding or changing text run `scripts/sync-strings.py`; add translations in `scripts/translations/<lang>.json` (they enter the catalog as "needs review" until a person checks them). Languages: English (plural forms in `en.json`), pt-PT, pt-BR, es, fr, de; every new string needs all five translations, and counts use plural forms (`{"one", "other"}`), never "1 videos". Siri phrases live in `App/iOS/Resources/AppShortcuts.xcstrings` and must keep `${applicationName}`.
 - Anything that opens a video from outside the app (widgets, Top Shelf, Shortcuts, notifications, Handoff) sets `AppEnvironment.pendingVideo`; the root view plays it. Extensions read `HomeSnapshot` (App Group), never the database.
 - Tests that depend on "most recent" ordering must not save twice in the same millisecond.
 - Every screen supports light and dark appearance; check both (`DesignTourUITests` with `xcrun simctl ui <device> appearance dark`).
@@ -98,7 +98,7 @@ Tap-to-play hits 300 ms only if the manifest is already cached: prefetch manifes
 ## Testing
 
 - Unit tests with Swift Testing (`import Testing`). Performance and UI tests with XCTest.
-- Source adapters: decoding tests against recorded JSON fixtures run on every PR; live contract tests against real instances run nightly to catch API drift. Read instance URLs from environment variables `PIPED_URL`, `INVIDIOUS_URL`, `YTZERO_URL`. Never commit instance URLs or credentials.
+- Source adapters: decoding tests against recorded JSON fixtures run on every PR; live contract tests against real instances run nightly to catch API drift. The nightly workflow (`.github/workflows/nightly.yml`) needs repository secrets `PIPED_URL`, `INVIDIOUS_URL`, `YTZERO_URL`, `INSTANCE_USERNAME`, `INSTANCE_PASSWORD`; locally, `scripts/contract-tests.sh` and `scripts/live-ui-tests.sh` read `.env.local`. Read instance URLs from environment variables `PIPED_URL`, `INVIDIOUS_URL`, `YTZERO_URL`. Never commit instance URLs or credentials.
 - `PlaybackSession` is tested against `FakeEngine` (`Packages/Playback/Tests`). Gate a fake load to reproduce races.
 - Packages are iOS/tvOS only, so `swift test` won't run them. From the package directory:
   `xcodebuild test -scheme <Package> -destination 'platform=iOS Simulator,name=<newest iPhone Pro>'`
