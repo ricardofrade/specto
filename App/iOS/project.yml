@@ -91,6 +91,8 @@ targets:
         # Background audio and Picture-in-Picture; feed refresh for widgets and notifications.
         UIBackgroundModes: [audio, fetch]
         BGTaskSchedulerPermittedIdentifiers: [dev.placeholder.specto.refresh]
+        # Handoff of the video being watched (AppEnvironment.watchActivityType).
+        NSUserActivityTypes: [dev.placeholder.specto.watch]
         # Self-hosted instances on the home network.
         NSLocalNetworkUsageDescription: "Connect to your video instances and Chromecasts on the local network."
         NSBonjourServices: [_googlecast._tcp]

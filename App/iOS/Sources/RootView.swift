@@ -125,6 +125,19 @@ struct RootView: View {
             }
         }
         .onOpenURL { environment.open($0) }
+        .userActivity(AppEnvironment.watchActivityType, isActive: environment.session.item != nil) { activity in
+            environment.describeWatching(activity)
+        }
+        .onContinueUserActivity(AppEnvironment.watchActivityType) { activity in
+            environment.continueWatching(activity.userInfo ?? [:])
+        }
+        .task {
+            // Set before this view existed (Siri or a notification launched the app).
+            if let video = environment.pendingVideo {
+                environment.pendingVideo = nil
+                play(video)
+            }
+        }
         .onChange(of: environment.pendingVideo) { _, video in
             guard let video else { return }
             environment.pendingVideo = nil

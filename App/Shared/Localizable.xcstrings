@@ -1,6 +1,9 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "": {
+      "extractionState": "stale"
+    },
     "%@ %@": {
       "localizations": {
         "pt-PT": {
@@ -967,6 +970,16 @@
         }
       }
     },
+    "Nothing to continue.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Nada para continuar."
+          }
+        }
+      }
+    },
     "Notifications": {
       "localizations": {
         "pt-PT": {
@@ -1157,6 +1170,26 @@
         }
       }
     },
+    "Play Queue": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Reproduzir fila"
+          }
+        }
+      }
+    },
+    "Play the first video in your queue.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Reproduz o primeiro vídeo da sua fila."
+          }
+        }
+      }
+    },
     "Playback Speed": {
       "localizations": {
         "pt-PT": {
@@ -1293,6 +1326,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "As posições de retoma também são esquecidas, em todos os dispositivos sincronizados."
+          }
+        }
+      }
+    },
+    "Resume the video you were watching most recently.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Retome o vídeo que estava a ver mais recentemente."
           }
         }
       }
@@ -1813,6 +1856,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "O seu próprio servidor Piped, Invidious ou YT Zero. Nada é enviado para mais lado nenhum."
+          }
+        }
+      }
+    },
+    "Your queue is empty.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A sua fila está vazia."
           }
         }
       }

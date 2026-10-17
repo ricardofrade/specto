@@ -197,6 +197,30 @@ final class AppEnvironment {
         openVideo(VideoID(rawValue: raw))
     }
 
+    /// Handoff from another device: the video and where it was, so playback resumes there.
+    static let watchActivityType = "dev.placeholder.specto.watch"
+
+    func continueWatching(_ userInfo: [AnyHashable: Any]) {
+        guard let raw = userInfo["videoID"] as? String, !raw.isEmpty else { return }
+        let id = VideoID(rawValue: raw)
+        if let seconds = userInfo["position"] as? Double, seconds > 0 {
+            try? WatchStateStore(database).save(.milliseconds(Int64(seconds * 1000)),
+                                                duration: (userInfo["duration"] as? Double).map { .milliseconds(Int64($0 * 1000)) },
+                                                for: id)
+        }
+        openVideo(id)
+    }
+
+    /// What this device is watching, for Handoff.
+    func describeWatching(_ activity: NSUserActivity) {
+        guard let item = session.item else { return }
+        activity.title = item.title
+        activity.isEligibleForHandoff = true
+        activity.userInfo = ["videoID": item.videoID.rawValue, "position": Self.seconds(session.position),
+                             "duration": session.duration.map(Self.seconds) ?? 0]
+        activity.needsSave = true
+    }
+
     /// Plays a video known only by its ID: from the cache when it's there, else fetched on play.
     func openVideo(_ id: VideoID) {
         pendingVideo = (try? FeedStore(database).video(id))

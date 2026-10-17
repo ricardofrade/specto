@@ -97,6 +97,7 @@
   "Nothing in progress": "Nada em curso",
   "Nothing is sent until you search.": "Nada é enviado até pesquisar.",
   "Nothing new": "Nada de novo",
+  "Nothing to continue.": "Nada para continuar.",
   "Notifications": "Notificações",
   "Notifications are off for this app. Turn them on in the Settings app.": "As notificações estão desativadas para esta app. Ative-as na app Definições.",
   "Now": "Agora",
@@ -116,6 +117,8 @@
   "Picture in Picture": "Imagem na imagem",
   "Pinned": "Fixado",
   "Play": "Reproduzir",
+  "Play Queue": "Reproduzir fila",
+  "Play the first video in your queue.": "Reproduz o primeiro vídeo da sua fila.",
   "Playback Speed": "Velocidade de reprodução",
   "Playback failed.": "A reprodução falhou.",
   "Playback position": "Posição de reprodução",
@@ -130,6 +133,7 @@
   "Remove from Queue": "Remover da fila",
   "Resolution": "Resolução",
   "Resume positions are forgotten too, on every device that syncs.": "As posições de retoma também são esquecidas, em todos os dispositivos sincronizados.",
+  "Resume the video you were watching most recently.": "Retome o vídeo que estava a ver mais recentemente.",
   "Scroll hitches: %@": "Engasgos ao deslizar: %@",
   "Search": "Pesquisar",
   "Search failed": "A pesquisa falhou",
@@ -182,6 +186,7 @@
   "Your instance is being blocked by YouTube right now. Showing saved videos.": "A sua instância está a ser bloqueada pelo YouTube neste momento. A mostrar vídeos guardados.",
   "Your instances are being blocked by YouTube right now. Try again later.": "As suas instâncias estão a ser bloqueadas pelo YouTube neste momento. Tente mais tarde.",
   "Your own Piped, Invidious or YT Zero server. Nothing is sent anywhere else.": "O seu próprio servidor Piped, Invidious ou YT Zero. Nada é enviado para mais lado nenhum.",
+  "Your queue is empty.": "A sua fila está vazia.",
   "^[%lld channel](inflect: true)": {
     "one": "%lld canal",
     "other": "%lld canais"
