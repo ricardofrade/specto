@@ -16,6 +16,49 @@ private let knownVideo = VideoID(rawValue: "aqz-KE-bpKQ")
 /// Blender's own channel.
 private let knownChannel = ChannelID(rawValue: "UCSMOQeBJ2RAnuFungnQOxLg")
 
+
+/// A channel that posts Shorts (Marques Brownlee).
+private let shortsChannel = ChannelID(rawValue: "UCBJycsmduvYEL83R_U4JriQ")
+
+/// The same checks for each source that implements them (Piped, Invidious).
+private enum SharedContract {
+    static func filteredSearchAndSuggestions(_ source: any VideoSource) async throws {
+        let channels = try await source.search("blender", filter: .channels, cursor: nil)
+        #expect(channels.items.contains { if case .channel(let c) = $0 { c.id == knownChannel } else { false } })
+        // Avatars come through the instance (or its proxy), never Google's image hosts.
+        #expect(channels.items.allSatisfy { result in
+            guard case .channel(let c) = result, let host = c.avatar?.url.host() else { return true }
+            return !host.hasSuffix("ggpht.com") && !host.hasSuffix("googleusercontent.com")
+        })
+        let playlists = try await source.search("blender tutorial", filter: .playlists, cursor: nil)
+        #expect(playlists.items.contains { if case .playlist = $0 { true } else { false } })
+        #expect(!(try await source.suggestions(for: "blend")).isEmpty)
+    }
+
+    static func channelPlaylistsAndShorts(_ source: any VideoSource) async throws {
+        let playlists = try await source.channelPlaylists(knownChannel, cursor: nil)
+        #expect(!playlists.items.isEmpty)
+        #expect(playlists.items.allSatisfy { $0.thumbnails.allSatisfy { !($0.url.host() ?? "").hasSuffix("ytimg.com") } })
+        let first = try #require(playlists.items.first)
+        #expect(!(try await source.playlist(first.id, cursor: nil)).videos.items.isEmpty)
+        let shorts = try await source.channelShorts(shortsChannel, cursor: nil)
+        #expect(!shorts.items.isEmpty && shorts.items.allSatisfy(\.isShort))
+        #expect(shorts.items.allSatisfy { $0.channelID == shortsChannel })
+    }
+
+    /// Both engines fetch byte ranges (local HLS segments; mpv's bounded requests, ADR 0010):
+    /// they must keep working through the instance's proxy.
+    static func streamsServeBoundedRanges(_ source: any VideoSource) async throws {
+        let page = try await source.watchPage(for: knownVideo)
+        let stream = try #require(page.manifest.videoStreams.first { $0.container == .mp4 })
+        var request = URLRequest(url: stream.url)
+        request.setValue("bytes=0-1048575", forHTTPHeaderField: "Range")
+        let (data, response) = try await URLSession.shared.data(for: request)
+        #expect((response as? HTTPURLResponse)?.statusCode == 206)
+        #expect(data.count == 1_048_576)
+    }
+}
+
 @Suite(.enabled(if: pipedURL != nil), .timeLimit(.minutes(2)))
 struct PipedContractTests {
     let source = PipedSource(instance: InstanceConfig(kind: .piped, displayName: "Piped", apiURL: pipedURL!))
@@ -52,6 +95,9 @@ struct PipedContractTests {
         let page = try await source.comments(for: knownVideo, cursor: nil)
         #expect(!page.items.isEmpty)
     }
+    @Test func filteredSearchAndSuggestions() async throws { try await SharedContract.filteredSearchAndSuggestions(source) }
+    @Test func channelPlaylistsAndShorts() async throws { try await SharedContract.channelPlaylistsAndShorts(source) }
+    @Test func streamsServeBoundedRanges() async throws { try await SharedContract.streamsServeBoundedRanges(source) }
 }
 
 @Suite(.enabled(if: invidiousURL != nil), .timeLimit(.minutes(2)))
@@ -85,6 +131,14 @@ struct InvidiousContractTests {
     @Test func searchAndCommentsLoad() async throws {
         #expect(!(try await source.search("big buck bunny", cursor: nil)).items.isEmpty)
         #expect(!(try await source.comments(for: knownVideo, cursor: nil)).items.isEmpty)
+    }
+    @Test func filteredSearchAndSuggestions() async throws { try await SharedContract.filteredSearchAndSuggestions(source) }
+    @Test func channelPlaylistsAndShorts() async throws { try await SharedContract.channelPlaylistsAndShorts(source) }
+    @Test func streamsServeBoundedRanges() async throws { try await SharedContract.streamsServeBoundedRanges(source) }
+
+    @Test func channelAvatarComesThroughTheInstance() async throws {
+        let channel = try await source.channel(knownChannel, cursor: nil)
+        #expect(channel.avatar?.url.host() == invidiousURL!.host())
     }
 }
 

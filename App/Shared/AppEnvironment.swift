@@ -286,6 +286,12 @@ final class AppEnvironment {
         return (try? await router.perform(.search) { try await $0.suggestions(for: query) }) ?? []
     }
 
+    #if os(tvOS)
+    static let isTV = true
+    #else
+    static let isTV = false
+    #endif
+
     /// The search model both apps use: filters, suggestions, and this device's recent searches.
     func makeSearchModel() -> SearchModel {
         SearchModel(search: { [weak self] query, filter, cursor in
@@ -293,7 +299,7 @@ final class AppEnvironment {
             return try await self.search(query, filter: filter, cursor: cursor)
         }, suggest: { [weak self] query in
             await self?.suggestions(for: query) ?? []
-        }, recent: RecentSearchStore(database))
+        }, recent: RecentSearchStore(database), searchesAsYouType: Self.isTV)
     }
 
     func channel(_ id: ChannelID, cursor: String?) async throws -> ChannelPage {

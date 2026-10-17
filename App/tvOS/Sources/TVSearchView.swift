@@ -31,6 +31,7 @@ struct TVSearchView: View {
                           spacing: TVMetrics.rowSpacing) {
                     ForEach(model.rows) { row in
                         result(row)
+                            .accessibilityIdentifier("tv.search.result")
                             .task { await model.loadMoreIfNeeded(after: row.id) }
                     }
                 }
@@ -51,13 +52,27 @@ struct TVSearchView: View {
         .task { await model.start() }
     }
 
+    /// Opening a result keeps the search in Recent.
+    private var remembering: VideoActions {
+        var copy = actions
+        let play = actions.play
+        copy.play = { video in
+            model.rememberSearch()
+            play(video)
+        }
+        return copy
+    }
+
     @ViewBuilder
     private func result(_ row: SearchModel.Row) -> some View {
         switch row {
         case .video(let video):
-            VideoCard(row: video, actions: actions)
+            VideoCard(row: video, actions: remembering)
         case .channel(let channel, let avatar):
-            Button { actions.openChannel(channel.id, channel.name) } label: {
+            Button {
+                model.rememberSearch()
+                actions.openChannel(channel.id, channel.name)
+            } label: {
                 VStack(spacing: Tokens.Spacing.m) {
                     AvatarView(avatar, size: 160)
                     Text(channel.name).font(.callout.weight(.medium)).lineLimit(1)
@@ -67,7 +82,10 @@ struct TVSearchView: View {
             }
             .buttonStyle(.borderless)
         case .playlist(let playlist):
-            PlaylistCard(row: playlist, open: actions.openPlaylist)
+            PlaylistCard(row: playlist) { summary in
+                model.rememberSearch()
+                actions.openPlaylist(summary)
+            }
         }
     }
 }

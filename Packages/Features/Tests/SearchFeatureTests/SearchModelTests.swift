@@ -67,6 +67,24 @@ struct SearchModelTests {
         await waitUntil { model.recent.isEmpty }
         #expect(model.recent.isEmpty)
     }
+
+    @Test func appleTVSearchesAsYouTypeAndKeepsOnlyOpenedSearches() async throws {
+        let store = RecentSearchStore(try AppDatabase.inMemory())
+        let asked = Recorder<String>()
+        let video = self.video
+        let model = SearchModel(search: { query, _, _ in
+            await asked.add(query)
+            return Page(items: [.video(video)], nextCursor: nil)
+        }, recent: store, searchesAsYouType: true)
+        model.query = "b"        // Too short.
+        model.query = "bl"
+        model.query = "ble"
+        await waitUntil { model.phase == .results }
+        #expect(await asked.values == ["ble"])
+        #expect(try store.all().isEmpty)          // Fragments aren't kept…
+        model.rememberSearch()
+        #expect(try store.all() == ["ble"])        // …the one that found something is.
+    }
 }
 
 private actor Recorder<Value: Sendable> {

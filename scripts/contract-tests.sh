@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Runs the adapter contract tests against the instances in .env.local (gitignored):
+# Runs the adapter contract tests against the instances in .env.local (gitignored), or in the
+# environment (the nightly workflow passes them from repository secrets):
 #   PIPED_URL, INVIDIOUS_URL, YTZERO_URL, and for YT Zero's account tests
 #   INSTANCE_USERNAME / INSTANCE_PASSWORD (a test account).
 # The YT Zero token is obtained through the normal device pairing flow, approved with that
@@ -7,8 +8,9 @@
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
-[[ -f "$root/.env.local" ]] || { echo "No .env.local; nothing to test against."; exit 0; }
-set -a; . "$root/.env.local"; set +a
+if [[ -f "$root/.env.local" ]]; then set -a; . "$root/.env.local"; set +a; fi
+[[ -n "${PIPED_URL:-}${INVIDIOUS_URL:-}${YTZERO_URL:-}" ]] || { echo "No instance URLs; nothing to test against."; exit 0; }
+mkdir -p "$root/build"
 
 token_file="$root/.ytzero-test-token"
 ytzero_token() {

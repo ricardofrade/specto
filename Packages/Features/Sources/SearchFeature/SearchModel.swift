@@ -36,6 +36,7 @@ public final class SearchModel {
             guard query != oldValue else { return }
             if query.isEmpty { reset() }
             scheduleSuggestions()
+            if searchesAsYouType { scheduleLiveSearch() }
         }
     }
     /// Changing it searches the submitted query again.
@@ -56,6 +57,9 @@ public final class SearchModel {
     @ObservationIgnored private let search: @Sendable (String, SearchFilter, String?) async throws -> Page<SearchResult>
     @ObservationIgnored private let suggest: ((String) async -> [String])?
     @ObservationIgnored private let recentStore: RecentSearchStore?
+    /// Apple TV: the inline keyboard has no return key, so typing searches (debounced).
+    @ObservationIgnored private let searchesAsYouType: Bool
+    @ObservationIgnored private var liveSearch: Task<Void, Never>?
     @ObservationIgnored private var cursor: String?
     @ObservationIgnored private var submitted = ""
     @ObservationIgnored private var suggestionTask: Task<Void, Never>?
@@ -65,10 +69,13 @@ public final class SearchModel {
     ///   - search: (query, filter, cursor) → a page of results, through the app's router.
     ///   - suggest: completions for a partial query; nil turns suggestions off.
     ///   - recent: where recent searches are kept; nil keeps none.
+    ///   - searchesAsYouType: search after typing pauses (Apple TV) rather than on submit.
     public init(search: @escaping @Sendable (String, SearchFilter, String?) async throws -> Page<SearchResult>,
-                suggest: ((String) async -> [String])? = nil, recent: RecentSearchStore? = nil) {
+                suggest: ((String) async -> [String])? = nil, recent: RecentSearchStore? = nil,
+                searchesAsYouType: Bool = false) {
         self.search = search
         self.suggest = suggest
+        self.searchesAsYouType = searchesAsYouType
         recentStore = recent
         self.recent = (try? recent?.all()) ?? []
     }
@@ -95,6 +102,13 @@ public final class SearchModel {
     public func search(_ text: String) async {
         query = text
         await submit()
+    }
+
+    /// A result was opened: the query that found it is worth keeping (searches as you type
+    /// would otherwise fill Recent with fragments).
+    public func rememberSearch() {
+        guard !submitted.isEmpty else { return }
+        try? recentStore?.record(submitted)
     }
 
     public func removeRecent(_ text: String) {
@@ -138,6 +152,17 @@ public final class SearchModel {
         } catch {
             guard text == submitted, filter == self.filter else { return }
             phase = .failed(String(localized: "Search failed. Check your instances and try again."))
+        }
+    }
+
+    private func scheduleLiveSearch() {
+        liveSearch?.cancel()
+        let text = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard text.count >= 2, text != submitted else { return }
+        liveSearch = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(600))
+            guard !Task.isCancelled else { return }
+            await self?.run(text)
         }
     }
 
