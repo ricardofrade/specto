@@ -13,6 +13,8 @@ public struct WatchContent: Sendable, Equatable {
     public private(set) var channelID: ChannelID
     public private(set) var channelName: String
     public private(set) var channelInitial: String
+    /// The channel's picture once the details arrive; the monogram until then.
+    public private(set) var channelAvatar: URL?
     /// The title, from the details when the video arrived by link (only its ID known).
     public private(set) var title: String
     public var details: VideoDetails? {
@@ -50,6 +52,7 @@ public struct WatchContent: Sendable, Equatable {
             channelName = summary.channelName
             channelInitial = Self.initial(summary.channelName)
         }
+        if let avatar = details?.channelAvatar { channelAvatar = avatar.url }
     }
 
     private static func initial(_ name: String) -> String {
@@ -293,7 +296,7 @@ public struct WatchScreen: View {
                 .accessibilityAddTraits(.isHeader)
             Button { onOpenChannel(content.channelID, content.channelName) } label: {
                 HStack(spacing: Tokens.Spacing.s) {
-                    AvatarView(VideoCellContent.Avatar(url: nil, initial: content.channelInitial), size: 30)
+                    AvatarView(VideoCellContent.Avatar(url: content.channelAvatar, initial: content.channelInitial), size: 30)
                     Text(content.channelName)
                         .font(Tokens.Typography.cellMeta.weight(.semibold))
                     Image(systemName: "chevron.right").font(.caption.weight(.semibold))
@@ -431,11 +434,20 @@ private struct PlayerArea: View {
         }
         .overlay(alignment: .bottom) {
             if controlsVisible, showsControls {
-                PlayerScrubber(session: session, storyboard: storyboard, chapters: chapters,
-                               onInteraction: { show() })
-                    .padding(.horizontal, Tokens.Spacing.l)
-                    .padding(.bottom, Tokens.Spacing.s)
-                    .transition(.opacity)
+                // A live stream has no end to scrub towards: a badge instead of times.
+                if session.isLive {
+                    LiveBadge()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, Tokens.Spacing.l)
+                        .padding(.bottom, Tokens.Spacing.m)
+                        .transition(.opacity)
+                } else {
+                    PlayerScrubber(session: session, storyboard: storyboard, chapters: chapters,
+                                   onInteraction: { show() })
+                        .padding(.horizontal, Tokens.Spacing.l)
+                        .padding(.bottom, Tokens.Spacing.s)
+                        .transition(.opacity)
+                }
             }
         }
         .animation(Tokens.Motion.standard, value: controlsVisible)
@@ -599,5 +611,22 @@ struct UpNextCard: View {
         .glassEffect(in: .rect(cornerRadius: 16))
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("watch.upNext")
+    }
+}
+
+/// Over a live stream's picture, where the times would be.
+private struct LiveBadge: View {
+    var body: some View {
+        HStack(spacing: 5) {
+            Circle().fill(.white).frame(width: 6, height: 6)
+            Text("LIVE")
+        }
+        .font(.caption.weight(.bold))
+        .foregroundStyle(.white)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(Tokens.Colors.liveBadge, in: Capsule())
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("watch.live")
     }
 }

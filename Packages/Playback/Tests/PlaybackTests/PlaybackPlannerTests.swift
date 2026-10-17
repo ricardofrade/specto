@@ -85,9 +85,21 @@ struct PlaybackPlannerTests {
         let live = try planner.request(for: page(video: [h264], audio: [aac], hls: url, live: true), mode: .video,
                                        maxDisplayHeight: 1080, throughputBitsPerSecond: nil, allowHDR: false)
         #expect(live.source == .hls(url))
+        #expect(live.isLive && live.engine == .avPlayer)
         let muxed = try planner.request(for: page(muxed: url), mode: .video, maxDisplayHeight: 1080,
                                         throughputBitsPerSecond: nil, allowHDR: false)
         #expect(muxed.source == .progressive(url))
+    }
+
+    @Test func liveStartsAtTheLiveEdgeAndNeedsHLS() throws {
+        let live = try planner.request(for: page(hls: url, live: true), mode: .video, maxDisplayHeight: 1080,
+                                       throughputBitsPerSecond: nil, allowHDR: false, startAt: .seconds(300))
+        #expect(live.startAt == .zero)
+        // Live DASH segment URLs (what Invidious lists) can't be opened as files.
+        #expect(throws: PlaybackError.self) {
+            try planner.request(for: page(video: [h264], audio: [aac], live: true), mode: .video,
+                                maxDisplayHeight: 1080, throughputBitsPerSecond: nil, allowHDR: false)
+        }
     }
 
     @Test func onlyAMuxedFilePlaysThatFile() throws {

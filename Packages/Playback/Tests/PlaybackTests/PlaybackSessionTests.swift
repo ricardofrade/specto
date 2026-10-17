@@ -124,6 +124,20 @@ struct PlaybackSessionTests {
         #expect(mpv.playCount == 1)
     }
 
+    @Test func liveIgnoresAndKeepsNoResumePosition() async {
+        let store = MemoryResumeStore([a: .seconds(90)])
+        let (session, mpv, _) = makeSession(store)
+        var live = request(a)
+        live.isLive = true
+        await session.play(item(a), live)
+        #expect(mpv.loaded.last?.startAt == .zero)
+        mpv.emit(.position(.seconds(500), duration: nil))
+        await settle()
+        await session.play(item(b), request(b))
+        await session.flushSaves()
+        #expect(await store.positions[a] == .seconds(90))
+    }
+
     @Test func explicitStartOverridesSavedPosition() async {
         let (session, mpv, _) = makeSession(MemoryResumeStore([a: .seconds(90)]))
         await session.play(item(a), request(a, startAt: .seconds(10)))

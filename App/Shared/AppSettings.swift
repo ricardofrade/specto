@@ -34,6 +34,11 @@ final class AppSettings {
     var hideShorts: Bool {
         didSet { defaults.set(hideShorts, forKey: Keys.hideShorts) }
     }
+
+    /// Live streams off Home and the trending lists (a channel's page still has them).
+    var hideLive: Bool {
+        didSet { defaults.set(hideLive, forKey: Keys.hideLive) }
+    }
     /// Finished videos leave Home (they stay in Library → History). Off by default.
     var hideWatched: Bool {
         didSet { defaults.set(hideWatched, forKey: Keys.hideWatched) }
@@ -112,6 +117,11 @@ final class AppSettings {
     }
 
     /// The format to play when the person hasn't picked one for a video (ADR 0017). Auto.
+    /// The country for trending lists (ISO code); nil follows the device's region.
+    var trendingRegion: String? {
+        didSet { defaults.set(trendingRegion, forKey: Keys.trendingRegion) }
+    }
+
     var preferredFormat: StreamFormat {
         didSet { defaults.set(preferredFormat.rawValue, forKey: Keys.preferredFormat) }
     }
@@ -126,6 +136,7 @@ final class AppSettings {
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         hideShorts = Self.flag(defaults, Keys.hideShorts, default: true)
+        hideLive = Self.flag(defaults, Keys.hideLive, default: false)
         hideWatched = defaults.bool(forKey: Keys.hideWatched)
         showsRelated = Self.flag(defaults, Keys.showsRelated, default: true)
         skipsSponsors = Self.flag(defaults, Keys.skipsSponsors, default: true)
@@ -142,6 +153,7 @@ final class AppSettings {
         searchSuggestions = Self.flag(defaults, Keys.searchSuggestions, default: true)
         homePreviews = Self.flag(defaults, Keys.homePreviews, default: true)
         preferredFormat = defaults.string(forKey: Keys.preferredFormat).flatMap(StreamFormat.init) ?? .auto
+        trendingRegion = defaults.string(forKey: Keys.trendingRegion)
         wifiQualityLimit = Self.limit(defaults.integer(forKey: Keys.wifiQualityLimit))
         cellularQualityLimit = Self.limit(defaults.integer(forKey: Keys.cellularQualityLimit))
     }
@@ -168,12 +180,13 @@ final class AppSettings {
     }
 
     var feedOptions: FeedStore.Options {
-        .init(hideShorts: hideShorts, hideWatched: hideWatched, brandedTitles: brandedTitles,
+        .init(hideShorts: hideShorts, hideWatched: hideWatched, hideLive: hideLive, brandedTitles: brandedTitles,
               brandedThumbnails: brandedThumbnails)
     }
 
     private enum Keys {
         static let hideShorts = "feed.hideShorts"
+        static let hideLive = "feed.hideLive"
         static let hideWatched = "feed.hideWatched"
         static let captionLanguage = "playback.captionLanguage"
         static let notifiesNewUploads = "notifications.newUploads"
@@ -183,6 +196,7 @@ final class AppSettings {
         static let searchSuggestions = "search.suggestions"
         static let homePreviews = "home.previews"
         static let preferredFormat = "playback.format"
+        static let trendingRegion = "explore.region"
         static let autoplay = "playback.autoplay"
         static let audioLanguage = "playback.audioLanguage"
         static let cellularQualityLimit = "playback.cellularQualityLimit"

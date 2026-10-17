@@ -54,7 +54,9 @@ struct RootView: View {
                                                     userPlaylists: UserPlaylistStore(environment.database)))
         _search = State(initialValue: environment.makeSearchModel())
         _explore = State(initialValue: ExploreModel(store: TrendingStore(environment.database),
-                                                    regionName: AppEnvironment.regionName) { category in
+                                                    region: AppSettings.shared.trendingRegion,
+                                                    deviceRegion: Locale.current.region?.identifier,
+                                                    regionChanged: { AppSettings.shared.trendingRegion = $0 }) { category in
             try await environment.refreshTrending(category)
         })
     }
@@ -228,6 +230,9 @@ struct RootView: View {
             feed.setOptions(options)
             environment.refreshBranding()
         }
+        // Trending lists are filtered when fetched: fetch them again.
+        .onChange(of: settings.hideLive) { reloadTrending() }
+        .onChange(of: settings.trendingRegion) { Task { await feed.reloadTrending() } }   // Explore refetches itself.
         .onChange(of: scenePhase) { _, phase in
             environment.scenePhaseChanged(phase)
             switch phase {
@@ -440,6 +445,13 @@ struct RootView: View {
         if environment.instances.isEmpty { return .noInstance }
         if !environment.hasSubscriptions && environment.account == nil { return .noSubscriptions }
         return nil
+    }
+
+    private func reloadTrending() {
+        Task {
+            await feed.reloadTrending()
+            await explore.reload()
+        }
     }
 
     private func channelModel(_ id: ChannelID, name: String) -> ChannelModel {

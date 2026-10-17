@@ -25,6 +25,20 @@ struct InvidiousSourceTests {
         #expect(aac.codec == .aac && aac.itag == 140 && aac.indexRange == ByteRange(start: 723, end: 1018))
     }
 
+    @Test func watchPageHasTheChannelAvatarThroughTheInstance() async throws {
+        let iv = source { $0.on("/api/v1/videos/dQw4w9WgXcQ", fixture: "invidious/video.json") }
+        let avatar = try await iv.watchPage(for: VideoID(rawValue: "dQw4w9WgXcQ")).details.channelAvatar
+        #expect(avatar?.url.host() == "instance.example" && avatar?.url.absoluteString.contains("s76") == true)
+    }
+
+    @Test func liveWithoutHLSIsLeftToAnotherInstance() async throws {
+        let iv = source {
+            $0.on("/api/v1/videos/live", status: 200,
+                  body: Data(#"{"title":"Live","liveNow":true,"hlsUrl":null,"adaptiveFormats":[]}"#.utf8))
+        }
+        await #expect(throws: SourceError.self) { try await iv.watchPage(for: VideoID(rawValue: "live")) }
+    }
+
     @Test func trendingCategoriesAskForTheirType() async throws {
         let client = FixtureClient()
         client.on("/api/v1/trending", fixture: "invidious/trending.json")

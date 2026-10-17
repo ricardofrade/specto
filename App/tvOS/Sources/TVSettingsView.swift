@@ -39,6 +39,7 @@ struct TVSettingsView: View {
             }
             Section {
                 Toggle(isOn: $settings.hideShorts) { Text("Hide Shorts") }
+                Toggle(isOn: $settings.hideLive) { Text("Hide live streams") }
                 Toggle(isOn: $settings.hideWatched) { Text("Hide watched videos") }
                 Toggle(isOn: $settings.autoplay) { Text("Autoplay the next suggestion") }
                 SponsorBlockSettingsLink(settings: settings)

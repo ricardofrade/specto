@@ -18,7 +18,15 @@ public final class ExploreModel {
     public var heading: String {
         category == .peerTube || onlyPeerTube ? String(localized: "Trending on PeerTube") : regionHeading
     }
-    private let regionHeading: String
+    private var regionHeading: String
+    /// YouTube's lists are per country; PeerTube's aren't.
+    public var choosesRegion: Bool { category != .peerTube && !onlyPeerTube }
+    /// The person's pick; nil follows the device's region.
+    public private(set) var region: String?
+    /// Every country with a list, by name in the person's language.
+    public let regions: [Region]
+    /// "Automatic (Portugal)": what nil means here.
+    public let automaticTitle: String
     /// Only PeerTube servers added: their lists aren't regional.
     public private(set) var onlyPeerTube = false
     /// The lists the instances offer: just `.all`, or Gaming too (Invidious).
@@ -29,16 +37,59 @@ public final class ExploreModel {
     @ObservationIgnored private let refresher: @Sendable (TrendingCategory) async throws -> Void
     @ObservationIgnored private var observation: Task<Void, Never>?
     @ObservationIgnored private var lastRefresh: [TrendingCategory: Date] = [:]
+    @ObservationIgnored private let deviceRegion: String?
+    @ObservationIgnored private let regionChanged: (String?) -> Void
+
+    public struct Region: Identifiable, Hashable, Sendable {
+        public let code: String
+        public let name: String
+        public var id: String { code }
+    }
 
     /// - Parameters:
-    ///   - regionName: the person's region, for the heading; nil says just "Trending".
+    ///   - region: the person's pick of country, nil for the device's.
+    ///   - deviceRegion: the device's region code, which nil stands for.
+    ///   - regionChanged: saves a new pick; Explore then refetches its lists.
     ///   - refresh: fetches a category's list and saves it to `store`.
-    public init(store: TrendingStore, regionName: String?,
+    public init(store: TrendingStore, region: String?, deviceRegion: String?,
+                regionChanged: @escaping (String?) -> Void = { _ in },
                 refresh: @escaping @Sendable (TrendingCategory) async throws -> Void) {
         self.store = store
         self.refresher = refresh
-        regionHeading = regionName.map { String(localized: "Trending in \($0)") } ?? String(localized: "Trending")
+        self.region = region
+        self.deviceRegion = deviceRegion
+        self.regionChanged = regionChanged
+        regions = TrendingRegions.youTube
+            .map { Region(code: $0, name: Self.name(of: $0)) }
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        automaticTitle = deviceRegion.map { String(localized: "Automatic (\(Self.name(of: $0)))") }
+            ?? String(localized: "Automatic")
+        regionHeading = Self.heading(for: region ?? deviceRegion)
         apply((try? store.rows()) ?? [])
+    }
+
+    /// Switch country: every list is refetched for it, the shown one at once.
+    public func selectRegion(_ code: String?) {
+        guard code != region else { return }
+        region = code
+        regionHeading = Self.heading(for: code ?? deviceRegion)
+        regionChanged(code)
+        Task { await reload() }
+    }
+
+    /// Every list is out of date (country or filters changed): fetch the shown one now, the
+    /// others when next shown.
+    public func reload() async {
+        lastRefresh = [:]
+        await refresh(force: true)
+    }
+
+    private static func name(of code: String) -> String {
+        Locale.current.localizedString(forRegionCode: code) ?? code
+    }
+
+    private static func heading(for code: String?) -> String {
+        code.map { String(localized: "Trending in \(name(of: $0))") } ?? String(localized: "Trending")
     }
 
     /// What the instances can list: Gaming (Invidious, or PeerTube alone), and PeerTube's own

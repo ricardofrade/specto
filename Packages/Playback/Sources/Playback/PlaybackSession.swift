@@ -67,6 +67,8 @@ public final class PlaybackSession {
     @ObservationIgnored private var current: (any PlaybackEngine)?
     @ObservationIgnored private weak var host: (any RenderSurfaceHost)?
     @ObservationIgnored private var lastSavedPosition: Duration = .zero
+    /// The current item is a live stream (no resume position, starts at the live edge).
+    public private(set) var isLive = false
     /// Bumped by every `play` and `stop`; a load that finishes under an older value is stale.
     @ObservationIgnored private var generation = 0
     /// True only while media is loaded. Nothing is saved while loading, so neither a stale
@@ -132,7 +134,8 @@ public final class PlaybackSession {
         }
 
         var request = request
-        if request.startAt == .zero {
+        isLive = request.isLive
+        if request.startAt == .zero, !request.isLive {
             let saved = await resumeStore.position(for: item.videoID)
             guard loadGeneration == generation else { return }
             if let saved {
@@ -321,7 +324,7 @@ public final class PlaybackSession {
     }
 
     private func persistPosition(force: Bool) {
-        guard acceptsPosition, let id = item?.videoID else { return }
+        guard acceptsPosition, !isLive, let id = item?.videoID else { return }
         let delta = position > lastSavedPosition ? position - lastSavedPosition : lastSavedPosition - position
         guard force || delta >= saveInterval else { return }
         lastSavedPosition = position

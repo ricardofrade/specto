@@ -1115,6 +1115,74 @@
         }
       }
     },
+    "Automatic": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Automatisch"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Automático"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Automatique"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Automático"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Automático"
+          }
+        }
+      }
+    },
+    "Automatic (%@)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Automatisch (%@)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Automático (%@)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Automatique (%@)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Automático (%@)"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Automático (%@)"
+          }
+        }
+      }
+    },
     "Autoplay the next suggestion": {
       "localizations": {
         "de": {
@@ -1731,6 +1799,30 @@
     "Chapters & Up Next": {
       "extractionState": "stale",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Kapitel & Als Nächstes"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Capítulos y A continuación"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Chapitres et À suivre"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Capítulos e A seguir"
+          }
+        },
         "pt-PT": {
           "stringUnit": {
             "state": "needs_review",
@@ -1838,6 +1930,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "A verificar…"
+          }
+        }
+      }
+    },
+    "Choose the country": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Land auswählen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Elige el país"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Choisir le pays"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Escolher o país"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Escolher o país"
           }
         }
       }
@@ -2688,6 +2814,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Não foi possível atualizar as suas listas guardadas."
+          }
+        }
+      }
+    },
+    "Country": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Land"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "País"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Pays"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "País"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "País"
           }
         }
       }
@@ -3947,6 +4107,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Ocultar do Início"
+          }
+        }
+      }
+    },
+    "Hide live streams": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Livestreams ausblenden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ocultar directos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Masquer les directs"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ocultar transmissões ao vivo"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ocultar diretos"
           }
         }
       }
@@ -5733,6 +5927,40 @@
         }
       }
     },
+    "None of your instances can play this video.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Keine deiner Instanzen kann dieses Video abspielen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ninguna de tus instancias puede reproducir este vídeo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Aucune de vos instances ne peut lire cette vidéo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Nenhuma das suas instâncias consegue reproduzir este vídeo."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Nenhuma das suas instâncias consegue reproduzir este vídeo."
+          }
+        }
+      }
+    },
     "None of your instances can play videos.": {
       "localizations": {
         "de": {
@@ -5838,6 +6066,30 @@
     "Nothing is sent until you search.": {
       "extractionState": "stale",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Nichts wird gesendet, bevor du suchst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "No se envía nada hasta que buscas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Rien n’est envoyé avant votre recherche."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Nada é enviado até você pesquisar."
+          }
+        },
         "pt-PT": {
           "stringUnit": {
             "state": "needs_review",
@@ -10981,6 +11233,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Esta instância já está na sua lista."
+          }
+        }
+      }
+    },
+    "This live stream can't play through your instances.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Dieser Livestream kann über deine Instanzen nicht abgespielt werden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Este directo no se puede reproducir a través de tus instancias."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ce direct ne peut pas être lu via vos instances."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Esta transmissão ao vivo não pode ser reproduzida pelas suas instâncias."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Este direto não pode ser reproduzido através das suas instâncias."
           }
         }
       }

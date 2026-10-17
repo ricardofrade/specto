@@ -57,6 +57,13 @@ struct MPVEngineTests {
         #expect(url == "https://p.example/v?a=1,b=2")
         #expect(options == "start=12.000,audio-file=%27%https://p.example/a?x=1,y=2")
     }
+
+    @Test func liveHasNoStartSoItOpensAtTheLiveEdge() {
+        var request = PlaybackRequest(videoID: VideoID(rawValue: "v"), source: .hls(URL(string: "https://p.example/l.m3u8")!),
+                                      mode: .video)
+        request.isLive = true
+        #expect(MPVEngine.loadArguments(for: request).options == "")
+    }
 }
 
 /// Collects an engine's events so tests can wait for the first matching one.

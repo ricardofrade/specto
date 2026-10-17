@@ -160,12 +160,16 @@ public struct VideoDetails: Sendable, Codable {
     public let description: String
     public let likeCount: Int?
     public let related: [VideoSummary]
+    /// The channel's picture, beside its name under the video.
+    public let channelAvatar: Thumbnail?
 
-    public init(summary: VideoSummary, description: String, likeCount: Int?, related: [VideoSummary]) {
+    public init(summary: VideoSummary, description: String, likeCount: Int?, related: [VideoSummary],
+                channelAvatar: Thumbnail? = nil) {
         self.summary = summary
         self.description = description
         self.likeCount = likeCount
         self.related = related
+        self.channelAvatar = channelAvatar
     }
 }
 
@@ -476,8 +480,9 @@ public enum SourceError: Error, Sendable {
     /// The content itself can't be played anywhere: private, removed or region-locked.
     case unavailable(reason: String?)
     case network(URLError)
-    /// The content is on another network or server (a PeerTube video asked of Piped, say):
-    /// the router tries the next instance without counting it against this one.
+    /// The content is on another network or server (a PeerTube video asked of Piped, say), or
+    /// this kind of instance can't serve it (a live stream asked of Invidious): the router tries
+    /// the next instance without counting it against this one.
     case belongsElsewhere
 
     /// Whether routing should try the same operation on another instance.

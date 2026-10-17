@@ -137,7 +137,8 @@ public struct PeerTubeSource: VideoSource {
         guard let summary = video.summary(server: server, base: base) else { throw SourceError.decoding("video") }
         let details = VideoDetails(summary: summary, description: video.description ?? "", likeCount: video.likes,
                                    related: (more?.data ?? []).compactMap { $0.summary(server: server, base: base) }
-                                       .filter { $0.id != id })
+                                       .filter { $0.id != id },
+                                   channelAvatar: video.channel?.summary(server: server, base: base)?.avatar)
         // Web videos: the largest MP4 up to 1080p (resolution 0 is audio only).
         let muxed = (video.files ?? [])
             .filter { ($0.resolution?.id ?? 0) > 0 && ($0.resolution?.id ?? 0) <= 1080 }

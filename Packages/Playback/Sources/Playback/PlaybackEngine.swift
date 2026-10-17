@@ -97,6 +97,8 @@ public struct PlaybackRequest: Sendable {
     /// The tallest rendition an HLS source may switch to (data saver, ADR 0007). Adaptive
     /// sources are already chosen at a height; mpv ignores this for HLS.
     public var maxVideoHeight: Int?
+    /// A live stream: it starts at the live edge, and no resume position is kept for it.
+    public var isLive = false
 
     public init(videoID: VideoID, source: MediaSource, caption: CaptionTrack? = nil,
                 startAt: Duration = .zero, mode: PlaybackMode, engine: EngineKind? = nil) {

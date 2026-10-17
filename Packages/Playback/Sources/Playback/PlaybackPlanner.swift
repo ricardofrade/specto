@@ -47,8 +47,14 @@ public struct PlaybackPlanner: Sendable {
         var chosenEngine: EngineKind?
         let source: MediaSource
 
-        if page.details.summary.isLive, let hls = manifest.hlsURL {
+        if page.details.summary.isLive {
+            // Live plays over HLS only: the adaptive URLs some instances list for a live video
+            // are live DASH segments that neither engine can open as files.
+            guard let hls = manifest.hlsURL else {
+                throw PlaybackError.unsupportedFormat(String(localized: "This live stream can't play through your instances."))
+            }
             source = .hls(hls)
+            if mode == .video, prefersSystemPlayer { chosenEngine = .avPlayer }
         } else if format == .hls, mode == .video, let hls = manifest.hlsURL {
             source = .hls(hls)
             if prefersSystemPlayer { chosenEngine = .avPlayer }
@@ -84,8 +90,11 @@ public struct PlaybackPlanner: Sendable {
         } else {
             throw PlaybackError.unsupportedFormat("The source returned no playable streams")
         }
-        return PlaybackRequest(videoID: manifest.videoID, source: source, startAt: startAt, mode: mode,
-                               engine: chosenEngine)
+        let isLive = page.details.summary.isLive
+        var request = PlaybackRequest(videoID: manifest.videoID, source: source, startAt: isLive ? .zero : startAt,
+                                      mode: mode, engine: chosenEngine)
+        request.isLive = isLive
+        return request
     }
 
     /// AVPlayer's best pick when it's as good as mpv's: at least as tall, same HDR, with AAC audio.

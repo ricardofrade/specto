@@ -27,8 +27,7 @@ struct TVExploreView: View {
                 }
                 VStack(alignment: .leading, spacing: TVMetrics.gridSpacing) {
                     HStack(alignment: .firstTextBaseline, spacing: TVMetrics.gridSpacing) {
-                        Label { Text(verbatim: model.heading) } icon: { Image(systemName: "flame.fill") }
-                            .font(.title3.weight(.semibold))
+                        ExploreHeading(model: model, font: .title3.weight(.semibold))
                         Spacer()
                         if model.categories.count > 1 {
                             ForEach(model.categories, id: \.self) { category in

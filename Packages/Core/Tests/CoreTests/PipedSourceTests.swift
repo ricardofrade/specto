@@ -95,6 +95,7 @@ struct PipedSourceTests {
         let page = try await piped.watchPage(for: VideoID(rawValue: "dQw4w9WgXcQ"))
         let manifest = page.manifest
 
+        #expect(page.details.channelAvatar?.url.host() == "proxy.instance.example")
         // itag 18 is muxed progressive: not an adaptive stream, but kept as the fallback file.
         #expect(manifest.videoStreams.map(\.itag) == [137, 248])
         #expect(manifest.muxedURL != nil)

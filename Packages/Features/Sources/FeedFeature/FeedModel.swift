@@ -119,6 +119,13 @@ public final class FeedModel {
         trending = videos.filter { !$0.isShort }.map { formatter.row($0, positionSeconds: nil, durationSeconds: nil) }
     }
 
+    /// Fetch Home's trending list again (its country or filters changed).
+    public func reloadTrending() async {
+        guard loadedTrending else { return }
+        loadedTrending = false
+        await loadTrendingIfNeeded()
+    }
+
     /// Show one channel's videos (the strip above Home); the same channel again, or nil, shows all.
     public func filter(to channel: ChannelID?) {
         channelFilter = channel == channelFilter ? nil : channel

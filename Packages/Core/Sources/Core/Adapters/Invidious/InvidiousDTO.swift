@@ -183,6 +183,7 @@ enum InvidiousDTO {
         let authorId: String?
         let lengthSeconds: Int?
         let liveNow: Bool?
+        let authorThumbnails: [Image]?
         let hlsUrl: String?
         let dashUrl: String?
         let adaptiveFormats: [Format]?
@@ -203,7 +204,9 @@ enum InvidiousDTO {
                 isLive: liveNow ?? false)
             let details = VideoDetails(summary: summary, description: description ?? "",
                                        likeCount: likeCount.flatMap { $0 > 0 ? Int($0) : nil },
-                                       related: (recommendedVideos ?? []).compactMap(\.videoSummary))
+                                       related: (recommendedVideos ?? []).compactMap(\.videoSummary),
+                                       channelAvatar: authorThumbnails?.max { ($0.width ?? 0) < ($1.width ?? 0) }?
+                                           .thumbnail(instance: instance))
             let formats = adaptiveFormats ?? []
             let video = formats.compactMap(\.videoStream)
             let audio = formats.compactMap(\.audioStream)

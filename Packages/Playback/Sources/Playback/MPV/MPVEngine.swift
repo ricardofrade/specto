@@ -204,7 +204,9 @@ public final class MPVEngine: PlaybackEngine {
     // MARK: Mapping
 
     static func loadArguments(for request: PlaybackRequest) -> (url: String, options: String) {
-        var options = ["start=\(seconds(request.startAt))"]
+        // A live stream starts at the live edge; `start=0` would seek to the oldest part of
+        // its DVR window (an hour back on YouTube).
+        var options = request.isLive ? [] : ["start=\(seconds(request.startAt))"]
         let url: String
         switch request.source {
         case .adaptive(let video, let audio):

@@ -78,10 +78,7 @@ public struct ExploreScreen: View {
                 LazyVStack(alignment: .leading, spacing: Tokens.Spacing.section) {
                     VStack(alignment: .leading, spacing: Tokens.Spacing.m) {
                         if model.categories.count > 1 { categoryChips }
-                        Label { Text(verbatim: model.heading) } icon: { Image(systemName: "flame.fill") }
-                            .font(Tokens.Typography.sectionTitle)
-                            .foregroundStyle(Tokens.Colors.textPrimary)
-                            .accessibilityAddTraits(.isHeader)
+                        ExploreHeading(model: model, font: Tokens.Typography.sectionTitle)
                         if let error = model.refreshError {
                             Text(error).font(Tokens.Typography.caption).foregroundStyle(Tokens.Colors.textSecondary)
                                 .frame(maxWidth: .infinity, alignment: .leading)

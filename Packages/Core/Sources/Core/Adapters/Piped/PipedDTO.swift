@@ -133,6 +133,7 @@ enum PipedDTO {
         let uploaded: Int64?
         let uploader: String?
         let uploaderUrl: String?
+        let uploaderAvatar: String?
         let thumbnailUrl: String?
         let duration: Int64?
         let views: Int64?
@@ -160,7 +161,8 @@ enum PipedDTO {
                 isLive: isLive)
             let details = VideoDetails(summary: summary, description: HTMLText.plain(description ?? ""),
                                        likeCount: likes.flatMap { $0 >= 0 ? Int($0) : nil },
-                                       related: (relatedStreams ?? []).compactMap(\.videoSummary))
+                                       related: (relatedStreams ?? []).compactMap(\.videoSummary),
+                                       channelAvatar: uploaderAvatar.flatMap(Thumbnail.unsized))
             let video = (videoStreams ?? []).compactMap(\.videoStream)
             let audio = (audioStreams ?? []).compactMap(\.audioStream)
             // Some videos come back with only the muxed MP4 (itag 18, video and audio in one):

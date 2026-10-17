@@ -44,7 +44,9 @@ struct TVRootView: View {
         _ownPlaylists = State(initialValue: UserPlaylistsModel(store: UserPlaylistStore(environment.database)))
         _search = State(initialValue: environment.makeSearchModel())
         _explore = State(initialValue: ExploreModel(store: TrendingStore(environment.database),
-                                                    regionName: AppEnvironment.regionName) { category in
+                                                    region: AppSettings.shared.trendingRegion,
+                                                    deviceRegion: Locale.current.region?.identifier,
+                                                    regionChanged: { AppSettings.shared.trendingRegion = $0 }) { category in
             try await environment.refreshTrending(category)
         })
     }
@@ -106,6 +108,9 @@ struct TVRootView: View {
             feed.setOptions(options)
             Task { await feed.refresh(force: false) }
         }
+        // Trending lists are filtered when fetched: fetch them again.
+        .onChange(of: AppSettings.shared.hideLive) { reloadTrending() }
+        .onChange(of: AppSettings.shared.trendingRegion) { Task { await feed.reloadTrending() } }   // Explore refetches itself.
         .onChange(of: scenePhase) { _, phase in
             environment.scenePhaseChanged(phase)
         }
@@ -128,6 +133,13 @@ struct TVRootView: View {
                      hideChannel: { environment.setHiddenFromHome($0, true) },
                      saveToWatchLater: { environment.saveToWatchLater($0) },
                      openUserPlaylist: { push(.userPlaylist($0)) })
+    }
+
+    private func reloadTrending() {
+        Task {
+            await feed.reloadTrending()
+            await explore.reload()
+        }
     }
 
     private func play(_ video: VideoSummary) {

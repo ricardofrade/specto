@@ -76,7 +76,11 @@ public struct InvidiousSource: VideoSource {
     public func watchPage(for id: VideoID) async throws -> WatchPage {
         let video: InvidiousDTO.Video = try await api.get("api/v1/videos/\(id.rawValue)",
                                                           query: [.init(name: "local", value: "true")])
-        return video.watchPage(id: id, instance: instance.apiURL)
+        let page = video.watchPage(id: id, instance: instance.apiURL)
+        // Invidious has no HLS for live streams, and the live formats it lists can't be opened
+        // as files: let another instance (Piped, YT Zero) play it, with no mark against this one.
+        if page.details.summary.isLive, page.manifest.hlsURL == nil { throw SourceError.belongsElsewhere }
+        return page
     }
 
     /// No batched feed without an account: one Atom feed per channel (one cheap upstream

@@ -133,6 +133,7 @@ struct SettingsView: View {
         Form {
             Section {
                 Toggle(isOn: $settings.hideShorts) { Text("Hide Shorts") }
+                Toggle(isOn: $settings.hideLive) { Text("Hide live streams") }
                 Toggle(isOn: $settings.hideWatched) { Text("Hide watched videos") }
                 Toggle(isOn: $settings.homePreviews) { Text("Preview the featured video") }
                     .accessibilityIdentifier("settings.homePreviews")

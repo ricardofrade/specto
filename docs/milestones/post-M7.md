@@ -13,6 +13,8 @@ M0–M7 built the app the plan asked for. This brief records what came after M7,
   - **Watch Later and your own playlists,** synced as one record each (ADR 0012).
 - [x] **Search:** filters, suggestions and recent searches (ADR 0009).
 - [x] **Explore:** what's trending on Home before there are any subscriptions.
+  - **Country:** the "Trending in …" heading opens YouTube's list of countries (Automatic follows the device).
+  - Trending leaves out premieres that haven't started; live streams too, with **Hide live streams** (Settings, beside Hide Shorts, which also covers Home).
 - [x] **Feed housekeeping:**
   - Mark a video watched.
   - Hide a channel from Home.
@@ -29,6 +31,7 @@ M0–M7 built the app the plan asked for. This brief records what came after M7,
   - Subtitles in the system caption style.
 - [x] **SponsorBlock per category:** skip automatically, show a Skip button, or don't skip (ADR 0013).
 - [x] **Autoplay:** an "Up next" countdown when nothing is queued.
+- [x] **Live streams:** HLS in AVPlayer from the live edge, with a LIVE badge instead of times and no resume position. Invidious has no live HLS, so the router leaves live streams to Piped or YT Zero.
 - [x] **Descriptions are clickable:** links, timestamps, and YouTube links that open in the app.
 
 **Everywhere**

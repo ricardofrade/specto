@@ -187,16 +187,19 @@ public struct FeedStore: Sendable {
         /// Only Shorts (Home's Shorts shelf); wins over `hideShorts`.
         public var onlyShorts = false
         public var hideWatched: Bool
+        /// Live streams (and the ones that were live and keep no length yet).
+        public var hideLive = false
         public var limit: Int
         /// DeArrow community titles in place of the originals.
         public var brandedTitles: Bool
         /// DeArrow community thumbnails (asks its thumbnail service for the specific video).
         public var brandedThumbnails: Bool
 
-        public init(hideShorts: Bool = true, hideWatched: Bool = false, limit: Int = 300,
+        public init(hideShorts: Bool = true, hideWatched: Bool = false, hideLive: Bool = false, limit: Int = 300,
                     brandedTitles: Bool = false, brandedThumbnails: Bool = false) {
             self.hideShorts = hideShorts
             self.hideWatched = hideWatched
+            self.hideLive = hideLive
             self.limit = limit
             self.brandedTitles = brandedTitles
             self.brandedThumbnails = brandedThumbnails
@@ -290,6 +293,7 @@ public struct FeedStore: Sendable {
         if options.onlyShorts { conditions.append("video.isShort = 1") }
         else if options.hideShorts { conditions.append("video.isShort = 0") }
         if options.hideWatched { conditions.append("IFNULL(watchState.isFinished, 0) = 0") }
+        if options.hideLive { conditions.append("video.isLive = 0") }
         if !conditions.isEmpty { sql += " WHERE " + conditions.joined(separator: " AND ") }
         // The feed walks the publishedAt index (launch budget); undated Shorts sort by fetch order.
         sql += options.onlyShorts ? " ORDER BY COALESCE(video.publishedAt, video.fetchedAt) DESC LIMIT ?"

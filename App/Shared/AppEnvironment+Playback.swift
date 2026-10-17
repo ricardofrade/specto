@@ -156,6 +156,8 @@ extension AppEnvironment {
             String(localized: "Your instances are being blocked by YouTube right now. Try again later.")
         case SourceError.unsupported:
             String(localized: "None of your instances can play videos.")
+        case SourceError.belongsElsewhere:
+            String(localized: "None of your instances can play this video.")
         case let error as PlaybackError:
             switch error {
             case .unsupportedFormat(let detail): detail

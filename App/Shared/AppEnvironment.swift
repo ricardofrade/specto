@@ -373,18 +373,27 @@ final class AppEnvironment {
         return page
     }
 
-    /// The person's region as they'd read it ("Portugal"), for Explore's heading.
-    static var regionName: String? {
-        Locale.current.region.flatMap { Locale.current.localizedString(forRegionCode: $0.identifier) }
+    /// The country whose trending lists to show: the person's pick, else the device's region.
+    static var trendingRegion: String? {
+        AppSettings.shared.trendingRegion ?? Locale.current.region?.identifier
     }
 
     /// Explore: fetch a category's trending list and cache it; Shorts stay in their own player.
     func refreshTrending(_ category: TrendingCategory = .all) async throws {
         let router = self.router
-        let region = Locale.current.region?.identifier
+        let region = Self.trendingRegion
         let capability: SourceCapabilities = category == .gaming ? .trendingCategories : .trending
         let videos = try await router.perform(capability) { try await $0.trending(region: region, category: category) }
-        try TrendingStore(database).replace(with: videos.filter { !$0.isShort }, category: category)
+        let hidingLive = AppSettings.shared.hideLive
+        try TrendingStore(database).replace(with: videos.filter { Self.belongsInTrending($0, hidingLive: hidingLive) },
+                                            category: category)
+    }
+
+    /// Trending lists leave out Shorts (they have their own player), live streams when the
+    /// person hides them, and anything else without a length: premieres that haven't started
+    /// and can't play yet. A channel's own page still shows them.
+    static func belongsInTrending(_ video: VideoSummary, hidingLive: Bool) -> Bool {
+        !video.isShort && (video.isLive ? !hidingLive : video.duration != nil)
     }
 
     /// Gaming: Invidious, or a PeerTube server on its own (its Gaming category).
@@ -398,8 +407,9 @@ final class AppEnvironment {
     /// The instances' trending list for the person's region (Home before subscriptions).
     func trending() async throws -> [VideoSummary] {
         let router = self.router
-        let region = Locale.current.region?.identifier
+        let region = Self.trendingRegion, hidingLive = AppSettings.shared.hideLive
         return try await router.perform(.trending) { try await $0.trending(region: region) }
+            .filter { Self.belongsInTrending($0, hidingLive: hidingLive) }
     }
 
     /// Nil when no instance lists playlists (YT Zero alone): the channel shows no Playlists tab.
