@@ -13,7 +13,7 @@ All milestones M0–M7 are built; what remains are owner actions and device chec
 - Swift 6 language mode with strict concurrency. App and feature targets use main-actor default isolation.
 - SwiftUI + Observation (`@Observable`). No TCA or other architecture frameworks.
 - Video playback: mpv (libmpv), **LGPL build only**, and AVPlayer whenever it can play a stream as good as mpv's pick (system PiP, ADR 0005); `PlaybackPlanner` decides. Audio-only mode, CarPlay and AirPlay: AVPlayer.
-- Persistence: GRDB for feeds, history and resume positions. SwiftData only for simple settings, if at all. On tvOS the database lives in Caches (tvOS has no persistent storage); subscriptions and watch state sync through CloudKit (ADR 0004).
+- Persistence: GRDB for feeds, history and resume positions. SwiftData only for simple settings, if at all. On tvOS the database lives in Caches (tvOS has no persistent storage); instances, subscriptions and watch state sync through CloudKit (ADR 0004, ADR 0006).
 - Liquid Glass via system components first; custom glass only through `GlassEffectContainer`.
 - Every screen renders from the local database first, then refreshes from the network (stale-while-revalidate).
 

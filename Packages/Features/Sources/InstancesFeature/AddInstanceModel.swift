@@ -32,13 +32,15 @@ public final class AddInstanceModel {
         self.onAdded = onAdded
     }
 
-    public static func tokenKey(for instance: UUID) -> String { "ytzero.token.\(instance.uuidString)" }
+    public static func tokenKey(for instance: UUID) -> String { InstanceConfig.tokenKey(for: instance) }
 
     public func submit() async {
         error = nil
         step = .detecting
         do {
             let found = try await detector.detect(urlText)
+            // Possibly added on another device and synced here.
+            guard try !instances.contains(found.apiURL) else { throw AlreadyAdded() }
             let config = InstanceConfig(kind: found.kind, displayName: found.apiURL.host() ?? found.apiURL.absoluteString,
                                         apiURL: found.apiURL)
             if found.kind == .ytZero {
@@ -79,8 +81,12 @@ public final class AddInstanceModel {
         onAdded(config)
     }
 
+    private struct AlreadyAdded: Error {}
+
     static func message(for error: Error) -> String {
         switch error {
+        case is AlreadyAdded:
+            String(localized: "This instance is already in your list.")
         case InstanceDetector.Failure.invalidURL:
             String(localized: "That doesn't look like a web address.")
         case InstanceDetector.Failure.unreachable:

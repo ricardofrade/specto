@@ -39,7 +39,7 @@ public struct AppDatabase: Sendable {
         migrator.eraseDatabaseOnSchemaChange = true
         #endif
 
-        // Synced tables (`subscription`, `watchState`) carry `modifiedAt`, a tombstone and the
+        // Synced tables (`subscription`, `watchState`, and `instance` since v5) carry `modifiedAt`, a tombstone and the
         // CloudKit record's system fields, so CKSyncEngine (M7) needs no migration (ADR 0002).
         migrator.registerMigration("v1") { db in
             try db.create(table: "instance") { t in
@@ -130,6 +130,18 @@ public struct AppDatabase: Sendable {
                 t.primaryKey("id", .integer)
                 t.column("engineState", .blob)
             }
+        }
+        // Instances sync too, so the Apple TV gets the phone's (ADR 0006). `scope` records which
+        // record types the saved engine state covers; a different scope re-syncs from scratch.
+        migrator.registerMigration("v5-instance-sync") { db in
+            try db.alter(table: "instance") { t in
+                t.add(column: "modifiedAt", .datetime)
+                t.add(column: "isDeleted", .boolean).notNull().defaults(to: false)
+                t.add(column: "syncMetadata", .blob)
+                t.add(column: "uploadedAt", .datetime)
+            }
+            try db.execute(sql: "UPDATE instance SET modifiedAt = addedAt")
+            try db.alter(table: "syncState") { t in t.add(column: "scope", .text) }
         }
         return migrator
     }

@@ -176,6 +176,7 @@
   "This app has no servers of its own and collects no data. It talks only to the instances you add.": "Esta app não tem servidores próprios e não recolhe dados. Comunica apenas com as instâncias que adicionar.",
   "This app includes mpv and FFmpeg under the GNU Lesser General Public License, in a separate, replaceable framework. The exact source code, including any modifications, is available on request from the developer and from the projects listed below.": "Esta app inclui o mpv e o FFmpeg ao abrigo da GNU Lesser General Public License, numa framework separada e substituível. O código-fonte exato, incluindo quaisquer modificações, está disponível mediante pedido ao programador e nos projetos indicados abaixo.",
   "This app plays videos through a Piped, Invidious or YT Zero server that you run or trust. It has no servers of its own and collects nothing. Add yours to see your subscriptions here.": "Esta app reproduz vídeos através de um servidor Piped, Invidious ou YT Zero que gere ou em que confia. Não tem servidores próprios e não recolhe nada. Adicione o seu para ver aqui as suas subscrições.",
+  "This instance is already in your list.": "Esta instância já está na sua lista.",
   "This video isn't available.": "Este vídeo não está disponível.",
   "Throughput": "Débito",
   "Today": "Hoje",

@@ -1,13 +1,16 @@
 import Foundation
 import GRDB
+import Core
 
 /// The database side of CloudKit sync, free of CloudKit types so it's testable offline:
 /// which rows need uploading, applying fetched changes (last writer wins on `modifiedAt`),
-/// and the sync engine's saved state.
+/// and the sync engine's saved state. YT Zero tokens travel with their instance, from and to
+/// the `SecretStore` (never the database).
 public struct SyncStore: Sendable {
     public enum RecordType: String, Sendable, CaseIterable {
         case subscription = "Subscription"
         case watchState = "WatchState"
+        case instance = "Instance"
     }
 
     public struct Key: Hashable, Sendable {
@@ -26,6 +29,8 @@ public struct SyncStore: Sendable {
         case subscription(channelName: String, avatarURL: String?, subscribedAt: Date, isDeleted: Bool)
         case watchState(positionSeconds: Double, durationSeconds: Double?, isFinished: Bool,
                         lastWatchedAt: Date, isDeleted: Bool)
+        case instance(kind: String, displayName: String, apiURL: String, sortOrder: Int, addedAt: Date,
+                      token: String?, isDeleted: Bool)
     }
 
     public struct Change: Sendable, Equatable {
@@ -44,24 +49,33 @@ public struct SyncStore: Sendable {
     }
 
     let database: AppDatabase
+    /// What syncs: everything, or only instances while a YT Zero account owns the library (ADR 0002).
+    public let types: Set<RecordType>
+    let secrets: (any SecretStore)?
 
-    public init(_ database: AppDatabase) {
+    public init(_ database: AppDatabase, types: Set<RecordType> = Set(RecordType.allCases),
+                secrets: (any SecretStore)? = nil) {
         self.database = database
+        self.types = types
+        self.secrets = secrets
     }
 
     // MARK: Outgoing
 
     public func pendingKeys() throws -> [Key] {
-        try database.writer.read(Self.fetchPending)
+        let types = self.types
+        return try database.writer.read { try Self.fetchPending($0, types) }
     }
 
     /// Emits the pending keys whenever they change, so local edits reach the engine on their own.
     public func observePending() -> AsyncThrowingStream<[Key], Error> {
-        database.stream(Self.fetchPending)
+        let types = self.types
+        return database.stream { try Self.fetchPending($0, types) }
     }
 
     public func change(for key: Key) throws -> Change? {
-        try database.writer.read { db in
+        let secrets = self.secrets
+        return try database.writer.read { db in
             switch key.type {
             case .subscription:
                 try SubscriptionRecord.fetchOne(db, key: key.id).map { record in
@@ -76,6 +90,14 @@ public struct SyncStore: Sendable {
                                                           isFinished: record.isFinished,
                                                           lastWatchedAt: record.lastWatchedAt, isDeleted: record.isDeleted),
                            modifiedAt: record.modifiedAt, systemFields: record.syncMetadata)
+                }
+            case .instance:
+                try InstanceRecord.fetchOne(db, key: key.id).map { record in
+                    let token = UUID(uuidString: record.id).flatMap { secrets?.secret(for: InstanceConfig.tokenKey(for: $0)) }
+                    return Change(key: key, values: .instance(kind: record.kind, displayName: record.displayName,
+                                                              apiURL: record.apiURL, sortOrder: record.sortOrder,
+                                                              addedAt: record.addedAt, token: token, isDeleted: record.isDeleted),
+                                  modifiedAt: record.modifiedAt, systemFields: record.syncMetadata)
                 }
             }
         }
@@ -103,9 +125,12 @@ public struct SyncStore: Sendable {
     // MARK: Incoming
 
     /// Applies a fetched change unless the local row is newer. Applied changes aren't pending.
+    /// Types outside `types` are ignored; a later change of scope fetches them again.
     @discardableResult
     public func apply(_ change: Change) throws -> Bool {
-        try database.writer.write { db in
+        guard types.contains(change.key.type) else { return false }
+        let secrets = self.secrets
+        return try database.writer.write { db in
             let key = change.key
             switch change.values {
             case let .subscription(channelName, avatarURL, subscribedAt, isDeleted):
@@ -127,6 +152,20 @@ public struct SyncStore: Sendable {
                                      isFinished: isFinished, lastWatchedAt: lastWatchedAt,
                                      modifiedAt: change.modifiedAt, isDeleted: isDeleted,
                                      syncMetadata: change.systemFields, uploadedAt: change.modifiedAt).save(db)
+            case let .instance(kind, displayName, apiURL, sortOrder, addedAt, token, isDeleted):
+                let local = try InstanceRecord.fetchOne(db, key: key.id)
+                guard Self.remoteWins(change.modifiedAt, over: local?.modifiedAt) else {
+                    try Self.keepSystemFields(change, db)
+                    return false
+                }
+                // The token first: observers reload sources when the row commits, and need it then.
+                if let secrets, let id = UUID(uuidString: key.id) {
+                    secrets.setSecret(isDeleted ? nil : token, for: InstanceConfig.tokenKey(for: id))
+                }
+                try InstanceRecord(id: key.id, kind: kind, displayName: displayName, apiURL: apiURL,
+                                   sortOrder: sortOrder, addedAt: addedAt, modifiedAt: change.modifiedAt,
+                                   isDeleted: isDeleted, syncMetadata: change.systemFields,
+                                   uploadedAt: change.modifiedAt).save(db)
             }
             return true
         }
@@ -159,10 +198,24 @@ public struct SyncStore: Sendable {
     }
 
     public func saveEngineState(_ data: Data) throws {
+        let scope = self.scope
         try database.writer.write { db in
-            try db.execute(sql: "INSERT OR REPLACE INTO syncState (id, engineState) VALUES (1, ?)", arguments: [data])
+            try db.execute(sql: "INSERT OR REPLACE INTO syncState (id, engineState, scope) VALUES (1, ?, ?)",
+                           arguments: [data, scope])
         }
     }
+
+    /// Call before starting the engine. Saved state for other record types (an account was
+    /// linked or unlinked since) would skip the records the old scope ignored: start over,
+    /// fetching everything and uploading everything (last writer wins keeps that idempotent).
+    public func prepareScope() throws {
+        let saved = try database.writer.read { db in
+            try Row.fetchOne(db, sql: "SELECT scope FROM syncState WHERE id = 1").map { $0["scope"] as String? }
+        }
+        if case .some(let scope) = saved, scope != self.scope { try resetForNewAccount() }
+    }
+
+    private var scope: String { types.map(\.rawValue).sorted().joined(separator: ",") }
 
     // MARK: Private
 
@@ -183,13 +236,15 @@ public struct SyncStore: Sendable {
         switch type {
         case .subscription: ("subscription", "channelID")
         case .watchState: ("watchState", "videoID")
+        case .instance: ("instance", "id")
         }
     }
 
-    private static func fetchPending(_ db: Database) throws -> [Key] {
-        let pending = "uploadedAt IS NULL OR modifiedAt > uploadedAt"
-        let subscriptions = try String.fetchAll(db, sql: "SELECT channelID FROM subscription WHERE \(pending)")
-        let states = try String.fetchAll(db, sql: "SELECT videoID FROM watchState WHERE \(pending)")
-        return subscriptions.map { Key(.subscription, $0) } + states.map { Key(.watchState, $0) }
+    private static func fetchPending(_ db: Database, _ types: Set<RecordType>) throws -> [Key] {
+        try RecordType.allCases.filter(types.contains).flatMap { type in
+            let table = table(type)
+            let sql = "SELECT \(table.key) FROM \(table.name) WHERE uploadedAt IS NULL OR modifiedAt > uploadedAt"
+            return try String.fetchAll(db, sql: sql).map { Key(type, $0) }
+        }
     }
 }

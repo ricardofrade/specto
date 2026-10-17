@@ -36,6 +36,9 @@ public struct InstanceConfig: Identifiable, Hashable, Sendable, Codable {
         self.displayName = displayName
         self.apiURL = apiURL
     }
+
+    /// The `SecretStore` key of a YT Zero instance's account token.
+    public static func tokenKey(for instance: UUID) -> String { "ytzero.token.\(instance.uuidString)" }
 }
 
 // MARK: - Capabilities

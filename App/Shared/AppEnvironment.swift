@@ -37,9 +37,10 @@ final class AppEnvironment {
     @ObservationIgnored var currentPage: WatchPage?
     @ObservationIgnored var nowPlaying: NowPlayingController?
     @ObservationIgnored let community = CommunityServices()
-    /// CloudKit sync of subscriptions and watch state, when configured and no YT Zero account
-    /// owns them (ADR 0002, ADR 0004).
+    /// CloudKit sync, when configured: instances always (so the TV gets the phone's), the
+    /// library too unless a YT Zero account owns it (ADR 0002, ADR 0004, ADR 0006).
     @ObservationIgnored private(set) var cloudSync: CloudSync?
+    @ObservationIgnored private var instanceObservation: Task<Void, Never>?
     #if os(iOS)
     // iPhone and iPad only: PiP handoff, Cast sender, AirPlay switching, MetricKit (none on tvOS).
     @ObservationIgnored let pictureInPicture = PictureInPictureHandoff()
@@ -169,17 +170,32 @@ final class AppEnvironment {
     }
 
     /// Runs sync only with a container in Info.plist (`CloudKitContainer`, set with the iCloud
-    /// entitlement; CloudKit traps without it) and no linked account.
+    /// entitlement; CloudKit traps without it). A linked account narrows it to instances.
     private func updateCloudSync() {
         let container = Bundle.main.object(forInfoDictionaryKey: "CloudKitContainer") as? String ?? ""
-        if account == nil, !container.isEmpty, !ProcessInfo.processInfo.arguments.contains("-UITestFreshStart") {
-            guard cloudSync == nil else { return }
-            let sync = CloudSync(containerIdentifier: container, database: database)
-            cloudSync = sync
-            Task { await sync.start() }
-        } else if let sync = cloudSync {
-            cloudSync = nil
-            Task { await sync.stop() }
+        guard !container.isEmpty, !ProcessInfo.processInfo.arguments.contains("-UITestFreshStart") else { return }
+        let types: Set<SyncStore.RecordType> = account == nil ? Set(SyncStore.RecordType.allCases) : [.instance]
+        guard cloudSync?.types != types else { return }
+        let previous = cloudSync
+        let sync = CloudSync(containerIdentifier: container, database: database, types: types, secrets: secrets)
+        cloudSync = sync
+        Task {
+            await previous?.stop()
+            await sync.start()
+        }
+        observeInstances()
+    }
+
+    /// Instances added or removed on another device arrive through sync: rebuild the sources.
+    private func observeInstances() {
+        guard instanceObservation == nil else { return }
+        let changes = InstanceStore(database).observe()
+        instanceObservation = Task { [weak self] in
+            do {
+                for try await list in changes where list != self?.instances {
+                    self?.instancesChanged()
+                }
+            } catch {}
         }
     }
 

@@ -1,9 +1,10 @@
 import CloudKit
 import Foundation
 import os
+import Core
 
-/// Subscriptions and watch state through the user's CloudKit private database (ADR 0002:
-/// used when no YT Zero account owns them). `CKSyncEngine` schedules the work; this actor
+/// Instances, subscriptions and watch state through the user's CloudKit private database.
+/// While a YT Zero account owns the library (ADR 0002), only instances sync (ADR 0006). `CKSyncEngine` schedules the work; this actor
 /// feeds it pending rows from `SyncStore` and applies what it fetches.
 public actor CloudSync: CKSyncEngineDelegate {
     private let container: CKContainer
@@ -14,14 +15,18 @@ public actor CloudSync: CKSyncEngineDelegate {
 
     /// The container must be in the app's iCloud entitlement: CloudKit traps otherwise. The
     /// app passes the identifier only when its Info.plist names one (`CloudKitContainer`).
-    public init(containerIdentifier: String, database: AppDatabase) {
+    public init(containerIdentifier: String, database: AppDatabase, types: Set<SyncStore.RecordType>,
+                secrets: any SecretStore) {
         container = CKContainer(identifier: containerIdentifier)
-        store = SyncStore(database)
+        store = SyncStore(database, types: types, secrets: secrets)
     }
+
+    public nonisolated var types: Set<SyncStore.RecordType> { store.types }
 
     /// Starts syncing and keeps the engine told about local edits.
     public func start() {
         guard engine == nil else { return }
+        try? store.prepareScope()
         let saved = (try? store.engineState()).flatMap {
             try? JSONDecoder().decode(CKSyncEngine.State.Serialization.self, from: $0)
         }
@@ -38,7 +43,7 @@ public actor CloudSync: CKSyncEngineDelegate {
         }
     }
 
-    /// A linked YT Zero account took over (ADR 0002): stop, keeping the saved state.
+    /// Replaced by a sync of other types, or CloudKit isn't wanted any more: stop, keeping the saved state.
     public func stop() {
         pendingObservation?.cancel()
         pendingObservation = nil

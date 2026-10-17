@@ -12,26 +12,41 @@ public struct InstanceStore: Sendable {
     }
 
     public func all() throws -> [InstanceConfig] {
-        try database.writer.read { db in
-            try InstanceRecord.order(Column("sortOrder")).fetchAll(db).compactMap(\.config)
-        }
+        try database.writer.read(Self.fetchActive)
     }
 
+    public func contains(_ apiURL: URL) throws -> Bool {
+        try all().contains { $0.apiURL == apiURL }
+    }
+
+    /// Adding a URL that's already there (here, or synced from another device) is a no-op.
     public func add(_ instance: InstanceConfig) throws {
         try database.writer.write { db in
+            guard try !Self.fetchActive(db).contains(where: { $0.apiURL == instance.apiURL }) else { return }
             let next = (try Int.fetchOne(db, sql: "SELECT MAX(sortOrder) FROM instance") ?? -1) + 1
             try InstanceRecord(id: instance.id.uuidString, kind: instance.kind.rawValue,
                                displayName: instance.displayName, apiURL: instance.apiURL.absoluteString,
-                               sortOrder: next, addedAt: .now).save(db)
+                               sortOrder: next, addedAt: .now, modifiedAt: .now).save(db)
         }
     }
 
+    /// A tombstone, so the removal syncs to the user's other devices.
     public func remove(_ id: UUID) throws {
-        _ = try database.writer.write { db in try InstanceRecord.deleteOne(db, key: id.uuidString) }
+        try database.writer.write { db in
+            try db.execute(sql: "UPDATE instance SET isDeleted = 1, modifiedAt = ? WHERE id = ?",
+                           arguments: [Date.now, id.uuidString])
+        }
     }
 
     public func observe() -> AsyncThrowingStream<[InstanceConfig], Error> {
-        database.stream { db in try InstanceRecord.order(Column("sortOrder")).fetchAll(db).compactMap(\.config) }
+        database.stream(Self.fetchActive)
+    }
+
+    /// Two devices can add the same instance before they sync: the first one added wins.
+    static func fetchActive(_ db: Database) throws -> [InstanceConfig] {
+        var seen = Set<URL>()
+        return try InstanceRecord.filter(Column("isDeleted") == false).order(Column("sortOrder"), Column("addedAt"))
+            .fetchAll(db).compactMap(\.config).filter { seen.insert($0.apiURL).inserted }
     }
 }
 

@@ -16,6 +16,13 @@ enum CloudRecords {
         static let durationSeconds = "durationSeconds"
         static let isFinished = "isFinished"
         static let lastWatchedAt = "lastWatchedAt"
+        static let kind = "kind"
+        static let displayName = "displayName"
+        static let apiURL = "apiURL"
+        static let sortOrder = "sortOrder"
+        static let addedAt = "addedAt"
+        /// In `encryptedValues`: end-to-end encrypted with keys in the user's iCloud Keychain.
+        static let token = "token"
     }
 
     static func recordID(for key: SyncStore.Key) -> CKRecord.ID {
@@ -46,6 +53,14 @@ enum CloudRecords {
             record[Field.isFinished] = isFinished
             record[Field.lastWatchedAt] = lastWatchedAt
             record[Field.isDeleted] = isDeleted
+        case let .instance(kind, displayName, apiURL, sortOrder, addedAt, token, isDeleted):
+            record[Field.kind] = kind
+            record[Field.displayName] = displayName
+            record[Field.apiURL] = apiURL
+            record[Field.sortOrder] = sortOrder
+            record[Field.addedAt] = addedAt
+            record.encryptedValues[Field.token] = isDeleted ? nil : token
+            record[Field.isDeleted] = isDeleted
         }
         return record
     }
@@ -68,6 +83,12 @@ enum CloudRecords {
             values = .watchState(positionSeconds: position, durationSeconds: record[Field.durationSeconds] as? Double,
                                  isFinished: record[Field.isFinished] as? Bool ?? false,
                                  lastWatchedAt: lastWatchedAt, isDeleted: isDeleted)
+        case .instance:
+            guard let kind = record[Field.kind] as? String, let displayName = record[Field.displayName] as? String,
+                  let apiURL = record[Field.apiURL] as? String, let addedAt = record[Field.addedAt] as? Date else { return nil }
+            values = .instance(kind: kind, displayName: displayName, apiURL: apiURL,
+                               sortOrder: record[Field.sortOrder] as? Int ?? 0, addedAt: addedAt,
+                               token: record.encryptedValues[Field.token] as? String, isDeleted: isDeleted)
         }
         return SyncStore.Change(key: key, values: values, modifiedAt: modifiedAt, systemFields: systemFields(of: record))
     }

@@ -10,6 +10,10 @@ struct InstanceRecord: Codable, FetchableRecord, PersistableRecord {
     var apiURL: String
     var sortOrder: Int
     var addedAt: Date
+    var modifiedAt: Date
+    var isDeleted: Bool = false
+    var syncMetadata: Data? = nil
+    var uploadedAt: Date? = nil
 
     var config: InstanceConfig? {
         guard let uuid = UUID(uuidString: id), let kind = SourceKind(rawValue: kind),

@@ -1760,6 +1760,16 @@
         }
       }
     },
+    "This instance is already in your list.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Esta instância já está na sua lista."
+          }
+        }
+      }
+    },
     "This video isn't available.": {
       "localizations": {
         "pt-PT": {

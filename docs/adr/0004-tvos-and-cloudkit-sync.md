@@ -33,7 +33,7 @@ M7 adds the Apple TV app and ships the sync that M1 designed the schema for (ADR
    - **Account changes:** sign-in, account switch, or the zone being deleted in iCloud settings mark everything for upload again. Sign-out keeps the library on the device.
    - **Isolation:** CloudKit types stay in `CloudRecords` and the `CloudSync` actor. `SyncStore` is plain GRDB and tested offline.
 6. **Sync is opt-in at build time.** `CloudSync` starts only if Info.plist's `CloudKitContainer` (build setting `CLOUDKIT_CONTAINER`) names a container. Creating a `CKContainer` without the matching entitlement traps, so builds without the owner's iCloud setup simply don't sync.
-   - **With YT Zero linked:** sync stays off, and stops if one gets linked (ADR 0002).
+   - **With YT Zero linked:** only instances sync (ADR 0006; this originally said sync stays off, ADR 0002).
 
 ## Consequences
 
