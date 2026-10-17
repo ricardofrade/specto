@@ -335,6 +335,7 @@ final class AppEnvironment {
     /// Cache, else the network; then plan and play. Returns the page for the Watch screen.
     func play(_ video: VideoSummary, mode: PlaybackMode = .video, surfaceHeight: Int) async throws -> WatchPage {
         let tap = Signpost.begin(.playbackTapToFirstFrame)
+        prepareForPlayback()
         #if OFFLINE_DOWNLOADS
         // Downloaded audio plays without the network (the car, a flight).
         if mode == .audioOnly, let file = offlineAudio.localFile(for: video.id) {

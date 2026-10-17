@@ -26,8 +26,8 @@ struct PlaybackCommands: Commands {
             } label: { Text("Play/Pause") }
             .keyboardShortcut(.space, modifiers: [])
 
-            // ←/→ belong to keyboard navigation as menu shortcuts; the player handles them itself
-            // while it has keyboard focus (PlayerArea).
+            // Plain ←/→ belong to keyboard navigation; the player takes them itself while it's on
+            // screen (ArrowKeys), so the menu uses ⌘←/⌘→.
             Button { skip(-10) } label: { Text("Back 10 Seconds") }
                 .keyboardShortcut(.leftArrow, modifiers: [.command])
             Button { skip(10) } label: { Text("Forward 10 Seconds") }

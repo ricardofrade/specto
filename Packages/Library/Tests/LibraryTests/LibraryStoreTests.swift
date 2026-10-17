@@ -218,6 +218,7 @@ struct ListeningStoresTests {
         try FeedStore(db).save([video("a"), video("b")])
         let watch = WatchStateStore(db)
         try watch.save(.seconds(30), duration: .seconds(600), for: VideoID(rawValue: "a"))
+        Thread.sleep(forTimeInterval: 0.05)     // Distinct save times: the order is "most recent first".
         try watch.save(.seconds(600), duration: .seconds(600), for: VideoID(rawValue: "b"))   // Finished, still history.
         #expect(try watch.history().map(\.id.rawValue) == ["b", "a"])
 

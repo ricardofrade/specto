@@ -10,14 +10,20 @@ import DesignSystem
 /// Background audio, Now Playing, audio mode, SponsorBlock and DeArrow: every platform.
 extension AppEnvironment {
     func startSystemIntegration() {
-        NowPlayingController.configureAudioSession()
-        nowPlaying = NowPlayingController(session: session) { url in
-            await ImagePipeline.shared.image(url, pixelSize: CGSize(width: 600, height: 600))
-        }
         #if os(iOS)
         observeAudioRoute()
         followEngineForPictureInPicture()
         #endif
+    }
+
+    /// The audio session and Now Playing / remote commands, set up on the first playback rather
+    /// than at launch (about 13 ms of main-thread time off the path to the first frame).
+    func prepareForPlayback() {
+        guard nowPlaying == nil else { return }
+        NowPlayingController.configureAudioSession()
+        nowPlaying = NowPlayingController(session: session) { url in
+            await ImagePipeline.shared.image(url, pixelSize: CGSize(width: 600, height: 600))
+        }
     }
 
     // MARK: Background

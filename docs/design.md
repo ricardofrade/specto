@@ -12,6 +12,24 @@ How Specto looks and why. Apple's own TV and Music apps are the reference: artwo
   - **Screenshot tour:** `DesignTourUITests` covers both appearances.
 - **One structure everywhere.** The same hierarchy on every device and pose; layouts change by size class and space, never by device model.
 
+## Player (iPhone, iPad)
+
+- **Controls and scrubber:** a glass control cluster over the video, and a scrubber with elapsed and remaining time. Dragging shows preview frames (storyboards, Piped only); SponsorBlock segments and chapter starts are marked on the track. Controls fade after 3 s of playback and stay put under VoiceOver.
+- **Gestures:** double-tap the left or right half to jump 10 s, hold for 2×, pinch to switch between fill and fit.
+- **Landscape:** a phone turned sideways plays full screen (`WatchLayout.fullScreen`).
+- **Subtitles:** drawn by the app over either engine, so they look the same with mpv and AVPlayer. Choose them from the actions row, toggle them with the captions button.
+- **Speed and audio:** a speed menu (0.5×–2×), audio-only, the queue, PiP, AirPlay and Cast, all icon-only so the row fits narrow phones.
+- **iPad keyboard:**
+  - Space plays and pauses, and ←/→ jump 10 s. The player has keyboard focus while open.
+  - A Playback menu holds the rest.
+  - Shortcuts act only while a video is open, so typing in Search is never affected.
+
+## Library, widgets and system integration
+
+- **Library tab:** Continue Watching, the queue (drag to reorder) and the history. Removing items syncs as tombstones.
+- **Widgets:** Continue Watching in small, medium, large and Lock Screen sizes. They draw from the App Group snapshot and its small local thumbnails, and never wait on the network.
+- **Opening videos from outside the app:** widgets, Top Shelf, Shortcuts, notifications and Handoff all go through `AppEnvironment.pendingVideo`, and the root view plays it.
+
 ## iPhone Duo
 
 Apple's guidance (Tech Talks 111461–111466) is to adapt rather than build a layout per pose.
@@ -34,6 +52,9 @@ Apple's guidance (Tech Talks 111461–111466) is to adapt rather than build a la
 - **Home:**
   - A billboard (Play, Add to Queue, channel). Coming down from the tab bar always lands on Play.
   - Then the Continue Watching and Queue shelves and the Latest grid, each a focus section.
-- **Player:** glass transport bar that fades. Down opens Chapters and Up Next. Up Next also appears when a video ends with nothing queued.
+- **Player:** a glass transport bar that fades, with sponsor marks.
+  - **Swiping the remote** scrubs, with large preview frames.
+  - **Down** opens subtitles, speed, chapters and Up Next.
+  - **Up Next** also appears when a video ends with nothing queued.
 - **Artwork:** YouTube artwork is 16:9, so Apple's vertical posters don't apply; the billboard carries the theatrical feel instead.
 - **Verified:** `TVBrowseAndPlayUITests` drives the Siri Remote against a real instance.

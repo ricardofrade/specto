@@ -17,6 +17,9 @@ struct SpectoApp: App {
                 RootView(environment: environment) {
                     FirstFrame.once { Signpost.end(launchInterval) }
                 }
+                // Links (widgets, Handoff, notifications) go to the open window; without this,
+                // iPadOS may open a new window for each one.
+                .handlesExternalEvents(preferring: ["*"], allowing: ["*"])
             }
         }
         .commands { PlaybackCommands() }
