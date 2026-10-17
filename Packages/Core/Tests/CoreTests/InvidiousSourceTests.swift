@@ -44,6 +44,12 @@ struct InvidiousSourceTests {
         #expect(videos.allSatisfy { $0.publishedAt == nil && $0.publishedText == nil })
     }
 
+    @Test func muxedFormatIsTheFallbackFile() async throws {
+        let iv = source { $0.on("/api/v1/videos/dQw4w9WgXcQ", fixture: "invidious/video.json") }
+        let manifest = try await iv.watchPage(for: VideoID(rawValue: "dQw4w9WgXcQ")).manifest
+        #expect(manifest.muxedURL?.host() == "instance.example")
+    }
+
     @Test func captionURLsBecomeAbsoluteOnTheInstance() async throws {
         let iv = source { $0.on("/api/v1/videos/dQw4w9WgXcQ", fixture: "invidious/video.json") }
         let captions = try await iv.watchPage(for: VideoID(rawValue: "dQw4w9WgXcQ")).manifest.captions
@@ -116,6 +122,17 @@ struct InvidiousSourceTests {
         let iv = source { $0.on("/api/v1/search/suggestions", fixture: "invidious/search-suggestions.json") }
         let suggestions = try await iv.suggestions(for: "blend")
         #expect(suggestions.first == "blender")
+    }
+
+    @Test func channelBannerComesThroughTheInstance() async throws {
+        let iv = source {
+            $0.on("/api/v1/channels/UCSMOQeBJ2RAnuFungnQOxLg/videos", fixture: "invidious/channel-videos.json")
+            $0.on("/api/v1/channels/UCSMOQeBJ2RAnuFungnQOxLg", fixture: "invidious/channel.json")
+        }
+        let page = try await iv.channel(ChannelID(rawValue: "UCSMOQeBJ2RAnuFungnQOxLg"), cursor: nil)
+        let banner = try #require(page.banner)
+        #expect(banner.url.host() == "instance.example" && banner.url.path().hasPrefix("/ggpht/"))
+        #expect(banner.width == 2560)
     }
 
     @Test func channelAvatarsComeThroughTheInstance() {

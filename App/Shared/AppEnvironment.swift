@@ -463,6 +463,18 @@ final class AppEnvironment {
 
     // MARK: Playback
 
+    /// Home's muted preview of the featured video: Wi-Fi only (never cellular, a hotspot or Low
+    /// Data Mode). The manifest it loads also makes tapping the video instant.
+    func previewManifest(for id: VideoID) async -> StreamManifest? {
+        let network = NetworkMonitor.shared.status
+        guard !network.isExpensive, !network.isConstrained else { return nil }
+        if let page = try? manifests.page(for: id) { return page.manifest }
+        let router = self.router
+        guard let page = try? await router.perform(.streams, { try await $0.watchPage(for: id) }) else { return nil }
+        try? manifests.store(page)
+        return page.manifest
+    }
+
     /// Warm the manifest so a tap can start playing without a network round-trip.
     func prefetch(_ video: VideoSummary) {
         guard !prefetching.contains(video.id), (try? manifests.page(for: video.id)) == nil else { return }
@@ -479,7 +491,9 @@ final class AppEnvironment {
     }
 
     /// Cache, else the network; then plan and play. Returns the page for the Watch screen.
-    func play(_ video: VideoSummary, mode: PlaybackMode = .video, surfaceHeight: Int) async throws -> WatchPage {
+    /// - Parameter startAt: where to begin (Home's preview, continued); zero resumes as usual.
+    func play(_ video: VideoSummary, mode: PlaybackMode = .video, surfaceHeight: Int,
+              startAt: Duration = .zero) async throws -> WatchPage {
         let tap = Signpost.begin(.playbackTapToFirstFrame)
         prepareForPlayback()
         if upNext?.video.id != video.id { cancelUpNext() }   // Something else was picked.
@@ -507,7 +521,7 @@ final class AppEnvironment {
         }
         self.surfaceHeight = surfaceHeight
         manualQuality = nil
-        let request = try plan(page, mode: mode, startAt: .zero)
+        let request = try plan(page, mode: mode, startAt: startAt)
         let item = NowPlayingItem(videoID: video.id, title: video.title, channelName: video.channelName,
                                   artworkURL: video.thumbnails.first?.url, chapters: page.manifest.chapters)
         currentPage = page

@@ -127,8 +127,12 @@ struct SettingsView: View {
             Section {
                 Toggle(isOn: $settings.hideShorts) { Text("Hide Shorts") }
                 Toggle(isOn: $settings.hideWatched) { Text("Hide watched videos") }
+                Toggle(isOn: $settings.homePreviews) { Text("Preview the featured video") }
+                    .accessibilityIdentifier("settings.homePreviews")
             } header: {
                 Text("Home")
+            } footer: {
+                Text("The video at the top of Home plays a few muted seconds behind its title, on Wi-Fi only.")
             }
             Section {
                 Toggle(isOn: $settings.showsRelated) { Text("Show “Up next” suggestions") }

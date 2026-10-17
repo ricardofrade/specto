@@ -32,7 +32,11 @@ final class AutoplayUITests: XCTestCase {
         add(attachment)
 
         XCTAssertTrue(wait(card, "exists == false", 15), "The countdown never finished")
-        XCTAssertTrue(wait(surface, "value BEGINSWITH 'playing '", 45), "The next video didn't play")
+        let next = wait(surface, "value BEGINSWITH 'playing '", 45)
+        if !next, let folder = ProcessInfo.processInfo.environment["SHOTS_DIR"] {   // What the screen shows instead.
+            try? app.screenshot().pngRepresentation.write(to: URL(filePath: folder).appending(path: "autoplay-failed.png"))
+        }
+        XCTAssertTrue(next, "The next video didn't play: \(surface.exists ? (surface.value as? String ?? "?") : "no player")")
     }
 
     @MainActor

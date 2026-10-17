@@ -160,6 +160,48 @@ final class DesignTourUITests: XCTestCase {
         shot(app, "43-sponsorblock")
     }
 
+    /// Home's hero: the artwork, then a few muted seconds of the video behind the title.
+    @MainActor
+    func testHeroPreview() throws {
+        guard let piped = ProcessInfo.processInfo.environment["PIPED_URL"] else {
+            throw XCTSkip("Set PIPED_URL to run against a real instance")
+        }
+        let app = XCUIApplication()
+        app.launchArguments = ["-UITestFreshStart", "-SeedInstance", piped, "-AppleLanguages", "(en)",
+                               "-SeedSubscriptions", "UCSMOQeBJ2RAnuFungnQOxLg", "-HeroPreviews"]
+        app.launch()
+        XCTAssertTrue(app.scrollViews["feed.list"].waitForExistence(timeout: 45))
+        shot(app, "60-hero-artwork")
+        sleep(9)
+        shot(app, "61-hero-preview")
+    }
+
+    /// Tapping the hero mid-preview continues from the preview's moment, not the start; the
+    /// light behind the player follows the video.
+    @MainActor
+    func testHeroTapContinuesAndTheLightFollows() throws {
+        guard let piped = ProcessInfo.processInfo.environment["PIPED_URL"] else {
+            throw XCTSkip("Set PIPED_URL to run against a real instance")
+        }
+        let app = XCUIApplication()
+        app.launchArguments = ["-UITestFreshStart", "-SeedInstance", piped, "-AppleLanguages", "(en)",
+                               "-SeedSubscriptions", "UCSMOQeBJ2RAnuFungnQOxLg", "-HeroPreviews"]
+        app.launch()
+        let list = app.scrollViews["feed.list"]
+        XCTAssertTrue(list.waitForExistence(timeout: 45))
+        sleep(8)   // The preview has started (a fifth of the way in) and run a few seconds.
+        list.buttons.firstMatch.tap()
+        let surface = app.otherElements["watch.surface"]
+        XCTAssertTrue(wait(surface, "value BEGINSWITH 'playing '", 45))
+        let seconds = Int((surface.value as? String)?.split(separator: " ").last ?? "") ?? 0
+        XCTAssertGreaterThan(seconds, 15, "Started from \(seconds) s, not where the preview was")
+        app.swipeUp()   // The details, over the light.
+        sleep(1)
+        shot(app, "62-watch-light-a")
+        sleep(13)
+        shot(app, "63-watch-light-b")
+    }
+
     /// A channel page: header, videos, and its other tabs.
     @MainActor
     func testTourOfChannel() throws {

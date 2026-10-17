@@ -47,6 +47,7 @@ public struct PipedSource: VideoSource {
         }
         let channel: PipedDTO.Channel = try await api.get("channel/\(id.rawValue)")
         return ChannelPage(id: id, name: channel.name ?? "", avatar: channel.avatarUrl.flatMap(Thumbnail.unsized),
+                           banner: channel.bannerUrl.flatMap(Thumbnail.unsized),
                            videos: Page(items: (channel.relatedStreams ?? []).compactMap(\.videoSummary),
                                         nextCursor: Self.cursor(channel.nextpage)))
     }

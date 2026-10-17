@@ -37,15 +37,16 @@ Apple's guidance (Tech Talks 111461–111466) is to adapt rather than build a la
 - **Closed (outer display):**
   - The system moves the tab bar to a vertical side strip. Content stays in the safe area.
   - The player's close button is a deliberate overlay on the video, not a toolbar item, so it doesn't move to the strip.
-- **Open (inner display):** the sidebar-adaptable tab bar and the size-based Watch layouts (band, side panel).
+- **Open (inner display):** the sidebar-adaptable tab bar. Playing a video docks the player on the half beyond the crease while the tabs keep the other, so browsing goes on beside it; another video swaps in place (ADR 0015).
 - **Grids:** where the device can fold (`FoldState.isPresent`), use an even number of columns, so no card straddles the crease.
 - **Partly folded:** the Watch screen switches to `ArrangementView` with `.split` (iOS 27.1).
-  - **Tabletop:** video above the fold, controls and Up Next on the half resting on the table.
+  - **Tabletop:** the video alone above the fold. The half resting on the table is a deck: title, timeline, big controls that never fade, and Up Next.
   - **Book:** video and details side by side.
   - **Detection:** `onFoldChange` (DesignSystem) reads `ReservedRegion.Kind.division`.
 - **Netflix's approach:** we adopted the immersive full-screen player. We didn't adopt a clips feed on the outer display; that would be a separate short-video product feature.
 - **Verified:** the closed pose, on the iPhone Duo simulator.
-- **Not yet verified:** the folded poses need Xcode's Device Hub. `DuoPosesUITests` (`DUO_POSES=1`) screenshots while someone changes the pose.
+- **Checked on a simulated fold:** `DuoLayoutsUITests` (`-SimulateFold`) screenshots open-flat, tabletop and book on an iPad simulator.
+- **Not yet verified on hardware:** the real poses need a device, or Xcode's Device Hub. `DuoPosesUITests` (`DUO_POSES=1`) screenshots while someone changes the pose.
 
 ## Apple TV
 

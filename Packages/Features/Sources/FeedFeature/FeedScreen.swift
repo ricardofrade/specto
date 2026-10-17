@@ -2,6 +2,9 @@ import SwiftUI
 import Core
 import Library
 import DesignSystem
+#if os(iOS)
+import Playback
+#endif
 
 /// Home: the newest unwatched video large at the top, Continue Watching and Queue shelves, then
 /// the latest uploads from subscriptions. Navigation and empty-state actions are the app's to wire.
@@ -23,6 +26,11 @@ public struct FeedScreen: View {
     private let onOpenShorts: ([FeedRow], Int) -> Void
     private let onSaveToWatchLater: (FeedRow) -> Void
     private let onSaveToPlaylist: (FeedRow) -> Void
+    private let heroPreview: ((VideoID) async -> StreamManifest?)?
+    private let onSelectAt: ((FeedRow, Duration) -> Void)?
+    #if os(iOS)
+    @State private var heroPlayer = PreviewPlayer()
+    #endif
     private let transition: Namespace.ID?
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.displayScale) private var displayScale
@@ -43,7 +51,11 @@ public struct FeedScreen: View {
                 onHideChannel: @escaping (FeedRow) -> Void = { _ in },
                 onOpenShorts: @escaping (_ shorts: [FeedRow], _ start: Int) -> Void = { _, _ in },
                 onSaveToWatchLater: @escaping (FeedRow) -> Void = { _ in },
-                onSaveToPlaylist: @escaping (FeedRow) -> Void = { _ in }) {
+                onSaveToPlaylist: @escaping (FeedRow) -> Void = { _ in },
+                heroPreview: ((VideoID) async -> StreamManifest?)? = nil,
+                onSelectAt: ((FeedRow, Duration) -> Void)? = nil) {
+        self.heroPreview = heroPreview
+        self.onSelectAt = onSelectAt
         self.onSaveToWatchLater = onSaveToWatchLater
         self.onSaveToPlaylist = onSaveToPlaylist
         self.onOpenShorts = onOpenShorts
@@ -98,9 +110,18 @@ public struct FeedScreen: View {
                             .equatable()
                     }
                     if let featured = model.featured {
-                        HeroCard(VideoCellContent(row: featured, pixelWidth: Int(heroWidth * displayScale)), width: heroWidth)
-                            .equatable()
-                            .modifier(RowInteractions(row: featured, actions: rowActions, transition: transition))
+                        HeroCard(VideoCellContent(row: featured, pixelWidth: Int(heroWidth * displayScale)), width: heroWidth) {
+                            #if os(iOS)
+                            if let heroPreview, !featured.isLive {
+                                HeroPreview(videoID: featured.id, duration: featured.video.duration, load: heroPreview,
+                                            preview: heroPlayer)
+                            }
+                            #endif
+                        }
+                        .equatable()
+                        // Equal cards skip redrawing: a new identity when previews turn on or off.
+                        .id(heroPreview != nil)
+                            .modifier(RowInteractions(row: featured, actions: heroActions, transition: transition))
                             .onAppear { model.rowAppeared(featured.id) }
                             .padding(.horizontal, Tokens.Spacing.screenInset)
                     }
@@ -165,6 +186,20 @@ public struct FeedScreen: View {
     static let minimumColumnWidth: CGFloat = 320
     /// Compact rows' thumbnail width on a phone.
     static let rowThumbnailWidth: CGFloat = 160
+
+    /// The hero's tap continues from the preview's moment, so the picture runs on into the player.
+    private var heroActions: RowActions {
+        var actions = rowActions
+        #if os(iOS)
+        if let onSelectAt {
+            let preview = heroPlayer, select = onSelect
+            actions.select = { row in
+                if let position = preview.position { onSelectAt(row, position) } else { select(row) }
+            }
+        }
+        #endif
+        return actions
+    }
 
     private var rowActions: RowActions {
         RowActions(select: onSelect, prefetch: onPrefetch, openChannel: onOpenChannel, addToQueue: onAddToQueue,
@@ -281,7 +316,7 @@ public struct FeedScreen: View {
 
 /// What a row can do, shared by the hero, shelves and grid.
 struct RowActions {
-    let select: (FeedRow) -> Void
+    var select: (FeedRow) -> Void
     let prefetch: (FeedRow) -> Void
     let openChannel: (ChannelID, String) -> Void
     let addToQueue: (FeedRow) -> Void

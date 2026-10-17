@@ -4848,6 +4848,7 @@
       }
     },
     "Movies": {
+      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -4882,6 +4883,7 @@
       }
     },
     "Music": {
+      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -7235,6 +7237,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Antevisão e resumo"
+          }
+        }
+      }
+    },
+    "Preview the featured video": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vorschau des Top-Videos"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Previsualizar el vídeo destacado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Aperçu de la vidéo à la une"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Prévia do vídeo em destaque"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Pré-visualizar o vídeo em destaque"
           }
         }
       }
@@ -9923,6 +9959,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "O código de emparelhamento expirou. Tente novamente."
+          }
+        }
+      }
+    },
+    "The video at the top of Home plays a few muted seconds behind its title, on Wi-Fi only.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Das Video oben auf der Startseite spielt ein paar Sekunden ohne Ton hinter dem Titel ab, nur im WLAN."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "El vídeo de arriba en Inicio reproduce unos segundos sin sonido detrás del título, solo con wifi."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "La vidéo en haut de l’accueil joue quelques secondes sans le son derrière son titre, en Wi-Fi uniquement."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "O vídeo no topo do Início toca alguns segundos sem som atrás do título, só no Wi-Fi."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "O vídeo no topo do Início reproduz alguns segundos sem som atrás do título, só em Wi-Fi."
           }
         }
       }

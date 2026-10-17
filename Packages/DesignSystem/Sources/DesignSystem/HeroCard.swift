@@ -3,20 +3,24 @@ import SwiftUI
 /// The featured video at the top of Home: large artwork with the title over a gradient and a
 /// glass Play capsule. At accessibility text sizes the text moves below the artwork instead,
 /// so nothing is clipped.
-public struct HeroCard: View, Equatable {
+public struct HeroCard<Preview: View>: View, Equatable {
     private let content: VideoCellContent
     private let width: CGFloat
+    private let preview: Preview
     @Environment(\.dynamicTypeSize) private var typeSize
 
-    /// - Parameter width: the card's width in points; the artwork is requested at that size.
-    public init(_ content: VideoCellContent, width: CGFloat) {
+    /// - Parameters:
+    ///   - width: the card's width in points; the artwork is requested at that size.
+    ///   - preview: drawn over the artwork, under the title (Home's muted preview).
+    public init(_ content: VideoCellContent, width: CGFloat, @ViewBuilder preview: () -> Preview) {
         self.content = content
         self.width = width
+        self.preview = preview()
     }
 
     /// 4:3, taller than the 16:9 artwork (cropped at the sides), so the title has room on a phone;
     /// on wide windows the height stops here rather than filling the screen.
-    public static let maxHeight: CGFloat = 460
+    public static var maxHeight: CGFloat { 460 }
     private var height: CGFloat { min(width * 3 / 4, Self.maxHeight) }
 
     nonisolated public static func == (lhs: HeroCard, rhs: HeroCard) -> Bool {
@@ -57,6 +61,7 @@ public struct HeroCard: View, Equatable {
         let fill = max(width, height * 16 / 9)
         return RemoteImage(content.thumbnailURL, pointSize: CGSize(width: fill, height: fill * 9 / 16))
             .frame(width: width, height: height)
+            .overlay { preview }
             .clipped()
     }
 
@@ -85,5 +90,11 @@ public struct HeroCard: View, Equatable {
                 .padding(.top, Tokens.Spacing.xs)
         }
         .foregroundStyle(onArtwork ? .white : Tokens.Colors.textPrimary)
+    }
+}
+
+extension HeroCard where Preview == EmptyView {
+    public init(_ content: VideoCellContent, width: CGFloat) {
+        self.init(content, width: width) { EmptyView() }
     }
 }

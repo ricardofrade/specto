@@ -73,6 +73,8 @@ enum PipedDTO {
     struct Channel: Decodable {
         let name: String?
         let avatarUrl: String?
+        /// Already through the instance's proxy, like the avatar.
+        let bannerUrl: String?
         let relatedStreams: [ContentItem]?
         let nextpage: String?
         /// Shorts, live, playlists…: each tab's `data` is the opaque request for `channels/tabs`.
@@ -161,9 +163,14 @@ enum PipedDTO {
                                        related: (relatedStreams ?? []).compactMap(\.videoSummary))
             let video = (videoStreams ?? []).compactMap(\.videoStream)
             let audio = (audioStreams ?? []).compactMap(\.audioStream)
+            // Some videos come back with only the muxed MP4 (itag 18, video and audio in one):
+            // the fallback when nothing adaptive can play.
+            let muxed = (videoStreams ?? []).first { $0.videoOnly == false && $0.format == "MPEG_4" }?
+                .url.flatMap(URL.init(string:))
             let manifest = StreamManifest(
                 videoID: id, videoStreams: video, audioStreams: audio,
                 hlsURL: hls.flatMap(URL.init(string:)),
+                muxedURL: muxed,
                 dashURL: dash.flatMap(URL.init(string:)),
                 captions: (subtitles ?? []).compactMap(\.captionTrack),
                 storyboards: (previewFrames ?? []).compactMap(\.storyboard),

@@ -105,6 +105,11 @@ final class AppSettings {
         didSet { defaults.set(autoplay, forKey: Keys.autoplay) }
     }
 
+    /// The featured video plays muted behind its title on Home (Wi-Fi only). On by default.
+    var homePreviews: Bool {
+        didSet { defaults.set(homePreviews, forKey: Keys.homePreviews) }
+    }
+
     /// Search suggestions while typing (from the instances). On by default.
     var searchSuggestions: Bool {
         didSet { defaults.set(searchSuggestions, forKey: Keys.searchSuggestions) }
@@ -129,6 +134,7 @@ final class AppSettings {
         audioLanguage = defaults.string(forKey: Keys.audioLanguage).flatMap { $0.isEmpty ? nil : $0 }
         autoplay = Self.flag(defaults, Keys.autoplay, default: true)
         searchSuggestions = Self.flag(defaults, Keys.searchSuggestions, default: true)
+        homePreviews = Self.flag(defaults, Keys.homePreviews, default: true)
         wifiQualityLimit = Self.limit(defaults.integer(forKey: Keys.wifiQualityLimit))
         cellularQualityLimit = Self.limit(defaults.integer(forKey: Keys.cellularQualityLimit))
     }
@@ -168,6 +174,7 @@ final class AppSettings {
         static let showsRelated = "watch.showsRelated"
         static let wifiQualityLimit = "playback.wifiQualityLimit"
         static let searchSuggestions = "search.suggestions"
+        static let homePreviews = "home.previews"
         static let autoplay = "playback.autoplay"
         static let audioLanguage = "playback.audioLanguage"
         static let cellularQualityLimit = "playback.cellularQualityLimit"

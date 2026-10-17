@@ -51,6 +51,8 @@ public struct PlaybackPlanner: Sendable {
                 }
             } else if let hls = manifest.hlsURL {
                 source = .hls(hls)
+            } else if let muxed = manifest.muxedURL {
+                source = .progressive(muxed)
             } else {
                 throw PlaybackError.unsupportedFormat("No video stream this device can play")
             }

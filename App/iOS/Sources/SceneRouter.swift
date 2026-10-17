@@ -47,6 +47,8 @@ final class SceneRouter {
     /// The open channel tab's stack (iPad sidebar); one tab shows at a time.
     var channelPath: [Route] = []
     var watching: WatchContent?
+    /// An open iPhone Duo docks the player beside the tabs: channels open in the browsing half.
+    var splitWatching = false
     /// "Save to Playlist" for this video (presented over whatever is on top).
     var savingToPlaylist: VideoSummary?
     /// The vertical Shorts player, over everything.
@@ -86,7 +88,7 @@ final class SceneRouter {
 
     /// Onto whichever stack is showing: the player's, Search's, Library's, else Home's.
     func push(_ route: Route) {
-        if watching != nil {
+        if watching != nil, !splitWatching {
             watchPath.append(route)
         } else if section == .search {
             searchPath.append(route)

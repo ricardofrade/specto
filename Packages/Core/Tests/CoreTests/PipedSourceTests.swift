@@ -59,6 +59,14 @@ struct PipedSourceTests {
         #expect(suggestions.contains("blender"))
     }
 
+    @Test func channelBannerComesThroughTheProxy() async throws {
+        let client = FixtureClient()
+        client.on("/channel/UCSMOQeBJ2RAnuFungnQOxLg", fixture: "piped/channel.json")
+        let piped = PipedSource(instance: instance(.piped), client: client)
+        let page = try await piped.channel(ChannelID(rawValue: "UCSMOQeBJ2RAnuFungnQOxLg"), cursor: nil)
+        #expect(page.banner?.url.host() == "proxy.instance.example")
+    }
+
     @Test func channelPlaylistsGoThroughThePlaylistsTabAndPage() async throws {
         let client = FixtureClient()
         client.on("/channel/UCSMOQeBJ2RAnuFungnQOxLg", fixture: "piped/channel_playlists_tabs.json")
@@ -87,8 +95,9 @@ struct PipedSourceTests {
         let page = try await piped.watchPage(for: VideoID(rawValue: "dQw4w9WgXcQ"))
         let manifest = page.manifest
 
-        // itag 18 is muxed progressive and is dropped; 137 (H.264 mp4) and 248 (VP9 webm) remain.
+        // itag 18 is muxed progressive: not an adaptive stream, but kept as the fallback file.
         #expect(manifest.videoStreams.map(\.itag) == [137, 248])
+        #expect(manifest.muxedURL != nil)
         let h264 = try #require(manifest.videoStreams.first)
         #expect(h264.codec == .h264 && h264.codecs == "avc1.640028" && h264.container == .mp4)
         #expect(h264.width == 1920 && h264.height == 1080)

@@ -14,18 +14,21 @@ public struct PlayerControlCluster: View {
     private let isPlaying: Bool
     private let captionsAvailable: Bool
     private let action: (PlayerControlAction) -> Void
+    private let scale: CGFloat
     @Namespace private var glass
 
-    public init(isPlaying: Bool, captionsAvailable: Bool,
+    /// - Parameter scale: larger for a player you don't hold (an iPhone Duo on a table).
+    public init(isPlaying: Bool, captionsAvailable: Bool, scale: CGFloat = 1,
                 action: @escaping (PlayerControlAction) -> Void) {
+        self.scale = scale
         self.isPlaying = isPlaying
         self.captionsAvailable = captionsAvailable
         self.action = action
     }
 
     public var body: some View {
-        GlassEffectContainer(spacing: Tokens.Spacing.l) {
-            HStack(spacing: Tokens.Spacing.l) {
+        GlassEffectContainer(spacing: Tokens.Spacing.l * scale) {
+            HStack(spacing: Tokens.Spacing.l * scale) {
                 button("gobackward.10", label: "Back 10 seconds", size: 52, .skipBack)
                 button(isPlaying ? "pause.fill" : "play.fill",
                        label: isPlaying ? "Pause" : "Play", size: 72, .togglePlayback)
@@ -42,10 +45,10 @@ public struct PlayerControlCluster: View {
                         _ control: PlayerControlAction) -> some View {
         Button { action(control) } label: {
             Image(systemName: symbol)
-                .font(size > 60 ? .title : .title3)
+                .font(size > 60 ? (scale > 1 ? .largeTitle : .title) : (scale > 1 ? .title2 : .title3))
                 .fontWeight(.semibold)
                 .contentTransition(.symbolEffect(.replace))
-                .frame(width: size, height: size)
+                .frame(width: size * scale, height: size * scale)
         }
         .buttonStyle(.plain)
         .glassEffect(.regular.interactive(), in: .circle)

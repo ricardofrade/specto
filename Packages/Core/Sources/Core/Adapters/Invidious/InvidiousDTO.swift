@@ -97,6 +97,8 @@ enum InvidiousDTO {
     struct ChannelHome: Decodable {
         let author: String?
         let authorThumbnails: [Image]?
+        /// Google's own image host: rewritten to the instance's `/ggpht/` proxy like avatars.
+        let authorBanners: [Image]?
     }
 
     struct ChannelPlaylists: Decodable {
@@ -183,6 +185,8 @@ enum InvidiousDTO {
         let hlsUrl: String?
         let dashUrl: String?
         let adaptiveFormats: [Format]?
+        /// Muxed MP4 (itag 18): the fallback when nothing adaptive can play.
+        let formatStreams: [Format]?
         let captions: [Caption]?
         let recommendedVideos: [Recommended]?
 
@@ -205,6 +209,8 @@ enum InvidiousDTO {
             let manifest = StreamManifest(
                 videoID: id, videoStreams: video, audioStreams: audio,
                 hlsURL: hlsUrl.flatMap(URL.init(string:)),
+                muxedURL: (formatStreams ?? []).first { $0.type?.hasPrefix("video/mp4") == true }?
+                    .url.flatMap { URL(string: $0, relativeTo: instance)?.absoluteURL },
                 // `local=true` makes the manifest's segments go through the instance too.
                 dashURL: dashUrl.flatMap { URL(string: $0.contains("?") ? $0 + "&local=true" : $0 + "?local=true") },
                 captions: (captions ?? []).compactMap { $0.track(instance: instance) },

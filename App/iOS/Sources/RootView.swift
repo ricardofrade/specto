@@ -28,6 +28,9 @@ struct RootView: View {
     /// Shorts are portrait: their long side runs along the screen's.
     @State private var shortsPixels = 1920
     @State private var queuedIDs: Set<VideoID> = []
+    /// The iPhone Duo's fold on this window: where the crease runs, and whether it's bent.
+    @State private var fold = FoldState()
+    @State private var containerWidth: CGFloat = 0
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Namespace private var zoom
     @Environment(\.displayScale) private var displayScale
@@ -56,7 +59,66 @@ struct RootView: View {
         })
     }
 
+    /// An iPhone Duo open flat: the player takes the half beyond the crease while the tabs keep
+    /// the other, so browsing goes on beside the video.
+    private var splitCrease: CGRect? {
+        guard fold.isPresent, fold.active == nil, let crease = fold.crease, router.watching != nil else { return nil }
+        return crease
+    }
+
     var body: some View {
+        // One layout either way, so the tabs keep their identity (and scroll positions) when the
+        // player docks or leaves.
+        let crease = splitCrease
+        let vertical = crease.map { $0.height > $0.width } ?? true
+        (vertical ? AnyLayout(HStackLayout(spacing: 0)) : AnyLayout(VStackLayout(spacing: 0))) {
+            if !vertical, let crease, let content = router.watching {
+                splitPlayer(content).frame(height: crease.minY)
+                Color.black.frame(height: crease.height)
+            }
+            tabs
+            if vertical, let crease, let content = router.watching {
+                Color.black.frame(width: crease.width)
+                splitPlayer(content).frame(width: max(0, containerWidth - crease.maxX))
+            }
+        }
+        .animation(reduceMotion ? nil : Tokens.Motion.standard, value: crease != nil)
+        .onFoldChange { fold = $0 }
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { containerWidth = $0 }
+        .onChange(of: crease != nil, initial: true) { _, split in router.splitWatching = split }
+        .overlay {
+            // UI tests read the fold's geometry (a simulator can't report it any other way).
+            if ProcessInfo.processInfo.arguments.contains("-UITestFreshStart") {
+                Color.clear.frame(width: 1, height: 1)
+                    .accessibilityElement()
+                    .accessibilityIdentifier("fold.state")
+                    .accessibilityValue(Text(verbatim: "present=\(fold.isPresent) crease=\(fold.crease.map { "\($0)" } ?? "none") active=\(fold.active.map { "\($0)" } ?? "none") split=\(crease != nil)"))
+            }
+        }
+    }
+
+    /// The player in its half of an open iPhone Duo: the same Watch screen, closed with its own
+    /// button (there's no cover to swipe down).
+    private func splitPlayer(_ content: WatchContent) -> some View {
+        NavigationStack(path: $router.watchPath) {
+            WatchScreen(session: environment.session, content: content,
+                        comments: environment.canLoadComments ? { commentsModel(content.video.id) } : nil,
+                        showsRelated: settings.showsRelated, actions: playerActions,
+                        onSelectRelated: { play($0) },
+                        onOpenChannel: { router.openChannel($0, name: $1) },
+                        onClose: { router.watching = nil })
+                .toolbar(.hidden, for: .navigationBar)
+                .routes()
+                .onAppear { environment.castDiscovery.start() }
+                .onDisappear { environment.castDiscovery.stop() }
+        }
+        .environment(\.routeDestination, routeDestination)
+        .id(content.video.id)
+        .accessibilityIdentifier("split.player")
+        .transition(.move(edge: .trailing).combined(with: .opacity))
+    }
+
+    private var tabs: some View {
         TabView(selection: $router.section) {
             Tab(value: SceneRouter.Section.feed) {
                 NavigationStack(path: $router.feedPath) {
@@ -69,7 +131,9 @@ struct RootView: View {
                                onHideChannel: { environment.setHiddenFromHome($0.channelID, true) },
                                onOpenShorts: { rows, start in router.openShorts(rows.map(\.video), start: start) },
                                onSaveToWatchLater: { environment.saveToWatchLater($0.video) },
-                               onSaveToPlaylist: { router.savingToPlaylist = $0.video })
+                               onSaveToPlaylist: { router.savingToPlaylist = $0.video },
+                               heroPreview: heroPreviewLoader,
+                               onSelectAt: { row, position in play(row.video, startAt: position) })
                         .routes()
                         .settingsButton { router.openSettings() }
                         .onAppear {
@@ -244,7 +308,8 @@ struct RootView: View {
                 router.openChannel(video.channelID, name: video.channelName)
             })
         }
-        .fullScreenCover(item: $router.watching) { content in
+        .fullScreenCover(item: Binding(get: { router.splitWatching ? nil : router.watching },
+                                       set: { router.watching = $0 })) { content in
             NavigationStack(path: $router.watchPath) {
                 WatchScreen(session: environment.session, content: content,
                             comments: environment.canLoadComments ? { commentsModel(content.video.id) } : nil,
@@ -262,7 +327,23 @@ struct RootView: View {
             }
             .zoomTransition(sourceID: content.video.id, in: zoom, reduceMotion: reduceMotion)
         }
-        .environment(\.routeDestination, RouteDestination { route in
+        .environment(\.routeDestination, routeDestination)
+    }
+
+    /// Home's muted hero preview, when it's welcome: the setting, no Reduce Motion or Low Power,
+    /// and nothing else playing. The environment adds the Wi-Fi check. UI tests opt in with
+    /// `-HeroPreviews`, so other tests don't stream it.
+    private var heroPreviewLoader: ((VideoID) async -> StreamManifest?)? {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard settings.homePreviews, !reduceMotion, !ProcessInfo.processInfo.isLowPowerModeEnabled,
+              environment.session.state != .playing, router.watching == nil,
+              !arguments.contains("-UITestFreshStart") || arguments.contains("-HeroPreviews") else { return nil }
+        return { [environment] id in await environment.previewManifest(for: id) }
+    }
+
+    /// Builds pushed screens for every stack: the tabs', the player's and the split player's.
+    private var routeDestination: RouteDestination {
+        RouteDestination { route in
             switch route {
             case .channel(let id, let name):
                 .channel(ChannelScreen(model: channelModel(id, name: name), onSelect: { play($0) },
@@ -291,7 +372,7 @@ struct RootView: View {
                                              Task { try? await environment.setSubscribed(channel, false) }
                                          }))
             }
-        })
+        }
     }
 
     private var settingsScreen: some View {
@@ -382,7 +463,7 @@ struct RootView: View {
     /// "Save to Playlist" presents from the player when it's open (a sheet can't show over a
     /// full-screen cover from below it), else from the root.
     private func saving(inPlayer: Bool) -> Binding<VideoSummary?> {
-        Binding(get: { (router.watching != nil) == inPlayer ? router.savingToPlaylist : nil },
+        Binding(get: { (router.watching != nil && !router.splitWatching) == inPlayer ? router.savingToPlaylist : nil },
                 set: { router.savingToPlaylist = $0 })
     }
 
@@ -396,13 +477,14 @@ struct RootView: View {
         router.watching = content
     }
 
-    private func play(_ video: VideoSummary) {
+    /// - Parameter startAt: continue from here (Home's preview); zero resumes as usual.
+    private func play(_ video: VideoSummary, startAt: Duration = .zero) {
         if environment.isQueued(video.id) { queuedIDs.insert(video.id) }
         router.watchPath = []
         router.watching = WatchContent(video: video)
         Task {
             do {
-                let page = try await environment.play(video, surfaceHeight: maxVideoPixels)
+                let page = try await environment.play(video, surfaceHeight: maxVideoPixels, startAt: startAt)
                 guard router.watching?.video.id == video.id else { return }
                 router.watching?.details = page.details
                 router.watching?.setChapters(page.manifest.chapters)

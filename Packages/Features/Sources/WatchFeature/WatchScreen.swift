@@ -80,12 +80,14 @@ public struct WatchScreen: View {
     private let actions: PlayerActions
     private let onSelectRelated: (VideoSummary) -> Void
     private let onOpenChannel: (ChannelID, String) -> Void
+    /// Closes a player that isn't presented (an open iPhone Duo's half); nil dismisses.
+    private let onClose: (() -> Void)?
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.displayScale) private var displayScale
     @Environment(\.dismiss) private var dismiss
     @State private var size = CGSize(width: 390, height: 844)
-    /// The active fold of a partly folded iPhone Duo; nil when flat or closed.
-    @State private var fold: CGRect?
+    /// The iPhone Duo's fold: bent into tabletop or book, the layout follows the crease.
+    @State private var fold = FoldState()
 
     /// - Parameters:
     ///   - comments: nil when no instance can load comments.
@@ -94,7 +96,9 @@ public struct WatchScreen: View {
     public init(session: PlaybackSession, content: WatchContent, comments: (() -> CommentsModel)? = nil,
                 showsRelated: Bool = true, actions: PlayerActions = .none,
                 onSelectRelated: @escaping (VideoSummary) -> Void,
-                onOpenChannel: @escaping (ChannelID, String) -> Void) {
+                onOpenChannel: @escaping (ChannelID, String) -> Void,
+                onClose: (() -> Void)? = nil) {
+        self.onClose = onClose
         self.session = session
         self.content = content
         self.makeComments = comments
@@ -106,11 +110,14 @@ public struct WatchScreen: View {
 
     public var body: some View {
         layout
-            .background { AmbientBackdrop(content.video.thumbnails.best(forPixelWidth: 64)?.url) }
+            .background {
+                LiveBackdrop(session: session, storyboard: content.storyboard,
+                             thumbnail: content.video.thumbnails.best(forPixelWidth: 64)?.url)
+            }
             .overlay(alignment: .topLeading) {
                 // Swipe down also closes; this is the visible, VoiceOver-reachable way.
-                Button { dismiss() } label: {
-                    Image(systemName: "chevron.down")
+                Button { if let onClose { onClose() } else { dismiss() } } label: {
+                    Image(systemName: onClose == nil ? "chevron.down" : "xmark")
                         .font(.body.weight(.semibold))
                         .frame(width: 44, height: 44)
                 }
@@ -121,20 +128,35 @@ public struct WatchScreen: View {
                 .padding(Tokens.Spacing.s)
             }
             .onGeometryChange(for: CGSize.self) { $0.size } action: { size = $0 }
-            .onFoldChange { fold = $0.active }
+            .onFoldChange { fold = $0 }
             .task(id: content.video.id) { comments = makeComments?() }
     }
 
     @ViewBuilder
     private var layout: some View {
+        if let crease = fold.active {
+            // A partly folded iPhone Duo. Tabletop (the crease across): the video alone above,
+            // and a control deck on the half resting on the table, so nothing needs a tap on
+            // the picture. Book (the crease down the middle): video beside the details.
+            let tabletop = crease.width > crease.height
+            if fold.isSimulated {
+                simulatedFold(crease, tabletop: tabletop)    // UI tests: no fold hardware.
+            } else {
+                arranged(tabletop: tabletop)
+            }
+        } else {
+            sizedLayout
+        }
+    }
+
+    @ViewBuilder
+    private func arranged(tabletop: Bool) -> some View {
         #if compiler(>=6.4)
-        if #available(iOS 27.1, *), fold != nil {
-            // A partly folded iPhone Duo: the system splits at the fold, top and bottom on a
-            // table (video above, controls on the stable half) or side by side like a book.
+        if #available(iOS 27.1, *) {
             ArrangementView {
-                player.frame(maxHeight: .infinity)
+                if tabletop { cleanPlayer } else { player.frame(maxHeight: .infinity) }
             } secondary: {
-                WatchTabs(content: content, comments: comments, session: session) { details(showsChapters: false) }
+                if tabletop { deck } else { tabs }
             }
             .arrangementViewStyle(.split)
         } else {
@@ -143,6 +165,41 @@ public struct WatchScreen: View {
         #else
         sizedLayout     // Built with an SDK before iOS 27: no fold arrangement.
         #endif
+    }
+
+    /// The same halves, split at the simulated crease.
+    @ViewBuilder
+    private func simulatedFold(_ crease: CGRect, tabletop: Bool) -> some View {
+        if tabletop {
+            VStack(spacing: 0) {
+                cleanPlayer.frame(height: crease.minY)
+                Color.black.frame(height: crease.height)
+                deck
+            }
+        } else {
+            HStack(spacing: 0) {
+                player.frame(width: crease.minX).frame(maxHeight: .infinity).background(.black)
+                Color.black.frame(width: crease.width)
+                tabs
+            }
+        }
+    }
+
+    private var tabs: some View {
+        WatchTabs(content: content, comments: comments, session: session) { details(showsChapters: false) }
+    }
+
+    /// Tabletop's upper half: the picture only; the controls are on the deck below.
+    private var cleanPlayer: some View {
+        PlayerArea(session: session, actions: actions, captionsAvailable: !actions.captions.isEmpty,
+                   toggleCaptions: actions.toggleCaptions, storyboard: content.storyboard, chapters: content.chapters,
+                   showsControls: false)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(.black)
+    }
+
+    private var deck: some View {
+        TabletopDeck(session: session, content: content, actions: actions)
     }
 
     @ViewBuilder
@@ -267,6 +324,8 @@ private struct PlayerArea: View {
     let toggleCaptions: () -> Void
     let storyboard: Storyboard?
     let chapters: [ChapterRow]
+    /// False on a Duo's tabletop: the deck below has the controls, the picture stays clean.
+    var showsControls = true
     @State private var controlsVisible = true
     @State private var hideTask: Task<Void, Never>?
     @State private var size = CGSize(width: 16, height: 9)
@@ -293,7 +352,7 @@ private struct PlayerArea: View {
             SubtitleView(session.subtitle, baseSize: size.height < 320 ? 13 : 17)
                 .frame(maxHeight: .infinity, alignment: .bottom)
                 .padding(.horizontal, Tokens.Spacing.xl)
-                .padding(.bottom, controlsVisible ? 56 : Tokens.Spacing.m)
+                .padding(.bottom, controlsVisible && showsControls ? 56 : Tokens.Spacing.m)
                 .animation(Tokens.Motion.standard, value: controlsVisible)
             if let jump {
                 Label { Text(jump.forward ? "Forward 10 seconds" : "Back 10 seconds") } icon: {
@@ -318,7 +377,7 @@ private struct PlayerArea: View {
                     .frame(maxHeight: .infinity, alignment: .top)
                     .padding(.top, Tokens.Spacing.m)
             }
-            if controlsVisible {
+            if controlsVisible, showsControls {
                 PlayerControlCluster(isPlaying: session.state == .playing,
                                      captionsAvailable: captionsAvailable) { action in
                     handle(action)
@@ -359,9 +418,9 @@ private struct PlayerArea: View {
                 .equatable()
                 .simultaneousGesture(TapGesture().onEnded { show(lingering: true) })
                 .padding(Tokens.Spacing.m)
-                .opacity(controlsVisible ? 1 : 0)
-                .allowsHitTesting(controlsVisible)
-                .accessibilityHidden(!controlsVisible)
+                .opacity(controlsVisible && showsControls ? 1 : 0)
+                .allowsHitTesting(controlsVisible && showsControls)
+                .accessibilityHidden(!controlsVisible || !showsControls)
                 .animation(Tokens.Motion.standard, value: controlsVisible)
         }
         .onChange(of: holding) { _, isHolding in
@@ -477,7 +536,7 @@ private struct DescriptionView: View {
 
 /// Autoplay's card over the player when a video ends: what's next, the countdown, Cancel and
 /// Play Now.
-private struct UpNextCard: View {
+struct UpNextCard: View {
     let upNext: UpNextCountdown
     let cancel: () -> Void
     let playNow: () -> Void

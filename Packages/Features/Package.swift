@@ -23,7 +23,9 @@ let package = Package(
         .package(path: "../DesignSystem")
     ],
     targets: [
-        .target(name: "FeedFeature", dependencies: ["Core", "Library", "DesignSystem"],
+        .target(name: "FeedFeature",
+                dependencies: ["Core", "Library", "DesignSystem", .product(name: "Playback", package: "Playback"),
+                               .product(name: "PlaybackUI", package: "Playback")],
                 swiftSettings: featureSettings),
         .target(name: "InstancesFeature", dependencies: ["Core", "Library", "DesignSystem"],
                 swiftSettings: featureSettings),

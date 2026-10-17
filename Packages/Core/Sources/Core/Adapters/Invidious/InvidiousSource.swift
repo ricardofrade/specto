@@ -67,6 +67,8 @@ public struct InvidiousSource: VideoSource {
         return ChannelPage(id: id, name: channel?.author ?? "",
                            avatar: channel?.authorThumbnails?.map { $0.thumbnail(instance: instance.apiURL) }
                                .max { $0.width < $1.width },
+                           banner: channel?.authorBanners?.map { $0.thumbnail(instance: instance.apiURL) }
+                               .max { $0.width < $1.width },
                            videos: Page(items: (videos.videos ?? []).compactMap(\.videoSummary),
                                         nextCursor: videos.continuation))
     }

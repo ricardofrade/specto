@@ -90,6 +90,13 @@ struct PlaybackPlannerTests {
         #expect(muxed.source == .progressive(url))
     }
 
+    @Test func onlyAMuxedFilePlaysThatFile() throws {
+        // An instance that gives one muxed MP4 and no audio-only streams (seen live for some videos).
+        let request = try planner.request(for: page(video: [], audio: [], muxed: url), mode: .video,
+                                          maxDisplayHeight: 1080, throughputBitsPerSecond: nil, allowHDR: false)
+        #expect(request.source == .progressive(url))
+    }
+
     @Test func nothingPlayableIsAnError() {
         #expect(throws: PlaybackError.self) {
             try planner.request(for: page(), mode: .video, maxDisplayHeight: 1080,

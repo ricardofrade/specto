@@ -166,12 +166,15 @@ public struct ChannelPage: Sendable {
     public let id: ChannelID
     public let name: String
     public let avatar: Thumbnail?
+    /// The channel's wide header art, through the instance's proxy (ADR 0015); nil without one.
+    public let banner: Thumbnail?
     public let videos: Page<VideoSummary>
 
-    public init(id: ChannelID, name: String, avatar: Thumbnail?, videos: Page<VideoSummary>) {
+    public init(id: ChannelID, name: String, avatar: Thumbnail?, banner: Thumbnail? = nil, videos: Page<VideoSummary>) {
         self.id = id
         self.name = name
         self.avatar = avatar
+        self.banner = banner
         self.videos = videos
     }
 }

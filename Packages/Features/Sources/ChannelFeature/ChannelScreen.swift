@@ -8,6 +8,8 @@ public final class ChannelModel {
     public let channelID: ChannelID
     public private(set) var name: String
     public private(set) var avatarURL: URL?
+    /// The channel's header art, when it has one.
+    public private(set) var bannerURL: URL?
     public private(set) var rows: [FeedRow] = []
     public private(set) var isSubscribed: Bool
     public private(set) var isLoading = false
@@ -59,6 +61,7 @@ public final class ChannelModel {
             loadedFirstPage = true
             if !page.name.isEmpty { name = page.name }
             avatarURL = page.avatar?.url
+            bannerURL = page.banner?.url ?? bannerURL
             rows = Self.format(page.videos.items)
             cursor = page.videos.nextCursor
             error = nil
@@ -255,12 +258,35 @@ private struct ChannelContent: View {
         .task { await model.loadFirstPage() }
     }
 
+    /// Like an artist page in Music: the channel's banner (or its avatar, blurred) fading into
+    /// the page, the avatar overlapping its edge, then the name and Subscribe.
     private var header: some View {
         VStack(spacing: Tokens.Spacing.m) {
-            RemoteImage(model.avatarURL, pointSize: CGSize(width: 88, height: 88))
-                .frame(width: 88, height: 88)
-                .clipShape(.circle)
-                .accessibilityHidden(true)
+            ZStack(alignment: .bottom) {
+                // In an overlay: the art fills the width without widening the page.
+                Color.clear
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 150)
+                    .overlay {
+                        if let banner = model.bannerURL {
+                            RemoteImage(banner, pointSize: CGSize(width: 840, height: 140))
+                        } else {
+                            RemoteImage(model.avatarURL, pointSize: CGSize(width: 88, height: 88))
+                                .blur(radius: 40)
+                                .opacity(0.55)
+                        }
+                    }
+                    .clipped()
+                .mask(LinearGradient(stops: [.init(color: .black, location: 0.55), .init(color: .clear, location: 1)],
+                                     startPoint: .top, endPoint: .bottom))
+                .padding(.bottom, 44)
+                RemoteImage(model.avatarURL, pointSize: CGSize(width: 96, height: 96))
+                    .frame(width: 96, height: 96)
+                    .clipShape(.circle)
+                    .overlay { Circle().strokeBorder(Tokens.Colors.background, lineWidth: 4) }
+                    .shadow(color: .black.opacity(0.2), radius: 10, y: 4)
+            }
+            .accessibilityHidden(true)
             Text(model.name).font(.title2.weight(.semibold)).multilineTextAlignment(.center)
             Button { Task { await model.toggleSubscription() } } label: {
                 Text(model.isSubscribed ? "Subscribed" : "Subscribe")
@@ -271,7 +297,7 @@ private struct ChannelContent: View {
             .accessibilityIdentifier("channel.subscribe")
             .sensoryFeedback(.success, trigger: model.isSubscribed)
         }
-        .padding(Tokens.Spacing.xl)
+        .padding(.bottom, Tokens.Spacing.xl)
     }
 
     /// Mirrors `.adaptive(minimum: 300)`: as many 300-pt columns as fit, sharing the width.
