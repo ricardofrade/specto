@@ -335,6 +335,16 @@
         }
       }
     },
+    "Channels you subscribe to show up here.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Os canais que subscreve aparecem aqui."
+          }
+        }
+      }
+    },
     "Chapters": {
       "localizations": {
         "pt-PT": {
@@ -940,6 +950,16 @@
         }
       }
     },
+    "No channels": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sem canais"
+          }
+        }
+      }
+    },
     "No channels found in that file.": {
       "localizations": {
         "pt-PT": {
@@ -1490,6 +1510,16 @@
         }
       }
     },
+    "Search channels": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Pesquisar canais"
+          }
+        }
+      }
+    },
     "Search failed": {
       "localizations": {
         "pt-PT": {
@@ -1876,6 +1906,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Hoje"
+          }
+        }
+      }
+    },
+    "Unsubscribe": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Cancelar subscrição"
           }
         }
       }

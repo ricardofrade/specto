@@ -18,6 +18,8 @@ final class SceneRouter {
     /// Typed routes, pushed onto whichever stack is visible.
     enum Route: Hashable {
         case channel(ChannelID, name: String)
+        /// Every subscription (Library → Channels).
+        case channels
     }
 
     /// Routes inside Settings.

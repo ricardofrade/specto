@@ -10,14 +10,19 @@ public final class LibraryModel {
     public private(set) var continueWatching: [FeedRow]
     public private(set) var queue: [FeedRow]
     public private(set) var history: [FeedRow]
+    /// How many channels the person subscribes to, for the Channels row.
+    public private(set) var channelCount: Int
 
     @ObservationIgnored private let watchState: WatchStateStore
     @ObservationIgnored private let queueStore: QueueStore
+    @ObservationIgnored private let subscriptions: SubscriptionStore?
     @ObservationIgnored private var observations: [Task<Void, Never>] = []
 
-    public init(watchState: WatchStateStore, queue: QueueStore) {
+    public init(watchState: WatchStateStore, queue: QueueStore, subscriptions: SubscriptionStore? = nil) {
         self.watchState = watchState
         self.queueStore = queue
+        self.subscriptions = subscriptions
+        channelCount = (try? subscriptions?.channels().count) ?? 0
         continueWatching = (try? watchState.inProgress()) ?? []
         self.queue = (try? queue.rows()) ?? []
         history = (try? watchState.history()) ?? []
@@ -32,9 +37,14 @@ public final class LibraryModel {
             Task { [weak self] in do { for try await rows in queued { self?.queue = rows } } catch {} },
             Task { [weak self] in do { for try await rows in watched { self?.history = rows } } catch {} },
         ]
+        if let channels = subscriptions?.observe() {
+            observations.append(Task { [weak self] in
+                do { for try await list in channels { self?.channelCount = list.count } } catch {}
+            })
+        }
     }
 
-    public var isEmpty: Bool { continueWatching.isEmpty && queue.isEmpty && history.isEmpty }
+    public var isEmpty: Bool { continueWatching.isEmpty && queue.isEmpty && history.isEmpty && channelCount == 0 }
 
     public func removeFromHistory(_ id: VideoID) {
         try? watchState.removeFromHistory(id)

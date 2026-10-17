@@ -10,14 +10,17 @@ public struct LibraryScreen: View {
     private let model: LibraryModel
     private let onSelect: (FeedRow) -> Void
     private let onOpenChannel: (ChannelID, String) -> Void
+    private let onOpenChannels: () -> Void
     @State private var confirmingClear = false
     @Environment(\.displayScale) private var displayScale
 
     public init(model: LibraryModel, onSelect: @escaping (FeedRow) -> Void,
-                onOpenChannel: @escaping (ChannelID, String) -> Void = { _, _ in }) {
+                onOpenChannel: @escaping (ChannelID, String) -> Void = { _, _ in },
+                onOpenChannels: @escaping () -> Void = {}) {
         self.model = model
         self.onSelect = onSelect
         self.onOpenChannel = onOpenChannel
+        self.onOpenChannels = onOpenChannels
     }
 
     public var body: some View {
@@ -43,6 +46,24 @@ public struct LibraryScreen: View {
 
     private var list: some View {
         List {
+            if model.channelCount > 0 {
+                Section {
+                    Button(action: onOpenChannels) {
+                        LabeledContent {
+                            HStack(spacing: Tokens.Spacing.xs) {
+                                Text(model.channelCount, format: .number)
+                                Image(systemName: "chevron.forward").font(.footnote.weight(.semibold))
+                                    .foregroundStyle(.tertiary)
+                            }
+                        } label: {
+                            Label { Text("Channels") } icon: { Image(systemName: "person.2") }
+                        }
+                        .contentShape(.rect)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("library.channels")
+                }
+            }
             if !model.continueWatching.isEmpty {
                 Section {
                     ScrollView(.horizontal) {

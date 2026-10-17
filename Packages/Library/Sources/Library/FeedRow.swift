@@ -60,7 +60,7 @@ public struct RowFormatter: Sendable {
                        progress: progress, video: video, channelInitial: Self.initial(video.channelName))
     }
 
-    static func initial(_ name: String) -> String {
+    public static func initial(_ name: String) -> String {
         name.first.map { String($0).uppercased() } ?? "•"
     }
 

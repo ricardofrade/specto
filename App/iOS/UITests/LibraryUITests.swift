@@ -3,6 +3,41 @@ import XCTest
 /// Library against a real instance: a watched video shows in Continue Watching and History, and
 /// swiping it out of History removes it.
 final class LibraryUITests: XCTestCase {
+    /// Offline (the demo feed's one channel): Library → Channels, search, swipe to unsubscribe.
+    @MainActor
+    func testChannelsSearchAndUnsubscribe() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-UITestFreshStart", "-SeedDemoFeed", "5"]
+        app.launch()
+        app.buttons["Library"].firstMatch.tap()
+        let channelsRow = app.buttons["library.channels"]
+        XCTAssertTrue(channelsRow.waitForExistence(timeout: 10), "No Channels row")
+        channelsRow.tap()
+        let row = app.buttons["channels.row"].firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5), "No channel rows")
+        XCTAssertEqual(row.label, "Demo")
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = "channels"
+        shot.lifetime = .keepAlways
+        add(shot)
+
+        let search = app.searchFields.firstMatch
+        if !search.exists { app.swipeDown() }
+        XCTAssertTrue(search.waitForExistence(timeout: 5), "No search field")
+        search.tap()
+        search.typeText("zzz")
+        XCTAssertTrue(app.staticTexts["No Results for “zzz”"].waitForExistence(timeout: 5)
+                      || !app.buttons["channels.row"].exists, "Search didn't filter")
+        search.buttons.firstMatch.tap()   // Clear: every channel again.
+
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.swipeLeft()
+        let unsubscribe = app.buttons["Unsubscribe"].firstMatch
+        XCTAssertTrue(unsubscribe.waitForExistence(timeout: 5), "No Unsubscribe action")
+        unsubscribe.tap()
+        XCTAssertTrue(app.staticTexts["No channels"].waitForExistence(timeout: 5), "Still subscribed")
+    }
+
     @MainActor
     func testWatchedVideoAppearsAndCanBeRemoved() throws {
         guard let piped = ProcessInfo.processInfo.environment["PIPED_URL"] else {
@@ -13,7 +48,9 @@ final class LibraryUITests: XCTestCase {
                                "-SeedSubscriptions", "UCSMOQeBJ2RAnuFungnQOxLg"]
         app.launch()
         app.buttons["Library"].firstMatch.tap()
-        XCTAssertTrue(app.staticTexts["Nothing here yet"].waitForExistence(timeout: 10))
+        // Only the subscription so far: the Channels row, nothing watched.
+        XCTAssertTrue(app.buttons["library.channels"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.staticTexts["Continue Watching"].exists)
 
         app.buttons["Home"].firstMatch.tap()
         let feed = app.scrollViews["feed.list"]

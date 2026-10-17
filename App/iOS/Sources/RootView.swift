@@ -38,7 +38,8 @@ struct RootView: View {
             try await environment.refreshFeed(force: force)
         })
         _library = State(initialValue: LibraryModel(watchState: WatchStateStore(environment.database),
-                                                    queue: QueueStore(environment.database)))
+                                                    queue: QueueStore(environment.database),
+                                                    subscriptions: SubscriptionStore(environment.database)))
         _search = State(initialValue: SearchModel { query, cursor in
             try await environment.search(query, cursor: cursor)
         })
@@ -65,7 +66,8 @@ struct RootView: View {
             Tab(value: SceneRouter.Section.library) {
                 NavigationStack(path: $router.libraryPath) {
                     LibraryScreen(model: library, onSelect: { play($0.video) },
-                                  onOpenChannel: { router.openChannel($0, name: $1) })
+                                  onOpenChannel: { router.openChannel($0, name: $1) },
+                                  onOpenChannels: { router.libraryPath.append(.channels) })
                         .routes()
                 }
             } label: {
@@ -180,7 +182,13 @@ struct RootView: View {
         .environment(\.routeDestination, RouteDestination { route in
             switch route {
             case .channel(let id, let name):
-                ChannelScreen(model: channelModel(id, name: name)) { play($0) }
+                .channel(ChannelScreen(model: channelModel(id, name: name)) { play($0) })
+            case .channels:
+                .channels(ChannelsScreen(model: ChannelsModel(subscriptions: SubscriptionStore(environment.database)),
+                                         onOpen: { router.openChannel($0.id, name: $0.name) },
+                                         onUnsubscribe: { channel in
+                                             Task { try? await environment.setSubscribed(channel, false) }
+                                         }))
             }
         })
     }
@@ -269,10 +277,23 @@ struct RootView: View {
 
 /// Builds the screen for a route; set once at the root so every stack resolves routes alike.
 struct RouteDestination {
-    let build: @MainActor (SceneRouter.Route) -> ChannelScreen
+    let build: @MainActor (SceneRouter.Route) -> RouteView
 
-    init(_ build: @escaping @MainActor (SceneRouter.Route) -> ChannelScreen) {
+    init(_ build: @escaping @MainActor (SceneRouter.Route) -> RouteView) {
         self.build = build
+    }
+}
+
+/// A pushed screen; an enum rather than `AnyView`, so SwiftUI keeps each screen's identity.
+enum RouteView: View {
+    case channel(ChannelScreen)
+    case channels(ChannelsScreen)
+
+    var body: some View {
+        switch self {
+        case .channel(let screen): screen
+        case .channels(let screen): screen
+        }
     }
 }
 

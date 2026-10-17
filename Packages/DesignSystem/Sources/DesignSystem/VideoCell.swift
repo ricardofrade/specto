@@ -65,7 +65,7 @@ public struct VideoCell: View, Equatable {
                 thumbnail
                 HStack(alignment: .top, spacing: Tokens.Spacing.m) {
                     if let avatar = content.avatar, !typeSize.isAccessibilitySize {
-                        AvatarView(avatar: avatar)
+                        AvatarView(avatar)
                     }
                     text(titleLines: 2)
                 }
@@ -165,19 +165,25 @@ private struct ProgressBar: View {
 }
 
 /// A channel's round avatar, or its first letter while there's no image.
-struct AvatarView: View {
+public struct AvatarView: View {
     let avatar: VideoCellContent.Avatar
-    static let size: CGFloat = 32
+    let size: CGFloat
 
-    var body: some View {
+    public init(_ avatar: VideoCellContent.Avatar, size: CGFloat = 32) {
+        self.avatar = avatar
+        self.size = size
+    }
+
+    public var body: some View {
         ZStack {
             Circle().fill(Tokens.Colors.accent.opacity(0.2))
-            Text(verbatim: avatar.initial).font(.subheadline.weight(.bold)).foregroundStyle(Tokens.Colors.accent)
+            Text(verbatim: avatar.initial).font(size > 40 ? .title3.weight(.bold) : .subheadline.weight(.bold))
+                .foregroundStyle(Tokens.Colors.accent)
             if let url = avatar.url {
-                RemoteImage(url, pointSize: CGSize(width: Self.size, height: Self.size)).clipShape(.circle)
+                RemoteImage(url, pointSize: CGSize(width: size, height: size)).clipShape(.circle)
             }
         }
-        .frame(width: Self.size, height: Self.size)
+        .frame(width: size, height: size)
         .accessibilityHidden(true)
     }
 }
