@@ -238,6 +238,8 @@ private struct PlayerArea: View {
     @State private var jump: (forward: Bool, id: Int)?
     @GestureState private var holding = false
     @State private var rateBeforeHold: Float?
+    /// Keyboard focus, so ←/→ on a hardware keyboard jump 10 seconds.
+    @FocusState private var keyboardFocus: Bool
 
     var body: some View {
         ZStack {
@@ -297,6 +299,12 @@ private struct PlayerArea: View {
         .clipped()
         .background(.black)
         .contentShape(.rect)
+        .focusable()
+        .focusEffectDisabled()
+        .focused($keyboardFocus)
+        .onKeyPress(.leftArrow) { skip(forward: false); return .handled }
+        .onKeyPress(.rightArrow) { skip(forward: true); return .handled }
+        .onAppear { keyboardFocus = true }
         .onGeometryChange(for: CGSize.self) { $0.size } action: { size = $0 }
         .gesture(SpatialTapGesture(count: 2)
             .onEnded { value in skip(forward: value.location.x > size.width / 2) }

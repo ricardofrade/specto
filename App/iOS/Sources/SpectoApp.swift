@@ -19,6 +19,7 @@ struct SpectoApp: App {
                 }
             }
         }
+        .commands { PlaybackCommands() }
     }
 }
 

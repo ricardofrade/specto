@@ -16,6 +16,7 @@ struct ShortcutActionsTests {
         #expect(!ShortcutActions.continueWatching(environment))
         try FeedStore(environment.database).save([video("a"), video("b")])
         try WatchStateStore(environment.database).save(.seconds(60), duration: .seconds(600), for: VideoID(rawValue: "a"))
+        Thread.sleep(forTimeInterval: 0.05)     // "Most recent" needs distinct save times.
         try WatchStateStore(environment.database).save(.seconds(90), duration: .seconds(600), for: VideoID(rawValue: "b"))
         #expect(ShortcutActions.continueWatching(environment))
         #expect(environment.pendingVideo?.id.rawValue == "b")

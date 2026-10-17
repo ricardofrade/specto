@@ -124,6 +124,14 @@ struct RootView: View {
             default: break
             }
         }
+        // The Playback menu and keyboard shortcuts act on the player only while it's open.
+        .focusedSceneValue(\.player, router.watching == nil ? nil : PlayerCommandsTarget(
+            session: environment.session,
+            toggleCaptions: { environment.toggleCaptions() },
+            toggleAudioOnly: {
+                let mode: PlaybackMode = environment.session.mode == .audioOnly ? .video : .audioOnly
+                Task { await environment.switchMode(to: mode) }
+            }))
         .onOpenURL { environment.open($0) }
         .userActivity(AppEnvironment.watchActivityType, isActive: environment.session.item != nil) { activity in
             environment.describeWatching(activity)

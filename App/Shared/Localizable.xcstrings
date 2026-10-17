@@ -165,6 +165,16 @@
         }
       }
     },
+    "Audio Only": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Só áudio"
+          }
+        }
+      }
+    },
     "Audio of queued videos is saved for listening without a connection, such as in the car. Watched items are removed first.": {
       "localizations": {
         "pt-PT": {
@@ -191,6 +201,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "URL do áudio (opcional)"
+          }
+        }
+      }
+    },
+    "Back 10 Seconds": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Recuar 10 segundos"
           }
         }
       }
@@ -606,12 +626,32 @@
         }
       }
     },
+    "Faster": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mais rápido"
+          }
+        }
+      }
+    },
     "Feed": {
       "localizations": {
         "pt-PT": {
           "stringUnit": {
             "state": "needs_review",
             "value": "Feed"
+          }
+        }
+      }
+    },
+    "Forward 10 Seconds": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Avançar 10 segundos"
           }
         }
       }
@@ -1190,6 +1230,26 @@
         }
       }
     },
+    "Play/Pause": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Reproduzir/pausa"
+          }
+        }
+      }
+    },
+    "Playback": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Reprodução"
+          }
+        }
+      }
+    },
     "Playback Speed": {
       "localizations": {
         "pt-PT": {
@@ -1446,6 +1506,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Saltado: %@ · ◀︎ para ver"
+          }
+        }
+      }
+    },
+    "Slower": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mais lento"
           }
         }
       }
