@@ -35,6 +35,7 @@
   "Best available": "Beste verfügbare",
   "Bring your own server": "Dein eigener Server",
   "Buffered": "Gepuffert",
+  "Build your Home": "Gestalte deine Startseite",
   "Can't play this video": "Dieses Video kann nicht wiedergegeben werden",
   "Cancel": "Abbrechen",
   "Captions": "Untertitel",
@@ -101,6 +102,7 @@
   "Import Subscriptions…": "Abos importieren …",
   "Import subscriptions on your iPhone or iPad. They sync to Apple TV through iCloud or YT Zero.": "Importiere Abos auf deinem iPhone oder iPad. Sie werden über iCloud oder YT Zero mit dem Apple TV synchronisiert.",
   "Import your subscriptions from YouTube, NewPipe, FreeTube or Piped.": "Importiere deine Abos von YouTube, NewPipe, FreeTube oder Piped.",
+  "Import your subscriptions, or subscribe to channels you find below. Their new videos show up here.": "Importiere deine Abos oder abonniere Kanäle, die du unten findest. Ihre neuen Videos erscheinen hier.",
   "Imported %lld channels.": {
     "one": "%lld Kanal importiert.",
     "other": "%lld Kanäle importiert."
@@ -217,6 +219,7 @@
   "Storage limit": "Speicherlimit",
   "Streams": "Streams",
   "Subscribe": "Abonnieren",
+  "Subscribe to channels on your iPhone or iPad, or here from a channel's page. Their new videos show up on Home.": "Abonniere Kanäle auf deinem iPhone oder iPad oder hier auf der Seite eines Kanals. Ihre neuen Videos erscheinen auf der Startseite.",
   "Subscribed": "Abonniert",
   "Subscriptions": "Abos",
   "Subtitles": "Untertitel",
@@ -239,6 +242,7 @@
   "This video isn't available.": "Dieses Video ist nicht verfügbar.",
   "Throughput": "Durchsatz",
   "Today": "Heute",
+  "Trending": "Trends",
   "Unsubscribe": "Abo beenden",
   "Up Next": "Als Nächstes",
   "Up next": "Als Nächstes",

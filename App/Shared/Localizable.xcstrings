@@ -1215,6 +1215,40 @@
         }
       }
     },
+    "Build your Home": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Gestalte deine Startseite"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Crea tu Inicio"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Composez votre Accueil"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Monte seu Início"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Construa o seu Início"
+          }
+        }
+      }
+    },
     "Can't play this video": {
       "localizations": {
         "de": {
@@ -3467,6 +3501,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Importe as suas subscrições do YouTube, NewPipe, FreeTube ou Piped."
+          }
+        }
+      }
+    },
+    "Import your subscriptions, or subscribe to channels you find below. Their new videos show up here.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Importiere deine Abos oder abonniere Kanäle, die du unten findest. Ihre neuen Videos erscheinen hier."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Importa tus suscripciones o suscríbete a canales que encuentres abajo. Sus vídeos nuevos aparecerán aquí."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Importez vos abonnements ou abonnez-vous aux chaînes ci-dessous. Leurs nouvelles vidéos apparaîtront ici."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Importe suas inscrições ou se inscreva em canais que encontrar abaixo. Os vídeos novos deles aparecem aqui."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Importe as suas subscrições ou subscreva canais que encontrar abaixo. Os vídeos novos deles aparecem aqui."
           }
         }
       }
@@ -7403,6 +7471,40 @@
         }
       }
     },
+    "Subscribe to channels on your iPhone or iPad, or here from a channel's page. Their new videos show up on Home.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Abonniere Kanäle auf deinem iPhone oder iPad oder hier auf der Seite eines Kanals. Ihre neuen Videos erscheinen auf der Startseite."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Suscríbete a canales en tu iPhone o iPad, o aquí desde la página de un canal. Sus vídeos nuevos aparecerán en Inicio."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Abonnez-vous à des chaînes sur votre iPhone ou iPad, ou ici depuis la page d’une chaîne. Leurs nouvelles vidéos apparaîtront dans Accueil."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Inscreva-se em canais no iPhone ou iPad, ou aqui na página de um canal. Os vídeos novos deles aparecem no Início."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Subscreva canais no iPhone ou iPad, ou aqui na página de um canal. Os vídeos novos deles aparecem no Início."
+          }
+        }
+      }
+    },
     "Subscribed": {
       "localizations": {
         "de": {
@@ -8147,6 +8249,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Hoje"
+          }
+        }
+      }
+    },
+    "Trending": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Trends"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tendencias"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tendances"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Em alta"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Em destaque"
           }
         }
       }

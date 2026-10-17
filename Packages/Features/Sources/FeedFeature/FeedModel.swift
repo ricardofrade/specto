@@ -26,6 +26,9 @@ public final class FeedModel {
     /// Shorts get their own shelf and vertical player instead of mixing into the grid; empty
     /// when the person hides them.
     public private(set) var shorts: [FeedRow] = []
+    /// What's trending on the instance, for Home before there are any subscriptions.
+    public private(set) var trending: [FeedRow] = []
+    public private(set) var loadedTrending = false
     public private(set) var isRefreshing = false
     /// Shown above the list when a refresh fails; the cached rows stay visible.
     public private(set) var refreshError: String?
@@ -35,6 +38,7 @@ public final class FeedModel {
     @ObservationIgnored private let refresher: @Sendable (_ force: Bool) async throws -> Void
     @ObservationIgnored private var observation: Task<Void, Never>?
     @ObservationIgnored private var shortsObservation: Task<Void, Never>?
+    @ObservationIgnored private let loadTrending: (@Sendable () async throws -> [VideoSummary])?
     @ObservationIgnored private var shelfObservations: [Task<Void, Never>] = []
     @ObservationIgnored private let watchState: WatchStateStore?
     @ObservationIgnored private let queueStore: QueueStore?
@@ -50,7 +54,9 @@ public final class FeedModel {
     ///   - refresher: refreshes the cache; `force` false skips a recent refresh.
     public init(store: FeedStore, options: FeedStore.Options = .init(),
                 watchState: WatchStateStore? = nil, queue: QueueStore? = nil,
+                loadTrending: (@Sendable () async throws -> [VideoSummary])? = nil,
                 refresher: @escaping @Sendable (_ force: Bool) async throws -> Void) {
+        self.loadTrending = loadTrending
         self.store = store
         self.options = options
         self.watchState = watchState
@@ -93,6 +99,16 @@ public final class FeedModel {
             warmedManifests = true
             rows.prefix(3).forEach(onWarmManifest)
         }
+    }
+
+    /// Home without subscriptions: something to watch and channels to find. Once per launch;
+    /// nothing when the instances have no trending list.
+    public func loadTrendingIfNeeded() async {
+        guard !loadedTrending, let loadTrending else { return }
+        loadedTrending = true
+        guard let videos = try? await loadTrending() else { return }
+        let formatter = RowFormatter()
+        trending = videos.filter { !$0.isShort }.map { formatter.row($0, positionSeconds: nil, durationSeconds: nil) }
     }
 
     /// Settings changed (for example hiding Shorts): re-query the cache.

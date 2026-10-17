@@ -21,6 +21,24 @@ struct HomeView: View {
                         Text("Add your Piped, Invidious or YT Zero instance in Settings.")
                     }
                 }
+                // No subscriptions yet: what's trending, to find channels to follow.
+                if !environment.instances.isEmpty, !environment.hasSubscriptions, feed.featured == nil {
+                    VStack(alignment: .leading, spacing: TVMetrics.gridSpacing) {
+                        Text("Trending").font(.title3.weight(.semibold))
+                        Text("Subscribe to channels on your iPhone or iPad, or here from a channel's page. Their new videos show up on Home.")
+                            .font(.callout).foregroundStyle(Tokens.Colors.textSecondary)
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: TVMetrics.cardWidth), spacing: TVMetrics.gridSpacing,
+                                                     alignment: .top)],
+                                  spacing: TVMetrics.rowSpacing) {
+                            ForEach(feed.trending) { row in
+                                VideoCard(row: row, actions: actions)
+                            }
+                        }
+                    }
+                    .padding(.top, 140)
+                    .focusSection()
+                    .task { await feed.loadTrendingIfNeeded() }
+                }
                 if let featured = feed.featured {
                     Billboard(row: featured, actions: actions)
                 }

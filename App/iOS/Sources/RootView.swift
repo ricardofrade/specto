@@ -39,7 +39,8 @@ struct RootView: View {
         _feed = State(initialValue: FeedModel(store: FeedStore(environment.database),
                                               options: settings.feedOptions,
                                               watchState: WatchStateStore(environment.database),
-                                              queue: QueueStore(environment.database)) { force in
+                                              queue: QueueStore(environment.database),
+                                              loadTrending: { [environment] in try await environment.trending() }) { force in
             try await environment.refreshFeed(force: force)
         })
         _library = State(initialValue: LibraryModel(watchState: WatchStateStore(environment.database),

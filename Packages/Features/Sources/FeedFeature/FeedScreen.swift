@@ -172,6 +172,44 @@ public struct FeedScreen: View {
         return (available - (count - 1) * Tokens.Spacing.l) / count
     }
 
+    /// No subscriptions yet: how to bring them, then what's trending. Long-press a video to visit
+    /// its channel and subscribe.
+    private var explore: some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: Tokens.Spacing.section) {
+                VStack(alignment: .leading, spacing: Tokens.Spacing.s) {
+                    Text("Build your Home").font(Tokens.Typography.sectionTitle)
+                    Text("Import your subscriptions, or subscribe to channels you find below. Their new videos show up here.")
+                        .foregroundStyle(Tokens.Colors.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Button { onEmptyAction() } label: { Text("Import Subscriptions") }
+                        .buttonStyle(.glassProminent)
+                        .padding(.top, Tokens.Spacing.xs)
+                }
+                .padding(.horizontal, Tokens.Spacing.screenInset)
+                VStack(alignment: .leading, spacing: Tokens.Spacing.m) {
+                    Label { Text("Trending") } icon: { Image(systemName: "flame") }
+                        .font(Tokens.Typography.sectionTitle)
+                        .accessibilityAddTraits(.isHeader)
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Tokens.Spacing.l, alignment: .top),
+                                             count: columns),
+                              spacing: Tokens.Spacing.xl) {
+                        ForEach(model.trending) { row in
+                            VideoCell(VideoCellContent(row: row, pixelWidth: Int(thumbnailWidth * displayScale)),
+                                      thumbnailWidth: thumbnailWidth)
+                                .equatable()
+                                .modifier(RowInteractions(row: row, actions: rowActions, transition: transition))
+                                .accessibilityIdentifier("feed.trending")
+                        }
+                    }
+                }
+                .padding(.horizontal, Tokens.Spacing.screenInset)
+            }
+            .padding(.vertical, Tokens.Spacing.l)
+        }
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { contentWidth = $0 }
+    }
+
     @ViewBuilder
     private var emptyState: some View {
         switch emptyReason {
@@ -185,13 +223,18 @@ public struct FeedScreen: View {
                     .buttonStyle(.glassProminent)
             }
         case .noSubscriptions:
-            ContentUnavailableView {
-                Label { Text("No subscriptions") } icon: { Image(systemName: "person.2") }
-            } description: {
-                Text("Import your subscriptions from YouTube, NewPipe, FreeTube or Piped.")
-            } actions: {
-                Button { onEmptyAction() } label: { Text("Import Subscriptions") }
-                    .buttonStyle(.glassProminent)
+            if model.trending.isEmpty {
+                ContentUnavailableView {
+                    Label { Text("No subscriptions") } icon: { Image(systemName: "person.2") }
+                } description: {
+                    Text("Import your subscriptions from YouTube, NewPipe, FreeTube or Piped.")
+                } actions: {
+                    Button { onEmptyAction() } label: { Text("Import Subscriptions") }
+                        .buttonStyle(.glassProminent)
+                }
+                .task { await model.loadTrendingIfNeeded() }
+            } else {
+                explore
             }
         case nil:
             if model.isRefreshing {

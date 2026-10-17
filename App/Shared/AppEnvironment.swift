@@ -321,6 +321,13 @@ final class AppEnvironment {
         return page
     }
 
+    /// The instances' trending list for the person's region (Home before subscriptions).
+    func trending() async throws -> [VideoSummary] {
+        let router = self.router
+        let region = Locale.current.region?.identifier
+        return try await router.perform(.trending) { try await $0.trending(region: region) }
+    }
+
     /// Nil when no instance lists playlists (YT Zero alone): the channel shows no Playlists tab.
     var channelPlaylistsLoader: (@Sendable (ChannelID, String?) async throws -> Page<PlaylistSummary>)? {
         guard instances.contains(where: { $0.kind != .ytZero }) else { return nil }

@@ -35,6 +35,7 @@
   "Best available": "Melhor disponível",
   "Bring your own server": "Use seu próprio servidor",
   "Buffered": "Em buffer",
+  "Build your Home": "Monte seu Início",
   "Can't play this video": "Não é possível reproduzir este vídeo",
   "Cancel": "Cancelar",
   "Captions": "Legendas",
@@ -101,6 +102,7 @@
   "Import Subscriptions…": "Importar Inscrições…",
   "Import subscriptions on your iPhone or iPad. They sync to Apple TV through iCloud or YT Zero.": "Importe as inscrições no iPhone ou iPad. Elas são sincronizadas com a Apple TV pelo iCloud ou pelo YT Zero.",
   "Import your subscriptions from YouTube, NewPipe, FreeTube or Piped.": "Importe suas inscrições do YouTube, NewPipe, FreeTube ou Piped.",
+  "Import your subscriptions, or subscribe to channels you find below. Their new videos show up here.": "Importe suas inscrições ou se inscreva em canais que encontrar abaixo. Os vídeos novos deles aparecem aqui.",
   "Imported %lld channels.": {
     "one": "%lld canal importado.",
     "other": "%lld canais importados."
@@ -217,6 +219,7 @@
   "Storage limit": "Limite de armazenamento",
   "Streams": "Fluxos",
   "Subscribe": "Inscrever-se",
+  "Subscribe to channels on your iPhone or iPad, or here from a channel's page. Their new videos show up on Home.": "Inscreva-se em canais no iPhone ou iPad, ou aqui na página de um canal. Os vídeos novos deles aparecem no Início.",
   "Subscribed": "Inscrito",
   "Subscriptions": "Inscrições",
   "Subtitles": "Legendas",
@@ -239,6 +242,7 @@
   "This video isn't available.": "Este vídeo não está disponível.",
   "Throughput": "Taxa de transferência",
   "Today": "Hoje",
+  "Trending": "Em alta",
   "Unsubscribe": "Cancelar Inscrição",
   "Up Next": "A Seguir",
   "Up next": "A seguir",
