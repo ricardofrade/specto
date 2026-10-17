@@ -12,21 +12,31 @@ public final class ChannelModel {
     public private(set) var isSubscribed: Bool
     public private(set) var isLoading = false
     public private(set) var error: String?
+    /// The channel's playlists, loaded when the Playlists tab first shows.
+    public private(set) var playlists: [PlaylistRow] = []
+    public private(set) var loadedPlaylists = false
+    public var hasPlaylists: Bool { loadPlaylists != nil }
 
     @ObservationIgnored private let load: @Sendable (ChannelID, String?) async throws -> ChannelPage
+    @ObservationIgnored private let loadPlaylists: (@Sendable (ChannelID, String?) async throws -> Page<PlaylistSummary>)?
+    @ObservationIgnored private var playlistsCursor: String?
+    @ObservationIgnored private var loadingPlaylists = false
     @ObservationIgnored private let setSubscribed: @Sendable (ChannelSummary, Bool) async throws -> Void
     @ObservationIgnored private var cursor: String?
     @ObservationIgnored private var loadedFirstPage = false
 
     /// - Parameters:
     ///   - cached: videos already in the local database, shown before the network answers.
+    ///   - loadPlaylists: nil when no instance lists playlists (no Playlists tab).
     public init(channelID: ChannelID, name: String, cached: [VideoSummary], isSubscribed: Bool,
                 load: @escaping @Sendable (ChannelID, String?) async throws -> ChannelPage,
+                loadPlaylists: (@Sendable (ChannelID, String?) async throws -> Page<PlaylistSummary>)? = nil,
                 setSubscribed: @escaping @Sendable (ChannelSummary, Bool) async throws -> Void) {
         self.channelID = channelID
         self.name = name
         self.isSubscribed = isSubscribed
         self.load = load
+        self.loadPlaylists = loadPlaylists
         self.setSubscribed = setSubscribed
         rows = Self.format(cached)
     }
@@ -58,6 +68,26 @@ public final class ChannelModel {
         self.cursor = page.videos.nextCursor
     }
 
+    /// First call loads the first page; later calls (from the last cell) load the next.
+    public func loadPlaylistsIfNeeded(after id: PlaylistID? = nil) async {
+        guard let loadPlaylists, !loadingPlaylists else { return }
+        if loadedPlaylists { guard id == playlists.last?.id, playlistsCursor != nil else { return } }
+        loadingPlaylists = true
+        defer { loadingPlaylists = false }
+        guard let page = try? await loadPlaylists(channelID, loadedPlaylists ? playlistsCursor : nil) else {
+            loadedPlaylists = true
+            return
+        }
+        let known = Set(playlists.map(\.id))
+        // Channel playlists are the channel's own: fill in its name where the source leaves it out.
+        playlists += page.items.filter { !known.contains($0.id) }.map { item in
+            PlaylistRow(PlaylistSummary(id: item.id, title: item.title, channelName: item.channelName ?? name,
+                                        videoCount: item.videoCount, thumbnails: item.thumbnails))
+        }
+        playlistsCursor = page.nextCursor
+        loadedPlaylists = true
+    }
+
     public func toggleSubscription() async {
         let target = !isSubscribed
         isSubscribed = target        // Optimistic; reverted on failure.
@@ -80,18 +110,21 @@ public final class ChannelModel {
 public struct ChannelScreen: View {
     private let makeModel: () -> ChannelModel
     private let onSelect: (VideoSummary) -> Void
+    private let onOpenPlaylist: (PlaylistSummary) -> Void
     @State private var model: ChannelModel?
 
     /// The model is created once per screen, on first appearance, however often the parent
     /// re-renders.
-    public init(model: @escaping @autoclosure () -> ChannelModel, onSelect: @escaping (VideoSummary) -> Void) {
+    public init(model: @escaping @autoclosure () -> ChannelModel, onSelect: @escaping (VideoSummary) -> Void,
+                onOpenPlaylist: @escaping (PlaylistSummary) -> Void = { _ in }) {
         self.makeModel = model
         self.onSelect = onSelect
+        self.onOpenPlaylist = onOpenPlaylist
     }
 
     public var body: some View {
         if let model {
-            ChannelContent(model: model, onSelect: onSelect)
+            ChannelContent(model: model, onSelect: onSelect, onOpenPlaylist: onOpenPlaylist)
         } else {
             Color.clear.onAppear { model = makeModel() }
         }
@@ -99,10 +132,14 @@ public struct ChannelScreen: View {
 }
 
 private struct ChannelContent: View {
+    enum Tab: Hashable { case videos, playlists }
+
     let model: ChannelModel
     let onSelect: (VideoSummary) -> Void
+    let onOpenPlaylist: (PlaylistSummary) -> Void
     @Environment(\.displayScale) private var displayScale
     @State private var columnWidth: CGFloat = 340
+    @State private var tab = Tab.videos
 
     var body: some View {
         ScrollView {
@@ -110,21 +147,50 @@ private struct ChannelContent: View {
             if let error = model.error {
                 Text(error).foregroundStyle(Tokens.Colors.textSecondary).padding()
             }
+            if model.hasPlaylists {
+                Picker(selection: $tab) {
+                    Text("Videos").tag(Tab.videos)
+                    Text("Playlists").tag(Tab.playlists)
+                } label: { Text("Show") }
+                .pickerStyle(.segmented)
+                .frame(maxWidth: 360)
+                .padding(.horizontal, Tokens.Spacing.screenInset)
+                .padding(.bottom, Tokens.Spacing.l)
+                .accessibilityIdentifier("channel.tab")
+            }
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 300), spacing: Tokens.Spacing.l)],
                       spacing: Tokens.Spacing.xl) {
-                ForEach(model.rows) { row in
-                    Button { onSelect(row.video) } label: {
-                        VideoCell(VideoCellContent(row: row, pixelWidth: Int(columnWidth * displayScale)),
-                                  thumbnailWidth: columnWidth)
-                            .equatable()
+                switch tab {
+                case .videos:
+                    ForEach(model.rows) { row in
+                        Button { onSelect(row.video) } label: {
+                            VideoCell(VideoCellContent(row: row, pixelWidth: Int(columnWidth * displayScale)),
+                                      thumbnailWidth: columnWidth)
+                                .equatable()
+                        }
+                        .buttonStyle(.plain)
+                        .task { await model.loadMoreIfNeeded(after: row.id) }
                     }
-                    .buttonStyle(.plain)
-                    .task { await model.loadMoreIfNeeded(after: row.id) }
+                case .playlists:
+                    ForEach(model.playlists) { row in
+                        Button { onOpenPlaylist(row.playlist) } label: {
+                            VideoCell(VideoCellContent(playlist: row, pixelWidth: Int(columnWidth * displayScale)),
+                                      thumbnailWidth: columnWidth)
+                                .equatable()
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("channel.playlist")
+                        .task { await model.loadPlaylistsIfNeeded(after: row.id) }
+                    }
                 }
             }
             .padding(.horizontal, Tokens.Spacing.screenInset)
             .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width in
                 columnWidth = Self.columnWidth(for: width - 2 * Tokens.Spacing.screenInset)
+            }
+            .task(id: tab) { if tab == .playlists { await model.loadPlaylistsIfNeeded() } }
+            if tab == .playlists, model.loadedPlaylists, model.playlists.isEmpty {
+                Text("No playlists").foregroundStyle(Tokens.Colors.textSecondary).padding()
             }
             if model.isLoading { ProgressView().padding() }
         }
@@ -160,6 +226,12 @@ private struct ChannelContent: View {
 }
 
 extension VideoCellContent {
+    init(playlist row: PlaylistRow, pixelWidth: Int) {
+        self.init(title: row.playlist.title, channelName: row.playlist.channelName ?? "", detail: "",
+                  durationText: row.countText, thumbnailURL: row.playlist.thumbnails.best(forPixelWidth: pixelWidth)?.url,
+                  isLive: false, progress: nil, badgeSymbol: "list.bullet")
+    }
+
     init(row: FeedRow, pixelWidth: Int) {
         self.init(title: row.title, channelName: row.channelName, detail: row.detail, durationText: row.durationText,
                   thumbnailURL: row.thumbnails.best(forPixelWidth: pixelWidth)?.url, isLive: row.isLive,

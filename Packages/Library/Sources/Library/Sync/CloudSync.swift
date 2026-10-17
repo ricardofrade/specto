@@ -3,9 +3,10 @@ import Foundation
 import os
 import Core
 
-/// Instances, subscriptions and watch state through the user's CloudKit private database.
-/// While a YT Zero account owns the library (ADR 0002), only instances sync (ADR 0006). `CKSyncEngine` schedules the work; this actor
-/// feeds it pending rows from `SyncStore` and applies what it fetches.
+/// Instances, subscriptions, watch state and saved playlists through the user's CloudKit private
+/// database. While a YT Zero account owns the library (ADR 0002), only instances and saved
+/// playlists sync (ADR 0006). `CKSyncEngine` schedules the work; this actor feeds it pending rows
+/// from `SyncStore` and applies what it fetches.
 public actor CloudSync: CKSyncEngineDelegate {
     private let container: CKContainer
     private let store: SyncStore

@@ -153,6 +153,23 @@ public struct ChannelPage: Sendable {
     }
 }
 
+/// A playlist in a list (a channel's playlists, search results, saved playlists).
+public struct PlaylistSummary: Identifiable, Hashable, Sendable, Codable {
+    public let id: PlaylistID
+    public let title: String
+    public let channelName: String?
+    public let videoCount: Int?
+    public let thumbnails: [Thumbnail]
+
+    public init(id: PlaylistID, title: String, channelName: String?, videoCount: Int?, thumbnails: [Thumbnail]) {
+        self.id = id
+        self.title = title
+        self.channelName = channelName
+        self.videoCount = videoCount
+        self.thumbnails = thumbnails
+    }
+}
+
 public struct PlaylistPage: Sendable {
     public let id: PlaylistID
     public let title: String
@@ -438,6 +455,8 @@ public protocol VideoSource: Sendable {
     /// Top-level comments, or a comment's replies when `cursor` is its `repliesCursor`.
     func comments(for id: VideoID, cursor: String?) async throws -> Page<Comment>
     func playlist(_ id: PlaylistID, cursor: String?) async throws -> PlaylistPage
+    /// A channel's own playlists, newest first as the channel orders them.
+    func channelPlaylists(_ id: ChannelID, cursor: String?) async throws -> Page<PlaylistSummary>
     func healthCheck() async -> HealthSample
 }
 
@@ -462,6 +481,9 @@ public extension VideoSource {
         throw SourceError.unsupported(.comments)
     }
     func playlist(_ id: PlaylistID, cursor: String?) async throws -> PlaylistPage {
+        throw SourceError.unsupported(.playlists)
+    }
+    func channelPlaylists(_ id: ChannelID, cursor: String?) async throws -> Page<PlaylistSummary> {
         throw SourceError.unsupported(.playlists)
     }
 }

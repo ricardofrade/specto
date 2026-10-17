@@ -12,6 +12,8 @@ public struct VideoCellContent: Hashable, Sendable {
     public var progress: Double?
     /// Shown beside the title when set (Home); a monogram stands in for a missing image.
     public var avatar: Avatar?
+    /// An SF Symbol before the badge text: a playlist shows its video count with a list icon.
+    public var badgeSymbol: String?
 
     public struct Avatar: Hashable, Sendable {
         public let url: URL?
@@ -24,8 +26,9 @@ public struct VideoCellContent: Hashable, Sendable {
     }
 
     public init(title: String, channelName: String, detail: String, durationText: String?, thumbnailURL: URL?,
-                isLive: Bool, progress: Double?, avatar: Avatar? = nil) {
+                isLive: Bool, progress: Double?, avatar: Avatar? = nil, badgeSymbol: String? = nil) {
         self.avatar = avatar
+        self.badgeSymbol = badgeSymbol
         self.title = title
         self.channelName = channelName
         self.detail = detail
@@ -93,7 +96,7 @@ public struct VideoCell: View, Equatable {
                 if content.isLive {
                     Badge(text: String(localized: "LIVE"), tint: Tokens.Colors.liveBadge)
                 } else if let duration = content.durationText {
-                    Badge(text: duration, tint: .black.opacity(0.75))
+                    Badge(text: duration, symbol: content.badgeSymbol, tint: .black.opacity(0.75))
                 }
             }
             .overlay(alignment: .bottom) {
@@ -135,16 +138,20 @@ public struct VideoCell: View, Equatable {
 
 private struct Badge: View {
     let text: String
+    var symbol: String?
     let tint: Color
 
     var body: some View {
-        Text(text)
-            .font(Tokens.Typography.timecode)
-            .foregroundStyle(.white)
-            .padding(.horizontal, Tokens.Spacing.xs + Tokens.Spacing.xxs)
-            .padding(.vertical, Tokens.Spacing.xxs)
-            .background(tint, in: .rect(cornerRadius: Tokens.Spacing.xs))
-            .padding(Tokens.Spacing.s)
+        HStack(spacing: Tokens.Spacing.xxs) {
+            if let symbol { Image(systemName: symbol) }
+            Text(text)
+        }
+        .font(Tokens.Typography.timecode)
+        .foregroundStyle(.white)
+        .padding(.horizontal, Tokens.Spacing.xs + Tokens.Spacing.xxs)
+        .padding(.vertical, Tokens.Spacing.xxs)
+        .background(tint, in: .rect(cornerRadius: Tokens.Spacing.xs))
+        .padding(Tokens.Spacing.s)
     }
 }
 

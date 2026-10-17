@@ -55,6 +55,36 @@ enum PipedDTO {
         let avatarUrl: String?
         let relatedStreams: [ContentItem]?
         let nextpage: String?
+        /// Shorts, live, playlists…: each tab's `data` is the opaque request for `channels/tabs`.
+        let tabs: [Tab]?
+
+        struct Tab: Decodable {
+            let name: String
+            let data: String
+        }
+    }
+
+    /// `channels/tabs`: mixed items; only playlists are kept.
+    struct TabPage: Decodable {
+        let content: [TabItem]?
+        let nextpage: String?
+    }
+
+    struct TabItem: Decodable {
+        let type: String?
+        let url: String?
+        let name: String?
+        let thumbnail: String?
+        let uploaderName: String?
+        let videos: Int?
+
+        var playlistSummary: PlaylistSummary? {
+            guard type == "playlist", let url, let components = URLComponents(string: url),
+                  let list = components.queryItems?.first(where: { $0.name == "list" })?.value else { return nil }
+            return PlaylistSummary(id: PlaylistID(rawValue: list), title: name ?? "", channelName: uploaderName,
+                                   videoCount: videos.flatMap { $0 >= 0 ? $0 : nil },
+                                   thumbnails: thumbnail.flatMap(Thumbnail.unsized).map { [$0] } ?? [])
+        }
     }
 
     struct Playlist: Decodable {

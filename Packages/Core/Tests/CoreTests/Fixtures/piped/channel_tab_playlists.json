@@ -1,0 +1,38 @@
+{
+ "nextpage": "{\"url\":\"https://www.youtube.com/youtubei/v1/browse?prettyPrint=false\",\"id\":null,\"ids\":[\"Blender\",\"https://www.youtube.com/channel/UCSMOQeBJ2RAnuFungnQOxLg/playlists\",\"VERIFIED\"],\"cookies\":null,\"body\":\"eyJjb250ZXh0Ijp7ImNsaWVudCI6eyJobCI6ImVuLUdCIiwiZ2wiOiJHQiIsImNsaWVudE5hbWUiOiJXRUIiLCJjbGllbnRWZXJzaW9uIjoiMi4yMDI2MTAwNy4wMS4wMCIsIm9yaWdpbmFsVXJsIjoiaHR0cHM6Ly93d3cueW91dHViZS5jb20iLCJwbGF0Zm9ybSI6IkRFU0tUT1AiLCJ1dGNPZmZzZXRNaW51dGVzIjowfSwicmVxdWVzdCI6eyJpbnRlcm5hbEV4cGVyaW1lbnRGbGFncyI6W10sInVzZVNzbCI6dHJ1ZX0sInVzZXIiOnsibG9ja2VkU2FmZXR5TW9kZSI6ZmFsc2V9fSwiY29udGludWF0aW9uIjoiNHFtRnNnSjRFaGhWUTFOTlQxRmxRa295VWtGdWRVWjFibWR1VVU5NFRHY2FLa1ZuYkhkaVIwWTFZa2RzZW1SSVRWbEJlVUZCVFVGRk5FRmxiMFJDTUU1dVZHdFNVbUZzUlNVelJKb0NMMkp5YjNkelpTMW1aV1ZrVlVOVFRVOVJaVUpLTWxKQmJuVkdkVzVuYmxGUGVFeG5jR3hoZVd4cGMzUnpNVEEwIn0=\"}",
+ "content": [
+  {
+   "url": "/playlist?list=PLa1F2ddGya_-I9y1nXALrBqrZNdlUE012",
+   "type": "playlist",
+   "name": "Blender Conference 2026",
+   "thumbnail": "https://proxy.instance.example/vi/fQrxjh0jhZM/hqdefault.jpg?host=i.ytimg.com&rs=AOn4CLAfKpwzfoZLFDsWN5-DmdB9MTTPIA&sqp=-oaymwEXCOADEI4CSFryq4qpAwkIARUAAIhCGAE%3D",
+   "uploaderName": "Blender",
+   "uploaderUrl": "/channel/UCSMOQeBJ2RAnuFungnQOxLg/playlists",
+   "uploaderVerified": true,
+   "playlistType": "NORMAL",
+   "videos": 94
+  },
+  {
+   "url": "/playlist?list=PLa1F2ddGya_8u-HEvmfCVuS_OImW8HaLd",
+   "type": "playlist",
+   "name": "Blender Conference 2025",
+   "thumbnail": "https://proxy.instance.example/vi/JXm0-ilIknE/hqdefault.jpg?host=i.ytimg.com&rs=AOn4CLBAJvVCYx9dpHGXA9U1gCElG9COoQ&sqp=-oaymwExCOADEI4CSFryq4qpAyMIARUAAIhCGAHwAQH4Af4JgALQBYoCDAgAEAEYZSBdKFMwDw%3D%3D",
+   "uploaderName": "Blender",
+   "uploaderUrl": "/channel/UCSMOQeBJ2RAnuFungnQOxLg/playlists",
+   "uploaderVerified": true,
+   "playlistType": "NORMAL",
+   "videos": 84
+  },
+  {
+   "url": "/playlist?list=PLa1F2ddGya_-Ymw4YlOjqrdQxiRMJql5x",
+   "type": "playlist",
+   "name": "Blender Conference 2024",
+   "thumbnail": "https://proxy.instance.example/vi/VZ5022VaMmA/hqdefault.jpg?host=i.ytimg.com&rs=AOn4CLA6TsO494xGjXtJ7ckv63UIpPjRHw&sqp=-oaymwExCOADEI4CSFryq4qpAyMIARUAAIhCGAHwAQH4Af4JgALQBYoCDAgAEAEYZSBlKGUwDw%3D%3D",
+   "uploaderName": "Blender",
+   "uploaderUrl": "/channel/UCSMOQeBJ2RAnuFungnQOxLg/playlists",
+   "uploaderVerified": true,
+   "playlistType": "NORMAL",
+   "videos": 87
+  }
+ ]
+}

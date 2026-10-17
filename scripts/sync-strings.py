@@ -10,7 +10,7 @@ the main bundle by default, which is where the catalog lives.
   scripts/sync-strings.py --no-build merge what the last build emitted
 
 New keys are added; keys no longer in the code are marked stale; translations are kept.
-Translations in scripts/translations/<lang>.json are applied as "needs_review" unless a reviewed
+Translations in scripts/translations/<lang>.json (en.json: English plural forms) are applied as "needs_review" unless a reviewed
 translation already exists.
 """
 import json, os, subprocess, sys, glob

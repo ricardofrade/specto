@@ -89,7 +89,10 @@ struct VideoCard: View {
 
 /// What a card can do; the root supplies the behaviour.
 struct VideoActions {
-    let play: (VideoSummary) -> Void
+    var play: (VideoSummary) -> Void
     let openChannel: (ChannelID, String) -> Void
     let addToQueue: (VideoSummary) -> Void
+    let openPlaylist: (PlaylistSummary) -> Void
+    /// Plays `videos[start]`, then the rest in order.
+    let playPlaylist: (_ videos: [VideoSummary], _ start: Int) -> Void
 }

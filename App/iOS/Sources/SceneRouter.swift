@@ -20,6 +20,9 @@ final class SceneRouter {
         case channel(ChannelID, name: String)
         /// Every subscription (Library → Channels).
         case channels
+        case playlist(PlaylistSummary)
+        /// Saved playlists (Library → Playlists).
+        case savedPlaylists
     }
 
     /// Routes inside Settings.
@@ -27,12 +30,16 @@ final class SceneRouter {
         case instances
     }
 
-    var section = Section.feed
+    var section = Section.feed {
+        didSet { if section != oldValue { channelPath = [] } }
+    }
     var settingsPath: [SettingsRoute] = []
     var feedPath: [Route] = []
     var libraryPath: [Route] = []
     var searchPath: [Route] = []
     var watchPath: [Route] = []
+    /// The open channel tab's stack (iPad sidebar); one tab shows at a time.
+    var channelPath: [Route] = []
     var watching: WatchContent?
 
     /// The feed's empty-state actions (add an instance, import subscriptions) live on the
@@ -43,15 +50,22 @@ final class SceneRouter {
     }
 
     func openChannel(_ id: ChannelID, name: String) {
+        push(.channel(id, name: name))
+    }
+
+    /// Onto whichever stack is showing: the player's, Search's, Library's, else Home's.
+    func push(_ route: Route) {
         if watching != nil {
-            watchPath.append(.channel(id, name: name))
+            watchPath.append(route)
         } else if section == .search {
-            searchPath.append(.channel(id, name: name))
+            searchPath.append(route)
         } else if section == .library {
-            libraryPath.append(.channel(id, name: name))
+            libraryPath.append(route)
+        } else if case .channel = section {
+            channelPath.append(route)
         } else {
             section = .feed
-            feedPath.append(.channel(id, name: name))
+            feedPath.append(route)
         }
     }
 }

@@ -24,7 +24,7 @@ Before this ADR, CloudKit synced subscriptions and watch state only, and sync st
    - The token belongs to the phone's pairing, so the YT Zero dashboard shows the phone's device name for the TV too.
 3. **Sync scope follows the account.**
    - **No linked account:** everything syncs.
-   - **YT Zero linked:** only instances sync. The library is still the account's (ADR 0002).
+   - **YT Zero linked:** only instances (and, since saved playlists arrived, playlists) sync. Subscriptions and watch state are still the account's (ADR 0002).
    - **Scope changes:** the saved engine state records its scope. When the scope changes, sync starts over: everything is fetched and uploaded again, which last-writer-wins makes idempotent. This replaces "sync stops when an account is linked".
 4. **Duplicates collapse by URL.** Two devices can add the same instance before they sync. The list shows the first one added, and adding a URL that's already there is refused ("already in your list").
 5. **The app observes the instance table.** When the list changes (from sync, or from this device), it rebuilds sources and refreshes, so the TV picks up the phone's instances without a relaunch.

@@ -11,16 +11,18 @@ public struct LibraryScreen: View {
     private let onSelect: (FeedRow) -> Void
     private let onOpenChannel: (ChannelID, String) -> Void
     private let onOpenChannels: () -> Void
+    private let onOpenPlaylists: () -> Void
     @State private var confirmingClear = false
     @Environment(\.displayScale) private var displayScale
 
     public init(model: LibraryModel, onSelect: @escaping (FeedRow) -> Void,
                 onOpenChannel: @escaping (ChannelID, String) -> Void = { _, _ in },
-                onOpenChannels: @escaping () -> Void = {}) {
+                onOpenChannels: @escaping () -> Void = {}, onOpenPlaylists: @escaping () -> Void = {}) {
         self.model = model
         self.onSelect = onSelect
         self.onOpenChannel = onOpenChannel
         self.onOpenChannels = onOpenChannels
+        self.onOpenPlaylists = onOpenPlaylists
     }
 
     public var body: some View {
@@ -46,22 +48,20 @@ public struct LibraryScreen: View {
 
     private var list: some View {
         List {
-            if model.channelCount > 0 {
+            if model.channelCount > 0 || model.playlistCount > 0 {
                 Section {
-                    Button(action: onOpenChannels) {
-                        LabeledContent {
-                            HStack(spacing: Tokens.Spacing.xs) {
-                                Text(model.channelCount, format: .number)
-                                Image(systemName: "chevron.forward").font(.footnote.weight(.semibold))
-                                    .foregroundStyle(.tertiary)
-                            }
-                        } label: {
+                    if model.channelCount > 0 {
+                        destinationRow(count: model.channelCount, action: onOpenChannels) {
                             Label { Text("Channels") } icon: { Image(systemName: "person.2") }
                         }
-                        .contentShape(.rect)
+                        .accessibilityIdentifier("library.channels")
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityIdentifier("library.channels")
+                    if model.playlistCount > 0 {
+                        destinationRow(count: model.playlistCount, action: onOpenPlaylists) {
+                            Label { Text("Playlists") } icon: { Image(systemName: "list.bullet.rectangle") }
+                        }
+                        .accessibilityIdentifier("library.playlists")
+                    }
                 }
             }
             if !model.continueWatching.isEmpty {
@@ -114,6 +114,24 @@ public struct LibraryScreen: View {
         }
         .listStyle(.insetGrouped)
         .accessibilityIdentifier("library.list")
+    }
+
+    /// A row that pushes a list (Channels, Playlists), with its count, like Music's Library.
+    private func destinationRow(count: Int, action: @escaping () -> Void,
+                                @ViewBuilder label: () -> some View) -> some View {
+        Button(action: action) {
+            LabeledContent {
+                HStack(spacing: Tokens.Spacing.xs) {
+                    Text(count, format: .number)
+                    Image(systemName: "chevron.forward").font(.footnote.weight(.semibold))
+                        .foregroundStyle(.tertiary)
+                }
+            } label: {
+                label()
+            }
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
     }
 
     private func cell(_ row: FeedRow) -> some View {

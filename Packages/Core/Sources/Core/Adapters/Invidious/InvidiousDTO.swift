@@ -54,6 +54,35 @@ enum InvidiousDTO {
         let authorThumbnails: [Image]?
     }
 
+    struct ChannelPlaylists: Decodable {
+        let playlists: [PlaylistItem]?
+        let continuation: String?
+    }
+
+    struct PlaylistItem: Decodable {
+        let playlistId: String?
+        let title: String?
+        let videoCount: Int?
+        let playlistThumbnail: String?
+
+        /// The thumbnail points at i.ytimg.com; the instance serves the same image (`/vi/<id>/…`),
+        /// so the device never talks to Google. `author` is unreliable here ("Playlist"), so the
+        /// channel name is left to the caller.
+        func playlistSummary(instance: URL) -> PlaylistSummary? {
+            guard let playlistId else { return nil }
+            let video = playlistThumbnail.flatMap(URL.init(string:)).flatMap { url -> String? in
+                let parts = url.pathComponents
+                guard let index = parts.firstIndex(of: "vi"), parts.indices.contains(index + 1) else { return nil }
+                return parts[index + 1]
+            }
+            let thumbnail = video.map {
+                Thumbnail(url: instance.appending(path: "vi/\($0)/mqdefault.jpg"), width: 320, height: 180)
+            }
+            return PlaylistSummary(id: PlaylistID(rawValue: playlistId), title: title ?? "", channelName: nil,
+                                   videoCount: videoCount, thumbnails: thumbnail.map { [$0] } ?? [])
+        }
+    }
+
     struct ChannelVideos: Decodable {
         let videos: [Item]?
         let continuation: String?

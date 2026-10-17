@@ -92,6 +92,31 @@ public struct PipedSource: VideoSource {
                                          nextCursor: Self.cursor(playlist.nextpage)))
     }
 
+    /// The playlists tab needs the channel's tab `data` on every page, so the cursor carries it
+    /// along with Piped's `nextpage`.
+    public func channelPlaylists(_ id: ChannelID, cursor: String?) async throws -> Page<PlaylistSummary> {
+        let state: TabCursor
+        if let cursor, let decoded = try? JSONDecoder().decode(TabCursor.self, from: Data(cursor.utf8)) {
+            state = decoded
+        } else {
+            let channel: PipedDTO.Channel = try await api.get("channel/\(id.rawValue)")
+            guard let tab = channel.tabs?.first(where: { $0.name == "playlists" }) else { return Page(items: [], nextCursor: nil) }
+            state = TabCursor(data: tab.data, nextpage: nil)
+        }
+        var query = [URLQueryItem(name: "data", value: state.data)]
+        if let nextpage = state.nextpage { query.append(.init(name: "nextpage", value: nextpage)) }
+        let page: PipedDTO.TabPage = try await api.get("channels/tabs", query: query)
+        let next = Self.cursor(page.nextpage).flatMap { nextpage in
+            (try? JSONEncoder().encode(TabCursor(data: state.data, nextpage: nextpage))).map { String(decoding: $0, as: UTF8.self) }
+        }
+        return Page(items: (page.content ?? []).compactMap(\.playlistSummary), nextCursor: next)
+    }
+
+    private struct TabCursor: Codable {
+        let data: String
+        let nextpage: String?
+    }
+
     public func healthCheck() async -> HealthSample {
         let start = ContinuousClock.now
         do {

@@ -73,3 +73,15 @@ public struct RowFormatter: Sendable {
             : String(format: "%d:%02d", minutes, seconds)
     }
 }
+
+/// A playlist ready to draw: the count pre-formatted ("12 videos").
+public struct PlaylistRow: Identifiable, Hashable, Sendable {
+    public let playlist: PlaylistSummary
+    public let countText: String?
+    public var id: PlaylistID { playlist.id }
+
+    public init(_ playlist: PlaylistSummary) {
+        self.playlist = playlist
+        countText = playlist.videoCount.map { String(localized: "\($0) videos") }
+    }
+}

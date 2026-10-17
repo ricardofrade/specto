@@ -7,12 +7,13 @@ import DesignSystem
 /// Library on Apple TV: Continue Watching and Queue shelves, then the history as a grid.
 struct TVLibraryView: View {
     let model: LibraryModel
+    let playlists: SavedPlaylistsModel
     let actions: VideoActions
 
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: TVMetrics.sectionSpacing) {
-                if model.isEmpty {
+                if model.isEmpty && playlists.rows.isEmpty {
                     ContentUnavailableView {
                         Label { Text("Nothing here yet") } icon: { Image(systemName: "books.vertical") }
                     } description: {
@@ -24,6 +25,23 @@ struct TVLibraryView: View {
                 }
                 if !model.queue.isEmpty {
                     row(Text("Queue"), model.queue, remove: (Text("Remove from Queue"), model.removeFromQueue))
+                }
+                if !playlists.rows.isEmpty {
+                    VStack(alignment: .leading, spacing: TVMetrics.gridSpacing) {
+                        Text("Playlists").font(.title3.weight(.semibold))
+                        ScrollView(.horizontal) {
+                            LazyHStack(alignment: .top, spacing: TVMetrics.gridSpacing) {
+                                ForEach(playlists.rows) { row in
+                                    PlaylistCard(row: row, open: actions.openPlaylist,
+                                                 remove: { playlists.remove(row.id) })
+                                        .frame(width: TVMetrics.cardWidth)
+                                }
+                            }
+                            .padding(.vertical, TVMetrics.gridSpacing)
+                        }
+                        .scrollClipDisabled()
+                    }
+                    .focusSection()
                 }
                 if !model.history.isEmpty {
                     VStack(alignment: .leading, spacing: TVMetrics.gridSpacing) {
@@ -41,7 +59,10 @@ struct TVLibraryView: View {
                 }
             }
         }
-        .task { await model.start() }
+        .task {
+            await model.start()
+            await playlists.start()
+        }
     }
 
     private func row(_ title: Text, _ rows: [FeedRow], remove: (Text, (VideoID) -> Void)? = nil) -> some View {

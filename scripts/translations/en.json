@@ -1,0 +1,10 @@
+{
+  "%lld videos": {
+    "one": "%lld video",
+    "other": "%lld videos"
+  },
+  "Imported %lld channels.": {
+    "one": "Imported %lld channel.",
+    "other": "Imported %lld channels."
+  }
+}

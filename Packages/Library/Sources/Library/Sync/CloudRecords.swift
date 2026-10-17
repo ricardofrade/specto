@@ -21,6 +21,10 @@ enum CloudRecords {
         static let apiURL = "apiURL"
         static let sortOrder = "sortOrder"
         static let addedAt = "addedAt"
+        static let title = "title"
+        static let videoCount = "videoCount"
+        static let thumbnailURL = "thumbnailURL"
+        static let savedAt = "savedAt"
         /// In `encryptedValues`: end-to-end encrypted with keys in the user's iCloud Keychain.
         static let token = "token"
     }
@@ -53,6 +57,13 @@ enum CloudRecords {
             record[Field.isFinished] = isFinished
             record[Field.lastWatchedAt] = lastWatchedAt
             record[Field.isDeleted] = isDeleted
+        case let .playlist(title, channelName, videoCount, thumbnailURL, savedAt, isDeleted):
+            record[Field.title] = title
+            record[Field.channelName] = channelName
+            record[Field.videoCount] = videoCount
+            record[Field.thumbnailURL] = thumbnailURL
+            record[Field.savedAt] = savedAt
+            record[Field.isDeleted] = isDeleted
         case let .instance(kind, displayName, apiURL, sortOrder, addedAt, token, isDeleted):
             record[Field.kind] = kind
             record[Field.displayName] = displayName
@@ -83,6 +94,11 @@ enum CloudRecords {
             values = .watchState(positionSeconds: position, durationSeconds: record[Field.durationSeconds] as? Double,
                                  isFinished: record[Field.isFinished] as? Bool ?? false,
                                  lastWatchedAt: lastWatchedAt, isDeleted: isDeleted)
+        case .playlist:
+            guard let title = record[Field.title] as? String, let savedAt = record[Field.savedAt] as? Date else { return nil }
+            values = .playlist(title: title, channelName: record[Field.channelName] as? String,
+                               videoCount: record[Field.videoCount] as? Int,
+                               thumbnailURL: record[Field.thumbnailURL] as? String, savedAt: savedAt, isDeleted: isDeleted)
         case .instance:
             guard let kind = record[Field.kind] as? String, let displayName = record[Field.displayName] as? String,
                   let apiURL = record[Field.apiURL] as? String, let addedAt = record[Field.addedAt] as? Date else { return nil }

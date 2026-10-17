@@ -50,6 +50,8 @@ targets:
       - package: Features
         product: LibraryFeature
       - package: Features
+        product: PlaylistFeature
+      - package: Features
         product: SearchFeature
       - package: Features
         product: ChannelFeature

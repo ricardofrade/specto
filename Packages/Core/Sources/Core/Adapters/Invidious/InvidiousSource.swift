@@ -99,6 +99,15 @@ public struct InvidiousSource: VideoSource {
                                                                           nextCursor: next))
     }
 
+    public func channelPlaylists(_ id: ChannelID, cursor: String?) async throws -> Page<PlaylistSummary> {
+        var query: [URLQueryItem] = []
+        if let cursor { query.append(.init(name: "continuation", value: cursor)) }
+        let page: InvidiousDTO.ChannelPlaylists = try await api.get("api/v1/channels/\(id.rawValue)/playlists", query: query)
+        let instance = self.instance.apiURL
+        return Page(items: (page.playlists ?? []).compactMap { $0.playlistSummary(instance: instance) },
+                    nextCursor: page.continuation.flatMap { $0.isEmpty ? nil : $0 })
+    }
+
     /// `/stats` makes no upstream call, so it shows the instance is up, not that YouTube answers.
     public func healthCheck() async -> HealthSample {
         let start = ContinuousClock.now

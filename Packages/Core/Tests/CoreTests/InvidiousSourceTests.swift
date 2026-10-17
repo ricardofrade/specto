@@ -65,6 +65,20 @@ struct InvidiousSourceTests {
         #expect(feed.count == 3)
     }
 
+    @Test func channelPlaylistsComeWithInstanceThumbnails() async throws {
+        let iv = source { $0.on("/playlists", fixture: "invidious/channel-playlists.json") }
+        let page = try await iv.channelPlaylists(ChannelID(rawValue: "UCSMOQeBJ2RAnuFungnQOxLg"), cursor: nil)
+        #expect(page.items.count == 3)
+        let first = try #require(page.items.first)
+        #expect(first.id.rawValue.hasPrefix("PL"))
+        #expect(!first.title.isEmpty && first.videoCount ?? 0 > 0)
+        #expect(first.channelName == nil)   // Invidious says "Playlist" here.
+        // Never i.ytimg.com: the instance serves the same image.
+        #expect(page.items.allSatisfy { $0.thumbnails.allSatisfy { $0.url.host() == "instance.example" } })
+        #expect(first.thumbnails.first?.url.path().hasSuffix("/mqdefault.jpg") == true)
+        #expect(page.nextCursor != nil)
+    }
+
     @Test func playlistCursorIsTheNextIndex() async throws {
         let iv = source { $0.on("/api/v1/playlists/", fixture: "invidious/playlist.json") }
         let page = try await iv.playlist(PlaylistID(rawValue: "PL"), cursor: nil)

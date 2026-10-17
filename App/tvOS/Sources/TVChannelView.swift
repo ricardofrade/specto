@@ -28,6 +28,23 @@ struct TVChannelView: View {
                 if let error = model.error {
                     Text(error).foregroundStyle(Tokens.Colors.textSecondary)
                 }
+                if !model.playlists.isEmpty {
+                    VStack(alignment: .leading, spacing: TVMetrics.gridSpacing) {
+                        Text("Playlists").font(.title3.weight(.semibold))
+                        ScrollView(.horizontal) {
+                            LazyHStack(alignment: .top, spacing: TVMetrics.gridSpacing) {
+                                ForEach(model.playlists) { row in
+                                    PlaylistCard(row: row, open: actions.openPlaylist)
+                                        .frame(width: TVMetrics.cardWidth)
+                                        .task { await model.loadPlaylistsIfNeeded(after: row.id) }
+                                }
+                            }
+                            .padding(.vertical, TVMetrics.gridSpacing)
+                        }
+                        .scrollClipDisabled()
+                    }
+                    .focusSection()
+                }
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: TVMetrics.cardWidth), spacing: TVMetrics.gridSpacing,
                                              alignment: .top)],
                           spacing: TVMetrics.rowSpacing) {
@@ -38,6 +55,9 @@ struct TVChannelView: View {
                 }
             }
         }
-        .task { await model.loadFirstPage() }
+        .task {
+            await model.loadFirstPage()
+            await model.loadPlaylistsIfNeeded()
+        }
     }
 }

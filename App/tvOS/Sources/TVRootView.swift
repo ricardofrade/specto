@@ -5,6 +5,7 @@ import FeedFeature
 import LibraryFeature
 import SearchFeature
 import ChannelFeature
+import PlaylistFeature
 import InstancesFeature
 import DesignSystem
 
@@ -16,6 +17,7 @@ struct TVRootView: View {
     @State private var feed: FeedModel
     @State private var search: SearchModel
     @State private var library: LibraryModel
+    @State private var savedPlaylists: SavedPlaylistsModel
     @State private var libraryPath: [TVRoute] = []
     @State private var homePath: [TVRoute] = []
     @State private var searchPath: [TVRoute] = []
@@ -33,6 +35,7 @@ struct TVRootView: View {
         })
         _library = State(initialValue: LibraryModel(watchState: WatchStateStore(environment.database),
                                                     queue: QueueStore(environment.database)))
+        _savedPlaylists = State(initialValue: SavedPlaylistsModel(store: PlaylistStore(environment.database)))
         _search = State(initialValue: SearchModel { query, cursor in
             try await environment.search(query, cursor: cursor)
         })
@@ -42,26 +45,25 @@ struct TVRootView: View {
         TabView {
             Tab {
                 NavigationStack(path: $homePath) {
-                    HomeView(environment: environment, feed: feed,
-                             actions: actions { homePath.append(.channel($0, $1)) })
+                    HomeView(environment: environment, feed: feed, actions: actions { homePath.append($0) })
                         .onAppear(perform: onFirstFeedFrame)
-                        .routes(environment: environment, actions: actions { homePath.append(.channel($0, $1)) })
+                        .routes(environment: environment, actions: actions { homePath.append($0) })
                 }
             } label: {
                 Text("Home")
             }
             Tab {
                 NavigationStack(path: $libraryPath) {
-                    TVLibraryView(model: library, actions: actions { libraryPath.append(.channel($0, $1)) })
-                        .routes(environment: environment, actions: actions { libraryPath.append(.channel($0, $1)) })
+                    TVLibraryView(model: library, playlists: savedPlaylists, actions: actions { libraryPath.append($0) })
+                        .routes(environment: environment, actions: actions { libraryPath.append($0) })
                 }
             } label: {
                 Text("Library")
             }
             Tab(role: .search) {
                 NavigationStack(path: $searchPath) {
-                    TVSearchView(model: search, actions: actions { searchPath.append(.channel($0, $1)) })
-                        .routes(environment: environment, actions: actions { searchPath.append(.channel($0, $1)) })
+                    TVSearchView(model: search, actions: actions { searchPath.append($0) })
+                        .routes(environment: environment, actions: actions { searchPath.append($0) })
                 }
             }
             Tab {
@@ -91,8 +93,13 @@ struct TVRootView: View {
         .task { environment.warmUp() }
     }
 
-    private func actions(openChannel: @escaping (ChannelID, String) -> Void) -> VideoActions {
-        VideoActions(play: play, openChannel: openChannel, addToQueue: { environment.addToQueue($0) })
+    /// - Parameter push: onto the tab's own stack.
+    private func actions(push: @escaping (TVRoute) -> Void) -> VideoActions {
+        VideoActions(play: play, openChannel: { push(.channel($0, $1)) }, addToQueue: { environment.addToQueue($0) },
+                     openPlaylist: { push(.playlist($0)) },
+                     playPlaylist: { videos, start in
+                         if let video = environment.startPlaylist(videos, at: start) { play(video) }
+                     })
     }
 
     private func play(_ video: VideoSummary) {
@@ -104,6 +111,7 @@ struct TVRootView: View {
 
 enum TVRoute: Hashable {
     case channel(ChannelID, String)
+    case playlist(PlaylistSummary)
 }
 
 private extension View {
@@ -116,8 +124,13 @@ private extension View {
                     cached: (try? FeedStore(environment.database).videos(channel: id)) ?? [],
                     isSubscribed: environment.isSubscribed(id),
                     load: { id, cursor in try await environment.channel(id, cursor: cursor) },
+                    loadPlaylists: environment.channelPlaylistsLoader,
                     setSubscribed: { channel, subscribed in try await environment.setSubscribed(channel, subscribed) }),
                     actions: actions)
+            case .playlist(let summary):
+                TVPlaylistView(model: PlaylistModel(summary: summary, store: PlaylistStore(environment.database),
+                                                    load: { id, cursor in try await environment.playlist(id, cursor: cursor) }),
+                               actions: actions)
             }
         }
     }

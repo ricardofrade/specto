@@ -45,6 +45,8 @@ final class AppEnvironment {
     private(set) var availableQualities: [Int] = []
     /// Picked in the player for this video; nil plans automatically (ADR 0007).
     private(set) var manualQuality: Int?
+    /// The playlist being played through (Play All); auto-advance continues in it after the queue.
+    @ObservationIgnored var playlistContext: [VideoSummary] = []
     @ObservationIgnored var nowPlaying: NowPlayingController?
     @ObservationIgnored let community = CommunityServices()
     /// CloudKit sync, when configured: instances always (so the TV gets the phone's), the
@@ -184,7 +186,8 @@ final class AppEnvironment {
     private func updateCloudSync() {
         let container = Bundle.main.object(forInfoDictionaryKey: "CloudKitContainer") as? String ?? ""
         guard !container.isEmpty, !ProcessInfo.processInfo.arguments.contains("-UITestFreshStart") else { return }
-        let types: Set<SyncStore.RecordType> = account == nil ? Set(SyncStore.RecordType.allCases) : [.instance]
+        // A linked account owns subscriptions and watch state (ADR 0002), not instances or playlists.
+        let types: Set<SyncStore.RecordType> = account == nil ? Set(SyncStore.RecordType.allCases) : [.instance, .playlist]
         guard cloudSync?.types != types else { return }
         let previous = cloudSync
         let sync = CloudSync(containerIdentifier: container, database: database, types: types, secrets: secrets)
@@ -275,6 +278,20 @@ final class AppEnvironment {
     func channel(_ id: ChannelID, cursor: String?) async throws -> ChannelPage {
         let router = self.router
         let page = try await router.perform(.channel) { try await $0.channel(id, cursor: cursor) }
+        try? FeedStore(database).save(page.videos.items)
+        return page
+    }
+
+    /// Nil when no instance lists playlists (YT Zero alone): the channel shows no Playlists tab.
+    var channelPlaylistsLoader: (@Sendable (ChannelID, String?) async throws -> Page<PlaylistSummary>)? {
+        guard instances.contains(where: { $0.kind != .ytZero }) else { return nil }
+        let router = self.router
+        return { id, cursor in try await router.perform(.playlists) { try await $0.channelPlaylists(id, cursor: cursor) } }
+    }
+
+    func playlist(_ id: PlaylistID, cursor: String?) async throws -> PlaylistPage {
+        let router = self.router
+        let page = try await router.perform(.playlists) { try await $0.playlist(id, cursor: cursor) }
         try? FeedStore(database).save(page.videos.items)
         return page
     }

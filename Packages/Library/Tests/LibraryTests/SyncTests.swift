@@ -216,3 +216,50 @@ private let video = VideoID(rawValue: "aqz-KE-bpKQ")
         #expect(CloudRecords.key(for: CKRecord.ID(recordName: "no-slash", zoneID: CloudRecords.zoneID)) == nil)
     }
 }
+
+@Suite struct PlaylistStoreTests {
+    private let playlist = PlaylistSummary(id: PlaylistID(rawValue: "PLabc"), title: "Talks", channelName: "Blender",
+                                           videoCount: 12,
+                                           thumbnails: [Thumbnail(url: URL(string: "https://proxy.example/vi/x/mq.jpg")!,
+                                                                  width: 320, height: 180)])
+
+    @Test func savesNewestFirstAndRemovesWithATombstone() throws {
+        let db = try AppDatabase.inMemory()
+        let store = PlaylistStore(db)
+        try store.save(playlist)
+        Thread.sleep(forTimeInterval: 0.01)
+        let other = PlaylistSummary(id: PlaylistID(rawValue: "PLdef"), title: "Shorts", channelName: nil,
+                                    videoCount: nil, thumbnails: [])
+        try store.save(other)
+        #expect(try store.all().map(\.id) == [other.id, playlist.id])
+        let saved = try #require(try store.all().last)
+        #expect(saved.title == "Talks" && saved.channelName == "Blender" && saved.videoCount == 12)
+        #expect(saved.thumbnails.first?.url == playlist.thumbnails.first?.url)   // Stored without its size.
+        #expect(try store.isSaved(playlist.id))
+
+        try store.remove(playlist.id)
+        #expect(try !store.isSaved(playlist.id))
+        #expect(try store.all() == [other])
+        #expect(try SyncStore(db).pendingKeys().contains(SyncStore.Key(.playlist, "PLabc")))
+    }
+
+    @Test func savingAgainUnchangedIsNotAnEdit() throws {
+        let db = try AppDatabase.inMemory()
+        try PlaylistStore(db).save(playlist)
+        let key = SyncStore.Key(.playlist, playlist.id.rawValue)
+        let sync = SyncStore(db)
+        try sync.markUploaded(key, modifiedAt: try #require(try sync.change(for: key)).modifiedAt, systemFields: Data())
+        try PlaylistStore(db).save(playlist)
+        #expect(try sync.pendingKeys().isEmpty)
+    }
+
+    @Test func syncsThroughACloudKitRecord() throws {
+        let phone = try AppDatabase.inMemory(), tv = try AppDatabase.inMemory()
+        try PlaylistStore(phone).save(playlist)
+        let change = try #require(try SyncStore(phone).change(for: SyncStore.Key(.playlist, playlist.id.rawValue)))
+        let fetched = try #require(CloudRecords.change(from: CloudRecords.record(for: change)))
+        #expect(try SyncStore(tv, types: [.instance, .playlist]).apply(fetched))
+        #expect(try PlaylistStore(tv).all().map(\.id) == [playlist.id])
+        #expect(try PlaylistStore(tv).all().first?.title == "Talks")
+    }
+}

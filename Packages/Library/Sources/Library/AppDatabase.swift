@@ -143,6 +143,21 @@ public struct AppDatabase: Sendable {
             try db.execute(sql: "UPDATE instance SET modifiedAt = addedAt")
             try db.alter(table: "syncState") { t in t.add(column: "scope", .text) }
         }
+        // Saved playlists (synced like subscriptions, also while a YT Zero account is linked).
+        migrator.registerMigration("v6-playlists") { db in
+            try db.create(table: "savedPlaylist") { t in
+                t.primaryKey("id", .text)
+                t.column("title", .text).notNull()
+                t.column("channelName", .text)
+                t.column("videoCount", .integer)
+                t.column("thumbnailURL", .text)
+                t.column("savedAt", .datetime).notNull()
+                t.column("modifiedAt", .datetime).notNull()
+                t.column("isDeleted", .boolean).notNull().defaults(to: false)
+                t.column("syncMetadata", .blob)
+                t.column("uploadedAt", .datetime)
+            }
+        }
         return migrator
     }
 }

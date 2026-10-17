@@ -13,7 +13,8 @@ let package = Package(
         .library(name: "WatchFeature", targets: ["WatchFeature"]),
         .library(name: "SearchFeature", targets: ["SearchFeature"]),
         .library(name: "ChannelFeature", targets: ["ChannelFeature"]),
-        .library(name: "LibraryFeature", targets: ["LibraryFeature"])
+        .library(name: "LibraryFeature", targets: ["LibraryFeature"]),
+        .library(name: "PlaylistFeature", targets: ["PlaylistFeature"])
     ],
     dependencies: [
         .package(path: "../Core"),
@@ -36,8 +37,11 @@ let package = Package(
                 swiftSettings: featureSettings),
         .target(name: "LibraryFeature", dependencies: ["Core", "Library", "DesignSystem"],
                 swiftSettings: featureSettings),
+        .target(name: "PlaylistFeature", dependencies: ["Core", "Library", "DesignSystem"],
+                swiftSettings: featureSettings),
         .testTarget(name: "WatchFeatureTests", dependencies: ["WatchFeature"]),
         .testTarget(name: "FeedFeatureTests", dependencies: ["FeedFeature"]),
-        .testTarget(name: "LibraryFeatureTests", dependencies: ["LibraryFeature"])
+        .testTarget(name: "LibraryFeatureTests", dependencies: ["LibraryFeature"]),
+        .testTarget(name: "PlaylistFeatureTests", dependencies: ["PlaylistFeature"])
     ]
 )

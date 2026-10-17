@@ -45,6 +45,46 @@
         }
       }
     },
+    "%lld videos": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "needs_review",
+                  "value": "%lld video"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "needs_review",
+                  "value": "%lld videos"
+                }
+              }
+            }
+          }
+        },
+        "pt-PT": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "needs_review",
+                  "value": "%lld vídeo"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "needs_review",
+                  "value": "%lld vídeos"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "1 GB": {
       "localizations": {
         "pt-PT": {
@@ -496,6 +536,16 @@
         }
       }
     },
+    "Couldn't load this playlist.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Não foi possível carregar esta lista de reprodução."
+          }
+        }
+      }
+    },
     "Couldn't load this video.": {
       "localizations": {
         "pt-PT": {
@@ -542,6 +592,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Não foi possível atualizar a subscrição."
+          }
+        }
+      }
+    },
+    "Couldn't update your saved playlists.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Não foi possível atualizar as suas listas guardadas."
           }
         }
       }
@@ -789,6 +849,24 @@
     },
     "Imported %lld channels.": {
       "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "needs_review",
+                  "value": "Imported %lld channel."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "needs_review",
+                  "value": "Imported %lld channels."
+                }
+              }
+            }
+          }
+        },
         "pt-PT": {
           "variations": {
             "plural": {
@@ -980,12 +1058,32 @@
         }
       }
     },
+    "No playlists": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sem listas de reprodução"
+          }
+        }
+      }
+    },
     "No reports yet. iOS delivers them about once a day.": {
       "localizations": {
         "pt-PT": {
           "stringUnit": {
             "state": "needs_review",
             "value": "Ainda sem relatórios. O iOS envia-os cerca de uma vez por dia."
+          }
+        }
+      }
+    },
+    "No saved playlists": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sem listas guardadas"
           }
         }
       }
@@ -1280,6 +1378,16 @@
         }
       }
     },
+    "Play All": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Reproduzir tudo"
+          }
+        }
+      }
+    },
     "Play Queue": {
       "localizations": {
         "pt-PT": {
@@ -1376,6 +1484,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "A reproduzir em %@"
+          }
+        }
+      }
+    },
+    "Playlists": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Listas de reprodução"
           }
         }
       }
@@ -1490,6 +1608,36 @@
         }
       }
     },
+    "Save": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Guardar"
+          }
+        }
+      }
+    },
+    "Save a playlist from a channel and it shows up here.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Guarde uma lista de reprodução de um canal e ela aparece aqui."
+          }
+        }
+      }
+    },
+    "Saved": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Guardada"
+          }
+        }
+      }
+    },
     "Scroll hitches: %@": {
       "localizations": {
         "pt-PT": {
@@ -1566,6 +1714,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Definições"
+          }
+        }
+      }
+    },
+    "Show": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mostrar"
           }
         }
       }

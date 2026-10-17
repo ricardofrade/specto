@@ -8,6 +8,7 @@ import InstancesFeature
 import WatchFeature
 import SearchFeature
 import ChannelFeature
+import PlaylistFeature
 
 struct RootView: View {
     let environment: AppEnvironment
@@ -39,7 +40,8 @@ struct RootView: View {
         })
         _library = State(initialValue: LibraryModel(watchState: WatchStateStore(environment.database),
                                                     queue: QueueStore(environment.database),
-                                                    subscriptions: SubscriptionStore(environment.database)))
+                                                    subscriptions: SubscriptionStore(environment.database),
+                                                    playlists: PlaylistStore(environment.database)))
         _search = State(initialValue: SearchModel { query, cursor in
             try await environment.search(query, cursor: cursor)
         })
@@ -67,7 +69,8 @@ struct RootView: View {
                 NavigationStack(path: $router.libraryPath) {
                     LibraryScreen(model: library, onSelect: { play($0.video) },
                                   onOpenChannel: { router.openChannel($0, name: $1) },
-                                  onOpenChannels: { router.libraryPath.append(.channels) })
+                                  onOpenChannels: { router.libraryPath.append(.channels) },
+                                  onOpenPlaylists: { router.libraryPath.append(.savedPlaylists) })
                         .routes()
                 }
             } label: {
@@ -92,8 +95,10 @@ struct RootView: View {
                 TabSection {
                     ForEach(channels) { channel in
                         Tab(value: SceneRouter.Section.channel(channel.id)) {
-                            NavigationStack {
-                                ChannelScreen(model: channelModel(channel.id, name: channel.name)) { play($0) }
+                            NavigationStack(path: $router.channelPath) {
+                                ChannelScreen(model: channelModel(channel.id, name: channel.name), onSelect: { play($0) },
+                                              onOpenPlaylist: { router.push(.playlist($0)) })
+                                    .routes()
                             }
                         } label: {
                             Label { Text(channel.name) } icon: { Image(systemName: "person.crop.circle") }
@@ -153,6 +158,7 @@ struct RootView: View {
             environment.pendingVideo = nil
             play(video)
         }
+        .onChange(of: environment.session.item?.videoID) { _, id in followAutoAdvance(to: id) }
         .onChange(of: horizontalSizeClass) { _, sizeClass in
             // Channel tabs exist only at regular width: keep the open channel when they go away.
             if sizeClass == .compact, case .channel(let id) = router.section {
@@ -182,7 +188,17 @@ struct RootView: View {
         .environment(\.routeDestination, RouteDestination { route in
             switch route {
             case .channel(let id, let name):
-                .channel(ChannelScreen(model: channelModel(id, name: name)) { play($0) })
+                .channel(ChannelScreen(model: channelModel(id, name: name), onSelect: { play($0) },
+                                       onOpenPlaylist: { router.push(.playlist($0)) }))
+            case .playlist(let summary):
+                .playlist(PlaylistScreen(model: PlaylistModel(summary: summary, store: PlaylistStore(environment.database),
+                                                              load: { id, cursor in try await environment.playlist(id, cursor: cursor) }),
+                                         onPlay: { videos, start in
+                                             if let video = environment.startPlaylist(videos, at: start) { play(video) }
+                                         }))
+            case .savedPlaylists:
+                .savedPlaylists(SavedPlaylistsScreen(model: SavedPlaylistsModel(store: PlaylistStore(environment.database)),
+                                                     onOpen: { router.push(.playlist($0)) }))
             case .channels:
                 .channels(ChannelsScreen(model: ChannelsModel(subscriptions: SubscriptionStore(environment.database)),
                                          onOpen: { router.openChannel($0.id, name: $0.name) },
@@ -237,6 +253,7 @@ struct RootView: View {
                      cached: (try? FeedStore(environment.database).videos(channel: id)) ?? [],
                      isSubscribed: environment.isSubscribed(id),
                      load: { id, cursor in try await environment.channel(id, cursor: cursor) },
+                     loadPlaylists: environment.channelPlaylistsLoader,
                      setSubscribed: { channel, subscribed in try await environment.setSubscribed(channel, subscribed) })
     }
 
@@ -251,6 +268,17 @@ struct RootView: View {
             duration: nil, publishedAt: nil, viewCount: nil,
             thumbnails: item.artworkURL.map { [Thumbnail(url: $0, width: 0, height: 0)] } ?? []))
         content.setChapters(item.chapters)
+        router.watchPath = []
+        router.watching = content
+    }
+
+    /// Auto-advance (the queue, a playlist) plays from the environment: the open player follows.
+    private func followAutoAdvance(to id: VideoID?) {
+        guard let id, let watching = router.watching, watching.video.id != id,
+              let page = environment.currentPage, page.details.summary.id == id else { return }
+        var content = WatchContent(video: page.details.summary, details: page.details)
+        content.setChapters(page.manifest.chapters)
+        content.storyboard = page.manifest.storyboards.best(forFrameWidth: 160)
         router.watchPath = []
         router.watching = content
     }
@@ -288,11 +316,15 @@ struct RouteDestination {
 enum RouteView: View {
     case channel(ChannelScreen)
     case channels(ChannelsScreen)
+    case playlist(PlaylistScreen)
+    case savedPlaylists(SavedPlaylistsScreen)
 
     var body: some View {
         switch self {
         case .channel(let screen): screen
         case .channels(let screen): screen
+        case .playlist(let screen): screen
+        case .savedPlaylists(let screen): screen
         }
     }
 }

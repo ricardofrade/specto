@@ -22,7 +22,16 @@ extension AppEnvironment {
         (try? QueueStore(database).contains(id)) ?? false
     }
 
-    /// When a video ends, the next queued one plays in the same mode (audio in the car).
+    /// Play All, or a video tapped in a playlist: `videos[start]` plays, then the rest in order.
+    /// Returns the video to open. The queue isn't touched (queued videos may download).
+    func startPlaylist(_ videos: [VideoSummary], at start: Int) -> VideoSummary? {
+        guard videos.indices.contains(start) else { return nil }
+        playlistContext = videos
+        return videos[start]
+    }
+
+    /// When a video ends, the next queued one plays in the same mode (audio in the car); with
+    /// nothing queued, the next video of the playlist it came from.
     func watchForEndOfPlayback() {
         withObservationTracking { _ = session.state } onChange: { [weak self] in
             Task { @MainActor in
@@ -30,13 +39,18 @@ extension AppEnvironment {
                 if self.session.state == .ended, let current = self.session.item?.videoID {
                     let mode = self.session.mode
                     try? QueueStore(self.database).remove(current)
-                    if let next = try? QueueStore(self.database).next(after: current) {
+                    if let next = (try? QueueStore(self.database).next(after: current)) ?? self.nextInPlaylist(after: current) {
                         _ = try? await self.play(next, mode: mode, surfaceHeight: self.surfaceHeight)
                     }
                 }
                 self.watchForEndOfPlayback()
             }
         }
+    }
+
+    func nextInPlaylist(after id: VideoID) -> VideoSummary? {
+        guard let index = playlistContext.firstIndex(where: { $0.id == id }) else { return nil }
+        return playlistContext.dropFirst(index + 1).first
     }
 
     // MARK: Offline audio

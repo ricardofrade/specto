@@ -10,6 +10,29 @@ struct PipedSourceTests {
         return PipedSource(instance: instance(.piped), client: client)
     }
 
+    @Test func channelPlaylistsGoThroughThePlaylistsTabAndPage() async throws {
+        let client = FixtureClient()
+        client.on("/channel/UCSMOQeBJ2RAnuFungnQOxLg", fixture: "piped/channel_playlists_tabs.json")
+        client.on("/channels/tabs", fixture: "piped/channel_tab_playlists.json")
+        let piped = PipedSource(instance: instance(.piped), client: client)
+        let channel = ChannelID(rawValue: "UCSMOQeBJ2RAnuFungnQOxLg")
+        let page = try await piped.channelPlaylists(channel, cursor: nil)
+        #expect(page.items.count == 3)
+        let first = try #require(page.items.first)
+        #expect(first.id.rawValue == "PLa1F2ddGya_-I9y1nXALrBqrZNdlUE012")
+        #expect(first.title == "Blender Conference 2026" && first.videoCount == 94 && first.channelName == "Blender")
+        #expect(first.thumbnails.first?.url.host() == "proxy.instance.example")
+
+        // The next page sends the tab's data again, with Piped's nextpage, and skips the channel.
+        let cursor = try #require(page.nextCursor)
+        _ = try await piped.channelPlaylists(channel, cursor: cursor)
+        let last = try #require(client.requests.last?.url)
+        let items = URLComponents(url: last, resolvingAgainstBaseURL: false)?.queryItems ?? []
+        #expect(last.path().hasSuffix("/channels/tabs"))
+        #expect(items.contains { $0.name == "data" } && items.contains { $0.name == "nextpage" })
+        #expect(client.requestedPaths.filter { $0.contains("/channel/") }.count == 1)
+    }
+
     @Test func watchPageMapsAdaptiveStreamsAndSkipsMuxed() async throws {
         let piped = source { $0.on("/streams/dQw4w9WgXcQ", fixture: "piped/streams.json") }
         let page = try await piped.watchPage(for: VideoID(rawValue: "dQw4w9WgXcQ"))

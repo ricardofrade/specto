@@ -22,6 +22,25 @@ struct InstanceRecord: Codable, FetchableRecord, PersistableRecord {
     }
 }
 
+struct SavedPlaylistRecord: Codable, FetchableRecord, PersistableRecord {
+    static let databaseTableName = "savedPlaylist"
+    var id: String
+    var title: String
+    var channelName: String?
+    var videoCount: Int?
+    var thumbnailURL: String?
+    var savedAt: Date
+    var modifiedAt: Date
+    var isDeleted: Bool = false
+    var syncMetadata: Data? = nil
+    var uploadedAt: Date? = nil
+
+    var summary: PlaylistSummary {
+        PlaylistSummary(id: PlaylistID(rawValue: id), title: title, channelName: channelName, videoCount: videoCount,
+                        thumbnails: thumbnailURL.flatMap(Thumbnail.unsized).map { [$0] } ?? [])
+    }
+}
+
 struct SubscriptionRecord: Codable, FetchableRecord, PersistableRecord {
     static let databaseTableName = "subscription"
     var channelID: String
