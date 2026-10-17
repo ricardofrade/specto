@@ -161,7 +161,8 @@ struct SettingsView: View {
                                 subscriptions: SubscriptionStore(environment.database),
                                 secrets: environment.secrets, deviceName: UIDevice.current.name,
                                 onChange: { environment.instancesChanged() },
-                                onImported: { environment.subscriptionsChanged($0) })
+                                onImported: { environment.subscriptionsChanged($0) },
+                                checkHealth: { await environment.checkInstanceHealth() })
             }
         }
     }

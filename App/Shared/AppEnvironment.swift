@@ -288,6 +288,12 @@ final class AppEnvironment {
         }
     }
 
+    /// Every instance's reachability and latency, for Settings → Instances. Unreachable ones
+    /// also cool down in the router, as with the launch probe.
+    func checkInstanceHealth() async -> [HealthSample] {
+        await router.checkHealth()
+    }
+
     // MARK: Browsing
 
     func search(_ query: String, filter: SearchFilter, cursor: String?) async throws -> Page<SearchResult> {

@@ -20,7 +20,8 @@ struct TVSettingsView: View {
                                     subscriptions: SubscriptionStore(environment.database),
                                     secrets: environment.secrets, deviceName: "Apple TV",
                                     onChange: { environment.instancesChanged() },
-                                    onImported: { environment.subscriptionsChanged($0) })
+                                    onImported: { environment.subscriptionsChanged($0) },
+                                    checkHealth: { await environment.checkInstanceHealth() })
                 } label: {
                     LabeledContent {
                         Text("\(environment.instances.count)")
