@@ -206,7 +206,8 @@ final class AppEnvironment {
         let container = Bundle.main.object(forInfoDictionaryKey: "CloudKitContainer") as? String ?? ""
         guard !container.isEmpty, !ProcessInfo.processInfo.arguments.contains("-UITestFreshStart") else { return }
         // A linked account owns subscriptions and watch state (ADR 0002), not instances or playlists.
-        let types: Set<SyncStore.RecordType> = account == nil ? Set(SyncStore.RecordType.allCases) : [.instance, .playlist]
+        let types: Set<SyncStore.RecordType> = account == nil ? Set(SyncStore.RecordType.allCases)
+                                                                    : [.instance, .playlist, .userPlaylist]
         guard cloudSync?.types != types else { return }
         let previous = cloudSync
         let sync = CloudSync(containerIdentifier: container, database: database, types: types, secrets: secrets)

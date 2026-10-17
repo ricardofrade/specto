@@ -46,7 +46,8 @@ struct RootView: View {
         _library = State(initialValue: LibraryModel(watchState: WatchStateStore(environment.database),
                                                     queue: QueueStore(environment.database),
                                                     subscriptions: SubscriptionStore(environment.database),
-                                                    playlists: PlaylistStore(environment.database)))
+                                                    playlists: PlaylistStore(environment.database),
+                                                    userPlaylists: UserPlaylistStore(environment.database)))
         _search = State(initialValue: environment.makeSearchModel())
     }
 
@@ -61,7 +62,9 @@ struct RootView: View {
                                onAddToQueue: { environment.addToQueue($0.video) },
                                onSetWatched: { environment.setWatched($0.video, $1) },
                                onHideChannel: { environment.setHiddenFromHome($0.channelID, true) },
-                               onOpenShorts: { rows, start in router.openShorts(rows.map(\.video), start: start) })
+                               onOpenShorts: { rows, start in router.openShorts(rows.map(\.video), start: start) },
+                               onSaveToWatchLater: { environment.saveToWatchLater($0.video) },
+                               onSaveToPlaylist: { router.savingToPlaylist = $0.video })
                         .routes()
                         .onAppear {
                             onFirstFeedFrame()
@@ -182,6 +185,9 @@ struct RootView: View {
         }
         // Full screen on every device: a sheet on iPad is a compact form sheet, which would
         // hide the band and side-panel layouts. The zoom transition makes it swipe-dismissible.
+        .sheet(item: saving(inPlayer: false)) { video in
+            SaveToPlaylistSheet(model: UserPlaylistsModel(store: UserPlaylistStore(environment.database)), video: video)
+        }
         .fullScreenCover(item: $router.shorts) { content in
             ShortsScreen(session: environment.session, content: content, onShow: { video in
                 // Auto-advance continues through the shelf's Shorts.
@@ -201,6 +207,10 @@ struct RootView: View {
                             onOpenChannel: { router.openChannel($0, name: $1) })
                     .toolbar(.hidden, for: .navigationBar)
                     .routes()
+                    .sheet(item: saving(inPlayer: true)) { video in
+                        SaveToPlaylistSheet(model: UserPlaylistsModel(store: UserPlaylistStore(environment.database)),
+                                            video: video)
+                    }
                     .onAppear { environment.castDiscovery.start() }
                     .onDisappear { environment.castDiscovery.stop() }
             }
@@ -219,8 +229,15 @@ struct RootView: View {
                                              if let video = environment.startPlaylist(videos, at: start) { play(video) }
                                          }))
             case .savedPlaylists:
-                .savedPlaylists(SavedPlaylistsScreen(model: SavedPlaylistsModel(store: PlaylistStore(environment.database)),
-                                                     onOpen: { router.push(.playlist($0)) }))
+                .savedPlaylists(PlaylistsScreen(saved: SavedPlaylistsModel(store: PlaylistStore(environment.database)),
+                                                own: UserPlaylistsModel(store: UserPlaylistStore(environment.database)),
+                                                onOpenSaved: { router.push(.playlist($0)) },
+                                                onOpenOwn: { router.push(.userPlaylist($0)) }))
+            case .userPlaylist(let id):
+                .userPlaylist(UserPlaylistScreen(model: UserPlaylistsModel(store: UserPlaylistStore(environment.database)),
+                                                 id: id, onPlay: { videos, start in
+                                                     if let video = environment.startPlaylist(videos, at: start) { play(video) }
+                                                 }))
             case .channels:
                 .channels(ChannelsScreen(model: ChannelsModel(subscriptions: SubscriptionStore(environment.database)),
                                          onOpen: { router.openChannel($0.id, name: $0.name) },
@@ -252,6 +269,9 @@ struct RootView: View {
         actions.audioTracks = environment.availableAudioTracks
         actions.selectedAudio = environment.selectedAudioLanguage
         actions.selectAudio = { language in Task { await environment.selectAudio(language) } }
+        if let video = router.watching?.video {
+            actions.saveToPlaylist = { router.savingToPlaylist = video }
+        }
         actions.upNext = environment.upNext
         actions.cancelUpNext = { environment.cancelUpNext() }
         actions.playUpNextNow = { environment.playUpNextNow() }
@@ -305,6 +325,13 @@ struct RootView: View {
     }
 
     /// Auto-advance (the queue, a playlist) plays from the environment: the open player follows.
+    /// "Save to Playlist" presents from the player when it's open (a sheet can't show over a
+    /// full-screen cover from below it), else from the root.
+    private func saving(inPlayer: Bool) -> Binding<VideoSummary?> {
+        Binding(get: { (router.watching != nil) == inPlayer ? router.savingToPlaylist : nil },
+                set: { router.savingToPlaylist = $0 })
+    }
+
     private func followAutoAdvance(to id: VideoID?) {
         guard let id, let watching = router.watching, watching.video.id != id,
               let page = environment.currentPage, page.details.summary.id == id else { return }
@@ -349,7 +376,8 @@ enum RouteView: View {
     case channel(ChannelScreen)
     case channels(ChannelsScreen)
     case playlist(PlaylistScreen)
-    case savedPlaylists(SavedPlaylistsScreen)
+    case savedPlaylists(PlaylistsScreen)
+    case userPlaylist(UserPlaylistScreen)
 
     var body: some View {
         switch self {
@@ -357,6 +385,7 @@ enum RouteView: View {
         case .channels(let screen): screen
         case .playlist(let screen): screen
         case .savedPlaylists(let screen): screen
+        case .userPlaylist(let screen): screen
         }
     }
 }

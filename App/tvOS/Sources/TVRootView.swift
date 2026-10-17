@@ -18,6 +18,7 @@ struct TVRootView: View {
     @State private var search: SearchModel
     @State private var library: LibraryModel
     @State private var savedPlaylists: SavedPlaylistsModel
+    @State private var ownPlaylists: UserPlaylistsModel
     @State private var libraryPath: [TVRoute] = []
     @State private var homePath: [TVRoute] = []
     @State private var searchPath: [TVRoute] = []
@@ -37,6 +38,7 @@ struct TVRootView: View {
         _library = State(initialValue: LibraryModel(watchState: WatchStateStore(environment.database),
                                                     queue: QueueStore(environment.database)))
         _savedPlaylists = State(initialValue: SavedPlaylistsModel(store: PlaylistStore(environment.database)))
+        _ownPlaylists = State(initialValue: UserPlaylistsModel(store: UserPlaylistStore(environment.database)))
         _search = State(initialValue: environment.makeSearchModel())
     }
 
@@ -53,7 +55,7 @@ struct TVRootView: View {
             }
             Tab {
                 NavigationStack(path: $libraryPath) {
-                    TVLibraryView(model: library, playlists: savedPlaylists, actions: actions { libraryPath.append($0) })
+                    TVLibraryView(model: library, playlists: savedPlaylists, own: ownPlaylists, actions: actions { libraryPath.append($0) })
                         .routes(environment: environment, actions: actions { libraryPath.append($0) })
                 }
             } label: {
@@ -100,7 +102,9 @@ struct TVRootView: View {
                          if let video = environment.startPlaylist(videos, at: start) { play(video) }
                      },
                      setWatched: { environment.setWatched($0, $1) },
-                     hideChannel: { environment.setHiddenFromHome($0, true) })
+                     hideChannel: { environment.setHiddenFromHome($0, true) },
+                     saveToWatchLater: { environment.saveToWatchLater($0) },
+                     openUserPlaylist: { push(.userPlaylist($0)) })
     }
 
     private func play(_ video: VideoSummary) {
@@ -113,6 +117,7 @@ struct TVRootView: View {
 enum TVRoute: Hashable {
     case channel(ChannelID, String)
     case playlist(PlaylistSummary)
+    case userPlaylist(String)
 }
 
 private extension View {
@@ -128,6 +133,9 @@ private extension View {
                     loadPlaylists: environment.channelPlaylistsLoader,
                     setSubscribed: { channel, subscribed in try await environment.setSubscribed(channel, subscribed) }),
                     actions: actions)
+            case .userPlaylist(let id):
+                TVUserPlaylistView(model: UserPlaylistsModel(store: UserPlaylistStore(environment.database)), id: id,
+                                   actions: actions)
             case .playlist(let summary):
                 TVPlaylistView(model: PlaylistModel(summary: summary, store: PlaylistStore(environment.database),
                                                     load: { id, cursor in try await environment.playlist(id, cursor: cursor) }),

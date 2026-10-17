@@ -21,6 +21,8 @@ public struct FeedScreen: View {
     private let onSetWatched: (FeedRow, Bool) -> Void
     private let onHideChannel: (FeedRow) -> Void
     private let onOpenShorts: ([FeedRow], Int) -> Void
+    private let onSaveToWatchLater: (FeedRow) -> Void
+    private let onSaveToPlaylist: (FeedRow) -> Void
     private let transition: Namespace.ID?
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.displayScale) private var displayScale
@@ -39,7 +41,11 @@ public struct FeedScreen: View {
                 onAddToQueue: @escaping (FeedRow) -> Void = { _ in },
                 onSetWatched: @escaping (FeedRow, Bool) -> Void = { _, _ in },
                 onHideChannel: @escaping (FeedRow) -> Void = { _ in },
-                onOpenShorts: @escaping (_ shorts: [FeedRow], _ start: Int) -> Void = { _, _ in }) {
+                onOpenShorts: @escaping (_ shorts: [FeedRow], _ start: Int) -> Void = { _, _ in },
+                onSaveToWatchLater: @escaping (FeedRow) -> Void = { _ in },
+                onSaveToPlaylist: @escaping (FeedRow) -> Void = { _ in }) {
+        self.onSaveToWatchLater = onSaveToWatchLater
+        self.onSaveToPlaylist = onSaveToPlaylist
         self.onOpenShorts = onOpenShorts
         self.transition = transition
         self.onAddToQueue = onAddToQueue
@@ -141,7 +147,8 @@ public struct FeedScreen: View {
 
     private var rowActions: RowActions {
         RowActions(select: onSelect, prefetch: onPrefetch, openChannel: onOpenChannel, addToQueue: onAddToQueue,
-                   setWatched: onSetWatched, hideChannel: onHideChannel)
+                   setWatched: onSetWatched, hideChannel: onHideChannel,
+                   saveToWatchLater: onSaveToWatchLater, saveToPlaylist: onSaveToPlaylist)
     }
 
     /// Full width; on wide windows `HeroCard` caps the height, so it stays a hero, not a wall.
@@ -263,6 +270,8 @@ struct RowActions {
     let addToQueue: (FeedRow) -> Void
     let setWatched: (FeedRow, Bool) -> Void
     let hideChannel: (FeedRow) -> Void
+    let saveToWatchLater: (FeedRow) -> Void
+    let saveToPlaylist: (FeedRow) -> Void
 }
 
 /// Tap to play (zooming from this view), touch-down prefetch, and the context menu.
@@ -278,6 +287,12 @@ struct RowInteractions: ViewModifier {
             .contextMenu {
                 Button { actions.addToQueue(row) } label: {
                     Label { Text("Add to Queue") } icon: { Image(systemName: "text.badge.plus") }
+                }
+                Button { actions.saveToWatchLater(row) } label: {
+                    Label { Text("Save to Watch Later") } icon: { Image(systemName: "clock") }
+                }
+                Button { actions.saveToPlaylist(row) } label: {
+                    Label { Text("Save to Playlist…") } icon: { Image(systemName: "bookmark") }
                 }
                 Button { actions.setWatched(row, !row.isWatched) } label: {
                     if row.isWatched {

@@ -263,3 +263,65 @@ private let video = VideoID(rawValue: "aqz-KE-bpKQ")
         #expect(try PlaylistStore(tv).all().first?.title == "Talks")
     }
 }
+
+@Suite struct UserPlaylistTests {
+    private func video(_ id: String) -> VideoSummary {
+        VideoSummary(id: VideoID(rawValue: id), title: "Video \(id)", channelID: ChannelID(rawValue: "UC"),
+                     channelName: "C", duration: .seconds(60), publishedAt: nil, viewCount: nil, thumbnails: [])
+    }
+
+    @Test func watchLaterIsAlwaysFirstAndAppearsOnFirstUse() throws {
+        let store = UserPlaylistStore(try AppDatabase.inMemory())
+        #expect(try store.all().map(\.id) == [UserPlaylist.watchLaterID])
+        #expect(try store.all().first?.videos.isEmpty == true)
+        try store.toggleWatchLater(video("a"))
+        let mine = try store.create(title: "Trips")
+        #expect(try store.all().map(\.id) == [UserPlaylist.watchLaterID, mine.id])
+        #expect(try store.playlist(UserPlaylist.watchLaterID)?.contains(VideoID(rawValue: "a")) == true)
+        try store.toggleWatchLater(video("a"))
+        #expect(try store.playlist(UserPlaylist.watchLaterID)?.videos.isEmpty == true)
+        try store.delete(UserPlaylist.watchLaterID)     // Can't be deleted.
+        #expect(try store.all().first?.isWatchLater == true)
+    }
+
+    @Test func addOnceReorderRemoveRenameDelete() throws {
+        let db = try AppDatabase.inMemory()
+        let store = UserPlaylistStore(db)
+        let list = try store.create(title: "Mix", with: video("a"))
+        try store.add(video("b"), to: list.id)
+        try store.add(video("c"), to: list.id)
+        try store.add(video("a"), to: list.id)          // Already there: stays first.
+        #expect(try store.playlist(list.id)?.videos.map(\.id.rawValue) == ["a", "b", "c"])
+        try store.move(in: list.id, from: [2], to: 0)
+        #expect(try store.playlist(list.id)?.videos.map(\.id.rawValue) == ["c", "a", "b"])
+        try store.remove(VideoID(rawValue: "a"), from: list.id)
+        try store.rename(list.id, to: "Road trip")
+        #expect(try store.playlist(list.id)?.title == "Road trip")
+        #expect(try store.playlist(list.id)?.videos.count == 2)
+        try store.delete(list.id)
+        #expect(try store.playlist(list.id) == nil)
+        #expect(try SyncStore(db).pendingKeys().contains(SyncStore.Key(.userPlaylist, list.id)))
+    }
+
+    @Test func syncsAsOneRecordWithItsOrder() throws {
+        let phone = try AppDatabase.inMemory(), tv = try AppDatabase.inMemory()
+        let list = try UserPlaylistStore(phone).create(title: "Mix", with: video("b"))
+        try UserPlaylistStore(phone).add(video("a"), to: list.id)
+        let change = try #require(try SyncStore(phone).change(for: SyncStore.Key(.userPlaylist, list.id)))
+        let fetched = try #require(CloudRecords.change(from: CloudRecords.record(for: change)))
+        #expect(try SyncStore(tv).apply(fetched))
+        #expect(try UserPlaylistStore(tv).playlist(list.id)?.videos.map(\.id.rawValue) == ["b", "a"])
+    }
+
+    @Test func backupCarriesThem() throws {
+        let phone = try AppDatabase.inMemory()
+        try UserPlaylistStore(phone).toggleWatchLater(video("w"))
+        let list = try UserPlaylistStore(phone).create(title: "Mix", with: video("m"))
+        let backup = try BackupStore.decode(try BackupStore(phone).encoded())
+        let fresh = try AppDatabase.inMemory()
+        let summary = try BackupStore(fresh).restore(backup)
+        #expect(summary.userPlaylists == 2)
+        #expect(try UserPlaylistStore(fresh).playlist(list.id)?.title == "Mix")
+        #expect(try UserPlaylistStore(fresh).playlist(UserPlaylist.watchLaterID)?.videos.map(\.id.rawValue) == ["w"])
+    }
+}

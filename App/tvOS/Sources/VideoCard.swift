@@ -27,6 +27,9 @@ struct VideoCard: View {
                 Button { actions.addToQueue(row.video) } label: {
                     Label { Text("Add to Queue") } icon: { Image(systemName: "text.badge.plus") }
                 }
+                Button { actions.saveToWatchLater(row.video) } label: {
+                    Label { Text("Save to Watch Later") } icon: { Image(systemName: "clock") }
+                }
                 Button { actions.setWatched(row.video, !row.isWatched) } label: {
                     if row.isWatched {
                         Label { Text("Mark as Unwatched") } icon: { Image(systemName: "eye.slash") }
@@ -107,4 +110,6 @@ struct VideoActions {
     let playPlaylist: (_ videos: [VideoSummary], _ start: Int) -> Void
     let setWatched: (VideoSummary, Bool) -> Void
     let hideChannel: (ChannelID) -> Void
+    let saveToWatchLater: (VideoSummary) -> Void
+    let openUserPlaylist: (String) -> Void
 }

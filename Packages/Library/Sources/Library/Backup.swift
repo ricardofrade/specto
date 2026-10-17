@@ -15,6 +15,15 @@ public struct Backup: Codable, Sendable, Equatable {
     public var history: [Watched]
     public var playlists: [PlaylistSummary]
     public var instances: [Instance]
+    /// Watch Later and the person's playlists (backups from before they existed have none).
+    public var userPlaylists: [UserPlaylistBackup]? = nil
+
+    public struct UserPlaylistBackup: Codable, Sendable, Equatable {
+        public var id: String
+        public var title: String
+        public var videos: [VideoSummary]
+        public var createdAt: Date
+    }
 
     public struct Subscription: Codable, Sendable, Equatable {
         public var channelID: String
@@ -46,6 +55,7 @@ public struct Backup: Codable, Sendable, Equatable {
         public var history = 0
         public var playlists = 0
         public var instances = 0
+        public var userPlaylists = 0
     }
 
     public enum Failure: Error, Equatable {
@@ -80,8 +90,12 @@ public struct BackupStore: Sendable {
             let instances = try InstanceStore.fetchActive(db).filter { $0.kind != .ytZero }.map {
                 Backup.Instance(kind: $0.kind.rawValue, displayName: $0.displayName, apiURL: $0.apiURL.absoluteString)
             }
+            let userPlaylists = try UserPlaylistRecord.filter(Column("isDeleted") == false).fetchAll(db).map {
+                Backup.UserPlaylistBackup(id: $0.id, title: $0.title, videos: UserPlaylistRecord.decode($0.videos),
+                                          createdAt: $0.createdAt)
+            }
             return Backup(exportedAt: .now, subscriptions: subscriptions, history: history, playlists: playlists,
-                          instances: instances)
+                          instances: instances, userPlaylists: userPlaylists)
         }
     }
 
@@ -132,6 +146,25 @@ public struct BackupStore: Sendable {
             guard try !playlists.isSaved(playlist.id) else { continue }
             try playlists.save(playlist)
             summary.playlists += 1
+        }
+
+        // Own playlists: new ones are added; Watch Later (or a playlist that's already here)
+        // gains the videos it lacks.
+        let own = UserPlaylistStore(database)
+        let existing = Set(try own.all().map(\.id))
+        for playlist in backup.userPlaylists ?? [] {
+            if !existing.contains(playlist.id), playlist.id != UserPlaylist.watchLaterID {
+                try database.writer.write { db in
+                    try UserPlaylistRecord(id: playlist.id, title: playlist.title,
+                                           videos: UserPlaylistRecord.encode(playlist.videos),
+                                           createdAt: playlist.createdAt, modifiedAt: .now).save(db)
+                }
+                summary.userPlaylists += 1
+            } else {
+                let before = try own.playlist(playlist.id)?.videos.count ?? 0
+                for video in playlist.videos { try own.add(video, to: playlist.id) }
+                if try (own.playlist(playlist.id)?.videos.count ?? 0) > before { summary.userPlaylists += 1 }
+            }
         }
 
         let instances = InstanceStore(database)

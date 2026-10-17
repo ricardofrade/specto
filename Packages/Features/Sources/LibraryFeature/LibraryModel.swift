@@ -19,16 +19,22 @@ public final class LibraryModel {
     @ObservationIgnored private let queueStore: QueueStore
     @ObservationIgnored private let subscriptions: SubscriptionStore?
     @ObservationIgnored private let playlists: PlaylistStore?
+    @ObservationIgnored private let userPlaylists: UserPlaylistStore?
+    @ObservationIgnored private var savedCount = 0
+    @ObservationIgnored private var ownCount = 0
     @ObservationIgnored private var observations: [Task<Void, Never>] = []
 
     public init(watchState: WatchStateStore, queue: QueueStore, subscriptions: SubscriptionStore? = nil,
-                playlists: PlaylistStore? = nil) {
+                playlists: PlaylistStore? = nil, userPlaylists: UserPlaylistStore? = nil) {
+        self.userPlaylists = userPlaylists
         self.watchState = watchState
         self.queueStore = queue
         self.subscriptions = subscriptions
         self.playlists = playlists
         channelCount = (try? subscriptions?.channels().count) ?? 0
-        playlistCount = (try? playlists?.all().count) ?? 0
+        savedCount = (try? playlists?.all().count) ?? 0
+        ownCount = Self.countOwn((try? userPlaylists?.all()) ?? [])
+        playlistCount = savedCount + ownCount
         continueWatching = (try? watchState.inProgress()) ?? []
         self.queue = (try? queue.rows()) ?? []
         history = (try? watchState.history()) ?? []
@@ -50,9 +56,31 @@ public final class LibraryModel {
         }
         if let saved = playlists?.observe() {
             observations.append(Task { [weak self] in
-                do { for try await list in saved { self?.playlistCount = list.count } } catch {}
+                do {
+                    for try await list in saved {
+                        guard let self else { return }
+                        self.savedCount = list.count
+                        self.playlistCount = self.savedCount + self.ownCount
+                    }
+                } catch {}
             })
         }
+        if let own = userPlaylists?.observe() {
+            observations.append(Task { [weak self] in
+                do {
+                    for try await list in own {
+                        guard let self else { return }
+                        self.ownCount = Self.countOwn(list)
+                        self.playlistCount = self.savedCount + self.ownCount
+                    }
+                } catch {}
+            })
+        }
+    }
+
+    /// Watch Later counts once it has something in it; made playlists always.
+    private static func countOwn(_ list: [UserPlaylist]) -> Int {
+        list.filter { !$0.isWatchLater || !$0.videos.isEmpty }.count
     }
 
     public var isEmpty: Bool { continueWatching.isEmpty && queue.isEmpty && history.isEmpty && channelCount == 0 && playlistCount == 0 }

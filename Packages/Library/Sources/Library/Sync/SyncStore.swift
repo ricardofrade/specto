@@ -12,6 +12,7 @@ public struct SyncStore: Sendable {
         case watchState = "WatchState"
         case instance = "Instance"
         case playlist = "Playlist"
+        case userPlaylist = "UserPlaylist"
     }
 
     public struct Key: Hashable, Sendable {
@@ -35,6 +36,8 @@ public struct SyncStore: Sendable {
                       token: String?, isDeleted: Bool)
         case playlist(title: String, channelName: String?, videoCount: Int?, thumbnailURL: String?, savedAt: Date,
                       isDeleted: Bool)
+        /// The videos as JSON, in order: the whole list syncs as one value (ADR 0012).
+        case userPlaylist(title: String, videos: Data, createdAt: Date, isDeleted: Bool)
     }
 
     public struct Change: Sendable, Equatable {
@@ -101,6 +104,12 @@ public struct SyncStore: Sendable {
                     Change(key: key, values: .playlist(title: record.title, channelName: record.channelName,
                                                         videoCount: record.videoCount, thumbnailURL: record.thumbnailURL,
                                                         savedAt: record.savedAt, isDeleted: record.isDeleted),
+                           modifiedAt: record.modifiedAt, systemFields: record.syncMetadata)
+                }
+            case .userPlaylist:
+                try UserPlaylistRecord.fetchOne(db, key: key.id).map { record in
+                    Change(key: key, values: .userPlaylist(title: record.title, videos: record.videos,
+                                                            createdAt: record.createdAt, isDeleted: record.isDeleted),
                            modifiedAt: record.modifiedAt, systemFields: record.syncMetadata)
                 }
             case .instance:
@@ -175,6 +184,15 @@ public struct SyncStore: Sendable {
                                         thumbnailURL: thumbnailURL, savedAt: savedAt, modifiedAt: change.modifiedAt,
                                         isDeleted: isDeleted, syncMetadata: change.systemFields,
                                         uploadedAt: change.modifiedAt).save(db)
+            case let .userPlaylist(title, videos, createdAt, isDeleted):
+                let local = try UserPlaylistRecord.fetchOne(db, key: key.id)
+                guard Self.remoteWins(change.modifiedAt, over: local?.modifiedAt) else {
+                    try Self.keepSystemFields(change, db)
+                    return false
+                }
+                try UserPlaylistRecord(id: key.id, title: title, videos: videos, createdAt: createdAt,
+                                       modifiedAt: change.modifiedAt, isDeleted: isDeleted,
+                                       syncMetadata: change.systemFields, uploadedAt: change.modifiedAt).save(db)
             case let .instance(kind, displayName, apiURL, sortOrder, addedAt, token, isDeleted):
                 let local = try InstanceRecord.fetchOne(db, key: key.id)
                 guard Self.remoteWins(change.modifiedAt, over: local?.modifiedAt) else {
@@ -261,6 +279,7 @@ public struct SyncStore: Sendable {
         case .watchState: ("watchState", "videoID")
         case .instance: ("instance", "id")
         case .playlist: ("savedPlaylist", "id")
+        case .userPlaylist: ("userPlaylist", "id")
         }
     }
 

@@ -8,6 +8,7 @@ import DesignSystem
 struct TVLibraryView: View {
     let model: LibraryModel
     let playlists: SavedPlaylistsModel
+    let own: UserPlaylistsModel
     let actions: VideoActions
 
     var body: some View {
@@ -25,6 +26,23 @@ struct TVLibraryView: View {
                 }
                 if !model.queue.isEmpty {
                     row(Text("Queue"), model.queue, remove: (Text("Remove from Queue"), model.removeFromQueue))
+                }
+                // Watch Later once it has something; playlists the person made always.
+                if !own.shelfRows.isEmpty {
+                    VStack(alignment: .leading, spacing: TVMetrics.gridSpacing) {
+                        Text("Your Playlists").font(.title3.weight(.semibold))
+                        ScrollView(.horizontal) {
+                            LazyHStack(alignment: .top, spacing: TVMetrics.gridSpacing) {
+                                ForEach(own.shelfRows) { row in
+                                    UserPlaylistCard(row: row, open: actions.openUserPlaylist)
+                                        .frame(width: TVMetrics.cardWidth)
+                                }
+                            }
+                            .padding(.vertical, TVMetrics.gridSpacing)
+                        }
+                        .scrollClipDisabled()
+                    }
+                    .focusSection()
                 }
                 if !playlists.rows.isEmpty {
                     VStack(alignment: .leading, spacing: TVMetrics.gridSpacing) {
@@ -62,6 +80,7 @@ struct TVLibraryView: View {
         .task {
             await model.start()
             await playlists.start()
+            await own.start()
         }
     }
 

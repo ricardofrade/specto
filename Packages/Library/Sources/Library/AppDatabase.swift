@@ -171,6 +171,20 @@ public struct AppDatabase: Sendable {
                 t.add(column: "hiddenFromHome", .boolean).notNull().defaults(to: false)
             }
         }
+        // The person's own playlists, Watch Later included: one row each, its videos in order
+        // (ADR 0012). Synced like everything else in the library.
+        migrator.registerMigration("v9-user-playlists") { db in
+            try db.create(table: "userPlaylist") { t in
+                t.primaryKey("id", .text)
+                t.column("title", .text).notNull()
+                t.column("videos", .blob).notNull()
+                t.column("createdAt", .datetime).notNull()
+                t.column("modifiedAt", .datetime).notNull()
+                t.column("isDeleted", .boolean).notNull().defaults(to: false)
+                t.column("syncMetadata", .blob)
+                t.column("uploadedAt", .datetime)
+            }
+        }
         return migrator
     }
 }

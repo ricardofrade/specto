@@ -18,6 +18,8 @@ public struct PlayerActions {
     public var switchMode: (PlaybackMode) -> Void
     public var isQueued: Bool = false
     public var toggleQueue: () -> Void = {}
+    /// Opens "Save to Playlist" (Watch Later and the person's playlists); nil hides the button.
+    public var saveToPlaylist: (() -> Void)?
     /// Subtitle tracks, the one showing, and how to change it.
     public var captions: [CaptionTrack] = []
     public var selectedCaption: CaptionTrack?
@@ -98,6 +100,13 @@ struct PlayerActionsBar: View {
                     .labelStyle(.iconOnly)
                 }
                 .accessibilityIdentifier("watch.queue")
+                if let save = actions.saveToPlaylist {
+                    Button(action: save) {
+                        Label { Text("Save to Playlist") } icon: { Image(systemName: "bookmark") }
+                            .labelStyle(.iconOnly)
+                    }
+                    .accessibilityIdentifier("watch.save")
+                }
                 if !actions.captions.isEmpty {
                     Menu {
                         Picker(selection: Binding(get: { actions.selectedCaption }, set: { actions.selectCaption($0) })) {

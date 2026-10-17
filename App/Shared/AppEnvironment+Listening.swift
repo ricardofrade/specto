@@ -19,6 +19,12 @@ extension AppEnvironment {
         try? SubscriptionStore(database).setHiddenFromHome(channel, hidden)
     }
 
+    // MARK: Watch Later
+
+    func saveToWatchLater(_ video: VideoSummary) {
+        try? UserPlaylistStore(database).add(video, to: UserPlaylist.watchLaterID)
+    }
+
     // MARK: Queue
 
     func addToQueue(_ video: VideoSummary) {

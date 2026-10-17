@@ -21,8 +21,10 @@ final class SceneRouter {
         /// Every subscription (Library → Channels).
         case channels
         case playlist(PlaylistSummary)
-        /// Saved playlists (Library → Playlists).
+        /// Library → Playlists: the person's own, then saved ones.
         case savedPlaylists
+        /// Watch Later or one of the person's playlists, by ID.
+        case userPlaylist(String)
     }
 
     /// Routes inside Settings.
@@ -41,6 +43,8 @@ final class SceneRouter {
     /// The open channel tab's stack (iPad sidebar); one tab shows at a time.
     var channelPath: [Route] = []
     var watching: WatchContent?
+    /// "Save to Playlist" for this video (presented over whatever is on top).
+    var savingToPlaylist: VideoSummary?
     /// The vertical Shorts player, over everything.
     var shorts: ShortsContent?
 
