@@ -283,6 +283,7 @@
       }
     },
     "Chapters & Up Next": {
+      "extractionState": "stale",
       "localizations": {
         "pt-PT": {
           "stringUnit": {
@@ -756,6 +757,16 @@
         }
       }
     },
+    "More": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mais"
+          }
+        }
+      }
+    },
     "New uploads from your subscriptions show up here.": {
       "localizations": {
         "pt-PT": {
@@ -872,6 +883,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Agora"
+          }
+        }
+      }
+    },
+    "Off": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Desativadas"
           }
         }
       }
@@ -1012,6 +1033,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Reproduzir"
+          }
+        }
+      }
+    },
+    "Playback Speed": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Velocidade de reprodução"
           }
         }
       }
@@ -1332,6 +1363,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Subscrições"
+          }
+        }
+      }
+    },
+    "Subtitles": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Legendas"
           }
         }
       }

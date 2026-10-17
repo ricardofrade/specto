@@ -149,6 +149,10 @@ struct RootView: View {
                                     castTargets: environment.castTargets,
                                     cast: { environment.cast(to: $0) },
                                     casting: environment.casting)
+        actions.captions = environment.captionTracks
+        actions.selectedCaption = environment.selectedCaption
+        actions.selectCaption = { environment.selectCaption($0) }
+        actions.toggleCaptions = { environment.toggleCaptions() }
         if let video = router.watching?.video {
             actions.isQueued = queuedIDs.contains(video.id)
             actions.toggleQueue = {

@@ -19,6 +19,9 @@ final class AppEnvironment {
     let session: PlaybackSession
     private(set) var instances: [InstanceConfig] = []
     private(set) var hasSubscriptions = false
+    /// Subtitle tracks of the video now playing, and the one showing (set by the playback extensions).
+    var captionTracks: [CaptionTrack] = []
+    var selectedCaption: CaptionTrack?
     @ObservationIgnored private(set) var router = InstanceRouter(sources: [])
     @ObservationIgnored private(set) var refresher: FeedRefresher
     @ObservationIgnored private(set) var account: (any SubscriptionAccount)?
@@ -317,6 +320,7 @@ final class AppEnvironment {
         await session.play(item, request)
         endWhenPlaying(tap)
         loadSkipSegments(for: video.id)
+        applyCaptions(page.manifest.captions, for: video.id)
         return page
     }
 
@@ -350,6 +354,7 @@ final class AppEnvironment {
             let page = try await router.perform(.streams) { try await $0.watchPage(for: item.videoID) }
             try? manifests.store(page)
             await session.play(item, try plan(page, mode: mode, startAt: position))
+            loadSelectedCaption(for: item.videoID)
         } catch {
             // Leave the failure visible; the user can retry.
         }

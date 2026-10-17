@@ -18,6 +18,11 @@ public struct PlayerActions {
     public var switchMode: (PlaybackMode) -> Void
     public var isQueued: Bool = false
     public var toggleQueue: () -> Void = {}
+    /// Subtitle tracks, the one showing, and how to change it.
+    public var captions: [CaptionTrack] = []
+    public var selectedCaption: CaptionTrack?
+    public var selectCaption: (CaptionTrack?) -> Void = { _ in }
+    public var toggleCaptions: () -> Void = {}
     /// nil when PiP isn't available for this playback.
     public var startPictureInPicture: (() -> Void)?
     public var castTargets: [CastTarget]
@@ -74,6 +79,35 @@ struct PlayerActionsBar: View {
                     .labelStyle(.iconOnly)
                 }
                 .accessibilityIdentifier("watch.queue")
+                if !actions.captions.isEmpty {
+                    Menu {
+                        Picker(selection: Binding(get: { actions.selectedCaption }, set: { actions.selectCaption($0) })) {
+                            Text("Off").tag(CaptionTrack?.none)
+                            // Instances label tracks themselves, e.g. "English (auto-generated)".
+                            ForEach(actions.captions, id: \.self) { track in
+                                Text(verbatim: track.label).tag(Optional(track))
+                            }
+                        } label: { Text("Subtitles") }
+                    } label: {
+                        Label { Text("Subtitles") } icon: {
+                            Image(systemName: actions.selectedCaption == nil ? "captions.bubble" : "captions.bubble.fill")
+                        }
+                        .labelStyle(.iconOnly)
+                    }
+                    .accessibilityIdentifier("watch.subtitles")
+                }
+                Menu {
+                    Picker(selection: Binding(get: { session.rate }, set: { session.setRate($0) })) {
+                        ForEach(SpeedOptions.all, id: \.self) { option in
+                            Text(verbatim: option.label).tag(option.rate)
+                        }
+                    } label: { Text("Playback Speed") }
+                } label: {
+                    Label { Text("Playback Speed") } icon: { Image(systemName: "gauge.with.dots.needle.67percent") }
+                        .labelStyle(.iconOnly)
+                }
+                .accessibilityValue(Text(verbatim: SpeedOptions.label(for: session.rate)))
+                .accessibilityIdentifier("watch.speed")
                 if let startPiP = actions.startPictureInPicture, session.mode == .video {
                     Button(action: startPiP) {
                         Label { Text("Picture in Picture") } icon: { Image(systemName: "pip.enter") }

@@ -63,7 +63,10 @@
   "Import Subscriptions…": "Importar subscrições…",
   "Import subscriptions on your iPhone or iPad. They sync to Apple TV through iCloud or YT Zero.": "Importe as subscrições no iPhone ou iPad. São sincronizadas com a Apple TV através do iCloud ou do YT Zero.",
   "Import your subscriptions from YouTube, NewPipe, FreeTube or Piped.": "Importe as suas subscrições do YouTube, NewPipe, FreeTube ou Piped.",
-  "Imported %lld channels.": {"one": "Importado %lld canal.", "other": "Importados %lld canais."},
+  "Imported %lld channels.": {
+    "one": "Importado %lld canal.",
+    "other": "Importados %lld canais."
+  },
   "Instance added": "Instância adicionada",
   "Instances": "Instâncias",
   "Instances & Subscriptions": "Instâncias e subscrições",
@@ -73,6 +76,7 @@
   "Launch times recorded": "Tempos de arranque registados",
   "Live": "Em direto",
   "Loading": "A carregar",
+  "More": "Mais",
   "New uploads from your subscriptions show up here.": "Os novos vídeos das suas subscrições aparecem aqui.",
   "Next": "Seguinte",
   "No channels found in that file.": "Nenhum canal encontrado nesse ficheiro.",
@@ -85,6 +89,7 @@
   "Nothing is sent until you search.": "Nada é enviado até pesquisar.",
   "Nothing new": "Nada de novo",
   "Now": "Agora",
+  "Off": "Desativadas",
   "Offline listening": "Ouvir sem ligação",
   "Open %@ where you're signed in to YT Zero and enter this code, or scan it with another device.": "Abra %@ onde tem sessão iniciada no YT Zero e introduza este código, ou leia-o com outro dispositivo.",
   "Open Pairing Page": "Abrir página de emparelhamento",
@@ -99,6 +104,7 @@
   "Picture in Picture": "Imagem na imagem",
   "Pinned": "Fixado",
   "Play": "Reproduzir",
+  "Playback Speed": "Velocidade de reprodução",
   "Playback failed.": "A reprodução falhou.",
   "Playback spike": "Teste de reprodução",
   "Playing on %@": "A reproduzir em %@",
@@ -131,6 +137,7 @@
   "Subscribe": "Subscrever",
   "Subscribed": "Subscrito",
   "Subscriptions": "Subscrições",
+  "Subtitles": "Legendas",
   "That doesn't look like a web address.": "Isso não parece um endereço web.",
   "That file isn't a subscriptions export this app understands.": "Esse ficheiro não é uma exportação de subscrições que esta app compreenda.",
   "That isn't a Piped API, Invidious or YT Zero instance. For Piped, use the API address, not the website.": "Isso não é uma instância Piped API, Invidious ou YT Zero. No Piped, use o endereço da API, não o do site.",
@@ -153,10 +160,22 @@
   "Your instance is being blocked by YouTube right now. Showing saved videos.": "A sua instância está a ser bloqueada pelo YouTube neste momento. A mostrar vídeos guardados.",
   "Your instances are being blocked by YouTube right now. Try again later.": "As suas instâncias estão a ser bloqueadas pelo YouTube neste momento. Tente mais tarde.",
   "Your own Piped, Invidious or YT Zero server. Nothing is sent anywhere else.": "O seu próprio servidor Piped, Invidious ou YT Zero. Nada é enviado para mais lado nenhum.",
-  "^[%lld channel](inflect: true)": {"one": "%lld canal", "other": "%lld canais"},
-  "^[%lld channel](inflect: true). Import a Google Takeout subscriptions.csv, or an export from NewPipe, FreeTube or Piped.": {"one": "%lld canal. Importe um subscriptions.csv do Google Takeout, ou uma exportação do NewPipe, FreeTube ou Piped.", "other": "%lld canais. Importe um subscriptions.csv do Google Takeout, ou uma exportação do NewPipe, FreeTube ou Piped."},
-  "^[%lld like](inflect: true)": {"one": "%lld gosto", "other": "%lld gostos"},
-  "^[%lld reply](inflect: true)": {"one": "%lld resposta", "other": "%lld respostas"},
+  "^[%lld channel](inflect: true)": {
+    "one": "%lld canal",
+    "other": "%lld canais"
+  },
+  "^[%lld channel](inflect: true). Import a Google Takeout subscriptions.csv, or an export from NewPipe, FreeTube or Piped.": {
+    "one": "%lld canal. Importe um subscriptions.csv do Google Takeout, ou uma exportação do NewPipe, FreeTube ou Piped.",
+    "other": "%lld canais. Importe um subscriptions.csv do Google Takeout, ou uma exportação do NewPipe, FreeTube ou Piped."
+  },
+  "^[%lld like](inflect: true)": {
+    "one": "%lld gosto",
+    "other": "%lld gostos"
+  },
+  "^[%lld reply](inflect: true)": {
+    "one": "%lld resposta",
+    "other": "%lld respostas"
+  },
   "end cards": "ecrãs finais",
   "filler": "conteúdo de enchimento",
   "intro": "introdução",

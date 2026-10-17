@@ -38,6 +38,11 @@ final class AppSettings {
         didSet { defaults.set(offlineLimitBytes, forKey: Keys.offlineLimit) }
     }
 
+    /// Subtitle language code ("en"), "off", or nil to follow the system's Closed Captions setting.
+    var captionLanguage: String? {
+        didSet { defaults.set(captionLanguage, forKey: Keys.captionLanguage) }
+    }
+
     private let defaults: UserDefaults
 
     init(defaults: UserDefaults = .standard) {
@@ -49,6 +54,7 @@ final class AppSettings {
         brandedThumbnails = defaults.object(forKey: Keys.brandedThumbnails) as? Bool ?? false
         downloadsQueue = defaults.object(forKey: Keys.downloadsQueue) as? Bool ?? true
         offlineLimitBytes = defaults.object(forKey: Keys.offlineLimit) as? Int64 ?? 2_000_000_000
+        captionLanguage = defaults.string(forKey: Keys.captionLanguage)
     }
 
     var feedOptions: FeedStore.Options {
@@ -57,6 +63,7 @@ final class AppSettings {
 
     private enum Keys {
         static let hideShorts = "feed.hideShorts"
+        static let captionLanguage = "playback.captionLanguage"
         static let showsRelated = "watch.showsRelated"
         static let skipsSponsors = "sponsorBlock.enabled"
         static let brandedTitles = "deArrow.titles"

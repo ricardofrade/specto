@@ -8,7 +8,8 @@ import DesignSystem
 /// Full-screen playback with the Siri Remote:
 /// - Select or Play/Pause toggles playback.
 /// - Left/right skip back 10 s and forward 10 s. Right after a SponsorBlock skip, left undoes it.
-/// - Down opens chapters and Up Next (shown by itself when a video ends with nothing queued).
+/// - Down opens subtitles, speed, chapters and Up Next (shown by itself when a video ends
+///   with nothing queued).
 /// - Menu (Back) closes that panel, then the player.
 struct TVPlayerView: View {
     let environment: AppEnvironment
@@ -46,6 +47,11 @@ struct TVPlayerView: View {
                 .accessibilityIdentifier("tv.player")
                 // "<state> <engine> <seconds>": read by UI tests.
                 .accessibilityValue(Text(verbatim: "\(session.state) \(session.engineKind?.rawValue ?? "none") \(session.position.components.seconds)"))
+            SubtitleView(session.subtitle)
+                .font(.title3.weight(.semibold))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                .padding(.bottom, transportVisible || showsPanel ? 330 : 90)
+                .animation(Tokens.Motion.standard, value: transportVisible)
             if let error {
                 ContentUnavailableView {
                     Label { Text("Can't play this video") } icon: { Image(systemName: "exclamationmark.triangle") }
@@ -64,6 +70,9 @@ struct TVPlayerView: View {
             }
             if showsPanel {
                 InfoPanel(chapters: chapters, starts: chapterStarts, current: transport.chapterIndex, related: related,
+                          captions: environment.captionTracks, selectedCaption: environment.selectedCaption,
+                          onCaption: { environment.selectCaption($0) },
+                          rate: session.rate, onRate: { session.setRate($0) },
                           focusUpNext: session.state == .ended) { chapter in
                     Task { await session.seek(to: chapter.start, precise: false) }
                     closePanel()
@@ -74,7 +83,7 @@ struct TVPlayerView: View {
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             } else if transportVisible || session.state != .playing {
                 TransportBar(title: title, channelName: channelName, text: transport,
-                             isPlaying: session.state == .playing, hasChapters: !chapters.isEmpty || !related.isEmpty)
+                             isPlaying: session.state == .playing, hasChapters: true)
                     .transition(.opacity)
             }
         }
@@ -153,7 +162,7 @@ struct TVPlayerView: View {
             }
         case .right:
             seek(by: .seconds(10))
-        case .down where !chapters.isEmpty || !related.isEmpty:
+        case .down:
             withAnimation(Tokens.Motion.standard) { showsPanel = true }
         default:
             break
@@ -248,7 +257,7 @@ private struct TransportBar: View {
                 Text(text.elapsed).monospacedDigit()
                 Spacer()
                 if hasChapters {
-                    Label { Text("Chapters & Up Next") } icon: { Image(systemName: "chevron.down") }
+                    Label { Text("More") } icon: { Image(systemName: "chevron.down") }
                         .font(.caption).foregroundStyle(.secondary)
                     Spacer()
                 }
@@ -269,13 +278,18 @@ private struct InfoPanel: View {
     let starts: [String]
     let current: Int?
     let related: [FeedRow]
+    let captions: [CaptionTrack]
+    let selectedCaption: CaptionTrack?
+    let onCaption: (CaptionTrack?) -> Void
+    let rate: Float
+    let onRate: (Float) -> Void
     /// At the end of a video, focus starts on Up Next.
     let focusUpNext: Bool
     let onChapter: (Chapter) -> Void
     let onPlay: (VideoSummary) -> Void
     @FocusState private var focused: Focus?
 
-    enum Focus: Hashable { case chapter(Int), video(VideoID) }
+    enum Focus: Hashable { case chapter(Int), video(VideoID), caption(String), speed(Float) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 30) {
@@ -293,6 +307,28 @@ private struct InfoPanel: View {
                         .buttonStyle(.card)
                         .focused($focused, equals: .chapter(index))
                     }
+                }
+            }
+            if !captions.isEmpty {
+                shelf(Text("Subtitles")) {
+                    captionButton(nil) { Text("Off") }
+                    ForEach(captions, id: \.self) { track in
+                        captionButton(track) { Text(verbatim: track.label) }
+                    }
+                }
+            }
+            shelf(Text("Playback Speed")) {
+                ForEach(SpeedOptions.all, id: \.self) { option in
+                    Button { onRate(option.rate) } label: {
+                        HStack(spacing: 10) {
+                            Image(systemName: "checkmark").opacity(option.rate == rate ? 1 : 0)
+                            Text(verbatim: option.label)
+                        }
+                        .font(.callout)
+                        .padding(.horizontal, 24).padding(.vertical, 14)
+                    }
+                    .buttonStyle(.card)
+                    .focused($focused, equals: .speed(option.rate))
                 }
             }
             if !related.isEmpty {
@@ -321,6 +357,19 @@ private struct InfoPanel: View {
             else if !chapters.isEmpty { focused = .chapter(current ?? 0) }
             else if let first = related.first { focused = .video(first.id) }
         }
+    }
+
+    private func captionButton(_ track: CaptionTrack?, @ViewBuilder label: () -> some View) -> some View {
+        Button { onCaption(track) } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "checkmark").opacity(track == selectedCaption ? 1 : 0)
+                label()
+            }
+            .font(.callout)
+            .padding(.horizontal, 24).padding(.vertical, 14)
+        }
+        .buttonStyle(.card)
+        .focused($focused, equals: .caption(track?.url.absoluteString ?? "off"))
     }
 
     private func shelf(_ title: Text, @ViewBuilder content: () -> some View) -> some View {

@@ -42,7 +42,8 @@ final class FakeEngine: PlaybackEngine {
     func play() { playCount += 1 }
     func pause() {}
     func seek(to position: Duration, precise: Bool) async { seeks.append(position) }
-    func setRate(_ rate: Float) {}
+    private(set) var rates: [Float] = []
+    func setRate(_ rate: Float) { rates.append(rate) }
     func stop() { stopCount += 1 }
     func attach(_ host: any RenderSurfaceHost) { attachedHost = host }
     func detach() { detachCount += 1; attachedHost = nil }
@@ -273,6 +274,31 @@ struct PlaybackSessionTests {
         await settle()
         #expect(av.seeks == [.seconds(60)])
         #expect(mpv.seeks.isEmpty)
+    }
+
+    @Test func speedCarriesOverToTheNextVideoAndEngine() async {
+        let (session, mpv, av) = makeSession(MemoryResumeStore())
+        await session.play(item(a), request(a))
+        session.setRate(1.5)
+        #expect(mpv.rates == [1.5])
+        await session.play(item(b), request(b, mode: .audioOnly))
+        #expect(av.rates == [1.5])
+        #expect(session.rate == 1.5)
+    }
+
+    @Test func showsTheSubtitleForThePosition() async {
+        let (session, mpv, _) = makeSession(MemoryResumeStore())
+        await session.play(item(a), request(a))
+        session.setSubtitles([SubtitleCue(start: .seconds(10), end: .seconds(12), text: "Hello")], for: a)
+        session.setSubtitles([SubtitleCue(start: .zero, end: .seconds(100), text: "Other video")], for: b)
+        mpv.emit(.position(.seconds(11), duration: .seconds(60)))
+        await settle()
+        #expect(session.subtitle == "Hello")
+        mpv.emit(.position(.seconds(13), duration: .seconds(60)))
+        await settle()
+        #expect(session.subtitle == nil)
+        session.setSubtitles([], for: a)
+        #expect(session.subtitle == nil)
     }
 
     @Test func segmentsForAnotherVideoAreIgnored() async {

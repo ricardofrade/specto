@@ -43,6 +43,11 @@ public final class PlaybackSession {
     public private(set) var skipSegments: [SkipSegment] = []
     /// The most recent automatic skip, for a brief "Skipped sponsor" notice.
     public private(set) var lastSkipped: SkipSegment?
+    /// Playback speed (1 is normal). Kept across videos and engine switches.
+    public private(set) var rate: Float = 1
+    /// The subtitle line to show now, or nil.
+    public private(set) var subtitle: String?
+    @ObservationIgnored private var subtitleCues: [SubtitleCue] = []
     /// Which engine is playing (AirPlay moves video from mpv to AVPlayer and back).
     public private(set) var engineKind: EngineKind?
 
@@ -100,6 +105,8 @@ public final class PlaybackSession {
         self.position = request.startAt
         self.skipSegments = []
         self.lastSkipped = nil
+        self.subtitleCues = []
+        self.subtitle = nil
         self.skipped = []
         self.current = next
         self.engineKind = next.kind
@@ -122,6 +129,7 @@ public final class PlaybackSession {
             try await next.load(request)
             guard loadGeneration == generation else { return }
             acceptsPosition = true
+            if rate != 1 { next.setRate(rate) }
             next.play()
         } catch {
             guard loadGeneration == generation else { return }
@@ -139,6 +147,18 @@ public final class PlaybackSession {
     }
 
     /// Segments arrive after playback starts; ignored if the item changed meanwhile.
+    /// Subtitles for the current video (empty turns them off). Ignored if another video started.
+    public func setSubtitles(_ cues: [SubtitleCue], for id: VideoID) {
+        guard item?.videoID == id else { return }
+        subtitleCues = cues
+        updateSubtitle()
+    }
+
+    private func updateSubtitle() {
+        let text = WebVTT.cue(at: position, in: subtitleCues)?.text
+        if text != subtitle { subtitle = text }
+    }
+
     public func setSkipSegments(_ segments: [SkipSegment], for id: VideoID) {
         guard item?.videoID == id else { return }
         skipSegments = segments
@@ -149,6 +169,11 @@ public final class PlaybackSession {
     }
 
     public func resume() { current?.play() }
+
+    public func setRate(_ newRate: Float) {
+        rate = newRate
+        current?.setRate(newRate)
+    }
     public func pause() { current?.pause() }
 
     public func seek(to target: Duration, precise: Bool = false) async {
@@ -157,6 +182,8 @@ public final class PlaybackSession {
 
     public func stop() {
         persistPosition(force: true)
+        subtitleCues = []
+        subtitle = nil
         generation += 1
         acceptsPosition = false
         current?.stop()
@@ -236,6 +263,7 @@ public final class PlaybackSession {
             duration = newDuration
             persistPosition(force: false)
             skipSegmentIfNeeded()
+            updateSubtitle()
         case .decoder(let info):
             decoder = info
         case .stats(let newStats):

@@ -146,7 +146,7 @@ public struct WatchScreen: View {
     /// Changing layout rebuilds this area: the new surface attaches and the session ignores the
     /// old one's late detach, so the video layer just moves and playback never reloads.
     private var player: some View {
-        PlayerArea(session: session)
+        PlayerArea(session: session, captionsAvailable: !actions.captions.isEmpty, toggleCaptions: actions.toggleCaptions)
             .aspectRatio(16 / 9, contentMode: .fit)
             .overlay {
                 if let casting = actions.casting { CastingOverlay(casting: casting) }
@@ -214,6 +214,8 @@ public struct WatchScreen: View {
 /// The surface plus transport controls that show on tap and fade during playback.
 private struct PlayerArea: View {
     let session: PlaybackSession
+    let captionsAvailable: Bool
+    let toggleCaptions: () -> Void
     @State private var controlsVisible = true
     @State private var hideTask: Task<Void, Never>?
 
@@ -223,9 +225,13 @@ private struct PlayerArea: View {
                 .accessibilityIdentifier("watch.surface")
                 // "<state> <engine> <seconds>": read by UI tests (playback never stalls, engine policy).
                 .accessibilityValue(Text(verbatim: "\(session.state) \(session.engineKind?.rawValue ?? "none") \(session.position.components.seconds)"))
+            SubtitleView(session.subtitle)
+                .frame(maxHeight: .infinity, alignment: .bottom)
+                .padding(.horizontal, Tokens.Spacing.xl)
+                .padding(.bottom, Tokens.Spacing.m)
             if controlsVisible {
                 PlayerControlCluster(isPlaying: session.state == .playing,
-                                     captionsAvailable: false) { action in
+                                     captionsAvailable: captionsAvailable) { action in
                     handle(action)
                 }
                 .transition(.opacity)
@@ -249,7 +255,7 @@ private struct PlayerArea: View {
         case .togglePlayback: session.state == .playing ? session.pause() : session.resume()
         case .skipBack: Task { await session.seek(to: max(.zero, session.position - .seconds(10))) }
         case .skipForward: Task { await session.seek(to: session.position + .seconds(10)) }
-        case .captions: break
+        case .captions: toggleCaptions()
         }
         scheduleHide()
     }

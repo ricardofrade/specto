@@ -83,6 +83,8 @@ extension AppEnvironment {
                              manifest: StreamManifest(videoID: video.id, videoStreams: [], audioStreams: [], hlsURL: nil,
                                                       muxedURL: file, chapters: [], expiresAt: nil))
         currentPage = page
+        captionTracks = []
+        selectedCaption = nil
         let item = NowPlayingItem(videoID: video.id, title: video.title, channelName: video.channelName,
                                   artworkURL: video.thumbnails.first?.url)
         await session.play(item, PlaybackRequest(videoID: video.id, source: .progressive(file), mode: .audioOnly,
