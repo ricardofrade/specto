@@ -57,6 +57,11 @@ run build-tv xcodebuild build -project "$root/App/tvOS/SpectoTV.xcodeproj" -sche
     -destination "generic/platform=tvOS Simulator" -derivedDataPath "$out/dd-tv"
 "$root/scripts/check-licenses.sh" "$out/dd-tv/Build/Products/Debug-appletvsimulator/SpectoTV.app"
 
+step "Build the iPhone/iPad app for Mac (Designed for iPad; unsigned, so build only)"
+run build-mac xcodebuild build -project "$root/App/iOS/Specto.xcodeproj" -scheme Specto \
+    -destination "platform=macOS,arch=arm64,variant=Designed for iPad" -derivedDataPath "$out/dd-mac" \
+    CODE_SIGNING_ALLOWED=NO
+
 step "App unit tests"
 run test-app xcodebuild test -project "$root/App/iOS/Specto.xcodeproj" -scheme Specto \
     -only-testing:SpectoTests -destination "$destination" -derivedDataPath "$out/dd-app"

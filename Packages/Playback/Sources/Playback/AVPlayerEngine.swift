@@ -136,7 +136,7 @@ public final class AVPlayerEngine: PlaybackEngine {
         ]
         endObserver = NotificationCenter.default.addObserver(forName: AVPlayerItem.didPlayToEndTimeNotification,
                                                              object: item, queue: .main) { [weak self] _ in
-            MainActor.assumeIsolated { self?.continuation.yield(.state(.ended)) }
+            MainActor.assumeIsolated { _ = self?.continuation.yield(.state(.ended)) }
         }
         statsTask = Task { [weak self] in
             while !Task.isCancelled {

@@ -58,8 +58,11 @@ struct SettingsView: View {
             Section {
                 QualityLimitPicker(title: Text("On Wi-Fi"), limit: $settings.wifiQualityLimit)
                     .accessibilityIdentifier("settings.wifiQuality")
-                QualityLimitPicker(title: Text("On cellular"), limit: $settings.cellularQualityLimit)
-                    .accessibilityIdentifier("settings.cellularQuality")
+                // A Mac running the iPad app has no cellular connection.
+                if !ProcessInfo.processInfo.isiOSAppOnMac {
+                    QualityLimitPicker(title: Text("On cellular"), limit: $settings.cellularQualityLimit)
+                        .accessibilityIdentifier("settings.cellularQuality")
+                }
             } header: {
                 Text("Video quality")
             } footer: {
