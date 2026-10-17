@@ -255,3 +255,24 @@ struct ListeningStoresTests {
         #expect(picked.map(\.id.rawValue) == ["newer", "new"])
     }
 }
+
+@Suite struct RecentSearchStoreTests {
+    @Test func newestFirstDeduplicatedAndCapped() throws {
+        let store = RecentSearchStore(try AppDatabase.inMemory())
+        // No pauses: searches in the same millisecond still keep their order.
+        try store.record("blender")
+        try store.record("  swift  ")
+        try store.record("Blender")
+        #expect(try store.all() == ["Blender", "swift"])
+        try store.record("   ")
+        #expect(try store.all().count == 2)
+
+        for index in 0..<30 { try store.record("query \(index)") }
+        #expect(try store.all().count == RecentSearchStore.limit)
+
+        try store.remove("query 29")
+        #expect(try !store.all().contains("query 29"))
+        try store.clear()
+        #expect(try store.all().isEmpty)
+    }
+}

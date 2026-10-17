@@ -3,91 +3,56 @@ import Core
 import Library
 import DesignSystem
 
-@Observable
-public final class SearchModel {
-    public enum Phase: Equatable {
-        case idle
-        case loading
-        case results
-        case empty
-        case failed(String)
-    }
-
-    public var query = ""
-    public private(set) var rows: [FeedRow] = []
-    public private(set) var phase = Phase.idle
-    public private(set) var isLoadingMore = false
-
-    @ObservationIgnored private let search: @Sendable (String, String?) async throws -> Page<VideoSummary>
-    @ObservationIgnored private var cursor: String?
-    @ObservationIgnored private var submitted = ""
-
-    /// - Parameter search: (query, cursor) → a page of results, through the app's router.
-    public init(search: @escaping @Sendable (String, String?) async throws -> Page<VideoSummary>) {
-        self.search = search
-    }
-
-    /// Runs on submit only: nothing is sent while typing.
-    public func submit() async {
-        let text = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty else { return }
-        submitted = text
-        phase = .loading
-        rows = []
-        do {
-            let page = try await search(text, nil)
-            guard text == submitted else { return }
-            rows = Self.format(page.items)
-            cursor = page.nextCursor
-            phase = rows.isEmpty ? .empty : .results
-        } catch {
-            phase = .failed(String(localized: "Search failed. Check your instances and try again."))
-        }
-    }
-
-    public func loadMoreIfNeeded(after id: VideoID) async {
-        guard id == rows.last?.id, let cursor, !isLoadingMore else { return }
-        isLoadingMore = true
-        defer { isLoadingMore = false }
-        let text = submitted
-        guard let page = try? await search(text, cursor), text == submitted else { return }
-        let known = Set(rows.map(\.id))
-        rows += Self.format(page.items.filter { !known.contains($0.id) })
-        self.cursor = page.nextCursor
-    }
-
-    static func format(_ videos: [VideoSummary]) -> [FeedRow] {
-        let formatter = RowFormatter()
-        return videos.map { formatter.row($0, positionSeconds: nil, durationSeconds: nil) }
-    }
-}
-
+#if os(iOS)
+/// iPhone and iPad (Apple TV has its own view on the same model).
 public struct SearchScreen: View {
     @Bindable private var model: SearchModel
     private let onSelect: (VideoSummary) -> Void
+    private let onOpenChannel: (ChannelSummary) -> Void
+    private let onOpenPlaylist: (PlaylistSummary) -> Void
     @Environment(\.displayScale) private var displayScale
 
-    public init(model: SearchModel, onSelect: @escaping (VideoSummary) -> Void) {
+    public init(model: SearchModel, onSelect: @escaping (VideoSummary) -> Void,
+                onOpenChannel: @escaping (ChannelSummary) -> Void = { _ in },
+                onOpenPlaylist: @escaping (PlaylistSummary) -> Void = { _ in }) {
         self.model = model
         self.onSelect = onSelect
+        self.onOpenChannel = onOpenChannel
+        self.onOpenPlaylist = onOpenPlaylist
     }
 
     /// Hosted in the app's `NavigationStack`.
     public var body: some View {
         content
             .navigationTitle(Text("Search"))
-            .searchable(text: $model.query, prompt: Text("Videos"))
+            .searchable(text: $model.query, prompt: Text("Videos, channels, playlists"))
+            .searchScopes($model.filter, activation: .onSearchPresentation) {
+                Text("Videos").tag(SearchFilter.videos)
+                Text("Channels").tag(SearchFilter.channels)
+                Text("Playlists").tag(SearchFilter.playlists)
+            }
+            .searchSuggestions {
+                ForEach(model.suggestions, id: \.self) { suggestion in
+                    Label { Text(verbatim: suggestion) } icon: { Image(systemName: "magnifyingglass") }
+                        .searchCompletion(suggestion)
+                }
+            }
             .onSubmit(of: .search) { Task { await model.submit() } }
+            .task { await model.start() }
     }
 
     @ViewBuilder
     private var content: some View {
         switch model.phase {
         case .idle:
-            ContentUnavailableView {
-                Label { Text("Search your instances") } icon: { Image(systemName: "magnifyingglass") }
-            } description: {
-                Text("Nothing is sent until you search.")
+            if model.recent.isEmpty {
+                ContentUnavailableView {
+                    Label { Text("Search your instances") } icon: { Image(systemName: "magnifyingglass") }
+                } description: {
+                    Text("Suggestions and results come from your own instances.")
+                }
+            } else {
+                recentList
             }
         case .loading:
             ProgressView()
@@ -101,24 +66,85 @@ public struct SearchScreen: View {
             }
         case .results:
             List(model.rows) { row in
-                Button { onSelect(row.video) } label: {
-                    VideoCell(VideoCellContent(row: row, pixelWidth: Int(160 * displayScale)), style: .row,
-                              thumbnailWidth: 160)
-                        .equatable()
-                }
-                .buttonStyle(.plain)
-                .task { await model.loadMoreIfNeeded(after: row.id) }
+                result(row)
+                    .task { await model.loadMoreIfNeeded(after: row.id) }
             }
             .listStyle(.plain)
             .accessibilityIdentifier("search.results")
         }
     }
+
+    private var recentList: some View {
+        List {
+            Section {
+                ForEach(model.recent, id: \.self) { text in
+                    Button { Task { await model.search(text) } } label: {
+                        Label { Text(verbatim: text) } icon: { Image(systemName: "clock.arrow.circlepath") }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .contentShape(.rect)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("search.recent")
+                    .swipeActions { Button(role: .destructive) { model.removeRecent(text) } label: { Text("Remove") } }
+                }
+            } header: {
+                HStack {
+                    Text("Recent")
+                    Spacer()
+                    Button { model.clearRecent() } label: { Text("Clear") }
+                        .font(.subheadline)
+                        .accessibilityIdentifier("search.clearRecent")
+                }
+            }
+        }
+        .listStyle(.plain)
+    }
+
+    @ViewBuilder
+    private func result(_ row: SearchModel.Row) -> some View {
+        switch row {
+        case .video(let video):
+            Button { onSelect(video.video) } label: {
+                VideoCell(VideoCellContent(row: video, pixelWidth: Int(160 * displayScale)), style: .row, thumbnailWidth: 160)
+                    .equatable()
+            }
+            .buttonStyle(.plain)
+        case .channel(let channel, let avatar):
+            Button { onOpenChannel(channel) } label: {
+                HStack(spacing: Tokens.Spacing.m) {
+                    AvatarView(avatar, size: 56)
+                        .frame(width: 160)   // Lines up with the video thumbnails.
+                    Text(channel.name).font(Tokens.Typography.cellTitle).lineLimit(2)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(.rect)
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("search.channel")
+        case .playlist(let playlist):
+            Button { onOpenPlaylist(playlist.playlist) } label: {
+                VideoCell(VideoCellContent(playlist: playlist, pixelWidth: Int(160 * displayScale)), style: .row,
+                          thumbnailWidth: 160)
+                    .equatable()
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("search.playlist")
+        }
+    }
 }
+
+#endif
 
 extension VideoCellContent {
     init(row: FeedRow, pixelWidth: Int) {
         self.init(title: row.title, channelName: row.channelName, detail: row.detail, durationText: row.durationText,
                   thumbnailURL: row.thumbnails.best(forPixelWidth: pixelWidth)?.url, isLive: row.isLive,
                   progress: row.progress)
+    }
+
+    init(playlist row: PlaylistRow, pixelWidth: Int) {
+        self.init(title: row.playlist.title, channelName: row.playlist.channelName ?? "", detail: "",
+                  durationText: row.countText, thumbnailURL: row.playlist.thumbnails.best(forPixelWidth: pixelWidth)?.url,
+                  isLive: false, progress: nil, badgeSymbol: "list.bullet")
     }
 }

@@ -158,6 +158,13 @@ public struct AppDatabase: Sendable {
                 t.column("uploadedAt", .datetime)
             }
         }
+        // Recent searches: this device only, never synced or sent anywhere.
+        migrator.registerMigration("v7-recent-searches") { db in
+            try db.create(table: "recentSearch") { t in
+                t.primaryKey("query", .text)
+                t.column("searchedAt", .datetime).notNull()
+            }
+        }
         return migrator
     }
 }

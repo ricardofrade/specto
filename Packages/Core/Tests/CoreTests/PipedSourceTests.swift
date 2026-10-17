@@ -10,6 +10,34 @@ struct PipedSourceTests {
         return PipedSource(instance: instance(.piped), client: client)
     }
 
+    @Test func searchFindsChannelsAndPlaylists() async throws {
+        let piped = source {
+            $0.on("filter=channels", fixture: "piped/search_channels.json")
+            $0.on("filter=playlists", fixture: "piped/search_playlists.json")
+        }
+        let channels = try await piped.search("rick", filter: .channels, cursor: nil)
+        guard case .channel(let channel) = try #require(channels.items.first) else {
+            Issue.record("Not a channel")
+            return
+        }
+        #expect(channel.name == "Rick Astley" && channel.id.rawValue == "UCuAXFkgsw1L7xaCfnd5JJOw")
+        #expect(channel.avatar?.url.host() == "proxy.instance.example")
+
+        let playlists = try await piped.search("rick", filter: .playlists, cursor: nil)
+        guard case .playlist(let playlist) = try #require(playlists.items.first) else {
+            Issue.record("Not a playlist")
+            return
+        }
+        #expect(playlist.id.rawValue == "PL2MI040U_GXobmpXtTwBF7oHBGT5BETSD" && playlist.videoCount == 10)
+        #expect(playlist.channelName == "RickAstleyVEVO")
+    }
+
+    @Test func suggestions() async throws {
+        let piped = source { $0.on("/suggestions", fixture: "piped/suggestions.json") }
+        let suggestions = try await piped.suggestions(for: "blend")
+        #expect(suggestions.contains("blender"))
+    }
+
     @Test func channelPlaylistsGoThroughThePlaylistsTabAndPage() async throws {
         let client = FixtureClient()
         client.on("/channel/UCSMOQeBJ2RAnuFungnQOxLg", fixture: "piped/channel_playlists_tabs.json")

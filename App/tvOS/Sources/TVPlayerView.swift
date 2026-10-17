@@ -8,7 +8,7 @@ import DesignSystem
 /// Full-screen playback with the Siri Remote:
 /// - Select or Play/Pause toggles playback.
 /// - Left/right skip back 10 s and forward 10 s. Right after a SponsorBlock skip, left undoes it.
-/// - Down opens chapters, subtitles, speed, quality and Up Next (shown by itself when a video ends
+/// - Down opens chapters, subtitles, speed, quality, the sleep timer and Up Next (shown by itself when a video ends
 ///   with nothing queued).
 /// - Menu (Back) closes that panel, then the player.
 struct TVPlayerView: View {
@@ -81,6 +81,8 @@ struct TVPlayerView: View {
                           qualities: session.mode == .video ? environment.availableQualities : [],
                           selectedQuality: environment.manualQuality, playingHeight: session.videoHeight,
                           onQuality: { height in Task { await environment.selectQuality(height) } },
+                          sleepChoice: environment.sleepTimer.choice, sleepStatus: environment.sleepTimer.status,
+                          onSleep: { environment.sleepTimer.set($0) },
                           focusUpNext: session.state == .ended) { chapter in
                     Task { await session.seek(to: chapter.start, precise: false) }
                     closePanel()
@@ -339,13 +341,16 @@ private struct InfoPanel: View {
     let selectedQuality: Int?
     let playingHeight: Int?
     let onQuality: (Int?) -> Void
+    let sleepChoice: SleepTimer.Choice?
+    let sleepStatus: String?
+    let onSleep: (SleepTimer.Choice?) -> Void
     /// At the end of a video, focus starts on Up Next.
     let focusUpNext: Bool
     let onChapter: (Chapter) -> Void
     let onPlay: (VideoSummary) -> Void
     @FocusState private var focused: Focus?
 
-    enum Focus: Hashable { case chapter(Int), video(VideoID), caption(String), speed(Float), quality(Int?) }
+    enum Focus: Hashable { case chapter(Int), video(VideoID), setting(Setting) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 30) {
@@ -365,40 +370,39 @@ private struct InfoPanel: View {
                     }
                 }
             }
-            if !captions.isEmpty {
-                shelf(Text("Subtitles")) {
-                    captionButton(nil) { Text("Off") }
-                    ForEach(captions, id: \.self) { track in
-                        captionButton(track) { Text(verbatim: track.label) }
+            // One row of menus keeps the panel within the screen (Apple TV app style).
+            shelf(Text("Settings")) {
+                if !captions.isEmpty {
+                    settingMenu(.subtitles, title: Text("Subtitles"),
+                                value: selectedCaption.map { Text(verbatim: $0.label) } ?? Text("Off")) {
+                        Picker(selection: Binding(get: { selectedCaption }, set: { onCaption($0) })) {
+                            Text("Off").tag(CaptionTrack?.none)
+                            ForEach(captions, id: \.self) { track in Text(verbatim: track.label).tag(Optional(track)) }
+                        } label: { Text("Subtitles") }
                     }
                 }
-            }
-            shelf(Text("Playback Speed")) {
-                ForEach(SpeedOptions.all, id: \.self) { option in
-                    Button { onRate(option.rate) } label: {
-                        HStack(spacing: 10) {
-                            Image(systemName: "checkmark").opacity(option.rate == rate ? 1 : 0)
-                            Text(verbatim: option.label)
-                        }
-                        .font(.callout)
-                        .padding(.horizontal, 24).padding(.vertical, 14)
-                    }
-                    .buttonStyle(.card)
-                    .focused($focused, equals: .speed(option.rate))
+                settingMenu(.speed, title: Text("Playback Speed"), value: Text(verbatim: SpeedOptions.label(for: rate))) {
+                    Picker(selection: Binding(get: { rate }, set: { onRate($0) })) {
+                        ForEach(SpeedOptions.all, id: \.self) { option in Text(verbatim: option.label).tag(option.rate) }
+                    } label: { Text("Playback Speed") }
                 }
-            }
-            if !qualities.isEmpty {
-                shelf(Text("Quality")) {
-                    qualityButton(nil) {
-                        if let playingHeight, selectedQuality == nil {
-                            Text("Auto (\(VideoQuality.label(playingHeight)))")
-                        } else {
-                            Text("Auto")
+                if !qualities.isEmpty {
+                    settingMenu(.quality, title: Text("Quality"), value: qualityValue) {
+                        Picker(selection: Binding(get: { selectedQuality }, set: { onQuality($0) })) {
+                            Text("Auto").tag(Int?.none)
+                            ForEach(qualities, id: \.self) { height in
+                                Text(verbatim: VideoQuality.label(height)).tag(Optional(height))
+                            }
+                        } label: { Text("Quality") }
+                    }
+                }
+                settingMenu(.sleep, title: Text("Sleep Timer"), value: sleepStatus.map { Text(verbatim: $0) } ?? Text("Off")) {
+                    Picker(selection: Binding(get: { sleepChoice }, set: { onSleep($0) })) {
+                        Text("Off").tag(SleepTimer.Choice?.none)
+                        ForEach(SleepTimer.choices, id: \.self) { choice in
+                            Text(verbatim: SleepTimer.label(for: choice)).tag(Optional(choice))
                         }
-                    }
-                    ForEach(qualities, id: \.self) { height in
-                        qualityButton(height) { Text(verbatim: VideoQuality.label(height)) }
-                    }
+                    } label: { Text("Sleep Timer") }
                 }
             }
             if !related.isEmpty {
@@ -429,30 +433,26 @@ private struct InfoPanel: View {
         }
     }
 
-    private func qualityButton(_ height: Int?, @ViewBuilder label: () -> some View) -> some View {
-        Button { onQuality(height) } label: {
-            HStack(spacing: 10) {
-                Image(systemName: "checkmark").opacity(height == selectedQuality ? 1 : 0)
-                label()
-            }
-            .font(.callout)
-            .padding(.horizontal, 24).padding(.vertical, 14)
-        }
-        .buttonStyle(.card)
-        .focused($focused, equals: .quality(height))
+    private var qualityValue: Text {
+        if let selectedQuality { return Text(verbatim: VideoQuality.label(selectedQuality)) }
+        if let playingHeight { return Text("Auto (\(VideoQuality.label(playingHeight)))") }
+        return Text("Auto")
     }
 
-    private func captionButton(_ track: CaptionTrack?, @ViewBuilder label: () -> some View) -> some View {
-        Button { onCaption(track) } label: {
-            HStack(spacing: 10) {
-                Image(systemName: "checkmark").opacity(track == selectedCaption ? 1 : 0)
-                label()
+    enum Setting: Hashable { case subtitles, speed, quality, sleep }
+
+    /// A setting's name and current value; selecting it opens its choices.
+    private func settingMenu(_ setting: Setting, title: Text, value: Text,
+                             @ViewBuilder choices: () -> some View) -> some View {
+        Menu { choices() } label: {
+            VStack(alignment: .leading, spacing: 6) {
+                title.font(.caption).foregroundStyle(.secondary)
+                value.font(.callout.weight(.medium)).lineLimit(1)
             }
-            .font(.callout)
+            .frame(minWidth: 240, alignment: .leading)
             .padding(.horizontal, 24).padding(.vertical, 14)
         }
-        .buttonStyle(.card)
-        .focused($focused, equals: .caption(track?.url.absoluteString ?? "off"))
+        .focused($focused, equals: .setting(setting))
     }
 
     private func shelf(_ title: Text, @ViewBuilder content: () -> some View) -> some View {

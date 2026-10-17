@@ -34,6 +34,7 @@ struct TVSettingsView: View {
                 Toggle(isOn: $settings.skipsSponsors) { Text("Skip sponsors (SponsorBlock)") }
                 Toggle(isOn: $settings.brandedTitles) { Text("Community titles (DeArrow)") }
                 QualityLimitPicker(title: Text("Video quality"), limit: $settings.wifiQualityLimit)
+                Toggle(isOn: $settings.searchSuggestions) { Text("Suggestions while typing") }
             } footer: {
                 Text("SponsorBlock and DeArrow titles are looked up anonymously by a short hash, never the video itself.")
             }

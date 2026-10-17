@@ -14,6 +14,7 @@ final class FakeEngine: PlaybackEngine {
 
     private(set) var loaded: [PlaybackRequest] = []
     private(set) var playCount = 0
+    private(set) var pauseCount = 0
     private(set) var stopCount = 0
     private(set) var detachCount = 0
     private(set) var attachedHost: (any RenderSurfaceHost)?
@@ -40,7 +41,7 @@ final class FakeEngine: PlaybackEngine {
         if let error = failing[request.videoID] { throw error }
     }
     func play() { playCount += 1 }
-    func pause() {}
+    func pause() { pauseCount += 1 }
     func seek(to position: Duration, precise: Bool) async { seeks.append(position) }
     private(set) var rates: [Float] = []
     func setRate(_ rate: Float) { rates.append(rate) }

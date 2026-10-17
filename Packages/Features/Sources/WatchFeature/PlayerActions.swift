@@ -28,6 +28,10 @@ public struct PlayerActions {
     public var qualities: [Int] = []
     public var selectedQuality: Int?
     public var selectQuality: (Int?) -> Void = { _ in }
+    /// The sleep timer's choice (nil: off), its countdown, and how to change it.
+    public var sleepChoice: SleepTimer.Choice?
+    public var sleepStatus: String?
+    public var setSleep: (SleepTimer.Choice?) -> Void = { _ in }
     /// nil when PiP isn't available for this playback.
     public var startPictureInPicture: (() -> Void)?
     public var castTargets: [CastTarget]
@@ -220,6 +224,17 @@ private struct PlaybackSettingsMenu: View {
             }
             .pickerStyle(.menu)
             .accessibilityIdentifier("watch.speed")
+            Picker(selection: Binding(get: { actions.sleepChoice }, set: { actions.setSleep($0) })) {
+                Text("Off").tag(SleepTimer.Choice?.none)
+                ForEach(SleepTimer.choices, id: \.self) { choice in
+                    Text(verbatim: SleepTimer.label(for: choice)).tag(Optional(choice))
+                }
+            } label: {
+                Label { Text("Sleep Timer") } icon: { Image(systemName: actions.sleepChoice == nil ? "moon" : "moon.fill") }
+                if let status = actions.sleepStatus { Text(verbatim: status) }
+            }
+            .pickerStyle(.menu)
+            .accessibilityIdentifier("watch.sleep")
         } label: {
             Label { Text("Playback Settings") } icon: { Image(systemName: "gearshape") }
                 .labelStyle(.iconOnly)

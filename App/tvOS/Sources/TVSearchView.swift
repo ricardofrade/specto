@@ -1,8 +1,11 @@
 import SwiftUI
+import Core
+import Library
 import SearchFeature
 import DesignSystem
 
-/// The system search keyboard above a results grid. Nothing is sent until the query is submitted.
+/// The system search keyboard above a results grid. Before typing, recent searches are offered;
+/// while typing, the instance's suggestions. Videos, channels or playlists.
 struct TVSearchView: View {
     @Bindable var model: SearchModel
     let actions: VideoActions
@@ -27,13 +30,44 @@ struct TVSearchView: View {
                                              alignment: .top)],
                           spacing: TVMetrics.rowSpacing) {
                     ForEach(model.rows) { row in
-                        VideoCard(row: row, actions: actions)
+                        result(row)
                             .task { await model.loadMoreIfNeeded(after: row.id) }
                     }
                 }
             }
         }
         .searchable(text: $model.query)
+        .searchScopes($model.filter) {
+            Text("Videos").tag(SearchFilter.videos)
+            Text("Channels").tag(SearchFilter.channels)
+            Text("Playlists").tag(SearchFilter.playlists)
+        }
+        .searchSuggestions {
+            ForEach(model.completions, id: \.self) { text in
+                Text(verbatim: text).searchCompletion(text)
+            }
+        }
         .onSubmit(of: .search) { Task { await model.submit() } }
+        .task { await model.start() }
+    }
+
+    @ViewBuilder
+    private func result(_ row: SearchModel.Row) -> some View {
+        switch row {
+        case .video(let video):
+            VideoCard(row: video, actions: actions)
+        case .channel(let channel, let avatar):
+            Button { actions.openChannel(channel.id, channel.name) } label: {
+                VStack(spacing: Tokens.Spacing.m) {
+                    AvatarView(avatar, size: 160)
+                    Text(channel.name).font(.callout.weight(.medium)).lineLimit(1)
+                }
+                .frame(width: TVMetrics.cardWidth)
+                .padding(.vertical, Tokens.Spacing.l)
+            }
+            .buttonStyle(.borderless)
+        case .playlist(let playlist):
+            PlaylistCard(row: playlist, open: actions.openPlaylist)
+        }
     }
 }

@@ -47,6 +47,14 @@ struct SettingsView: View {
             }
 
             Section {
+                Toggle(isOn: $settings.searchSuggestions) { Text("Suggestions while typing") }
+            } header: {
+                Text("Search")
+            } footer: {
+                Text("What you type is sent to your instance, which asks YouTube for suggestions. Recent searches stay on this device.")
+            }
+
+            Section {
                 QualityLimitPicker(title: Text("On Wi-Fi"), limit: $settings.wifiQualityLimit)
                     .accessibilityIdentifier("settings.wifiQuality")
                 QualityLimitPicker(title: Text("On cellular"), limit: $settings.cellularQualityLimit)

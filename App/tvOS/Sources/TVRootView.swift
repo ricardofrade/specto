@@ -36,9 +36,7 @@ struct TVRootView: View {
         _library = State(initialValue: LibraryModel(watchState: WatchStateStore(environment.database),
                                                     queue: QueueStore(environment.database)))
         _savedPlaylists = State(initialValue: SavedPlaylistsModel(store: PlaylistStore(environment.database)))
-        _search = State(initialValue: SearchModel { query, cursor in
-            try await environment.search(query, cursor: cursor)
-        })
+        _search = State(initialValue: environment.makeSearchModel())
     }
 
     var body: some View {

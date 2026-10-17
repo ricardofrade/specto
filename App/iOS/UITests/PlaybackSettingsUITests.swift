@@ -1,8 +1,8 @@
 import XCTest
 
-/// ADR 0007: picking a quality in the player reloads that height at the same position, and
-/// Auto goes back to the planner's choice.
-final class QualityUITests: XCTestCase {
+/// The player's Playback Settings menu. Quality (ADR 0007): picking one reloads that height at the
+/// same position, and Auto goes back to the planner's choice. Sleep Timer: a countdown shows.
+final class PlaybackSettingsUITests: XCTestCase {
     @MainActor
     func testPickAQualityAndGoBackToAuto() throws {
         guard let piped = ProcessInfo.processInfo.environment["PIPED_URL"] else {
@@ -33,6 +33,34 @@ final class QualityUITests: XCTestCase {
         let height = auto.split(separator: " ")[2]
         XCTAssertTrue(wait(surface, "value BEGINSWITH 'playing ' AND value CONTAINS ' \(height) '", 30),
                       "Auto didn't go back to \(height): \(surface.value ?? "")")
+    }
+
+    @MainActor
+    func testSleepTimerCountsDown() throws {
+        guard let piped = ProcessInfo.processInfo.environment["PIPED_URL"] else {
+            throw XCTSkip("Set PIPED_URL to run against a real instance")
+        }
+        let app = XCUIApplication()
+        app.launchArguments = ["-UITestFreshStart", "-SeedInstance", piped,
+                               "-SeedSubscriptions", "UCSMOQeBJ2RAnuFungnQOxLg"]
+        app.launch()
+        let list = app.scrollViews["feed.list"]
+        XCTAssertTrue(list.waitForExistence(timeout: 45))
+        list.buttons.firstMatch.tap()
+        XCTAssertTrue(wait(app.otherElements["watch.surface"], "value BEGINSWITH 'playing '", 45))
+
+        app.buttons["watch.settings"].tap()
+        XCTAssertTrue(app.buttons["Sleep Timer"].waitForExistence(timeout: 5), "No Sleep Timer menu")
+        app.buttons["Sleep Timer"].tap()
+        let fifteen = app.buttons.matching(NSPredicate(format: "label CONTAINS '15'")).firstMatch
+        XCTAssertTrue(fifteen.waitForExistence(timeout: 5), "No 15-minute option")
+        fifteen.tap()
+
+        app.buttons["watch.settings"].tap()
+        // The menu row's label carries the countdown ("Sleep Timer, 15 min left").
+        let countdown = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS 'min left'")).firstMatch
+        shot(app, "sleep-timer")
+        XCTAssertTrue(countdown.waitForExistence(timeout: 5), "No countdown in the menu")
     }
 
     @MainActor

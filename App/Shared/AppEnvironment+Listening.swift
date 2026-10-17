@@ -39,6 +39,10 @@ extension AppEnvironment {
                 if self.session.state == .ended, let current = self.session.item?.videoID {
                     let mode = self.session.mode
                     try? QueueStore(self.database).remove(current)
+                    if self.sleepTimer.stopsAtEndOfVideo() {
+                        self.watchForEndOfPlayback()
+                        return
+                    }
                     if let next = (try? QueueStore(self.database).next(after: current)) ?? self.nextInPlaylist(after: current) {
                         _ = try? await self.play(next, mode: mode, surfaceHeight: self.surfaceHeight)
                     }

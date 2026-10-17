@@ -153,6 +153,26 @@ public struct ChannelPage: Sendable {
     }
 }
 
+/// What a search looks for.
+public enum SearchFilter: String, Sendable, CaseIterable {
+    case videos, channels, playlists
+}
+
+/// One search result: a video, a channel or a playlist.
+public enum SearchResult: Identifiable, Hashable, Sendable {
+    case video(VideoSummary)
+    case channel(ChannelSummary)
+    case playlist(PlaylistSummary)
+
+    public var id: String {
+        switch self {
+        case .video(let video): "video/\(video.id.rawValue)"
+        case .channel(let channel): "channel/\(channel.id.rawValue)"
+        case .playlist(let playlist): "playlist/\(playlist.id.rawValue)"
+        }
+    }
+}
+
 /// A playlist in a list (a channel's playlists, search results, saved playlists).
 public struct PlaylistSummary: Identifiable, Hashable, Sendable, Codable {
     public let id: PlaylistID
@@ -447,6 +467,10 @@ public protocol VideoSource: Sendable {
     var capabilities: SourceCapabilities { get }
 
     func search(_ query: String, cursor: String?) async throws -> Page<VideoSummary>
+    /// Videos, channels or playlists.
+    func search(_ query: String, filter: SearchFilter, cursor: String?) async throws -> Page<SearchResult>
+    /// Completions for what's typed so far, from the instance (which asks YouTube on its own IP).
+    func suggestions(for query: String) async throws -> [String]
     func trending(region: String?) async throws -> [VideoSummary]
     func channel(_ id: ChannelID, cursor: String?) async throws -> ChannelPage
     func watchPage(for id: VideoID) async throws -> WatchPage
@@ -465,6 +489,13 @@ public extension VideoSource {
     func search(_ query: String, cursor: String?) async throws -> Page<VideoSummary> {
         throw SourceError.unsupported(.search)
     }
+    /// Video-only sources search videos; other filters are unsupported.
+    func search(_ query: String, filter: SearchFilter, cursor: String?) async throws -> Page<SearchResult> {
+        guard filter == .videos else { throw SourceError.unsupported(.search) }
+        let page = try await search(query, cursor: cursor)
+        return Page(items: page.items.map(SearchResult.video), nextCursor: page.nextCursor)
+    }
+    func suggestions(for query: String) async throws -> [String] { [] }
     func trending(region: String?) async throws -> [VideoSummary] {
         throw SourceError.unsupported(.trending)
     }

@@ -65,6 +65,42 @@ struct InvidiousSourceTests {
         #expect(feed.count == 3)
     }
 
+    @Test func searchFindsChannelsWithProxiedAvatars() async throws {
+        let iv = source { $0.on("/api/v1/search?q=blender&type=channel", fixture: "invidious/search-channels.json") }
+        let page = try await iv.search("blender", filter: .channels, cursor: nil)
+        let channels = page.items.compactMap { if case .channel(let channel) = $0 { channel } else { nil } }
+        #expect(channels.count == 3)
+        #expect(channels.allSatisfy { $0.id.rawValue.hasPrefix("UC") && !$0.name.isEmpty })
+        // Never yt3.ggpht.com: the instance's /ggpht/ proxy.
+        let avatar = try #require(channels.first?.avatar?.url)
+        #expect(avatar.host() == "instance.example" && avatar.path().hasPrefix("/ggpht/"))
+        #expect(page.nextCursor == "2")
+    }
+
+    @Test func searchFindsPlaylists() async throws {
+        let iv = source { $0.on("type=playlist", fixture: "invidious/search-playlists.json") }
+        let page = try await iv.search("blender", filter: .playlists, cursor: nil)
+        let playlists = page.items.compactMap { if case .playlist(let playlist) = $0 { playlist } else { nil } }
+        #expect(playlists.count == 3)
+        #expect(playlists.allSatisfy { $0.channelName?.isEmpty == false })
+        #expect(playlists.allSatisfy { $0.thumbnails.allSatisfy { $0.url.host() == "instance.example" } })
+    }
+
+    @Test func suggestions() async throws {
+        let iv = source { $0.on("/api/v1/search/suggestions", fixture: "invidious/search-suggestions.json") }
+        let suggestions = try await iv.suggestions(for: "blend")
+        #expect(suggestions.first == "blender")
+    }
+
+    @Test func channelAvatarsComeThroughTheInstance() {
+        let instance = URL(string: "https://instance.example")!
+        #expect(InvidiousDTO.proxied("//yt3.ggpht.com/abc=s176-c", instance: instance)?.absoluteString
+                == "https://instance.example/ggpht/abc=s176-c")
+        #expect(InvidiousDTO.proxied("https://yt3.googleusercontent.com/xyz=w2560", instance: instance)?.host()
+                == "instance.example")
+        #expect(InvidiousDTO.proxied("https://instance.example/vi/a/mq.jpg", instance: instance)?.path() == "/vi/a/mq.jpg")
+    }
+
     @Test func channelPlaylistsComeWithInstanceThumbnails() async throws {
         let iv = source { $0.on("/playlists", fixture: "invidious/channel-playlists.json") }
         let page = try await iv.channelPlaylists(ChannelID(rawValue: "UCSMOQeBJ2RAnuFungnQOxLg"), cursor: nil)

@@ -14,12 +14,29 @@ public struct InvidiousSource: VideoSource {
     }
 
     public func search(_ query: String, cursor: String?) async throws -> Page<VideoSummary> {
+        let page = try await search(query, filter: .videos, cursor: cursor)
+        return Page(items: page.items.compactMap { if case .video(let video) = $0 { video } else { nil } },
+                    nextCursor: page.nextCursor)
+    }
+
+    public func search(_ query: String, filter: SearchFilter, cursor: String?) async throws -> Page<SearchResult> {
         let page = cursor.flatMap(Int.init) ?? 1
+        let type = switch filter {
+        case .videos: "video"
+        case .channels: "channel"
+        case .playlists: "playlist"
+        }
         let items: [InvidiousDTO.Item] = try await api.get("api/v1/search", query: [
-            .init(name: "q", value: query), .init(name: "type", value: "video"), .init(name: "page", value: "\(page)"),
+            .init(name: "q", value: query), .init(name: "type", value: type), .init(name: "page", value: "\(page)"),
         ])
-        let videos = items.compactMap(\.videoSummary)
-        return Page(items: videos, nextCursor: items.isEmpty ? nil : "\(page + 1)")
+        let instance = self.instance.apiURL
+        return Page(items: items.compactMap { $0.searchResult(instance: instance) },
+                    nextCursor: items.isEmpty ? nil : "\(page + 1)")
+    }
+
+    public func suggestions(for query: String) async throws -> [String] {
+        let result: InvidiousDTO.Suggestions = try await api.get("api/v1/search/suggestions", query: [.init(name: "q", value: query)])
+        return result.suggestions ?? []
     }
 
     public func trending(region: String?) async throws -> [VideoSummary] {
@@ -36,7 +53,8 @@ public struct InvidiousSource: VideoSource {
         async let home: InvidiousDTO.ChannelHome? = cursor == nil ? api.get("api/v1/channels/\(id.rawValue)") : nil
         let (videos, channel) = try await (videosPage, home)
         return ChannelPage(id: id, name: channel?.author ?? "",
-                           avatar: channel?.authorThumbnails?.map(\.thumbnail).max { $0.width < $1.width },
+                           avatar: channel?.authorThumbnails?.map { $0.thumbnail(instance: instance.apiURL) }
+                               .max { $0.width < $1.width },
                            videos: Page(items: (videos.videos ?? []).compactMap(\.videoSummary),
                                         nextCursor: videos.continuation))
     }

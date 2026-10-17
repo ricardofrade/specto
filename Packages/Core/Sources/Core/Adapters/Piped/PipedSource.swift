@@ -15,14 +15,20 @@ public struct PipedSource: VideoSource {
     // MARK: VideoSource
 
     public func search(_ query: String, cursor: String?) async throws -> Page<VideoSummary> {
-        let page: PipedDTO.SearchResults = if let cursor {
-            try await api.get("nextpage/search", query: [.init(name: "q", value: query),
-                                                         .init(name: "filter", value: "videos"),
-                                                         .init(name: "nextpage", value: cursor)])
-        } else {
-            try await api.get("search", query: [.init(name: "q", value: query), .init(name: "filter", value: "videos")])
-        }
-        return Page(items: (page.items ?? []).compactMap(\.videoSummary), nextCursor: Self.cursor(page.nextpage))
+        let page = try await search(query, filter: .videos, cursor: cursor)
+        return Page(items: page.items.compactMap { if case .video(let video) = $0 { video } else { nil } },
+                    nextCursor: page.nextCursor)
+    }
+
+    public func search(_ query: String, filter: SearchFilter, cursor: String?) async throws -> Page<SearchResult> {
+        var parameters = [URLQueryItem(name: "q", value: query), URLQueryItem(name: "filter", value: filter.rawValue)]
+        if let cursor { parameters.append(.init(name: "nextpage", value: cursor)) }
+        let page: PipedDTO.SearchResults = try await api.get(cursor == nil ? "search" : "nextpage/search", query: parameters)
+        return Page(items: (page.items ?? []).compactMap(\.searchResult), nextCursor: Self.cursor(page.nextpage))
+    }
+
+    public func suggestions(for query: String) async throws -> [String] {
+        try await api.get("suggestions", query: [.init(name: "query", value: query)])
     }
 
     public func trending(region: String?) async throws -> [VideoSummary] {

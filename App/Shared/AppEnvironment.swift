@@ -5,6 +5,7 @@ import Playback
 import DesignSystem
 import PlaybackUI
 import InstancesFeature
+import SearchFeature
 #if os(iOS)
 import Cast
 #endif
@@ -17,6 +18,8 @@ final class AppEnvironment {
     let database: AppDatabase
     let secrets: any SecretStore
     let session: PlaybackSession
+    /// Pauses after a while or at the end of the video (the player's Playback Settings menu).
+    let sleepTimer: SleepTimer
     private(set) var instances: [InstanceConfig] = []
     private(set) var hasSubscriptions = false
     /// A video to open from outside the app (widget, Shortcuts, notification, Handoff); the root
@@ -82,6 +85,7 @@ final class AppEnvironment {
             case .avPlayer: AVPlayerEngine()
             }
         }
+        sleepTimer = SleepTimer(session: session)
         reloadSources()
         watchForExpiredStreams()
         startSystemIntegration()
@@ -270,9 +274,26 @@ final class AppEnvironment {
 
     // MARK: Browsing
 
-    func search(_ query: String, cursor: String?) async throws -> Page<VideoSummary> {
+    func search(_ query: String, filter: SearchFilter, cursor: String?) async throws -> Page<SearchResult> {
         let router = self.router
-        return try await router.perform(.search) { try await $0.search(query, cursor: cursor) }
+        return try await router.perform(.search) { try await $0.search(query, filter: filter, cursor: cursor) }
+    }
+
+    /// Completions from the first instance that answers; none when turned off in Settings.
+    func suggestions(for query: String) async -> [String] {
+        guard AppSettings.shared.searchSuggestions else { return [] }
+        let router = self.router
+        return (try? await router.perform(.search) { try await $0.suggestions(for: query) }) ?? []
+    }
+
+    /// The search model both apps use: filters, suggestions, and this device's recent searches.
+    func makeSearchModel() -> SearchModel {
+        SearchModel(search: { [weak self] query, filter, cursor in
+            guard let self else { return Page(items: [], nextCursor: nil) }
+            return try await self.search(query, filter: filter, cursor: cursor)
+        }, suggest: { [weak self] query in
+            await self?.suggestions(for: query) ?? []
+        }, recent: RecentSearchStore(database))
     }
 
     func channel(_ id: ChannelID, cursor: String?) async throws -> ChannelPage {

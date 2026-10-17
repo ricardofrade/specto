@@ -45,6 +45,16 @@
         }
       }
     },
+    "%lld min left": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Faltam %lld min"
+          }
+        }
+      }
+    },
     "%lld videos": {
       "localizations": {
         "en": {
@@ -416,6 +426,16 @@
         }
       }
     },
+    "Clear": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Limpar"
+          }
+        }
+      }
+    },
     "Clear History": {
       "localizations": {
         "pt-PT": {
@@ -712,6 +732,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Anteriores"
+          }
+        }
+      }
+    },
+    "End of video": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Fim do vídeo"
           }
         }
       }
@@ -1139,6 +1169,7 @@
       }
     },
     "Nothing is sent until you search.": {
+      "extractionState": "stale",
       "localizations": {
         "pt-PT": {
           "stringUnit": {
@@ -1548,6 +1579,16 @@
         }
       }
     },
+    "Recent": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Recentes"
+          }
+        }
+      }
+    },
     "Remove": {
       "localizations": {
         "pt-PT": {
@@ -1768,6 +1809,16 @@
         }
       }
     },
+    "Sleep Timer": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Temporizador"
+          }
+        }
+      }
+    },
     "Slower": {
       "localizations": {
         "pt-PT": {
@@ -1914,6 +1965,26 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Legendas"
+          }
+        }
+      }
+    },
+    "Suggestions and results come from your own instances.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "As sugestões e os resultados vêm das suas próprias instâncias."
+          }
+        }
+      }
+    },
+    "Suggestions while typing": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sugestões ao escrever"
           }
         }
       }
@@ -2178,12 +2249,32 @@
         }
       }
     },
+    "Videos, channels, playlists": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vídeos, canais, listas"
+          }
+        }
+      }
+    },
     "Waiting for approval…": {
       "localizations": {
         "pt-PT": {
           "stringUnit": {
             "state": "needs_review",
             "value": "A aguardar aprovação…"
+          }
+        }
+      }
+    },
+    "What you type is sent to your instance, which asks YouTube for suggestions. Recent searches stay on this device.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "O que escreve é enviado para a sua instância, que pede sugestões ao YouTube. As pesquisas recentes ficam neste dispositivo."
           }
         }
       }

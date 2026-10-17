@@ -12,6 +12,9 @@ enum PipedDTO {
         let type: String?
         let url: String?
         let title: String?
+        /// Channels and playlists carry `name` instead of `title`.
+        let name: String?
+        let videos: Int?
         let thumbnail: String?
         let uploaderName: String?
         let uploaderUrl: String?
@@ -20,6 +23,23 @@ enum PipedDTO {
         let views: Int64?
         let uploaded: Int64?
         let isShort: Bool?
+
+        var searchResult: SearchResult? {
+            switch type {
+            case "channel":
+                guard let id = url.flatMap(PipedDTO.channelID) else { return nil }
+                return .channel(ChannelSummary(id: ChannelID(rawValue: id), name: name ?? "",
+                                               avatar: thumbnail.flatMap(Thumbnail.unsized)))
+            case "playlist":
+                guard let url, let list = URLComponents(string: url)?.queryItems?.first(where: { $0.name == "list" })?.value
+                else { return nil }
+                return .playlist(PlaylistSummary(id: PlaylistID(rawValue: list), title: name ?? "", channelName: uploaderName,
+                                                 videoCount: videos.flatMap { $0 >= 0 ? $0 : nil },
+                                                 thumbnails: thumbnail.flatMap(Thumbnail.unsized).map { [$0] } ?? []))
+            default:
+                return videoSummary.map(SearchResult.video)
+            }
+        }
 
         /// Stream items only; channels and playlists in mixed lists are skipped.
         var videoSummary: VideoSummary? {

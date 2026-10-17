@@ -61,6 +61,11 @@ final class AppSettings {
         didSet { defaults.set(cellularQualityLimit ?? 0, forKey: Keys.cellularQualityLimit) }
     }
 
+    /// Search suggestions while typing (from the instances). On by default.
+    var searchSuggestions: Bool {
+        didSet { defaults.set(searchSuggestions, forKey: Keys.searchSuggestions) }
+    }
+
     private let defaults: UserDefaults
 
     init(defaults: UserDefaults = .standard) {
@@ -75,6 +80,7 @@ final class AppSettings {
         captionLanguage = defaults.string(forKey: Keys.captionLanguage)
         notifiesNewUploads = defaults.bool(forKey: Keys.notifiesNewUploads)
         newUploadsSince = defaults.object(forKey: Keys.newUploadsSince) as? Date
+        searchSuggestions = defaults.object(forKey: Keys.searchSuggestions) as? Bool ?? true
         wifiQualityLimit = Self.limit(defaults.integer(forKey: Keys.wifiQualityLimit))
         cellularQualityLimit = Self.limit(defaults.integer(forKey: Keys.cellularQualityLimit))
     }
@@ -97,6 +103,7 @@ final class AppSettings {
         static let newUploadsSince = "notifications.newUploadsSince"
         static let showsRelated = "watch.showsRelated"
         static let wifiQualityLimit = "playback.wifiQualityLimit"
+        static let searchSuggestions = "search.suggestions"
         static let cellularQualityLimit = "playback.cellularQualityLimit"
         static let skipsSponsors = "sponsorBlock.enabled"
         static let brandedTitles = "deArrow.titles"

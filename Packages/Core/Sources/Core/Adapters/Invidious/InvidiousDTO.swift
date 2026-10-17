@@ -18,6 +18,27 @@ enum InvidiousDTO {
         var thumbnail: Thumbnail {
             Thumbnail(url: URL(string: url) ?? URL(filePath: "/"), width: width ?? 0, height: height ?? 0)
         }
+
+        /// Channel avatars point at Google's image hosts; the instance serves them at `/ggpht/…`.
+        func thumbnail(instance: URL) -> Thumbnail {
+            Thumbnail(url: InvidiousDTO.proxied(url, instance: instance) ?? URL(filePath: "/"),
+                      width: width ?? 0, height: height ?? 0)
+        }
+    }
+
+    /// `yt3.ggpht.com` / `yt3.googleusercontent.com` (possibly protocol-relative) → the instance's
+    /// `/ggpht/` proxy, so the device never fetches from Google. Other URLs pass through.
+    static func proxied(_ string: String, instance: URL) -> URL? {
+        guard let url = URL(string: string.hasPrefix("//") ? "https:" + string : string) else { return nil }
+        guard let host = url.host(), host.hasSuffix("ggpht.com") || host.hasSuffix("googleusercontent.com") else {
+            return url
+        }
+        return URL(string: instance.absoluteString.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+                   + "/ggpht" + url.path(percentEncoded: true))
+    }
+
+    struct Suggestions: Decodable {
+        let suggestions: [String]?
     }
 
     /// Search results, trending, channel videos and playlist entries share this shape.
@@ -34,6 +55,29 @@ enum InvidiousDTO {
         let lengthSeconds: Int?
         let liveNow: Bool?
         let index: Int?
+        // Channel and playlist search results.
+        let authorThumbnails: [Image]?
+        let playlistId: String?
+        let playlistThumbnail: String?
+        let videoCount: Int?
+
+        func searchResult(instance: URL) -> SearchResult? {
+            switch type {
+            case "channel":
+                guard let authorId else { return nil }
+                return .channel(ChannelSummary(id: ChannelID(rawValue: authorId), name: author ?? "",
+                                               avatar: authorThumbnails?.max { ($0.width ?? 0) < ($1.width ?? 0) }?
+                                                   .thumbnail(instance: instance)))
+            case "playlist":
+                return PlaylistItem(playlistId: playlistId, title: title, videoCount: videoCount,
+                                    playlistThumbnail: playlistThumbnail)
+                    .playlistSummary(instance: instance)
+                    .map { .playlist(PlaylistSummary(id: $0.id, title: $0.title, channelName: author,
+                                                     videoCount: $0.videoCount, thumbnails: $0.thumbnails)) }
+            default:
+                return videoSummary.map(SearchResult.video)
+            }
+        }
 
         var videoSummary: VideoSummary? {
             guard type == nil || type == "video", let videoId, let authorId else { return nil }

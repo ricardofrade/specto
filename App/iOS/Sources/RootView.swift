@@ -42,9 +42,7 @@ struct RootView: View {
                                                     queue: QueueStore(environment.database),
                                                     subscriptions: SubscriptionStore(environment.database),
                                                     playlists: PlaylistStore(environment.database)))
-        _search = State(initialValue: SearchModel { query, cursor in
-            try await environment.search(query, cursor: cursor)
-        })
+        _search = State(initialValue: environment.makeSearchModel())
     }
 
     var body: some View {
@@ -83,7 +81,10 @@ struct RootView: View {
             }
             Tab(value: SceneRouter.Section.search, role: .search) {
                 NavigationStack(path: $router.searchPath) {
-                    SearchScreen(model: search) { play($0) }.routes()
+                    SearchScreen(model: search, onSelect: { play($0) },
+                                 onOpenChannel: { router.openChannel($0.id, name: $0.name) },
+                                 onOpenPlaylist: { router.push(.playlist($0)) })
+                        .routes()
                 }
             } label: {
                 Label { Text("Search") } icon: { Image(systemName: "magnifyingglass") }
@@ -227,6 +228,9 @@ struct RootView: View {
         actions.qualities = environment.availableQualities
         actions.selectedQuality = environment.manualQuality
         actions.selectQuality = { height in Task { await environment.selectQuality(height) } }
+        actions.sleepChoice = environment.sleepTimer.choice
+        actions.sleepStatus = environment.sleepTimer.status
+        actions.setSleep = { environment.sleepTimer.set($0) }
         if let video = router.watching?.video {
             actions.isQueued = queuedIDs.contains(video.id)
             actions.toggleQueue = {

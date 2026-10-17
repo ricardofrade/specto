@@ -42,6 +42,7 @@ let package = Package(
         .testTarget(name: "WatchFeatureTests", dependencies: ["WatchFeature"]),
         .testTarget(name: "FeedFeatureTests", dependencies: ["FeedFeature"]),
         .testTarget(name: "LibraryFeatureTests", dependencies: ["LibraryFeature"]),
-        .testTarget(name: "PlaylistFeatureTests", dependencies: ["PlaylistFeature"])
+        .testTarget(name: "PlaylistFeatureTests", dependencies: ["PlaylistFeature"]),
+        .testTarget(name: "SearchFeatureTests", dependencies: ["SearchFeature"])
     ]
 )
