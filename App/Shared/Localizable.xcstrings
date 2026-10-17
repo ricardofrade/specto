@@ -135,6 +135,16 @@
         }
       }
     },
+    "A backup holds your subscriptions, watch history, saved playlists and instance addresses, never passwords or tokens. Restoring adds what's missing and keeps everything else.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Uma cópia de segurança guarda as suas subscrições, histórico, listas guardadas e endereços de instâncias, nunca palavras-passe nem tokens. Restaurar acrescenta o que falta e mantém tudo o resto."
+          }
+        }
+      }
+    },
     "A video you're watching": {
       "localizations": {
         "pt-PT": {
@@ -295,6 +305,26 @@
         }
       }
     },
+    "Backup": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Cópia de segurança"
+          }
+        }
+      }
+    },
+    "Backup Restored": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Cópia de segurança restaurada"
+          }
+        }
+      }
+    },
     "Best available": {
       "localizations": {
         "pt-PT": {
@@ -391,6 +421,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Os canais que subscreve aparecem aqui."
+          }
+        }
+      }
+    },
+    "Channels: %lld": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Canais: %lld"
           }
         }
       }
@@ -532,6 +572,36 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Continuar a ver"
+          }
+        }
+      }
+    },
+    "Couldn't Export": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Não foi possível exportar"
+          }
+        }
+      }
+    },
+    "Couldn't Restore": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Não foi possível restaurar"
+          }
+        }
+      }
+    },
+    "Couldn't create the backup.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Não foi possível criar a cópia de segurança."
           }
         }
       }
@@ -752,6 +822,26 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Espere ~120 num iPhone com ProMotion."
+          }
+        }
+      }
+    },
+    "Export Backup…": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Exportar cópia de segurança…"
+          }
+        }
+      }
+    },
+    "Export Subscriptions as CSV…": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Exportar subscrições em CSV…"
           }
         }
       }
@@ -983,6 +1073,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Instâncias e subscrições"
+          }
+        }
+      }
+    },
+    "Instances: %lld": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Instâncias: %lld"
           }
         }
       }
@@ -1289,6 +1389,16 @@
         }
       }
     },
+    "OK": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "OK"
+          }
+        }
+      }
+    },
     "Off": {
       "localizations": {
         "pt-PT": {
@@ -1589,6 +1699,16 @@
         }
       }
     },
+    "Playlists: %lld": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Listas: %lld"
+          }
+        }
+      }
+    },
     "Position": {
       "localizations": {
         "pt-PT": {
@@ -1685,6 +1805,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Resolução"
+          }
+        }
+      }
+    },
+    "Restore from Backup…": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Restaurar cópia de segurança…"
           }
         }
       }
@@ -2069,6 +2199,16 @@
         }
       }
     },
+    "That file isn't a backup from this app.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Esse ficheiro não é uma cópia de segurança desta app."
+          }
+        }
+      }
+    },
     "That file isn't a subscriptions export this app understands.": {
       "localizations": {
         "pt-PT": {
@@ -2165,6 +2305,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Esta app reproduz vídeos através de um servidor Piped, Invidious ou YT Zero que gere ou em que confia. Não tem servidores próprios e não recolhe nada. Adicione o seu para ver aqui as suas subscrições."
+          }
+        }
+      }
+    },
+    "This backup is from a newer version of the app. Update the app, then try again.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Esta cópia de segurança é de uma versão mais recente da app. Atualize a app e tente de novo."
           }
         }
       }
@@ -2335,6 +2485,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "A aguardar aprovação…"
+          }
+        }
+      }
+    },
+    "Watched videos: %lld": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vídeos vistos: %lld"
           }
         }
       }

@@ -90,6 +90,8 @@ struct SettingsView: View {
                 }
             }
 
+            BackupSection(environment: environment)
+
             #if OFFLINE_DOWNLOADS
             Section {
                 Toggle(isOn: $settings.downloadsQueue) { Text("Download queued videos") }
