@@ -117,6 +117,12 @@ struct RootView: View {
             environment.refreshBranding()
         }
         .onChange(of: scenePhase) { _, phase in environment.scenePhaseChanged(phase) }
+        .onOpenURL { environment.open($0) }
+        .onChange(of: environment.pendingVideo) { _, video in
+            guard let video else { return }
+            environment.pendingVideo = nil
+            play(video)
+        }
         .onChange(of: horizontalSizeClass) { _, sizeClass in
             // Channel tabs exist only at regular width: keep the open channel when they go away.
             if sizeClass == .compact, case .channel(let id) = router.section {

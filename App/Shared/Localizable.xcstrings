@@ -82,6 +82,16 @@
         }
       }
     },
+    "A video you're watching": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Um vídeo que está a ver"
+          }
+        }
+      }
+    },
     "About": {
       "localizations": {
         "pt-PT": {
@@ -1067,6 +1077,16 @@
         }
       }
     },
+    "Pick up where you left off.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Continue de onde parou."
+          }
+        }
+      }
+    },
     "Picture in Picture": {
       "localizations": {
         "pt-PT": {
@@ -1693,6 +1713,16 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Os vídeos que vê e coloca na fila aparecem aqui."
+          }
+        }
+      }
+    },
+    "Videos you watch show up here.": {
+      "localizations": {
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Os vídeos que vê aparecem aqui."
           }
         }
       }

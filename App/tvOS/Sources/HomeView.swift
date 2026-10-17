@@ -52,7 +52,6 @@ struct HomeView: View {
         // The billboard runs under the glass tab bar, like the Apple TV app.
         .ignoresSafeArea(edges: .top)
         .task { await feed.start() }
-        .onChange(of: feed.rows.first?.id) { TopShelfPublisher.publish(environment.database) }
     }
 }
 

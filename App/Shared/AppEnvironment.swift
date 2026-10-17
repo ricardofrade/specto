@@ -19,6 +19,9 @@ final class AppEnvironment {
     let session: PlaybackSession
     private(set) var instances: [InstanceConfig] = []
     private(set) var hasSubscriptions = false
+    /// A video to open from outside the app (widget, Shortcuts, notification, Handoff); the root
+    /// view plays it and clears this.
+    var pendingVideo: VideoSummary?
     /// Subtitle tracks of the video now playing, and the one showing (set by the playback extensions).
     var captionTracks: [CaptionTrack] = []
     var selectedCaption: CaptionTrack?
@@ -188,6 +191,19 @@ final class AppEnvironment {
         await backfillEmptyChannels()
     }
 
+    /// `<scheme>://watch?v=<id>` from a widget or Top Shelf.
+    func open(_ url: URL) {
+        guard let raw = HomeSnapshot.videoID(in: url) else { return }
+        openVideo(VideoID(rawValue: raw))
+    }
+
+    /// Plays a video known only by its ID: from the cache when it's there, else fetched on play.
+    func openVideo(_ id: VideoID) {
+        pendingVideo = (try? FeedStore(database).video(id))
+            ?? VideoSummary(id: id, title: "", channelID: ChannelID(rawValue: ""), channelName: "",
+                            duration: nil, publishedAt: nil, viewCount: nil, thumbnails: [])
+    }
+
     /// After the first frame: start mpv's core and open connections to the instances, so the
     /// first tap pays for neither (tap-to-first-frame budget).
     func warmUp() {
@@ -263,6 +279,7 @@ final class AppEnvironment {
         let refresher = self.refresher
         if force { try await refresher.refresh() } else { try await refresher.refreshIfStale() }
         refreshBranding()
+        HomeSnapshotPublisher.publish(database)
     }
 
     func subscriptionsChanged(_ added: [ChannelSummary]) {

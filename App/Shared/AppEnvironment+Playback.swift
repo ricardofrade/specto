@@ -27,6 +27,9 @@ extension AppEnvironment {
         switch phase {
         case .background where !isPictureInPictureActive:
             session.setVideoEnabled(false)
+            HomeSnapshotPublisher.publish(database)
+        case .background:
+            HomeSnapshotPublisher.publish(database)
         case .active:
             session.setVideoEnabled(true)
             #if os(iOS)

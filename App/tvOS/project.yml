@@ -31,7 +31,8 @@ targets:
     platform: tvOS
     sources:
       - Sources
-      - TopShelfShared
+      - path: ../SnapshotShared
+        group: SnapshotShared
       - path: Resources
         buildPhase: resources
       - path: ../Shared
@@ -96,7 +97,8 @@ targets:
     platform: tvOS
     sources:
       - TopShelf
-      - TopShelfShared
+      - path: ../SnapshotShared
+        group: SnapshotShared
     dependencies:
       - sdk: TVServices.framework
     info:

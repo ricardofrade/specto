@@ -75,14 +75,18 @@ struct TVRootView: View {
         .fullScreenCover(item: $playing) { video in
             TVPlayerView(environment: environment, video: video)
         }
-        .onOpenURL(perform: open)
+        .onOpenURL { environment.open($0) }
+        .onChange(of: environment.pendingVideo) { _, video in
+            guard let video else { return }
+            environment.pendingVideo = nil
+            play(video)
+        }
         .onChange(of: AppSettings.shared.feedOptions) { _, options in
             feed.setOptions(options)
             Task { await feed.refresh(force: false) }
         }
         .onChange(of: scenePhase) { _, phase in
             environment.scenePhaseChanged(phase)
-            if phase == .background { TopShelfPublisher.publish(environment.database) }
         }
         .task { environment.warmUp() }
     }
@@ -96,14 +100,6 @@ struct TVRootView: View {
         playing = video
     }
 
-    /// Top Shelf deep links: play the named video, from the cache when it's there.
-    private func open(_ url: URL) {
-        guard let raw = TopShelfSnapshot.videoID(in: url) else { return }
-        let id = VideoID(rawValue: raw)
-        playing = (try? FeedStore(environment.database).video(id))
-            ?? VideoSummary(id: id, title: "", channelID: ChannelID(rawValue: ""), channelName: "",
-                            duration: nil, publishedAt: nil, viewCount: nil, thumbnails: [])
-    }
 }
 
 enum TVRoute: Hashable {

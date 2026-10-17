@@ -45,6 +45,8 @@ targets:
       - Sources
       - path: ../Shared
         group: Shared
+      - path: ../SnapshotShared
+        group: SnapshotShared
       - path: Resources
         buildPhase: resources
       - path: ../../docs/licenses.md
@@ -70,6 +72,7 @@ targets:
         product: Playback
       - package: Playback
         product: PlaybackUI
+      - target: SpectoWidgets
     info:
       path: Info.plist
       properties:
@@ -81,6 +84,10 @@ targets:
         # Unlocks 120 Hz on ProMotion iPhones.
         CADisableMinimumFrameDurationOnPhone: true
         UILaunchScreen: {}
+        # Widgets open videos through this scheme (HomeSnapshot.urlScheme).
+        CFBundleURLTypes:
+          - CFBundleURLName: dev.placeholder.specto
+            CFBundleURLSchemes: [dev.placeholder.specto]
         # Background audio and Picture-in-Picture.
         UIBackgroundModes: [audio]
         # Self-hosted instances on the home network.
@@ -114,9 +121,9 @@ targets:
         # App code is main-actor by default (CLAUDE.md); test targets are not, because
         # XCTestCase's initializers and setUp are nonisolated.
         SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
-        # CarPlay audio entitlement: simulator builds only until Apple grants it; then add it to
-        # device builds too (CODE_SIGN_ENTITLEMENTS without the sdk condition).
-        "CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]": CarPlay.entitlements
+        # CarPlay audio and the App Group (widgets): simulator builds only until the owner's team
+        # and Apple's CarPlay grant exist; then drop the sdk condition (docs/distribution.md).
+        "CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]": Specto.entitlements
       configs:
         Debug:
           # Offline downloads: never in App Store or TestFlight builds (guideline 5.2.3).
@@ -126,13 +133,45 @@ targets:
         - SpectoTests
         - SpectoPerfTests
         - SpectoUITests
+  SpectoWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - ../Widgets
+      - path: ../SnapshotShared
+        group: SnapshotShared
+      # The app's string catalog: the extension runs from its own bundle.
+      - path: ../Shared/Localizable.xcstrings
+        group: Shared
+    dependencies:
+      - sdk: WidgetKit.framework
+      - sdk: SwiftUI.framework
+    info:
+      path: ../Widgets/Info.plist
+      properties:
+        CFBundleDisplayName: Specto
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: ../Widgets/SpectoWidgets.entitlements
+      properties:
+        com.apple.security.application-groups: [group.dev.placeholder.specto]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.specto.widgets
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGN_STYLE: Automatic
   SpectoTests:
     type: bundle.unit-test
     platform: iOS
     sources:
       - UnitTests
-      # The tvOS Top Shelf link format, tested here because CI has no tvOS simulator runtime.
-      - ../tvOS/TopShelfShared
+      # The widget's view, rendered to images by WidgetRenderTests (its @main lives elsewhere),
+      # with the snapshot type it reads.
+      - ../Widgets/ContinueWatchingWidget.swift
+      - ../SnapshotShared
     dependencies:
       - target: Specto
     settings:

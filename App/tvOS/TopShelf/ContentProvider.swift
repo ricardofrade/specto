@@ -5,8 +5,7 @@ import TVServices
 final class ContentProvider: TVTopShelfContentProvider {
     // The completion form: TVTopShelfContent isn't Sendable, so the async override can't return it.
     override func loadTopShelfContent(completionHandler: @escaping ((any TVTopShelfContent)?) -> Void) {
-        guard let url = TopShelfSnapshot.fileURL, let data = try? Data(contentsOf: url),
-              let snapshot = try? JSONDecoder().decode(TopShelfSnapshot.self, from: data) else {
+        guard let snapshot = HomeSnapshot.read() else {
             completionHandler(nil)
             return
         }
@@ -17,14 +16,14 @@ final class ContentProvider: TVTopShelfContentProvider {
         completionHandler(sections.isEmpty ? nil : TVTopShelfSectionedContent(sections: sections))
     }
 
-    private static func section(_ title: String, _ items: [TopShelfSnapshot.Item]) -> TVTopShelfItemCollection<TVTopShelfSectionedItem>? {
+    private static func section(_ title: String, _ items: [HomeSnapshot.Item]) -> TVTopShelfItemCollection<TVTopShelfSectionedItem>? {
         guard !items.isEmpty else { return nil }
         let collection = TVTopShelfItemCollection(items: items.map(item))
         collection.title = title
         return collection
     }
 
-    private static func item(_ source: TopShelfSnapshot.Item) -> TVTopShelfSectionedItem {
+    private static func item(_ source: HomeSnapshot.Item) -> TVTopShelfSectionedItem {
         let item = TVTopShelfSectionedItem(identifier: source.id)
         item.title = source.title
         item.imageShape = .hdtv
@@ -33,7 +32,7 @@ final class ContentProvider: TVTopShelfContentProvider {
             item.setImageURL(image, for: .screenScale2x)
         }
         if let progress = source.progress { item.playbackProgress = progress }
-        if let url = TopShelfSnapshot.playURL(for: source.id) {
+        if let url = HomeSnapshot.playURL(for: source.id) {
             item.displayAction = TVTopShelfAction(url: url)
             item.playAction = TVTopShelfAction(url: url)
         }
