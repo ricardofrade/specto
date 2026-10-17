@@ -395,6 +395,9 @@ struct RootView: View {
         actions.qualities = environment.availableQualities
         actions.selectedQuality = environment.manualQuality
         actions.selectQuality = { height in Task { await environment.selectQuality(height) } }
+        actions.formats = environment.availableFormats
+        actions.selectedFormat = environment.currentFormat
+        actions.selectFormat = { format in Task { await environment.selectFormat(format) } }
         actions.audioTracks = environment.availableAudioTracks
         actions.selectedAudio = environment.selectedAudioLanguage
         actions.selectAudio = { language in Task { await environment.selectAudio(language) } }

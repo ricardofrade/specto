@@ -13,6 +13,8 @@ public struct PlaybackPlanner: Sendable {
     public var preferredAudioLanguage: String?
     /// Off plays all video in mpv (the pre-ADR-0005 behaviour).
     public var prefersSystemPlayer: Bool
+    /// The person's pick (ADR 0017); `.auto` leaves it to the policy above.
+    public var format: StreamFormat = .auto
 
     public init(selector: FormatSelector, preferredAudioLanguage: String? = nil, prefersSystemPlayer: Bool = true) {
         self.selector = selector
@@ -26,13 +28,30 @@ public struct PlaybackPlanner: Sendable {
     public func request(for page: WatchPage, mode: PlaybackMode, maxDisplayHeight: Int,
                         throughputBitsPerSecond: Double?, allowHDR: Bool,
                         startAt: Duration = .zero) throws -> PlaybackRequest {
-        let manifest = page.manifest
+        var manifest = page.manifest
+        // A codec picked by hand narrows the streams to it (when the video has it); AV1 and VP9
+        // stay in mpv rather than turning into AVPlayer's H.264.
+        if let codec = format.codec {
+            let streams = manifest.videoStreams.filter { $0.codec == codec }
+            if !streams.isEmpty { manifest = manifest.keeping(videoStreams: streams) }
+        }
+        var planner = self
+        if format == .av1 || format == .vp9 { planner.prefersSystemPlayer = false }
+        return try planner.plan(page, manifest: manifest, mode: mode, maxDisplayHeight: maxDisplayHeight,
+                                throughputBitsPerSecond: throughputBitsPerSecond, allowHDR: allowHDR, startAt: startAt)
+    }
+
+    private func plan(_ page: WatchPage, manifest: StreamManifest, mode: PlaybackMode, maxDisplayHeight: Int,
+                      throughputBitsPerSecond: Double?, allowHDR: Bool, startAt: Duration) throws -> PlaybackRequest {
         let engine = EngineKind.preferred(for: mode)
         var chosenEngine: EngineKind?
         let source: MediaSource
 
         if page.details.summary.isLive, let hls = manifest.hlsURL {
             source = .hls(hls)
+        } else if format == .hls, mode == .video, let hls = manifest.hlsURL {
+            source = .hls(hls)
+            if prefersSystemPlayer { chosenEngine = .avPlayer }
         } else if let audio = selector.selectAudio(from: manifest.audioStreams, for: engine,
                                                    preferredLanguage: preferredAudioLanguage) {
             if mode == .audioOnly {

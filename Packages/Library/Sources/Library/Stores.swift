@@ -30,6 +30,14 @@ public struct InstanceStore: Sendable {
         }
     }
 
+    /// Marks the instance changed, so its sign-in (kept in the Keychain, sent with the record)
+    /// syncs to the person's other devices.
+    public func touch(_ id: UUID) throws {
+        try database.writer.write { db in
+            try db.execute(sql: "UPDATE instance SET modifiedAt = ? WHERE id = ?", arguments: [Date.now, id.uuidString])
+        }
+    }
+
     /// A tombstone, so the removal syncs to the user's other devices.
     public func remove(_ id: UUID) throws {
         try database.writer.write { db in

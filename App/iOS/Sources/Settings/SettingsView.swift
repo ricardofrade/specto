@@ -2,6 +2,8 @@ import SwiftUI
 import Library
 import DesignSystem
 import InstancesFeature
+import Playback
+import WatchFeature
 
 /// Settings: instances and subscriptions, feed, playback and community features, diagnostics,
 /// and the open-source notices the LGPL requires us to ship.
@@ -117,7 +119,12 @@ struct SettingsView: View {
                                 onChange: { environment.instancesChanged() },
                                 onImported: { environment.subscriptionsChanged($0) },
                                 checkHealth: { await environment.checkInstanceHealth() },
-                                startsAdding: environment.instances.isEmpty)
+                                startsAdding: environment.instances.isEmpty,
+                                signIn: { instance, username, password in
+                                    try await environment.signIn(instance, username: username, password: password,
+                                                                 deviceName: UIDevice.current.name)
+                                },
+                                signOut: { environment.signOut($0) })
             }
         }
     }
@@ -184,6 +191,18 @@ struct SettingsView: View {
                 }
             } footer: {
                 Text("The highest quality to play. Cellular includes personal hotspots, and Low Data Mode plays at up to 480p. You can still pick a quality for a video in the player.")
+            }
+            Section {
+                Picker(selection: $settings.preferredFormat) {
+                    ForEach(StreamFormat.allCases, id: \.self) { format in
+                        Text(verbatim: format.title).tag(format)
+                    }
+                } label: {
+                    Text("Format")
+                }
+                .accessibilityIdentifier("settings.format")
+            } footer: {
+                Text("Auto picks the best stream this device decodes and uses Apple's player when it's as good, for Picture in Picture. A format a video doesn't have falls back to Auto. You can also pick one per video in the player.")
             }
         }
         .navigationTitle(Text("Video Quality"))

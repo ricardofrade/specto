@@ -22,6 +22,8 @@ final class PlayerControlsUITests: XCTestCase {
         // Scrubber: drag to about 60 % of a 2:29 video (~89 s).
         let scrubber = app.otherElements["watch.scrubber"]
         if !scrubber.exists { surface.tap() }
+        // The first tap can land during the zoom into the player; tap once more if needed.
+        if !scrubber.waitForExistence(timeout: 3) { surface.tap() }
         XCTAssertTrue(scrubber.waitForExistence(timeout: 5), "No scrubber")
         shot(app, "controls")
         let start = scrubber.coordinate(withNormalizedOffset: CGVector(dx: 0.02, dy: 0.3))

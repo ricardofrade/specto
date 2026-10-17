@@ -1,7 +1,7 @@
 {
   "sourceLanguage": "en",
   "strings": {
-    "": {
+    "%@": {
       "extractionState": "stale"
     },
     "%@ %@": {
@@ -1077,6 +1077,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Automática (%@)"
+          }
+        }
+      }
+    },
+    "Auto picks the best stream this device decodes and uses Apple's player when it's as good, for Picture in Picture. A format a video doesn't have falls back to Auto. You can also pick one per video in the player.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Auto wählt den besten Stream, den dieses Gerät dekodiert, und nutzt Apples Player, wenn er gleich gut ist – für Bild-in-Bild. Ein Format, das ein Video nicht hat, fällt auf Auto zurück. Du kannst auch pro Video im Player wählen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Auto elige el mejor stream que este dispositivo decodifica y usa el reproductor de Apple cuando es igual, para Imagen en imagen. Un formato que el vídeo no tenga vuelve a Auto. También puedes elegir uno por vídeo en el reproductor."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Auto choisit le meilleur flux que cet appareil décode et utilise le lecteur d’Apple quand il est équivalent, pour Image dans l’image. Un format que la vidéo n’a pas revient à Auto. Vous pouvez aussi en choisir un par vidéo dans le lecteur."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Auto escolhe o melhor stream que este aparelho decodifica e usa o player da Apple quando é igual, para Picture in Picture. Um formato que o vídeo não tem volta para Auto. Você também pode escolher um por vídeo no player."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Auto escolhe o melhor stream que este dispositivo descodifica e usa o leitor da Apple quando é igual, para Imagem na imagem. Um formato que o vídeo não tenha volta a Auto. Também pode escolher um por vídeo no leitor."
           }
         }
       }
@@ -2556,6 +2590,40 @@
         }
       }
     },
+    "Couldn't sign in: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Anmeldung fehlgeschlagen: %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "No se pudo iniciar sesión: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Connexion impossible : %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Não foi possível entrar: %@"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Não foi possível iniciar sessão: %@"
+          }
+        }
+      }
+    },
     "Couldn't update the subscription.": {
       "localizations": {
         "de": {
@@ -3573,6 +3641,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Encontrar algo para ver"
+          }
+        }
+      }
+    },
+    "Format": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Format"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Formato"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Format"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Formato"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Formato"
           }
         }
       }
@@ -6526,6 +6628,40 @@
         }
       }
     },
+    "Or sign in here": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Oder hier anmelden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "O inicia sesión aquí"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ou connectez-vous ici"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ou entre aqui"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ou inicie sessão aqui"
+          }
+        }
+      }
+    },
     "Original": {
       "localizations": {
         "de": {
@@ -6590,6 +6726,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "Emparelhar com YT Zero"
+          }
+        }
+      }
+    },
+    "Password": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Passwort"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Contraseña"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mot de passe"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Senha"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Palavra-passe"
           }
         }
       }
@@ -9111,6 +9281,176 @@
         }
       }
     },
+    "Sign In": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Anmelden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Iniciar sesión"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Se connecter"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Entrar"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Iniciar sessão"
+          }
+        }
+      }
+    },
+    "Sign In…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Anmelden …"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Iniciar sesión…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Se connecter…"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Entrar…"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Iniciar sessão…"
+          }
+        }
+      }
+    },
+    "Sign Out": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Abmelden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Cerrar sesión"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Se déconnecter"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sair"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Terminar sessão"
+          }
+        }
+      }
+    },
+    "Signed in": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Angemeldet"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sesión iniciada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Connecté"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Conectado"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sessão iniciada"
+          }
+        }
+      }
+    },
+    "Signed in · Your subscriptions": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Angemeldet · Deine Abos"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sesión iniciada · Tus suscripciones"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Connecté · Vos abonnements"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Conectado · Suas inscrições"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sessão iniciada · As suas subscrições"
+          }
+        }
+      }
+    },
     "Skip": {
       "localizations": {
         "de": {
@@ -10201,6 +10541,40 @@
         }
       }
     },
+    "That username and password didn't work.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Benutzername und Passwort haben nicht funktioniert."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ese usuario y contraseña no han funcionado."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ce nom d’utilisateur et ce mot de passe n’ont pas fonctionné."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Esse nome de usuário e senha não funcionaram."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Esse nome de utilizador e palavra-passe não funcionaram."
+          }
+        }
+      }
+    },
     "The app works out whether it's Piped, Invidious or YT Zero.": {
       "extractionState": "stale",
       "localizations": {
@@ -11155,6 +11529,40 @@
         }
       }
     },
+    "Username": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Benutzername"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Usuario"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Nom d’utilisateur"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Nome de usuário"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Nome de utilizador"
+          }
+        }
+      }
+    },
     "Version": {
       "localizations": {
         "de": {
@@ -12007,6 +12415,40 @@
         }
       }
     },
+    "Your YT Zero username and password approve this device. They go only to your instance.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Benutzername und Passwort für YT Zero bestätigen dieses Gerät. Sie gehen nur an deine Instanz."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "El usuario y la contraseña de YT Zero aprueban este dispositivo. Solo se envían a tu instancia."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Le nom d’utilisateur et le mot de passe YT Zero approuvent cet appareil. Ils ne vont qu’à votre instance."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "O nome de usuário e a senha do YT Zero aprovam este aparelho. Eles vão só para a sua instância."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "O nome de utilizador e a palavra-passe do YT Zero aprovam este dispositivo. Só são enviados para a sua instância."
+          }
+        }
+      }
+    },
     "Your instance is being blocked by YouTube right now. Showing saved videos.": {
       "localizations": {
         "de": {
@@ -12173,6 +12615,40 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "A sua fila está vazia."
+          }
+        }
+      }
+    },
+    "Your subscriptions on %@ become the app's. Any you follow here that the account lacks are added to it.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Deine Abos auf %@ werden die der App. Was du hier folgst und dem Konto fehlt, wird hinzugefügt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tus suscripciones en %@ pasan a ser las de la app. Las que sigues aquí y la cuenta no tiene se añaden."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vos abonnements sur %@ deviennent ceux de l’app. Ceux que vous suivez ici et que le compte n’a pas y sont ajoutés."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Suas inscrições em %@ passam a ser as do app. As que você segue aqui e a conta não tem são adicionadas."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "As suas subscrições em %@ passam a ser as da app. As que segue aqui e a conta não tem são adicionadas."
           }
         }
       }

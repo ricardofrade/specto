@@ -33,6 +33,7 @@ struct AddInstanceView: View {
                 PublicServersSection(model: model)
             case .pairing(let code):
                 PairingSection(code: code, open: { openURL($0) })
+                PasswordSection(model: model)
             case .done:
                 Section {
                     Label { Text("Instance added") } icon: { Image(systemName: "checkmark.circle.fill") }
@@ -168,6 +169,46 @@ private struct PublicServersSection: View {
             try? await Task.sleep(for: .milliseconds(400))
             guard !Task.isCancelled else { return }
             await model.reloadServers()
+        }
+    }
+}
+
+/// YT Zero without a second device: its username and password approve this one.
+private struct PasswordSection: View {
+    let model: AddInstanceModel
+    @State private var username = ""
+    @State private var password = ""
+    @State private var working = false
+
+    var body: some View {
+        Section {
+            TextField(text: $username) { Text("Username") }
+                .textContentType(.username)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .accessibilityIdentifier("pairing.username")
+            SecureField(text: $password) { Text("Password") }
+                .textContentType(.password)
+                .accessibilityIdentifier("pairing.password")
+            Button {
+                Task {
+                    working = true
+                    await model.signInWithPassword(username: username, password: password)
+                    working = false
+                }
+            } label: {
+                if working { ProgressView() } else { Text("Sign In") }
+            }
+            .disabled(username.isEmpty || password.isEmpty || working)
+            .accessibilityIdentifier("pairing.signIn")
+        } header: {
+            Text("Or sign in here")
+        } footer: {
+            if let error = model.error {
+                Text(error).foregroundStyle(.red)
+            } else {
+                Text("Your YT Zero username and password approve this device. They go only to your instance.")
+            }
         }
     }
 }

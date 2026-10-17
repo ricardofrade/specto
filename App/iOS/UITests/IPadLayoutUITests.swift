@@ -52,5 +52,8 @@ final class IPadLayoutUITests: XCTestCase {
         attachment.name = name
         attachment.lifetime = .keepAlways
         add(attachment)
+        if let folder = ProcessInfo.processInfo.environment["SHOTS_DIR"] {
+            try? app.screenshot().pngRepresentation.write(to: URL(filePath: folder).appending(path: "\(name).png"))
+        }
     }
 }

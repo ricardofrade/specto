@@ -21,7 +21,12 @@ struct TVSettingsView: View {
                                     secrets: environment.secrets, deviceName: "Apple TV",
                                     onChange: { environment.instancesChanged() },
                                     onImported: { environment.subscriptionsChanged($0) },
-                                    checkHealth: { await environment.checkInstanceHealth() })
+                                    checkHealth: { await environment.checkInstanceHealth() },
+                                    signIn: { instance, username, password in
+                                        try await environment.signIn(instance, username: username, password: password,
+                                                                     deviceName: "Apple TV")
+                                    },
+                                    signOut: { environment.signOut($0) })
                 } label: {
                     LabeledContent {
                         Text("\(environment.instances.count)")

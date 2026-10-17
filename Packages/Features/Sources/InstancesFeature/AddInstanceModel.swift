@@ -107,23 +107,56 @@ public final class AddInstanceModel {
 
     public func cancelPairing() {
         step = .enterURL
+        pendingConfig = nil
     }
+
+    /// YT Zero being paired; the password sign-in finishes the same instance.
+    @ObservationIgnored private var pendingConfig: InstanceConfig?
 
     private func pair(_ config: InstanceConfig) async throws {
         let auth = YTZeroDeviceAuth(instanceURL: config.apiURL)
         let code = try await auth.start(deviceName: deviceName)
+        pendingConfig = config
         step = .pairing(code)
-        guard let token = try await auth.waitForApproval(code) else {
-            // Cancelled (step changed) or expired.
-            if case .pairing = step {
-                error = String(localized: "The pairing code expired. Try again.")
-                step = .enterURL
+        // Poll until approved or expired; stop as soon as the step moves on (cancelled, or
+        // signed in with a password instead).
+        let deadline = ContinuousClock.now + code.expiresIn
+        while ContinuousClock.now < deadline {
+            try await Task.sleep(for: code.interval)
+            guard case .pairing = step else { return }
+            switch try await auth.poll(code) {
+            case .pending: continue
+            case .expired: break
+            case .authorized(let token):
+                guard case .pairing = step else { return }
+                secrets.setSecret(token, for: Self.tokenKey(for: config.id))
+                try save(config)
+                return
             }
-            return
+            break
         }
-        guard case .pairing = step else { return }
-        secrets.setSecret(token, for: Self.tokenKey(for: config.id))
-        try save(config)
+        if case .pairing = step {
+            error = String(localized: "The pairing code expired. Try again.")
+            step = .enterURL
+        }
+    }
+
+    /// Instead of approving the code in a browser: the YT Zero account's username and
+    /// password, which approve this device directly (ADR 0017).
+    public func signInWithPassword(username: String, password: String) async {
+        guard let config = pendingConfig else { return }
+        error = nil
+        do {
+            let token = try await YTZeroDeviceAuth(instanceURL: config.apiURL)
+                .signIn(username: username, password: password, deviceName: deviceName)
+            guard case .pairing = step else { return }
+            secrets.setSecret(token, for: Self.tokenKey(for: config.id))
+            try save(config)
+        } catch AccountSignIn.Failure.rejected {
+            error = String(localized: "That username and password didn't work.")
+        } catch {
+            self.error = Self.message(for: error)
+        }
     }
 
     private func save(_ config: InstanceConfig) throws {

@@ -33,6 +33,10 @@ public struct PlayerActions {
     public var qualities: [Int] = []
     public var selectedQuality: Int?
     public var selectQuality: (Int?) -> Void = { _ in }
+    /// Auto, AV1, VP9, H.264 or HLS, as this video offers them (ADR 0017).
+    public var formats: [StreamFormat] = []
+    public var selectedFormat: StreamFormat = .auto
+    public var selectFormat: (StreamFormat) -> Void = { _ in }
     /// Audio tracks of a multi-language video (empty: nothing to choose), the one playing
     /// (nil: original), and how to change it.
     public var audioTracks: [AudioTrackOption] = []
@@ -94,6 +98,7 @@ struct PlayerTopControls: View, Equatable {
             lhs.session === rhs.session
                 && lhs.actions.captions == rhs.actions.captions && lhs.actions.selectedCaption == rhs.actions.selectedCaption
                 && lhs.actions.qualities == rhs.actions.qualities && lhs.actions.selectedQuality == rhs.actions.selectedQuality
+                && lhs.actions.formats == rhs.actions.formats && lhs.actions.selectedFormat == rhs.actions.selectedFormat
                 && lhs.actions.audioTracks == rhs.actions.audioTracks && lhs.actions.selectedAudio == rhs.actions.selectedAudio
                 && lhs.actions.sleepChoice == rhs.actions.sleepChoice && lhs.actions.sleepStatus == rhs.actions.sleepStatus
                 && (lhs.actions.startPictureInPicture == nil) == (rhs.actions.startPictureInPicture == nil)
@@ -312,6 +317,17 @@ private struct PlaybackSettingsMenu: View {
                 .pickerStyle(.menu)
                 .accessibilityIdentifier("watch.quality")
             }
+            if session.mode == .video, actions.formats.count > 1 {
+                Picker(selection: Binding(get: { actions.selectedFormat }, set: { actions.selectFormat($0) })) {
+                    ForEach(actions.formats, id: \.self) { format in
+                        Text(verbatim: format.title).tag(format)
+                    }
+                } label: {
+                    Label { Text("Format") } icon: { Image(systemName: "film.stack") }
+                }
+                .pickerStyle(.menu)
+                .accessibilityIdentifier("watch.format")
+            }
             if !actions.audioTracks.isEmpty {
                 Picker(selection: Binding(get: { actions.selectedAudio }, set: { actions.selectAudio($0) })) {
                     ForEach(actions.audioTracks) { track in
@@ -349,5 +365,18 @@ private struct PlaybackSettingsMenu: View {
                 .frame(width: 22, height: 22)
         }
         .accessibilityIdentifier("watch.settings")
+    }
+}
+
+extension StreamFormat {
+    /// The Format menu's names.
+    public var title: String {
+        switch self {
+        case .auto: String(localized: "Auto")
+        case .av1: "AV1"
+        case .vp9: "VP9"
+        case .h264: "H.264 (MP4)"
+        case .hls: "HLS"
+        }
     }
 }

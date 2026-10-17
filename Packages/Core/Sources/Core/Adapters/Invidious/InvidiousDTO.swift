@@ -80,7 +80,8 @@ enum InvidiousDTO {
         }
 
         var videoSummary: VideoSummary? {
-            guard type == nil || type == "video", let videoId, let authorId else { return nil }
+            // The account feed calls its compact entries "shortVideo" (not YouTube Shorts).
+            guard type == nil || type == "video" || type == "shortVideo", let videoId, let authorId else { return nil }
             return VideoSummary(
                 id: VideoID(rawValue: videoId), title: title ?? "", channelID: ChannelID(rawValue: authorId),
                 channelName: author ?? "",

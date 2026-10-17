@@ -221,11 +221,18 @@ public struct WatchScreen: View {
                 WatchTabs(content: content, comments: comments, session: session) { details(showsChapters: false) }
             }
         case .sidePanel:
+            // iPad landscape and wide windows: the video fills its column (no bars above and
+            // below), the details scroll under it, and Up Next and Comments get the side.
             HStack(spacing: 0) {
-                player.frame(maxHeight: .infinity)
-                    .background(.black)
-                WatchTabs(content: content, comments: comments, session: session) { details(showsChapters: false) }
-                    .frame(width: min(400, size.width * 0.34))
+                VStack(spacing: 0) {
+                    player
+                    ScrollView { details(showsChapters: true, showsUpNext: false) }
+                        .scrollEdgeEffectStyle(.soft, for: .top)
+                }
+                WatchTabs(content: content, comments: comments, session: session, firstTitle: Text("Up next")) {
+                    upNextList
+                }
+                .frame(width: min(420, size.width * 0.34))
             }
         }
     }
@@ -265,7 +272,21 @@ public struct WatchScreen: View {
     }
 
     /// - Parameter showsChapters: the band and side panel have a Chapters tab instead.
-    private func details(showsChapters: Bool) -> some View {
+    /// Up Next on its own, for the side panel.
+    private var upNextList: some View {
+        LazyVStack(alignment: .leading, spacing: Tokens.Spacing.m) {
+            ForEach(content.relatedRows) { row in
+                Button { onSelectRelated(row.video) } label: {
+                    VideoCell(VideoCellContent(row: row, pixelWidth: Int(140 * displayScale)), style: .row, thumbnailWidth: 140)
+                        .equatable()
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(Tokens.Spacing.m)
+    }
+
+    private func details(showsChapters: Bool, showsUpNext: Bool = true) -> some View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.l) {
             Text(content.title)
                 .font(Tokens.Typography.sectionTitle)
@@ -296,7 +317,7 @@ public struct WatchScreen: View {
             if let description = content.descriptionText, !description.characters.isEmpty {
                 DescriptionView(text: description, isLong: content.descriptionIsLong, session: session)
             }
-            if showsRelated, !content.relatedRows.isEmpty {
+            if showsUpNext, showsRelated, !content.relatedRows.isEmpty {
                 Text("Up next").font(.headline).padding(.top, Tokens.Spacing.m)
                     .accessibilityAddTraits(.isHeader)
                 ForEach(content.relatedRows) { row in
@@ -377,19 +398,6 @@ private struct PlayerArea: View {
                     .frame(maxHeight: .infinity, alignment: .top)
                     .padding(.top, Tokens.Spacing.m)
             }
-            if controlsVisible, showsControls {
-                PlayerControlCluster(isPlaying: session.state == .playing,
-                                     captionsAvailable: captionsAvailable) { action in
-                    handle(action)
-                }
-                .transition(.opacity)
-                PlayerScrubber(session: session, storyboard: storyboard, chapters: chapters,
-                               onInteraction: { show() })
-                    .padding(.horizontal, Tokens.Spacing.l)
-                    .padding(.bottom, Tokens.Spacing.s)
-                    .frame(maxHeight: .infinity, alignment: .bottom)
-                    .transition(.opacity)
-            }
             if session.state == .loading || session.state == .buffering {
                 ProgressView().tint(.white)
                     .accessibilityLabel(Text("Loading"))
@@ -410,6 +418,27 @@ private struct PlayerArea: View {
         .simultaneousGesture(MagnifyGesture().onEnded { value in
             withAnimation(Tokens.Motion.standard) { fills = value.magnification > 1 }
         })
+        // After the video's gestures: inside them, a tap on Pause was taken by the video's own
+        // tap (show or hide the controls) and never reached the button.
+        .overlay {
+            if controlsVisible, showsControls {
+                PlayerControlCluster(isPlaying: session.state == .playing,
+                                     captionsAvailable: captionsAvailable) { action in
+                    handle(action)
+                }
+                .transition(.opacity)
+            }
+        }
+        .overlay(alignment: .bottom) {
+            if controlsVisible, showsControls {
+                PlayerScrubber(session: session, storyboard: storyboard, chapters: chapters,
+                               onInteraction: { show() })
+                    .padding(.horizontal, Tokens.Spacing.l)
+                    .padding(.bottom, Tokens.Spacing.s)
+                    .transition(.opacity)
+            }
+        }
+        .animation(Tokens.Motion.standard, value: controlsVisible)
         // After the video's gestures, so tapping these never also toggles the controls (which
         // would close a menu as it opens).
         // Faded, never removed: removing them would also close a menu that's open.

@@ -1,6 +1,7 @@
 import SwiftUI
 import Core
 import Library
+import Playback
 
 /// What SponsorBlock does with a category of segment.
 enum SponsorAction: String, CaseIterable, Sendable {
@@ -110,6 +111,11 @@ final class AppSettings {
         didSet { defaults.set(homePreviews, forKey: Keys.homePreviews) }
     }
 
+    /// The format to play when the person hasn't picked one for a video (ADR 0017). Auto.
+    var preferredFormat: StreamFormat {
+        didSet { defaults.set(preferredFormat.rawValue, forKey: Keys.preferredFormat) }
+    }
+
     /// Search suggestions while typing (from the instances). On by default.
     var searchSuggestions: Bool {
         didSet { defaults.set(searchSuggestions, forKey: Keys.searchSuggestions) }
@@ -135,6 +141,7 @@ final class AppSettings {
         autoplay = Self.flag(defaults, Keys.autoplay, default: true)
         searchSuggestions = Self.flag(defaults, Keys.searchSuggestions, default: true)
         homePreviews = Self.flag(defaults, Keys.homePreviews, default: true)
+        preferredFormat = defaults.string(forKey: Keys.preferredFormat).flatMap(StreamFormat.init) ?? .auto
         wifiQualityLimit = Self.limit(defaults.integer(forKey: Keys.wifiQualityLimit))
         cellularQualityLimit = Self.limit(defaults.integer(forKey: Keys.cellularQualityLimit))
     }
@@ -175,6 +182,7 @@ final class AppSettings {
         static let wifiQualityLimit = "playback.wifiQualityLimit"
         static let searchSuggestions = "search.suggestions"
         static let homePreviews = "home.previews"
+        static let preferredFormat = "playback.format"
         static let autoplay = "playback.autoplay"
         static let audioLanguage = "playback.audioLanguage"
         static let cellularQualityLimit = "playback.cellularQualityLimit"

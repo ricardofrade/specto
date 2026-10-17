@@ -47,6 +47,28 @@ public struct YTZeroDeviceAuth: Sendable {
         }
     }
 
+    /// Signs in with the account's username and password and approves this device's code with
+    /// that session, the way a browser would: no second device needed (ADR 0017).
+    public func signIn(username: String, password: String, deviceName: String) async throws -> String {
+        let code = try await start(deviceName: deviceName)
+        // An ephemeral session keeps the sign-in cookie in memory for the approval.
+        let session = URLSession(configuration: .ephemeral)
+        func post(_ path: String, _ body: [String: String]) async throws -> HTTPURLResponse {
+            var request = URLRequest(url: api.baseURL.appending(path: path), timeoutInterval: 15)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONEncoder().encode(body)
+            let (_, response) = try await session.data(for: request)
+            return response as? HTTPURLResponse ?? HTTPURLResponse()
+        }
+        let login = try await post("api/auth/password/login", ["username": username, "password": password])
+        guard (200..<300).contains(login.statusCode) else { throw AccountSignIn.Failure.rejected }
+        let approve = try await post("api/auth/device/authorize", ["user_code": code.userCode])
+        guard (200..<300).contains(approve.statusCode) else { throw AccountSignIn.Failure.rejected }
+        guard case .authorized(let token) = try await poll(code) else { throw AccountSignIn.Failure.rejected }
+        return token
+    }
+
     /// Polls at the server's interval until approved, expired or cancelled.
     public func waitForApproval(_ code: Code) async throws -> String? {
         let deadline = ContinuousClock.now + code.expiresIn

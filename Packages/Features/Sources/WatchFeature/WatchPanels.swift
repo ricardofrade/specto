@@ -97,13 +97,15 @@ struct WatchTabs<Details: View>: View {
     let content: WatchContent
     let comments: CommentsModel?
     let session: PlaybackSession
+    /// The first tab's name: Details, or Up Next where the details sit under the video.
+    var firstTitle = Text("Details")
     @ViewBuilder let details: Details
     @State private var tab = Tab.details
 
     var body: some View {
         VStack(spacing: 0) {
             Picker(selection: $tab) {
-                Text("Details").tag(Tab.details)
+                firstTitle.tag(Tab.details)
                 if comments != nil { Text("Comments").tag(Tab.comments) }
                 if !content.chapters.isEmpty { Text("Chapters").tag(Tab.chapters) }
             } label: {

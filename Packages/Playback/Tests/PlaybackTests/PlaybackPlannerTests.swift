@@ -97,6 +97,26 @@ struct PlaybackPlannerTests {
         #expect(request.source == .progressive(url))
     }
 
+    @Test func aPickedFormatWins() throws {
+        var picking = planner
+        picking.format = .hls
+        let hls = try picking.request(for: page(video: [h264], audio: [aac], hls: url), mode: .video, maxDisplayHeight: 1080,
+                                      throughputBitsPerSecond: nil, allowHDR: false)
+        #expect(hls.source == .hls(url))
+        picking.format = .h264
+        let mp4 = try picking.request(for: page(video: [h264], audio: [aac]), mode: .video, maxDisplayHeight: 1080,
+                                      throughputBitsPerSecond: nil, allowHDR: false)
+        guard case .adaptive(let video?, _) = mp4.source else { Issue.record("\(mp4.source)"); return }
+        #expect(video.codec == .h264)
+    }
+
+    @Test func formatOptionsAreWhatTheVideoHas() {
+        let manifest = page(video: [h264], audio: [aac], hls: url).manifest
+        #expect(StreamFormat.options(for: manifest, capabilities: DecodeCapabilities()) .contains(.hls))
+        #expect(StreamFormat.options(for: manifest, capabilities: DecodeCapabilities()).first == .auto)
+        #expect(!StreamFormat.options(for: manifest, capabilities: DecodeCapabilities()).contains(.vp9))
+    }
+
     @Test func nothingPlayableIsAnError() {
         #expect(throws: PlaybackError.self) {
             try planner.request(for: page(), mode: .video, maxDisplayHeight: 1080,

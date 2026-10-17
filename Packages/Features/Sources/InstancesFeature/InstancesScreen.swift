@@ -14,6 +14,11 @@ public struct InstancesScreen: View {
     private let onImported: ([ChannelSummary]) -> Void
     private let checkHealth: (() async -> [HealthSample])?
     private let startsAdding: Bool
+    private let signIn: ((InstanceConfig, String, String) async throws -> Void)?
+    private let signOut: ((InstanceConfig) -> Void)?
+    /// Instances with a stored sign-in, and the one that owns subscriptions (the first).
+    @State private var signedIn: Set<UUID> = []
+    @State private var signingIn: InstanceConfig?
 
     @State private var list: [InstanceConfig] = []
     @State private var subscriptionCount = 0
@@ -30,8 +35,12 @@ public struct InstancesScreen: View {
     public init(instances: InstanceStore, subscriptions: SubscriptionStore, secrets: any SecretStore,
                 deviceName: String, onChange: @escaping () -> Void,
                 onImported: @escaping ([ChannelSummary]) -> Void,
-                checkHealth: (() async -> [HealthSample])? = nil, startsAdding: Bool = false) {
+                checkHealth: (() async -> [HealthSample])? = nil, startsAdding: Bool = false,
+                signIn: ((InstanceConfig, String, String) async throws -> Void)? = nil,
+                signOut: ((InstanceConfig) -> Void)? = nil) {
         self.startsAdding = startsAdding
+        self.signIn = signIn
+        self.signOut = signOut
         self.instances = instances
         self.subscriptions = subscriptions
         self.secrets = secrets
@@ -45,7 +54,12 @@ public struct InstancesScreen: View {
         List {
             Section {
                 ForEach(list) { instance in
-                    InstanceRow(instance: instance, status: status[instance.id] ?? (checkHealth == nil ? nil : .checking))
+                    InstanceRow(instance: instance, status: status[instance.id] ?? (checkHealth == nil ? nil : .checking),
+                                account: accountState(instance))
+                        .contextMenu { accountActions(instance) }
+                        #if os(iOS)
+                        .swipeActions(edge: .leading) { accountActions(instance) }
+                        #endif
                 }
                 .onDelete(perform: delete)
                 Button { startAdding() } label: {
@@ -81,6 +95,14 @@ public struct InstancesScreen: View {
             }
         }
         .navigationTitle(Text("Instances"))
+        .sheet(item: $signingIn) { instance in
+            NavigationStack {
+                SignInView(instance: instance) { username, password in
+                    try await signIn?(instance, username, password)
+                    reload()
+                }
+            }
+        }
         .task {
             reload()
             if startsAdding, list.isEmpty, addModel == nil { startAdding() }
@@ -101,6 +123,7 @@ public struct InstancesScreen: View {
 
     private func reload() {
         list = (try? instances.all()) ?? []
+        signedIn = Set(list.filter { secrets.secret(for: InstanceConfig.tokenKey(for: $0.id)) != nil }.map(\.id))
         subscriptionCount = (try? subscriptions.channels().count) ?? 0
     }
 
@@ -108,6 +131,29 @@ public struct InstancesScreen: View {
         guard let checkHealth else { return }
         let samples = await checkHealth()
         status = Dictionary(samples.map { ($0.instanceID, InstanceStatus($0)) }, uniquingKeysWith: { first, _ in first })
+    }
+
+    /// The first signed-in instance in this order owns YouTube subscriptions (ADR 0017).
+    private func accountState(_ instance: InstanceConfig) -> InstanceRow.Account {
+        guard instance.kind != .peerTube, signedIn.contains(instance.id) else { return .none }
+        let owner = list.first { $0.kind != .peerTube && signedIn.contains($0.id) }
+        return owner?.id == instance.id ? .subscriptions : .signedIn
+    }
+
+    @ViewBuilder
+    private func accountActions(_ instance: InstanceConfig) -> some View {
+        if signIn != nil, instance.kind == .piped || instance.kind == .invidious {
+            if signedIn.contains(instance.id) {
+                Button(role: .destructive) { signOut?(instance); reload() } label: {
+                    Label { Text("Sign Out") } icon: { Image(systemName: "person.crop.circle.badge.minus") }
+                }
+            } else {
+                Button { signingIn = instance } label: {
+                    Label { Text("Sign In…") } icon: { Image(systemName: "person.crop.circle") }
+                }
+                .tint(.accentColor)
+            }
+        }
     }
 
     private func startAdding() {
@@ -183,8 +229,11 @@ struct InstanceStatus: Equatable {
 }
 
 private struct InstanceRow: View {
+    enum Account { case none, signedIn, subscriptions }
+
     let instance: InstanceConfig
     let status: InstanceStatus?
+    let account: Account
 
     var body: some View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.xxs) {
@@ -202,6 +251,15 @@ private struct InstanceRow: View {
             }
             .font(Tokens.Typography.caption)
             .foregroundStyle(Tokens.Colors.textSecondary)
+            switch account {
+            case .none: EmptyView()
+            case .signedIn:
+                Label { Text("Signed in") } icon: { Image(systemName: "person.crop.circle.fill") }
+                    .font(Tokens.Typography.caption).foregroundStyle(Tokens.Colors.textSecondary)
+            case .subscriptions:
+                Label { Text("Signed in · Your subscriptions") } icon: { Image(systemName: "person.crop.circle.fill") }
+                    .font(Tokens.Typography.caption).foregroundStyle(Tokens.Colors.accent)
+            }
         }
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier("instance.row")
@@ -223,6 +281,70 @@ extension SourceKind {
         case .invidious: "Invidious"
         case .ytZero: "YT Zero"
         case .peerTube: "PeerTube"
+        }
+    }
+}
+
+/// Username and password for a Piped or Invidious account. The password goes only to that
+/// instance; the app keeps what it answers (a token or a session) in the Keychain.
+private struct SignInView: View {
+    let instance: InstanceConfig
+    let submit: (String, String) async throws -> Void
+    @State private var username = ""
+    @State private var password = ""
+    @State private var working = false
+    @State private var error: String?
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        Form {
+            Section {
+                TextField(text: $username) { Text("Username") }
+                    .textContentType(.username)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .accessibilityIdentifier("signIn.username")
+                SecureField(text: $password) { Text("Password") }
+                    .textContentType(.password)
+                    .accessibilityIdentifier("signIn.password")
+                    .onSubmit { Task { await go() } }
+            } footer: {
+                if let error {
+                    Text(error).foregroundStyle(.red)
+                } else {
+                    Text("Your subscriptions on \(instance.displayName) become the app's. Any you follow here that the account lacks are added to it.")
+                }
+            }
+        }
+        .navigationTitle(Text("Sign In"))
+        .inlineNavigationTitle()
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button { dismiss() } label: { Text("Cancel") }
+            }
+            ToolbarItem(placement: .confirmationAction) {
+                if working {
+                    ProgressView()
+                } else {
+                    Button { Task { await go() } } label: { Text("Sign In") }
+                        .disabled(username.isEmpty || password.isEmpty)
+                        .accessibilityIdentifier("signIn.submit")
+                }
+            }
+        }
+    }
+
+    private func go() async {
+        working = true
+        error = nil
+        defer { working = false }
+        do {
+            try await submit(username, password)
+            dismiss()
+        } catch AccountSignIn.Failure.rejected {
+            error = String(localized: "That username and password didn't work.")
+        } catch {
+            self.error = String(localized: "Couldn't sign in: \(error.localizedDescription)")
         }
     }
 }

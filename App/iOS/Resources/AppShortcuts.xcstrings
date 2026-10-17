@@ -1,142 +1,146 @@
 {
-  "sourceLanguage": "en",
-  "strings": {
-    "Continue watching in ${applicationName}": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "In ${applicationName} weiterschauen"
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Continue watching in ${applicationName}" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "In ${applicationName} weiterschauen"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Seguir viendo en ${applicationName}"
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Seguir viendo en ${applicationName}"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Reprendre la lecture dans ${applicationName}"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Reprendre la lecture dans ${applicationName}"
           }
         },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Continuar assistindo no ${applicationName}"
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Continuar assistindo no ${applicationName}"
           }
         },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Continuar a ver no ${applicationName}"
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Continuar a ver no ${applicationName}"
           }
         }
       }
     },
-    "Play my ${applicationName} queue": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "${applicationName}-Warteschlange abspielen"
+    "Play my ${applicationName} queue" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "${applicationName}-Warteschlange abspielen"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Reproducir la cola de ${applicationName}"
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Reproducir la cola de ${applicationName}"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Lire la file d’attente de ${applicationName}"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Lire la file d’attente de ${applicationName}"
           }
         },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Tocar a fila do ${applicationName}"
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Tocar a fila do ${applicationName}"
           }
         },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Reproduzir a fila do ${applicationName}"
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Reproduzir a fila do ${applicationName}"
           }
         }
       }
     },
-    "Play my queue in ${applicationName}": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Meine Warteschlange in ${applicationName} abspielen"
+    "Play my queue in ${applicationName}" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Meine Warteschlange in ${applicationName} abspielen"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Reproducir mi cola en ${applicationName}"
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Reproducir mi cola en ${applicationName}"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Lire ma file d’attente dans ${applicationName}"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Lire ma file d’attente dans ${applicationName}"
           }
         },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Tocar minha fila no ${applicationName}"
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Tocar minha fila no ${applicationName}"
           }
         },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Reproduzir a minha fila no ${applicationName}"
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Reproduzir a minha fila no ${applicationName}"
           }
         }
       }
     },
-    "Resume ${applicationName}": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "${applicationName} fortsetzen"
+    "Resume ${applicationName}" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "${applicationName} fortsetzen"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Reanudar ${applicationName}"
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Reanudar ${applicationName}"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Reprendre ${applicationName}"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Reprendre ${applicationName}"
           }
         },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Retomar o ${applicationName}"
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Retomar o ${applicationName}"
           }
         },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Retomar o ${applicationName}"
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Retomar o ${applicationName}"
           }
         }
       }
     }
   },
-  "version": "1.0"
+  "version" : "1.0"
 }

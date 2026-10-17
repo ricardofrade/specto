@@ -43,6 +43,7 @@ final class AppEnvironment {
                 VideoQuality.heights(in: $0.manifest.videoStreams, capabilities: DecodeCapabilities(), allowHDR: false)
             } ?? []
             availableAudioTracks = currentPage.map { AudioTracks.options(in: $0.manifest.audioStreams) } ?? []
+            availableFormats = currentPage.map { StreamFormat.options(for: $0.manifest, capabilities: DecodeCapabilities()) } ?? []
         }
     }
     /// The heights the player's Quality picker offers for this video, tallest first.
@@ -60,6 +61,11 @@ final class AppEnvironment {
 
     /// Picked in the player for this video; nil plans automatically (ADR 0007).
     private(set) var manualQuality: Int?
+    /// The formats this video offers (Auto first), and one picked for it in the player; nil
+    /// follows the setting.
+    private(set) var availableFormats: [StreamFormat] = []
+    private(set) var manualFormat: StreamFormat?
+    var currentFormat: StreamFormat { manualFormat ?? AppSettings.shared.preferredFormat }
     /// Autoplay's countdown while it runs (the Watch screen's card, the TV's Up Next panel).
     var upNext: UpNextCountdown?
     @ObservationIgnored var upNextTask: Task<Void, Never>?
@@ -182,29 +188,35 @@ final class AppEnvironment {
         instances = (try? InstanceStore(database).all()) ?? []
         hasSubscriptions = !((try? SubscriptionStore(database).channels()) ?? []).isEmpty
         var sources: [any VideoSource] = []
-        var linkedAccount: YTZeroSource?
+        var ytZero: YTZeroSource?
+        // The first signed-in instance in the person's order owns YouTube subscriptions
+        // (ADR 0002, 0017): YT Zero, Piped or Invidious.
+        var linkedAccount: (any SubscriptionAccount)?
         var imageTokens: [String: String] = [:]
         // PeerTube answers search and Explore's main list only when nothing fronts YouTube;
         // YouTube's front-ends decline PeerTube content (ADR 0016).
         let hasYouTube = instances.contains { $0.kind.isYouTube }
         for instance in instances {
+            let secret = secrets.secret(for: InstanceConfig.tokenKey(for: instance.id))
             switch instance.kind {
             case .piped:
                 sources.append(YouTubeOnly(PipedSource(instance: instance)))
+                if let secret, linkedAccount == nil { linkedAccount = PipedAccount(instance: instance, token: secret) }
             case .invidious:
                 sources.append(YouTubeOnly(InvidiousSource(instance: instance)))
+                if let secret, linkedAccount == nil { linkedAccount = InvidiousAccount(instance: instance, session: secret) }
             case .peerTube:
                 sources.append(PeerTubeSource(instance: instance, servesGeneralQueries: !hasYouTube))
             case .ytZero:
-                guard let token = secrets.secret(for: AddInstanceModel.tokenKey(for: instance.id)) else { continue }
+                guard let token = secret else { continue }
                 let source = YTZeroSource(instance: instance, token: token)
-                // The account is the YT Zero source itself (subscriptions); routing goes
-                // through the wrapper below.
                 if let host = instance.apiURL.host() { imageTokens[host] = token }
-                linkedAccount = linkedAccount ?? source
+                ytZero = ytZero ?? source
+                if linkedAccount == nil { linkedAccount = source }
             }
         }
-        if let linkedAccount { sources.append(YouTubeOnly(linkedAccount)) }
+        // YT Zero streams last (the others give more formats).
+        if let ytZero { sources.append(YouTubeOnly(ytZero)) }
 
         let router = InstanceRouter(sources: sources)
         self.router = router
@@ -416,6 +428,30 @@ final class AppEnvironment {
     }
 
     /// Writes through to a linked account (the source of truth), else the local store.
+    /// Signs in to an instance's account (ADR 0017). Local YouTube subscriptions the account
+    /// lacks are added to it first, so signing in never loses any; then everything refreshes.
+    func signIn(_ instance: InstanceConfig, username: String, password: String, deviceName: String) async throws {
+        let secret = try await AccountSignIn.signIn(instance, username: username, password: password, deviceName: deviceName)
+        let local = (try? SubscriptionStore(database).channels()) ?? []
+        secrets.setSecret(secret, for: InstanceConfig.tokenKey(for: instance.id))
+        try? InstanceStore(database).touch(instance.id)
+        reloadSources()
+        if let account {
+            let remote = Set(((try? await account.subscriptions()) ?? []).map(\.id))
+            for channel in local where !channel.id.isPeerTube && !remote.contains(channel.id) {
+                try? await account.follow(channel.id)
+            }
+        }
+        instancesChanged()
+    }
+
+    /// Signs out (Piped, Invidious): the instance stays for browsing and playing.
+    func signOut(_ instance: InstanceConfig) {
+        secrets.setSecret(nil, for: InstanceConfig.tokenKey(for: instance.id))
+        try? InstanceStore(database).touch(instance.id)
+        instancesChanged()
+    }
+
     func setSubscribed(_ channel: ChannelSummary, _ subscribed: Bool) async throws {
         // The account follows YouTube channels; PeerTube subscriptions stay local (ADR 0016).
         if let account, !channel.id.isPeerTube {
@@ -540,6 +576,7 @@ final class AppEnvironment {
         }
         self.surfaceHeight = surfaceHeight
         manualQuality = nil
+        manualFormat = nil
         let request = try plan(page, mode: mode, startAt: startAt)
         let item = NowPlayingItem(videoID: video.id, title: video.title, channelName: video.channelName,
                                   artworkURL: video.thumbnails.first?.url, chapters: page.manifest.chapters)
@@ -554,8 +591,9 @@ final class AppEnvironment {
     /// The surface, the data-saver limit for this network (or a manual pick) and the measured
     /// speed decide the stream (ADR 0007).
     func plan(_ page: WatchPage, mode: PlaybackMode, startAt: Duration) throws -> PlaybackRequest {
-        let planner = PlaybackPlanner(selector: FormatSelector(capabilities: DecodeCapabilities()),
+        var planner = PlaybackPlanner(selector: FormatSelector(capabilities: DecodeCapabilities()),
                                       preferredAudioLanguage: AppSettings.shared.audioLanguage)
+        planner.format = currentFormat
         let network = NetworkMonitor.shared.status
         let maxHeight = VideoQuality.maxHeight(surface: surfaceHeight, manual: manualQuality,
                                                limit: AppSettings.shared.qualityLimit(onExpensiveNetwork: network.isExpensive),
@@ -569,6 +607,14 @@ final class AppEnvironment {
     }
 
     /// From the player's Quality picker: nil goes back to automatic. Reloads at the same position.
+    /// The player's Format menu: re-plans at the current position.
+    func selectFormat(_ format: StreamFormat) async {
+        guard format != currentFormat else { return }
+        manualFormat = format
+        guard session.mode == .video else { return }
+        await replan()
+    }
+
     func selectQuality(_ height: Int?) async {
         guard height != manualQuality else { return }
         manualQuality = height
