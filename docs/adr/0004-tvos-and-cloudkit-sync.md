@@ -21,7 +21,7 @@ M7 adds the Apple TV app and ships the sync that M1 designed the schema for (ADR
    - the feed refills from the instances.
 4. **Top Shelf reads a JSON snapshot, not the database.**
    - **Writing:** the app writes `topshelf.json` (Continue Watching and Latest, at most 12 each) into the App Group container after feed changes and on backgrounding. It writes only when the content changed.
-   - **Reading:** the extension decodes the snapshot and links each item to `dev.placeholder.player.tv://watch?v=<id>`.
+   - **Reading:** the extension decodes the snapshot and links each item to `dev.placeholder.specto.tv://watch?v=<id>`.
 5. **CloudKit sync with `CKSyncEngine`**, in the private database, in one zone (`Library`).
    - **Records:** a `Subscription` and a `WatchState` record per row, named `<type>/<id>`.
    - **Pending changes:** a row is pending while `modifiedAt > uploadedAt`, so there's no outbox table and no triggers.
@@ -42,6 +42,6 @@ M7 adds the Apple TV app and ships the sync that M1 designed the schema for (ADR
   2. Add the iCloud (CloudKit) and Push Notifications capabilities to both apps, plus the `remote-notification` background mode, so other devices' changes arrive promptly.
   3. Set `CLOUDKIT_CONTAINER`.
   4. Deploy the schema to production in the CloudKit console before release. Development and production schemas are separate.
-- **Before App Store builds:** the App Group (`group.dev.placeholder.player`) and the URL scheme are placeholders, like the bundle IDs. Replace them before signing for a device.
+- **Before App Store builds:** the App Group (`group.dev.placeholder.specto`) and the URL scheme are placeholders, like the bundle IDs. Replace them before signing for a device.
 - **Watch history volume:** the first sign-in uploads all watch history. CloudKit batches it, but a very long history takes a while.
 - **Not verified live:** sync against a real container needs the developer account, so it hasn't run against CloudKit yet. Conflict and mapping logic is covered by `SyncTests`.

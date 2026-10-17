@@ -24,7 +24,7 @@ final class AdaptiveLayoutUITests: XCTestCase {
         app.buttons["Next"].tap()
         XCTAssertTrue(app.staticTexts["Instance added"].waitForExistence(timeout: 20))
         app.buttons["Done"].tap()
-        app.buttons["Subscriptions"].firstMatch.tap()
+        app.buttons["Home"].firstMatch.tap()
         let list = app.scrollViews["feed.list"]
         XCTAssertTrue(list.waitForExistence(timeout: 45))
         list.buttons.firstMatch.tap()

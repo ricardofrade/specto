@@ -16,7 +16,9 @@ struct RootView: View {
     @State private var feed: FeedModel
     @State private var search: SearchModel
     @State private var channels: [ChannelSummary] = []
-    @State private var shortSidePixels = 1080
+    /// The tallest a 16:9 video can be drawn in this window, in either orientation: no point
+    /// decoding more (and less means AVPlayer can play it, with system PiP; ADR 0005).
+    @State private var maxVideoPixels = 1080
     @State private var queuedIDs: Set<VideoID> = []
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Namespace private var zoom
@@ -28,7 +30,9 @@ struct RootView: View {
         self.onFirstFeedFrame = onFirstFeedFrame
         let settings = AppSettings.shared
         _feed = State(initialValue: FeedModel(store: FeedStore(environment.database),
-                                              options: settings.feedOptions) { force in
+                                              options: settings.feedOptions,
+                                              watchState: WatchStateStore(environment.database),
+                                              queue: QueueStore(environment.database)) { force in
             try await environment.refreshFeed(force: force)
         })
         _search = State(initialValue: SearchModel { query, cursor in
@@ -52,7 +56,7 @@ struct RootView: View {
                         }
                 }
             } label: {
-                Label { Text("Subscriptions") } icon: { Image(systemName: "play.square.stack") }
+                Label { Text("Home") } icon: { Image(systemName: "house") }
             }
             Tab(value: SceneRouter.Section.settings) {
                 NavigationStack(path: $router.settingsPath) { settingsScreen }
@@ -87,11 +91,13 @@ struct RootView: View {
             }
         }
         .tabViewStyle(.sidebarAdaptable)
+        .tabBarMinimizeBehavior(.onScrollDown)
         .miniPlayer(isEnabled: environment.session.item != nil && router.watching == nil) {
             MiniPlayerBar(session: environment.session) { reopenPlayer() }
         }
         .onGeometryChange(for: CGSize.self) { $0.size } action: { size in
-            shortSidePixels = Int(min(size.width, size.height) * displayScale)
+            let short = min(size.width, size.height), long = max(size.width, size.height)
+            maxVideoPixels = Int(min(short, long * 9 / 16) * displayScale)
         }
         .onChange(of: settings.feedOptions) { _, options in
             feed.setOptions(options)
@@ -193,7 +199,7 @@ struct RootView: View {
         router.watching = WatchContent(video: video)
         Task {
             do {
-                let page = try await environment.play(video, surfaceHeight: shortSidePixels)
+                let page = try await environment.play(video, surfaceHeight: maxVideoPixels)
                 guard router.watching?.video.id == video.id else { return }
                 router.watching?.details = page.details
                 router.watching?.setChapters(page.manifest.chapters)

@@ -2,7 +2,7 @@ import SwiftUI
 import Core
 
 @main
-struct PlayerApp: App {
+struct SpectoApp: App {
     private let launchInterval = Signpost.begin(.launchFirstFeedFrame)
     private let harness = Harness.Screen(arguments: ProcessInfo.processInfo.arguments)
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate

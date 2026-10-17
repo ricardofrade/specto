@@ -11,7 +11,7 @@ public protocol SecretStore: Sendable {
 public struct KeychainSecretStore: SecretStore {
     private let service: String
 
-    public init(service: String = "dev.placeholder.player.secrets") {
+    public init(service: String = "dev.placeholder.specto.secrets") {
         self.service = service
     }
 

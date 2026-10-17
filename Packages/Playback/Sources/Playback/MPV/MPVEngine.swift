@@ -36,7 +36,7 @@ public final class MPVEngine: PlaybackEngine {
     private var isBuffering = false
     private var duration: Duration?
     private var lastDecoder: DecoderInfo?
-    private let log = Logger(subsystem: "dev.placeholder.player", category: "mpv")
+    private let log = Logger(subsystem: "dev.placeholder.specto", category: "mpv")
 
     public init(configuration: Configuration = Configuration()) {
         self.configuration = configuration

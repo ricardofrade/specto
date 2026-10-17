@@ -3,7 +3,8 @@ import Core
 import Library
 import DesignSystem
 
-/// The subscriptions feed. Navigation and empty-state actions are the app's to wire.
+/// Home: the newest unwatched video large at the top, Continue Watching and Queue shelves, then
+/// the latest uploads from subscriptions. Navigation and empty-state actions are the app's to wire.
 public struct FeedScreen: View {
     public enum EmptyReason: Sendable {
         case noInstance
@@ -21,6 +22,8 @@ public struct FeedScreen: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.displayScale) private var displayScale
     @State private var contentWidth: CGFloat = 390
+    /// On a device that folds, grids keep an even column count so no card straddles the crease.
+    @State private var canFold = false
 
     /// - Parameters:
     ///   - emptyReason: why there is nothing to show yet, when the feed is empty.
@@ -44,7 +47,7 @@ public struct FeedScreen: View {
     /// Hosted in the app's `NavigationStack`, which owns navigation (typed routes per scene).
     public var body: some View {
         content
-            .navigationTitle(Text("Subscriptions", comment: "Feed screen title"))
+            .navigationTitle(Text("Home", comment: "Home screen title"))
             .refreshable { await model.refresh(force: true) }
             .task {
                 model.onWarmManifest = onPrefetch
@@ -64,42 +67,52 @@ public struct FeedScreen: View {
             emptyState
         } else {
             ScrollView {
-                if let error = model.refreshError {
-                    Label(error, systemImage: "exclamationmark.triangle")
-                        .font(Tokens.Typography.caption)
-                        .foregroundStyle(Tokens.Colors.textSecondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, Tokens.Spacing.screenInset)
-                }
-                // One column on a phone, more as width allows (unfolded, iPad, wide windows).
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: Self.minimumColumnWidth), spacing: Tokens.Spacing.l,
-                                            alignment: .top)],
-                          spacing: Tokens.Spacing.xl) {
-                    ForEach(model.rows) { row in
-                        VideoCell(VideoCellContent(row: row, pixelWidth: Int(thumbnailWidth * displayScale)),
-                                  thumbnailWidth: thumbnailWidth)
+                LazyVStack(alignment: .leading, spacing: Tokens.Spacing.section) {
+                    if let error = model.refreshError {
+                        Label(error, systemImage: "exclamationmark.triangle")
+                            .font(Tokens.Typography.caption)
+                            .foregroundStyle(Tokens.Colors.textSecondary)
+                            .padding(.horizontal, Tokens.Spacing.screenInset)
+                    }
+                    if let featured = model.featured {
+                        HeroCard(VideoCellContent(row: featured, pixelWidth: Int(heroWidth * displayScale)), width: heroWidth)
                             .equatable()
-                            .zoomSource(id: row.id, in: transition)
-                            .contentShape(.rect)
-                            .onAppear { model.rowAppeared(row.id) }
-                            .contextMenu {
-                                Button { onAddToQueue(row) } label: {
-                                    Label { Text("Add to Queue") } icon: { Image(systemName: "text.badge.plus") }
-                                }
-                                Button { onOpenChannel(row.channelID, row.channelName) } label: {
-                                    Label { Text("Go to Channel") } icon: { Image(systemName: "person.crop.circle") }
+                            .modifier(RowInteractions(row: featured, actions: rowActions, transition: transition))
+                            .onAppear { model.rowAppeared(featured.id) }
+                            .padding(.horizontal, Tokens.Spacing.screenInset)
+                    }
+                    if !model.continueWatching.isEmpty {
+                        Shelf(title: Text("Continue Watching"), rows: model.continueWatching,
+                              cardWidth: shelfCardWidth, actions: rowActions, transition: transition)
+                    }
+                    if !model.queue.isEmpty {
+                        Shelf(title: Text("Queue"), rows: model.queue, cardWidth: shelfCardWidth,
+                              actions: rowActions, transition: transition)
+                    }
+                    if !model.latest.isEmpty {
+                        VStack(alignment: .leading, spacing: Tokens.Spacing.m) {
+                            Text("Latest").font(Tokens.Typography.sectionTitle)
+                                .accessibilityAddTraits(.isHeader)
+                            // One column on a phone, more as width allows (unfolded, iPad, wide windows).
+                            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Tokens.Spacing.l,
+                                                                         alignment: .top), count: columns),
+                                      spacing: Tokens.Spacing.xl) {
+                                ForEach(model.latest) { row in
+                                    VideoCell(VideoCellContent(row: row, pixelWidth: Int(thumbnailWidth * displayScale)),
+                                              thumbnailWidth: thumbnailWidth)
+                                        .equatable()
+                                        .modifier(RowInteractions(row: row, actions: rowActions, transition: transition))
+                                        .onAppear { model.rowAppeared(row.id) }
                                 }
                             }
-                            .onTapGesture { onSelect(row) }
-                            .onLongPressGesture(minimumDuration: 0.3) { onPrefetch(row) } onPressingChanged: { pressing in
-                                if pressing { onPrefetch(row) }
-                            }
+                        }
+                        .padding(.horizontal, Tokens.Spacing.screenInset)
                     }
                 }
-                .padding(.horizontal, Tokens.Spacing.screenInset)
                 .padding(.vertical, Tokens.Spacing.l)
             }
             .accessibilityIdentifier("feed.list")
+            .onFoldChange { canFold = $0.isPresent }
             .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width in
                 contentWidth = width
                 model.thumbnailPixelSize = CGSize(width: thumbnailWidth * displayScale,
@@ -110,11 +123,36 @@ public struct FeedScreen: View {
 
     static let minimumColumnWidth: CGFloat = 320
 
-    /// Mirrors the adaptive grid: as many columns of at least 320 pt as fit, sharing the width.
+    private var rowActions: RowActions {
+        RowActions(select: onSelect, prefetch: onPrefetch, openChannel: onOpenChannel, addToQueue: onAddToQueue)
+    }
+
+    /// Full width; on wide windows `HeroCard` caps the height, so it stays a hero, not a wall.
+    private var heroWidth: CGFloat {
+        max(contentWidth - 2 * Tokens.Spacing.screenInset, 100)
+    }
+
+    /// About two and a half cards visible on a phone, so the shelf reads as scrollable.
+    private var shelfCardWidth: CGFloat {
+        min(max((contentWidth - Tokens.Spacing.screenInset) / 1.6, 220), 300)
+    }
+
+    /// As many columns of at least 320 pt as fit. Where the device folds, an even count (two
+    /// narrower columns rather than one across the crease, when 240 pt each still fit).
+    private var columns: Int {
+        let available = max(contentWidth - 2 * Tokens.Spacing.screenInset, 100)
+        let fitting = max(1, Int((available + Tokens.Spacing.l) / (Self.minimumColumnWidth + Tokens.Spacing.l)))
+        guard canFold, fitting % 2 == 1 else { return fitting }
+        let twoNarrow = available >= 2 * Self.minimumFoldColumnWidth + Tokens.Spacing.l
+        return fitting == 1 ? (twoNarrow ? 2 : 1) : fitting - 1
+    }
+
+    static let minimumFoldColumnWidth: CGFloat = 240
+
     private var thumbnailWidth: CGFloat {
         let available = max(contentWidth - 2 * Tokens.Spacing.screenInset, 100)
-        let columns = max(1, floor((available + Tokens.Spacing.l) / (Self.minimumColumnWidth + Tokens.Spacing.l)))
-        return (available - (columns - 1) * Tokens.Spacing.l) / columns
+        let count = CGFloat(columns)
+        return (available - (count - 1) * Tokens.Spacing.l) / count
     }
 
     @ViewBuilder
@@ -155,6 +193,72 @@ public struct FeedScreen: View {
 #Preview("Empty") {
     FeedScreen(model: FeedModel(store: FeedStore(try! AppDatabase.inMemory())) { _ in },
                emptyReason: .noInstance, onEmptyAction: {}, onSelect: { _ in })
+}
+
+/// What a row can do, shared by the hero, shelves and grid.
+struct RowActions {
+    let select: (FeedRow) -> Void
+    let prefetch: (FeedRow) -> Void
+    let openChannel: (ChannelID, String) -> Void
+    let addToQueue: (FeedRow) -> Void
+}
+
+/// Tap to play (zooming from this view), touch-down prefetch, and the context menu.
+struct RowInteractions: ViewModifier {
+    let row: FeedRow
+    let actions: RowActions
+    let transition: Namespace.ID?
+
+    func body(content: Content) -> some View {
+        content
+            .zoomSource(id: row.id, in: transition)
+            .contentShape(.rect)
+            .contextMenu {
+                Button { actions.addToQueue(row) } label: {
+                    Label { Text("Add to Queue") } icon: { Image(systemName: "text.badge.plus") }
+                }
+                Button { actions.openChannel(row.channelID, row.channelName) } label: {
+                    Label { Text("Go to Channel") } icon: { Image(systemName: "person.crop.circle") }
+                }
+            }
+            .onTapGesture { actions.select(row) }
+            .onLongPressGesture(minimumDuration: 0.3) { actions.prefetch(row) } onPressingChanged: { pressing in
+                if pressing { actions.prefetch(row) }
+            }
+    }
+}
+
+/// A titled horizontal row of cards that snaps card by card.
+struct Shelf: View {
+    let title: Text
+    let rows: [FeedRow]
+    let cardWidth: CGFloat
+    let actions: RowActions
+    let transition: Namespace.ID?
+    @Environment(\.displayScale) private var displayScale
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.m) {
+            title.font(Tokens.Typography.sectionTitle)
+                .accessibilityAddTraits(.isHeader)
+                .padding(.horizontal, Tokens.Spacing.screenInset)
+            ScrollView(.horizontal) {
+                LazyHStack(alignment: .top, spacing: Tokens.Spacing.l) {
+                    ForEach(rows) { row in
+                        VideoCell(VideoCellContent(row: row, pixelWidth: Int(cardWidth * displayScale)),
+                                  thumbnailWidth: cardWidth)
+                            .equatable()
+                            .frame(width: cardWidth)
+                            .modifier(RowInteractions(row: row, actions: actions, transition: transition))
+                    }
+                }
+                .scrollTargetLayout()
+                .padding(.horizontal, Tokens.Spacing.screenInset)
+            }
+            .scrollTargetBehavior(.viewAligned)
+            .scrollIndicators(.hidden)
+        }
+    }
 }
 
 private extension View {

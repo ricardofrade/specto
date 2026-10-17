@@ -1,7 +1,7 @@
 # Source of truth for the iOS app project. Regenerate with:
 #   xcodegen generate --spec App/iOS/project.yml
 # The .xcodeproj and Info.plist are generated and not committed.
-name: Player
+name: Specto
 options:
   bundleIdPrefix: dev.placeholder
   deploymentTarget:
@@ -27,18 +27,18 @@ packages:
   Cast:
     path: ../../Packages/Cast
 schemes:
-  # Release performance runs: excludes PlayerTests, whose @testable import needs a testable build.
-  PlayerPerf:
+  # Release performance runs: excludes SpectoTests, whose @testable import needs a testable build.
+  SpectoPerf:
     build:
       targets:
-        Player: all
+        Specto: all
     test:
       config: Release
       targets:
-        - PlayerPerfTests
-        - PlayerUITests
+        - SpectoPerfTests
+        - SpectoUITests
 targets:
-  Player:
+  Specto:
     type: application
     platform: iOS
     sources:
@@ -71,7 +71,7 @@ targets:
     info:
       path: Info.plist
       properties:
-        CFBundleDisplayName: Player
+        CFBundleDisplayName: Specto
         CFBundleShortVersionString: "0.1.0"
         CFBundleVersion: "1"
         # iCloud container for sync; empty disables it. Set with the iCloud entitlement (ADR 0004).
@@ -104,7 +104,7 @@ targets:
           - UIInterfaceOrientationLandscapeRight
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.player
+        PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.specto
         TARGETED_DEVICE_FAMILY: "1,2"
         CODE_SIGN_STYLE: Automatic
         # App code is main-actor by default (CLAUDE.md); test targets are not, because
@@ -119,10 +119,10 @@ targets:
           SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG OFFLINE_DOWNLOADS
     scheme:
       testTargets:
-        - PlayerTests
-        - PlayerPerfTests
-        - PlayerUITests
-  PlayerTests:
+        - SpectoTests
+        - SpectoPerfTests
+        - SpectoUITests
+  SpectoTests:
     type: bundle.unit-test
     platform: iOS
     sources:
@@ -130,33 +130,33 @@ targets:
       # The tvOS Top Shelf link format, tested here because CI has no tvOS simulator runtime.
       - ../tvOS/TopShelfShared
     dependencies:
-      - target: Player
+      - target: Specto
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.player.tests
+        PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.specto.tests
         TARGETED_DEVICE_FAMILY: "1,2"
         GENERATE_INFOPLIST_FILE: YES
-  PlayerPerfTests:
+  SpectoPerfTests:
     type: bundle.ui-testing
     platform: iOS
     sources:
       - PerfTests
     dependencies:
-      - target: Player
+      - target: Specto
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.player.perftests
+        PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.specto.perftests
         TARGETED_DEVICE_FAMILY: "1,2"
         GENERATE_INFOPLIST_FILE: YES
-  PlayerUITests:
+  SpectoUITests:
     type: bundle.ui-testing
     platform: iOS
     sources:
       - UITests
     dependencies:
-      - target: Player
+      - target: Specto
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.player.uitests
+        PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.specto.uitests
         TARGETED_DEVICE_FAMILY: "1,2"
         GENERATE_INFOPLIST_FILE: YES

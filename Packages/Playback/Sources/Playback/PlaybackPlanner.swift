@@ -3,14 +3,21 @@ import Core
 
 /// Turns a watch page into what an engine plays: codec policy and format selection for
 /// adaptive streams, HLS for live, and single-URL sources (YT Zero) as they come.
+///
+/// Engine policy for video (ADR 0005): AVPlayer when it can play a stream as good as mpv's
+/// pick (same height and HDR, AAC audio), for automatic Picture-in-Picture, AirPlay and
+/// lower power; mpv when it would play something better (VP9 above 1080p, webm-only videos).
 public struct PlaybackPlanner: Sendable {
     public var selector: FormatSelector
     /// BCP 47; nil plays the original audio track.
     public var preferredAudioLanguage: String?
+    /// Off plays all video in mpv (the pre-ADR-0005 behaviour).
+    public var prefersSystemPlayer: Bool
 
-    public init(selector: FormatSelector, preferredAudioLanguage: String? = nil) {
+    public init(selector: FormatSelector, preferredAudioLanguage: String? = nil, prefersSystemPlayer: Bool = true) {
         self.selector = selector
         self.preferredAudioLanguage = preferredAudioLanguage
+        self.prefersSystemPlayer = prefersSystemPlayer
     }
 
     /// - Parameters:
@@ -21,6 +28,7 @@ public struct PlaybackPlanner: Sendable {
                         startAt: Duration = .zero) throws -> PlaybackRequest {
         let manifest = page.manifest
         let engine = EngineKind.preferred(for: mode)
+        var chosenEngine: EngineKind?
         let source: MediaSource
 
         if page.details.summary.isLive, let hls = manifest.hlsURL {
@@ -33,7 +41,14 @@ public struct PlaybackPlanner: Sendable {
                                                   maxDisplayHeight: maxDisplayHeight,
                                                   throughputBitsPerSecond: throughputBitsPerSecond,
                                                   allowHDR: allowHDR) {
-                source = .adaptive(video: video, audio: audio)
+                if let system = systemPlayerEquivalent(of: video, in: manifest, maxDisplayHeight: maxDisplayHeight,
+                                                       throughputBitsPerSecond: throughputBitsPerSecond, allowHDR: allowHDR) {
+                    source = .adaptive(video: system.video, audio: system.audio)
+                    chosenEngine = .avPlayer
+                } else {
+                    source = .adaptive(video: video, audio: audio)
+                    chosenEngine = engine
+                }
             } else if let hls = manifest.hlsURL {
                 source = .hls(hls)
             } else {
@@ -41,11 +56,27 @@ public struct PlaybackPlanner: Sendable {
             }
         } else if let hls = manifest.hlsURL {
             source = .hls(hls)
+            // YT Zero: one H.264/AAC rendition over HLS, which AVPlayer plays natively.
+            if mode == .video, prefersSystemPlayer { chosenEngine = .avPlayer }
         } else if let muxed = manifest.muxedURL {
             source = .progressive(muxed)
         } else {
             throw PlaybackError.unsupportedFormat("The source returned no playable streams")
         }
-        return PlaybackRequest(videoID: manifest.videoID, source: source, startAt: startAt, mode: mode)
+        return PlaybackRequest(videoID: manifest.videoID, source: source, startAt: startAt, mode: mode,
+                               engine: chosenEngine)
+    }
+
+    /// AVPlayer's best pick when it's as good as mpv's: at least as tall, same HDR, with AAC audio.
+    private func systemPlayerEquivalent(of best: VideoStream, in manifest: StreamManifest, maxDisplayHeight: Int,
+                                        throughputBitsPerSecond: Double?,
+                                        allowHDR: Bool) -> (video: VideoStream, audio: AudioStream)? {
+        guard prefersSystemPlayer,
+              let video = selector.select(from: manifest.videoStreams, for: .avPlayer, maxDisplayHeight: maxDisplayHeight,
+                                          throughputBitsPerSecond: throughputBitsPerSecond, allowHDR: allowHDR),
+              video.height >= best.height, video.isHDR == best.isHDR,
+              let audio = selector.selectAudio(from: manifest.audioStreams, for: .avPlayer,
+                                               preferredLanguage: preferredAudioLanguage) else { return nil }
+        return (video, audio)
     }
 }

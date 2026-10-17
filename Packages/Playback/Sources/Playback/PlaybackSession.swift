@@ -173,6 +173,9 @@ public final class PlaybackSession {
 
     // MARK: Render surfaces
 
+    /// The engine playing now (system Picture-in-Picture attaches to AVPlayer's layer).
+    public var activeEngine: (any PlaybackEngine)? { current }
+
     /// The visible surface's layer; Picture-in-Picture inserts its player layer here.
     public var hostLayer: CALayer? { host?.containerLayer }
 

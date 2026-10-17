@@ -15,6 +15,7 @@ extension AppEnvironment {
         }
         #if os(iOS)
         observeAudioRoute()
+        followEngineForPictureInPicture()
         #endif
     }
 
@@ -27,6 +28,9 @@ extension AppEnvironment {
             session.setVideoEnabled(false)
         case .active:
             session.setVideoEnabled(true)
+            #if os(iOS)
+            systemPictureInPicture.stop()
+            #endif
             Task { await syncNow() }
         default:
             break
@@ -35,7 +39,7 @@ extension AppEnvironment {
 
     private var isPictureInPictureActive: Bool {
         #if os(iOS)
-        pictureInPicture.isActive
+        pictureInPicture.isActive || systemPictureInPicture.isActive || systemPictureInPicture.isStarting
         #else
         false
         #endif

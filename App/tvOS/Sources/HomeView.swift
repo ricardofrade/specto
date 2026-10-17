@@ -4,15 +4,12 @@ import Library
 import FeedFeature
 import DesignSystem
 
-/// Continue Watching and Queue shelves above the subscriptions grid. Renders from the database
-/// first; the feed refreshes from the network behind it.
+/// A billboard for the newest unwatched video, Continue Watching and Queue shelves, then the
+/// latest uploads. Renders from the database first; the feed refreshes from the network behind it.
 struct HomeView: View {
     let environment: AppEnvironment
     let feed: FeedModel
-    let shelvesVersion: Int
     let actions: VideoActions
-    @State private var continueWatching: [FeedRow] = []
-    @State private var queue: [FeedRow] = []
 
     var body: some View {
         ScrollView {
@@ -24,15 +21,18 @@ struct HomeView: View {
                         Text("Add your Piped, Invidious or YT Zero instance in Settings.")
                     }
                 }
-                if !continueWatching.isEmpty {
-                    Shelf(title: Text("Continue Watching"), rows: continueWatching, actions: actions)
+                if let featured = feed.featured {
+                    Billboard(row: featured, actions: actions)
                 }
-                if !queue.isEmpty {
-                    Shelf(title: Text("Queue"), rows: queue, actions: actions)
+                if !feed.continueWatching.isEmpty {
+                    Shelf(title: Text("Continue Watching"), rows: feed.continueWatching, actions: actions)
                 }
-                if !feed.rows.isEmpty {
+                if !feed.queue.isEmpty {
+                    Shelf(title: Text("Queue"), rows: feed.queue, actions: actions)
+                }
+                if !feed.latest.isEmpty {
                     VStack(alignment: .leading, spacing: TVMetrics.gridSpacing) {
-                        Text("Subscriptions").font(.title3.weight(.semibold))
+                        Text("Latest").font(.title3.weight(.semibold))
                         if let error = feed.refreshError {
                             Label(error, systemImage: "exclamationmark.triangle")
                                 .foregroundStyle(Tokens.Colors.textSecondary)
@@ -40,7 +40,7 @@ struct HomeView: View {
                         LazyVGrid(columns: [GridItem(.adaptive(minimum: TVMetrics.cardWidth), spacing: TVMetrics.gridSpacing,
                                                      alignment: .top)],
                                   spacing: TVMetrics.rowSpacing) {
-                            ForEach(feed.rows) { row in
+                            ForEach(feed.latest) { row in
                                 VideoCard(row: row, actions: actions)
                             }
                         }
@@ -48,14 +48,10 @@ struct HomeView: View {
                 }
             }
         }
+        // The billboard runs under the glass tab bar, like the Apple TV app.
+        .ignoresSafeArea(edges: .top)
         .task { await feed.start() }
-        .task(id: shelvesVersion) { reloadShelves() }
         .onChange(of: feed.rows.first?.id) { TopShelfPublisher.publish(environment.database) }
-    }
-
-    private func reloadShelves() {
-        continueWatching = (try? WatchStateStore(environment.database).inProgress()) ?? []
-        queue = (try? QueueStore(environment.database).rows()) ?? []
     }
 }
 
@@ -79,5 +75,6 @@ private struct Shelf: View {
             }
             .scrollClipDisabled()
         }
+        .focusSection()
     }
 }

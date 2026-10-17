@@ -17,15 +17,15 @@ struct TVRootView: View {
     @State private var homePath: [TVRoute] = []
     @State private var searchPath: [TVRoute] = []
     @State private var playing: VideoSummary?
-    /// Bumped when the player closes so shelves (continue watching, queue) re-read.
-    @State private var shelvesVersion = 0
     @Environment(\.scenePhase) private var scenePhase
 
     init(environment: AppEnvironment, onFirstFeedFrame: @escaping () -> Void) {
         self.environment = environment
         self.onFirstFeedFrame = onFirstFeedFrame
         _feed = State(initialValue: FeedModel(store: FeedStore(environment.database),
-                                              options: AppSettings.shared.feedOptions) { force in
+                                              options: AppSettings.shared.feedOptions,
+                                              watchState: WatchStateStore(environment.database),
+                                              queue: QueueStore(environment.database)) { force in
             try await environment.refreshFeed(force: force)
         })
         _search = State(initialValue: SearchModel { query, cursor in
@@ -37,7 +37,7 @@ struct TVRootView: View {
         TabView {
             Tab {
                 NavigationStack(path: $homePath) {
-                    HomeView(environment: environment, feed: feed, shelvesVersion: shelvesVersion,
+                    HomeView(environment: environment, feed: feed,
                              actions: actions { homePath.append(.channel($0, $1)) })
                         .onAppear(perform: onFirstFeedFrame)
                         .routes(environment: environment, actions: actions { homePath.append(.channel($0, $1)) })
@@ -59,7 +59,7 @@ struct TVRootView: View {
                 Text("Settings")
             }
         }
-        .fullScreenCover(item: $playing, onDismiss: { shelvesVersion += 1 }) { video in
+        .fullScreenCover(item: $playing) { video in
             TVPlayerView(environment: environment, video: video)
         }
         .onOpenURL(perform: open)

@@ -4,7 +4,7 @@ How builds reach people, and what happens if App Review says no.
 
 ## TestFlight (primary)
 
-1. **Bundle IDs:** set the real bundle ID and team in `App/iOS/project.yml`. The current `dev.placeholder.player` is a placeholder; the signpost subsystem string doesn't need to change.
+1. **Bundle IDs:** set the real bundle ID and team in `App/iOS/project.yml`. The current `dev.placeholder.specto` is a placeholder; the signpost subsystem string doesn't need to change.
 2. **Gate:** tag `v<version>`, which runs `release.yml`: the full CI plus the performance gates enforced on a device.
 3. **Upload:** archive and upload (Xcode Organizer, or `xcodebuild -exportArchive` with the App Store Connect key).
 4. **Testers:**

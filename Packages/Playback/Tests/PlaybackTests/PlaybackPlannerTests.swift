@@ -31,6 +31,50 @@ struct PlaybackPlannerTests {
         #expect(request.startAt == .seconds(5))
     }
 
+    private func vp9(_ height: Int) -> VideoStream {
+        VideoStream(url: url, codec: .vp9, container: .webm, width: height * 16 / 9, height: height, fps: 30,
+                    bitrate: nil, isHDR: false)
+    }
+    private var opus: AudioStream { AudioStream(url: url, codec: .opus, container: .webm, bitrate: 160_000, language: nil) }
+
+    @Test func equalQualityPlaysInAVPlayerForSystemPiP() throws {
+        let request = try planner.request(for: page(video: [vp9(1080), h264], audio: [opus, aac]), mode: .video,
+                                          maxDisplayHeight: 2160, throughputBitsPerSecond: nil, allowHDR: false)
+        #expect(request.engine == .avPlayer)
+        guard case .adaptive(let video?, let audio) = request.source else { Issue.record("\(request.source)"); return }
+        #expect(video.codec == .h264 && audio.codec == .aac)
+    }
+
+    @Test func betterVP9StaysInMPV() throws {
+        let request = try planner.request(for: page(video: [vp9(1440), h264], audio: [opus, aac]), mode: .video,
+                                          maxDisplayHeight: 2160, throughputBitsPerSecond: nil, allowHDR: false)
+        #expect(request.engine == .mpv)
+        guard case .adaptive(let video?, let audio) = request.source else { Issue.record("\(request.source)"); return }
+        #expect(video.height == 1440 && audio.codec == .opus)
+    }
+
+    @Test func webmOnlyOrNoAACStaysInMPV() throws {
+        for (video, audio) in [([vp9(1080)], [opus, aac]), ([vp9(720), h264], [opus])] {
+            let request = try planner.request(for: page(video: video, audio: audio), mode: .video, maxDisplayHeight: 1080,
+                                              throughputBitsPerSecond: nil, allowHDR: false)
+            #expect(request.engine == .mpv)
+        }
+    }
+
+    @Test func systemPlayerPreferenceCanBeTurnedOff() throws {
+        var mpvOnly = planner
+        mpvOnly.prefersSystemPlayer = false
+        let request = try mpvOnly.request(for: page(video: [h264], audio: [aac]), mode: .video, maxDisplayHeight: 1080,
+                                          throughputBitsPerSecond: nil, allowHDR: false)
+        #expect(request.engine == .mpv)
+    }
+
+    @Test func singleRenditionHLSPlaysInAVPlayer() throws {
+        let request = try planner.request(for: page(hls: url), mode: .video, maxDisplayHeight: 1080,
+                                          throughputBitsPerSecond: nil, allowHDR: false)
+        #expect(request.source == .hls(url) && request.engine == .avPlayer)
+    }
+
     @Test func audioOnlyDropsVideo() throws {
         let request = try planner.request(for: page(video: [h264], audio: [aac]), mode: .audioOnly, maxDisplayHeight: 0,
                                           throughputBitsPerSecond: nil, allowHDR: false)

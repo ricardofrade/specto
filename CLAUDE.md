@@ -12,7 +12,7 @@ All milestones M0–M7 are built; what remains are owner actions and device chec
 - Apple platforms only. No KMP, no Compose Multiplatform, no cross-platform UI. Android is a decision point after M7.
 - Swift 6 language mode with strict concurrency. App and feature targets use main-actor default isolation.
 - SwiftUI + Observation (`@Observable`). No TCA or other architecture frameworks.
-- Video playback: mpv (libmpv), **LGPL build only**. Audio-only mode, CarPlay and AirPlay: AVPlayer.
+- Video playback: mpv (libmpv), **LGPL build only**, and AVPlayer whenever it can play a stream as good as mpv's pick (system PiP, ADR 0005); `PlaybackPlanner` decides. Audio-only mode, CarPlay and AirPlay: AVPlayer.
 - Persistence: GRDB for feeds, history and resume positions. SwiftData only for simple settings, if at all. On tvOS the database lives in Caches (tvOS has no persistent storage); subscriptions and watch state sync through CloudKit (ADR 0004).
 - Liquid Glass via system components first; custom glass only through `GlassEffectContainer`.
 - Every screen renders from the local database first, then refreshes from the network (stale-while-revalidate).
@@ -57,7 +57,8 @@ Dependency rules (enforced by `scripts/check-dependencies.sh`; never work around
 - Start with `LazyVStack`/`LazyVGrid`. Switch a screen to `UICollectionView` + `UIHostingConfiguration` only if Instruments shows it can't hold 120 Hz.
 - Images: decode and downsample to the exact pixel size off the main thread; request the thumbnail size that matches the cell.
 - Never stack glass on glass. Player controls show on tap and fade during playback.
-- Layouts are chosen by available size and size class, never by device model. No hinge or fold-angle APIs until Apple documents them.
+- Layouts are chosen by available size and size class, never by device model. On iPhone Duo, use the documented fold APIs only: `onFoldChange` (DesignSystem, `ReservedRegion`) and `ArrangementView` (iOS 27.1). See `docs/design.md`.
+- Every screen supports light and dark appearance; check both (`DesignTourUITests` with `xcrun simctl ui <device> appearance dark`).
 
 ## Playback rules
 
@@ -110,7 +111,7 @@ Tap-to-play hits 300 ms only if the manifest is already cached: prefetch manifes
 
 - Find simulators with `xcrun simctl list devices available`; prefer the newest iPhone Pro and an iPad.
 - Build with `xcodebuild` from the command line; fix errors before moving on.
-- The app projects are generated: edit `App/iOS/project.yml` or `App/tvOS/project.yml`, never the `.xcodeproj`. Run `xcodegen generate --spec <project.yml>`, then build the `Player` scheme (iOS) or `PlayerTV` scheme (tvOS, `-destination 'generic/platform=tvOS Simulator'`).
+- The app projects are generated: edit `App/iOS/project.yml` or `App/tvOS/project.yml`, never the `.xcodeproj`. Run `xcodegen generate --spec <project.yml>`, then build the `Specto` scheme (iOS) or `SpectoTV` scheme (tvOS, `-destination 'generic/platform=tvOS Simulator'`).
 - Code in `App/Shared` compiles for both platforms: guard iOS-only APIs with `#if os(iOS)`, and iOS-only modifiers in packages with `DesignSystem/PlatformModifiers.swift`.
 - Run `scripts/check-dependencies.sh` after touching any `Package.swift`. A new package must be added to its allow-list deliberately.
 - Anything that needs a physical device (AV1 hardware decode, PiP, ProMotion, CarPlay, Apple TV) cannot be verified in the simulator. Say so explicitly and list the exact manual check for the owner to run.

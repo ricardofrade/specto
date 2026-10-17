@@ -18,9 +18,10 @@ public actor ImagePipeline {
     private var inFlight: [String: Task<UIImage?, Never>] = [:]
     nonisolated private let memory = MemoryCache()
 
-    public init(session: URLSession = .shared) {
+    /// - Parameter directory: where downsampled images are kept; `Caches/Thumbnails` by default.
+    public init(session: URLSession = .shared, directory: URL? = nil) {
         self.session = session
-        disk = (FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first ?? .temporaryDirectory)
+        disk = directory ?? (FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first ?? .temporaryDirectory)
             .appending(path: "Thumbnails", directoryHint: .isDirectory)
         try? FileManager.default.createDirectory(at: disk, withIntermediateDirectories: true)
     }
@@ -46,6 +47,8 @@ public actor ImagePipeline {
             // Disk first: already downsampled, so decoding is cheap.
             if let data = try? Data(contentsOf: file), let image = Self.decode(data, maxPixel: nil) {
                 memory.insert(image, for: key)
+                // Marks it recently used, so trimming removes the oldest first.
+                try? FileManager.default.setAttributes([.modificationDate: Date.now], ofItemAtPath: file.path(percentEncoded: false))
                 return image
             }
             guard let (data, response) = try? await session.data(for: request),
@@ -61,6 +64,28 @@ public actor ImagePipeline {
         let image = await task.value
         inFlight[key] = nil
         return image
+    }
+
+    /// Keeps the disk cache under `maxBytes`, removing the least recently used images first.
+    /// Run at low priority after launch.
+    public nonisolated func trimDiskCache(maxBytes: Int = 300 * 1024 * 1024) async {
+        let disk = self.disk
+        await Task.detached(priority: .utility) {
+            let keys: Set<URLResourceKey> = [.contentModificationDateKey, .totalFileAllocatedSizeKey]
+            guard let files = try? FileManager.default.contentsOfDirectory(at: disk, includingPropertiesForKeys: Array(keys))
+            else { return }
+            var entries = files.compactMap { file -> (URL, Date, Int)? in
+                guard let values = try? file.resourceValues(forKeys: keys) else { return nil }
+                return (file, values.contentModificationDate ?? .distantPast, values.totalFileAllocatedSize ?? 0)
+            }
+            var total = entries.reduce(0) { $0 + $1.2 }
+            guard total > maxBytes else { return }
+            entries.sort { $0.1 < $1.1 }
+            for (file, _, size) in entries where total > maxBytes {
+                try? FileManager.default.removeItem(at: file)
+                total -= size
+            }
+        }.value
     }
 
     /// Warm images likely to scroll into view; cancelled implicitly by the cache filling.

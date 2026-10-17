@@ -8,7 +8,7 @@ import Core
 /// Nonisolated: background `URLSession` delegates run on the session's queue. Mutable state is
 /// guarded by `lock`.
 public final class OfflineAudio: NSObject, URLSessionDownloadDelegate, @unchecked Sendable {
-    public static let sessionIdentifier = "dev.placeholder.player.offline-audio"
+    public static let sessionIdentifier = "dev.placeholder.specto.offline-audio"
 
     private let store: DownloadStore
     public let directory: URL

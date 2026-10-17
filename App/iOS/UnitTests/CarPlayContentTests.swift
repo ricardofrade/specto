@@ -2,7 +2,7 @@ import Foundation
 import Testing
 import Core
 import Library
-@testable import Player
+@testable import Specto
 
 private func row(_ id: String, duration: Duration? = .seconds(754)) -> FeedRow {
     let video = VideoSummary(id: VideoID(rawValue: id), title: "Video \(id)",

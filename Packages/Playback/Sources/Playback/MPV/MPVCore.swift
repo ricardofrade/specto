@@ -68,7 +68,7 @@ final class MPVCore: @unchecked Sendable {
         set("stream-buffer-size", "512KiB")
         set("network-timeout", "15")
         set("subs-fallback", "yes")
-        set("audio-client-name", "Player")
+        set("audio-client-name", "Specto")
 
         guard mpv_initialize(handle) >= 0 else {
             mpv_terminate_destroy(handle)

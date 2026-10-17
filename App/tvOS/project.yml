@@ -2,7 +2,7 @@
 #   xcodegen generate --spec App/tvOS/project.yml
 # The .xcodeproj and Info.plists are generated and not committed. App/Shared is the composition
 # root shared with the iOS app; Top Shelf reads a snapshot the app writes to the App Group.
-name: PlayerTV
+name: SpectoTV
 options:
   bundleIdPrefix: dev.placeholder
   deploymentTarget:
@@ -26,7 +26,7 @@ packages:
   MPVRuntime:
     path: ../../Packages/MPVRuntime
 targets:
-  PlayerTV:
+  SpectoTV:
     type: application
     platform: tvOS
     sources:
@@ -58,7 +58,7 @@ targets:
     info:
       path: Info.plist
       properties:
-        CFBundleDisplayName: Player
+        CFBundleDisplayName: Specto
         CFBundleShortVersionString: "0.1.0"
         CFBundleVersion: "1"
         # iCloud container for sync; empty disables it. Set with the iCloud entitlement (ADR 0004).
@@ -70,18 +70,21 @@ targets:
           NSAllowsLocalNetworking: true
         # Top Shelf items open videos through this scheme (TopShelfSnapshot.urlScheme).
         CFBundleURLTypes:
-          - CFBundleURLName: dev.placeholder.player.tv
-            CFBundleURLSchemes: [dev.placeholder.player.tv]
+          - CFBundleURLName: dev.placeholder.specto.tv
+            CFBundleURLSchemes: [dev.placeholder.specto.tv]
     entitlements:
-      path: PlayerTV.entitlements
+      path: SpectoTV.entitlements
       properties:
-        com.apple.security.application-groups: [group.dev.placeholder.player]
+        com.apple.security.application-groups: [group.dev.placeholder.specto]
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.player.tv
+        PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.specto.tv
         TARGETED_DEVICE_FAMILY: "3"
         CODE_SIGN_STYLE: Automatic
         SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+    scheme:
+      testTargets:
+        - SpectoTVUITests
   TopShelf:
     type: app-extension
     platform: tvOS
@@ -93,7 +96,7 @@ targets:
     info:
       path: TopShelf/Info.plist
       properties:
-        CFBundleDisplayName: Player Top Shelf
+        CFBundleDisplayName: Specto Top Shelf
         CFBundleShortVersionString: "0.1.0"
         CFBundleVersion: "1"
         NSExtension:
@@ -102,9 +105,21 @@ targets:
     entitlements:
       path: TopShelf.entitlements
       properties:
-        com.apple.security.application-groups: [group.dev.placeholder.player]
+        com.apple.security.application-groups: [group.dev.placeholder.specto]
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.player.tv.topshelf
+        PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.specto.tv.topshelf
         TARGETED_DEVICE_FAMILY: "3"
         CODE_SIGN_STYLE: Automatic
+  SpectoTVUITests:
+    type: bundle.ui-testing
+    platform: tvOS
+    sources:
+      - UITests
+    dependencies:
+      - target: SpectoTV
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.placeholder.specto.tv.uitests
+        TARGETED_DEVICE_FAMILY: "3"
+        GENERATE_INFOPLIST_FILE: YES

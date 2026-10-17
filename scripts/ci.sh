@@ -45,21 +45,21 @@ done
 
 step "Generate and build the app"
 xcodegen generate --spec "$root/App/iOS/project.yml" --quiet
-run build-app xcodebuild build -project "$root/App/iOS/Player.xcodeproj" -scheme Player \
+run build-app xcodebuild build -project "$root/App/iOS/Specto.xcodeproj" -scheme Specto \
     -destination "$destination" -derivedDataPath "$out/dd-app"
 
 step "License gate (no GPL in the shipped mpv/FFmpeg)"
-"$root/scripts/check-licenses.sh" "$out/dd-app/Build/Products/Debug-iphonesimulator/Player.app"
+"$root/scripts/check-licenses.sh" "$out/dd-app/Build/Products/Debug-iphonesimulator/Specto.app"
 
 step "Generate and build the tvOS app (build only: no tvOS simulator runtime on CI)"
 xcodegen generate --spec "$root/App/tvOS/project.yml" --quiet
-run build-tv xcodebuild build -project "$root/App/tvOS/PlayerTV.xcodeproj" -scheme PlayerTV \
+run build-tv xcodebuild build -project "$root/App/tvOS/SpectoTV.xcodeproj" -scheme SpectoTV \
     -destination "generic/platform=tvOS Simulator" -derivedDataPath "$out/dd-tv"
-"$root/scripts/check-licenses.sh" "$out/dd-tv/Build/Products/Debug-appletvsimulator/PlayerTV.app"
+"$root/scripts/check-licenses.sh" "$out/dd-tv/Build/Products/Debug-appletvsimulator/SpectoTV.app"
 
 step "App unit tests"
-run test-app xcodebuild test -project "$root/App/iOS/Player.xcodeproj" -scheme Player \
-    -only-testing:PlayerTests -destination "$destination" -derivedDataPath "$out/dd-app"
+run test-app xcodebuild test -project "$root/App/iOS/Specto.xcodeproj" -scheme Specto \
+    -only-testing:SpectoTests -destination "$destination" -derivedDataPath "$out/dd-app"
 
 if [[ -n "${SKIP_PERF:-}" ]]; then
     echo; echo "✔ CI passed (performance tests skipped)"
@@ -67,7 +67,7 @@ if [[ -n "${SKIP_PERF:-}" ]]; then
 fi
 
 step "Performance tests (Release)"
-run perf xcodebuild test -project "$root/App/iOS/Player.xcodeproj" -scheme PlayerPerf -configuration Release \
+run perf xcodebuild test -project "$root/App/iOS/Specto.xcodeproj" -scheme SpectoPerf -configuration Release \
     -destination "$destination" -derivedDataPath "$out/dd-perf"
 
 step "Performance gates (enforced only with RELEASE_GATE=1 on a device)"

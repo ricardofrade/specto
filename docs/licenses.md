@@ -35,4 +35,4 @@ LGPL obligations: ship these notices, offer the exact corresponding sources (inc
 
 | Tool | License | Purpose |
 |---|---|---|
-| XcodeGen | MIT | Generates `App/iOS/Player.xcodeproj` from `project.yml` |
+| XcodeGen | MIT | Generates `App/iOS/Specto.xcodeproj` from `project.yml` |

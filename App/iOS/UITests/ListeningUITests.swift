@@ -21,7 +21,7 @@ final class ListeningUITests: XCTestCase {
         app.buttons["Next"].tap()
         XCTAssertTrue(app.staticTexts["Instance added"].waitForExistence(timeout: 20))
         app.buttons["Done"].tap()
-        app.buttons["Subscriptions"].firstMatch.tap()
+        app.buttons["Home"].firstMatch.tap()
         let list = app.scrollViews["feed.list"]
         XCTAssertTrue(list.waitForExistence(timeout: 45))
         list.buttons.firstMatch.tap()
@@ -42,7 +42,7 @@ final class ListeningUITests: XCTestCase {
         var first = true
         while Date.now < deadline, !landed {
             if !first {
-                app.buttons["Subscriptions"].firstMatch.tap()   // Leave so Settings re-reads usage.
+                app.buttons["Home"].firstMatch.tap()   // Leave so Settings re-reads usage.
                 sleep(5)
             }
             first = false

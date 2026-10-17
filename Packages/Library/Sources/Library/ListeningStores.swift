@@ -61,17 +61,24 @@ public struct QueueStore: Sendable {
 public extension WatchStateStore {
     /// Started but unfinished videos, most recent first ("Continue listening" / "Continue watching").
     func inProgress(limit: Int = 20) throws -> [FeedRow] {
+        try database.writer.read { db in try Self.fetchInProgress(db, limit: limit) }
+    }
+
+    /// The same list, re-emitted whenever watch state or the cached videos change.
+    func observeInProgress(limit: Int = 20) -> AsyncThrowingStream<[FeedRow], Error> {
+        database.stream { db in try Self.fetchInProgress(db, limit: limit) }
+    }
+
+    private static func fetchInProgress(_ db: Database, limit: Int) throws -> [FeedRow] {
         let formatter = RowFormatter()
-        return try database.writer.read { db in
-            try Row.fetchAll(db, sql: """
-                SELECT video.*, watchState.positionSeconds AS position, watchState.durationSeconds AS length
-                FROM watchState JOIN video ON video.id = watchState.videoID
-                WHERE watchState.isDeleted = 0 AND watchState.isFinished = 0 AND watchState.positionSeconds >= 5
-                ORDER BY watchState.lastWatchedAt DESC LIMIT ?
-                """, arguments: [limit]).map { row in
-                formatter.row(try VideoRecord(row: row).summary, positionSeconds: row["position"],
-                              durationSeconds: row["length"])
-            }
+        return try Row.fetchAll(db, sql: """
+            SELECT video.*, watchState.positionSeconds AS position, watchState.durationSeconds AS length
+            FROM watchState JOIN video ON video.id = watchState.videoID
+            WHERE watchState.isDeleted = 0 AND watchState.isFinished = 0 AND watchState.positionSeconds >= 5
+            ORDER BY watchState.lastWatchedAt DESC LIMIT ?
+            """, arguments: [limit]).map { row in
+            formatter.row(try VideoRecord(row: row).summary, positionSeconds: row["position"],
+                          durationSeconds: row["length"])
         }
     }
 }

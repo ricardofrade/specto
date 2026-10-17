@@ -37,6 +37,7 @@ final class AppEnvironment {
     #if os(iOS)
     // iPhone and iPad only: PiP handoff, Cast sender, AirPlay switching, MetricKit (none on tvOS).
     @ObservationIgnored let pictureInPicture = PictureInPictureHandoff()
+    @ObservationIgnored let systemPictureInPicture = SystemPictureInPicture()
     let castDiscovery = CastDiscovery()
     let castSession = CastSession()
     @ObservationIgnored var routeObserver: (any NSObjectProtocol)?
@@ -88,6 +89,7 @@ final class AppEnvironment {
     /// kept in Release because the performance gates run there).
     /// `-UITestFreshStart`: empty in-memory state. `-SeedSubscriptions UC…,UC…`: subscribe
     /// without the file picker, which UI tests can't drive. `-SeedDemoFeed N`: N cached videos.
+    /// `-SeedInstance <Piped API URL>`: an instance without typing (the TV keyboard).
     private static func forUITests() -> AppEnvironment? {
         let arguments = ProcessInfo.processInfo.arguments
         guard arguments.contains("-UITestFreshStart"), let database = try? AppDatabase.inMemory() else { return nil }
@@ -96,6 +98,10 @@ final class AppEnvironment {
                 ChannelSummary(id: ChannelID(rawValue: String($0)), name: "", avatar: nil)
             }
             try? SubscriptionStore(database).subscribe(channels)
+        }
+        if let index = arguments.firstIndex(of: "-SeedInstance"), arguments.indices.contains(index + 1),
+           let url = URL(string: arguments[index + 1]) {
+            try? InstanceStore(database).add(InstanceConfig(kind: .piped, displayName: url.host() ?? "Piped", apiURL: url))
         }
         if let index = arguments.firstIndex(of: "-SeedDemoFeed"), arguments.indices.contains(index + 1),
            let count = Int(arguments[index + 1]) {
@@ -186,6 +192,7 @@ final class AppEnvironment {
             try? await Task.sleep(for: .milliseconds(300))
             session.prewarm()
             _ = await router.checkHealth()
+            await ImagePipeline.shared.trimDiskCache()
         }
     }
 

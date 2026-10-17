@@ -10,7 +10,7 @@ public actor CloudSync: CKSyncEngineDelegate {
     private let store: SyncStore
     private var engine: CKSyncEngine?
     private var pendingObservation: Task<Void, Never>?
-    private let log = Logger(subsystem: "dev.placeholder.player", category: "sync")
+    private let log = Logger(subsystem: "dev.placeholder.specto", category: "sync")
 
     /// The container must be in the app's iCloud entitlement: CloudKit traps otherwise. The
     /// app passes the identifier only when its Info.plist names one (`CloudKitContainer`).

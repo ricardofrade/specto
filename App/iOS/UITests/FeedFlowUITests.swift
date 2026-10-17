@@ -28,7 +28,7 @@ final class FeedFlowUITests: XCTestCase {
         app.buttons["Done"].tap()
 
         // The feed fills from the instance (refresh + backfill after adding it).
-        app.buttons["Subscriptions"].firstMatch.tap()   // Tab bar on iPhone, top bar or sidebar on iPad.
+        app.buttons["Home"].firstMatch.tap()   // Tab bar on iPhone, top bar or sidebar on iPad.
         let list = app.scrollViews["feed.list"]
         XCTAssertTrue(list.waitForExistence(timeout: 45), "Feed never filled")
         add(XCTAttachment(screenshot: app.screenshot()).named("feed"))

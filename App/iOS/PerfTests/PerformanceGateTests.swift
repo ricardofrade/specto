@@ -3,7 +3,7 @@ import XCTest
 /// Performance gates from CLAUDE.md. Simulator numbers are a regression trend only;
 /// the gates themselves are measured on a ProMotion device.
 final class PerformanceGateTests: XCTestCase {
-    private let subsystem = "dev.placeholder.player.performance"
+    private let subsystem = "dev.placeholder.specto.performance"
     private let category = "PointsOfInterest"
 
     override func setUp() {

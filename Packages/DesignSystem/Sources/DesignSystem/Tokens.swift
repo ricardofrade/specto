@@ -13,6 +13,8 @@ public enum Tokens {
         public static let xxl: CGFloat = 32
         /// Horizontal inset of screen content.
         public static let screenInset: CGFloat = 16
+        /// Between a screen's sections (hero, shelves, grid).
+        public static let section: CGFloat = 36
     }
 
     public enum Radius {
@@ -48,6 +50,10 @@ public enum Tokens {
     /// Dynamic Type styles only; never fixed point sizes.
     public enum Typography {
         public static let screenTitle = Font.largeTitle.bold()
+        /// Shelf and section headings ("Continue Watching").
+        public static let sectionTitle = Font.title2.bold()
+        /// The featured video's title over its artwork.
+        public static let heroTitle = Font.title.bold()
         public static let cellTitle = Font.headline
         public static let cellMeta = Font.subheadline
         public static let body = Font.body

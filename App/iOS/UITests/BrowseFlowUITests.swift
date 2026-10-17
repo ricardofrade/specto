@@ -42,7 +42,7 @@ final class BrowseFlowUITests: XCTestCase {
     @MainActor
     func testWatchChannelMiniPlayerAndReopen() throws {
         let app = try launchWithInstance()
-        app.buttons["Subscriptions"].firstMatch.tap()   // Tab bar on iPhone, top bar or sidebar on iPad.
+        app.buttons["Home"].firstMatch.tap()   // Tab bar on iPhone, top bar or sidebar on iPad.
         let list = app.scrollViews["feed.list"]
         XCTAssertTrue(list.waitForExistence(timeout: 45))
         list.buttons.firstMatch.tap()

@@ -84,6 +84,10 @@ public struct VideoCell: View, Equatable {
                 }
             }
             .clipShape(.rect(cornerRadius: Tokens.Radius.thumbnail))
+            .overlay {
+                // A hairline so dark artwork keeps its edge on a dark background.
+                RoundedRectangle(cornerRadius: Tokens.Radius.thumbnail).strokeBorder(Tokens.Colors.separator.opacity(0.5), lineWidth: 0.5)
+            }
     }
 
     /// At accessibility text sizes nothing is truncated: the cell grows instead.

@@ -16,9 +16,9 @@ nonisolated struct TopShelfSnapshot: Codable, Sendable, Equatable {
     var latest: [Item]
 
     /// Placeholder until the owner's real team ID and bundle ID (docs/distribution.md).
-    static let appGroup = "group.dev.placeholder.player"
+    static let appGroup = "group.dev.placeholder.specto"
     /// Matches CFBundleURLSchemes in project.yml.
-    static let urlScheme = "dev.placeholder.player.tv"
+    static let urlScheme = "dev.placeholder.specto.tv"
     static let maxItems = 12
 
     static var fileURL: URL? {
@@ -26,7 +26,7 @@ nonisolated struct TopShelfSnapshot: Codable, Sendable, Equatable {
             .appending(path: "Library/Caches/topshelf.json")
     }
 
-    /// `dev.placeholder.player.tv://watch?v=<id>`
+    /// `dev.placeholder.specto.tv://watch?v=<id>`
     static func playURL(for id: String) -> URL? {
         var components = URLComponents()
         components.scheme = urlScheme

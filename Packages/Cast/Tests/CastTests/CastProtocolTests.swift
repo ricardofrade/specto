@@ -63,3 +63,70 @@ struct CastLiveProbeTests {
         discovery.stop()
     }
 }
+
+/// Plays a real video on a receiver (it shows on the TV), once per kind of stream the instances
+/// offer, to learn what the receiver accepts. Runs only with `CAST_DEVICE` (part of the
+/// receiver's name), `PIPED_URL` and `INVIDIOUS_URL`; stops casting after each.
+@MainActor
+struct CastLivePlaybackTests {
+    enum Source: String, CaseIterable, Sendable { case pipedHLS, pipedMuxed, invidiousDASH }
+
+    @Test(.enabled(if: ProcessInfo.processInfo.environment["CAST_DEVICE"] != nil), .timeLimit(.minutes(2)),
+          .serialized, arguments: Source.allCases)
+    func playsOnTheReceiver(_ source: Source) async throws {
+        let environment = ProcessInfo.processInfo.environment
+        let name = try #require(environment["CAST_DEVICE"])
+        let (url, type) = try await Self.media(source, environment)
+
+        let discovery = CastDiscovery()
+        discovery.start()
+        let deadline = ContinuousClock.now + .seconds(10)
+        while !discovery.devices.contains(where: { $0.name.localizedCaseInsensitiveContains(name) }), ContinuousClock.now < deadline {
+            try await Task.sleep(for: .milliseconds(200))
+        }
+        let device = try #require(discovery.devices.first { $0.name.localizedCaseInsensitiveContains(name) })
+
+        let session = CastSession()
+        session.cast(.init(url: url, contentType: type, title: "Big Buck Bunny", subtitle: source.rawValue,
+                           imageURL: nil, startTime: 0), to: device)
+        var states: [String] = []
+        let playDeadline = ContinuousClock.now + .seconds(45)
+        while ContinuousClock.now < playDeadline {
+            let state = "\(session.state)"
+            if states.last != state { states.append(state) }
+            if session.state == .playing { break }
+            if case .failed = session.state { break }
+            try await Task.sleep(for: .milliseconds(250))
+        }
+        if session.state == .playing { try await Task.sleep(for: .seconds(6)) }
+        print("CAST RESULT \(source.rawValue): \(states.joined(separator: " → ")) position \(session.position)")
+        session.stop()
+        discovery.stop()
+        try await Task.sleep(for: .seconds(2))
+        #expect(states.contains("playing"), "\(source.rawValue): \(states)")
+    }
+
+    private static func media(_ source: Source, _ environment: [String: String]) async throws -> (URL, String) {
+        let id = "aqz-KE-bpKQ"
+        switch source {
+        case .pipedHLS, .pipedMuxed:
+            let piped = try #require(environment["PIPED_URL"].flatMap(URL.init(string:)))
+            let (data, _) = try await URLSession.shared.data(from: piped.appending(path: "streams/\(id)"))
+            let json = try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+            if source == .pipedHLS {
+                let link: String? = json["hls"] as? String
+                return (try #require(link.flatMap { URL(string: $0) }), "application/x-mpegURL")
+            }
+            let streams = json["videoStreams"] as? [[String: Any]] ?? []
+            let muxed = streams.first { ($0["videoOnly"] as? Bool) == false && ($0["mimeType"] as? String) == "video/mp4" }
+            let link: String? = muxed?["url"] as? String
+            return (try #require(link.flatMap { URL(string: $0) }, "No muxed MP4"), "video/mp4")
+        case .invidiousDASH:
+            let invidious = try #require(environment["INVIDIOUS_URL"].flatMap(URL.init(string:)))
+            var components = try #require(URLComponents(url: invidious.appending(path: "api/manifest/dash/id/\(id)"),
+                                                       resolvingAgainstBaseURL: false))
+            components.queryItems = [URLQueryItem(name: "local", value: "true")]
+            return (try #require(components.url), "application/dash+xml")
+        }
+    }
+}

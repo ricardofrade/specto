@@ -3,7 +3,7 @@ import os
 /// Signposts for the performance gates in CLAUDE.md. Names are fixed so XCTest
 /// (`XCTOSSignpostMetric`) and Instruments measure the same intervals.
 public enum Signpost {
-    public static let subsystem = "dev.placeholder.player.performance"
+    public static let subsystem = "dev.placeholder.specto.performance"
     /// Shows up in Instruments' Points of Interest track.
     public static let category = "PointsOfInterest"
 

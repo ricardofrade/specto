@@ -148,7 +148,41 @@ struct CommentsList: View {
             }
         }
         .listStyle(.plain)
+        .scrollContentBackground(.hidden)
         .task { await model.start() }
+    }
+}
+
+/// Chapters as a row of glass chips under the title (compact layout).
+struct ChapterChips: View {
+    let chapters: [ChapterRow]
+    let session: PlaybackSession
+
+    var body: some View {
+        ScrollView(.horizontal) {
+            GlassEffectContainer(spacing: Tokens.Spacing.s) {
+                HStack(spacing: Tokens.Spacing.s) {
+                    ForEach(chapters) { chapter in
+                        Button {
+                            Task { await session.seek(to: chapter.start, precise: false) }
+                        } label: {
+                            VStack(alignment: .leading, spacing: Tokens.Spacing.xxs) {
+                                Text(chapter.startText).font(Tokens.Typography.timecode)
+                                    .foregroundStyle(Tokens.Colors.textSecondary)
+                                Text(chapter.title).font(Tokens.Typography.cellMeta).lineLimit(2)
+                                    .multilineTextAlignment(.leading)
+                            }
+                            .frame(width: 150, alignment: .leading)
+                            .padding(.vertical, Tokens.Spacing.xs)
+                        }
+                        .buttonStyle(.glass)
+                        .accessibilityHint(Text("Jumps to this chapter"))
+                    }
+                }
+            }
+        }
+        .scrollIndicators(.hidden)
+        .scrollClipDisabled()
     }
 }
 
@@ -167,7 +201,9 @@ struct ChaptersList: View {
                 }
             }
             .accessibilityHint(Text("Jumps to this chapter"))
+            .listRowBackground(Color.clear)
         }
         .listStyle(.plain)
+        .scrollContentBackground(.hidden)
     }
 }

@@ -8,8 +8,8 @@ import DesignSystem
 /// Full-screen playback with the Siri Remote:
 /// - Select or Play/Pause toggles playback.
 /// - Left/right skip back 10 s and forward 10 s. Right after a SponsorBlock skip, left undoes it.
-/// - Down opens the chapters; up shows the transport bar.
-/// - Menu (Back) closes the chapters, then the player.
+/// - Down opens chapters and Up Next (shown by itself when a video ends with nothing queued).
+/// - Menu (Back) closes that panel, then the player.
 struct TVPlayerView: View {
     let environment: AppEnvironment
     let video: VideoSummary
@@ -22,7 +22,9 @@ struct TVPlayerView: View {
     @State private var chapterStarts: [String] = []
     @State private var error: String?
     @State private var transportVisible = true
-    @State private var showsChapters = false
+    @State private var showsPanel = false
+    /// The video's related videos ("Up next"), formatted once per page.
+    @State private var related: [FeedRow] = []
     @State private var transport = TransportText()
     @State private var skipped: (segment: SkipSegment, at: ContinuousClock.Instant)?
     @State private var hideTransport: Task<Void, Never>?
@@ -41,6 +43,9 @@ struct TVPlayerView: View {
         ZStack(alignment: .bottom) {
             Color.black
             PlayerSurface(session: session)
+                .accessibilityIdentifier("tv.player")
+                // "<state> <engine> <seconds>": read by UI tests.
+                .accessibilityValue(Text(verbatim: "\(session.state) \(session.engineKind?.rawValue ?? "none") \(session.position.components.seconds)"))
             if let error {
                 ContentUnavailableView {
                     Label { Text("Can't play this video") } icon: { Image(systemName: "exclamationmark.triangle") }
@@ -57,20 +62,24 @@ struct TVPlayerView: View {
                     .padding(60)
                     .transition(.opacity)
             }
-            if showsChapters {
-                ChaptersShelf(chapters: chapters, starts: chapterStarts, current: transport.chapterIndex) { chapter in
+            if showsPanel {
+                InfoPanel(chapters: chapters, starts: chapterStarts, current: transport.chapterIndex, related: related,
+                          focusUpNext: session.state == .ended) { chapter in
                     Task { await session.seek(to: chapter.start, precise: false) }
-                    closeChapters()
+                    closePanel()
+                } onPlay: { video in
+                    closePanel()
+                    Task { await play(video) }
                 }
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             } else if transportVisible || session.state != .playing {
                 TransportBar(title: title, channelName: channelName, text: transport,
-                             isPlaying: session.state == .playing, hasChapters: !chapters.isEmpty)
+                             isPlaying: session.state == .playing, hasChapters: !chapters.isEmpty || !related.isEmpty)
                     .transition(.opacity)
             }
         }
         .ignoresSafeArea()
-        .focusable(!showsChapters)
+        .focusable(!showsPanel)
         .focused($playerFocused)
         .onTapGesture(perform: togglePlayback)
         .onPlayPauseCommand(perform: togglePlayback)
@@ -79,6 +88,14 @@ struct TVPlayerView: View {
         .onChange(of: session.position) { updateTransport() }
         // The queue can advance to the next video while this screen stays up.
         .onChange(of: session.item?.videoID) { adoptCurrentItem() }
+        .onChange(of: session.state) { _, state in
+            guard state == .ended, !related.isEmpty else { return }
+            Task {
+                // Give the queue a moment to start its next video first.
+                try? await Task.sleep(for: .seconds(1.5))
+                if session.state == .ended { withAnimation(Tokens.Motion.standard) { showsPanel = true } }
+            }
+        }
         .onChange(of: session.lastSkipped) { _, segment in
             guard let segment else { return }
             withAnimation(Tokens.Motion.standard) { skipped = (segment, .now) }
@@ -87,7 +104,7 @@ struct TVPlayerView: View {
                 withAnimation(Tokens.Motion.standard) { if skipped?.segment == segment { skipped = nil } }
             }
         }
-        .task { await start() }
+        .task { await play(video) }
         .onAppear {
             playerFocused = true
             revealTransport()
@@ -96,10 +113,12 @@ struct TVPlayerView: View {
 
     // MARK: Actions
 
-    private func start() async {
+    private func play(_ video: VideoSummary) async {
         do {
             let page = try await environment.play(video, surfaceHeight: Int(1080 * displayScale))
             adoptCurrentItem()
+            let formatter = RowFormatter()
+            related = page.details.related.map { formatter.row($0, positionSeconds: nil, durationSeconds: nil) }
             // A Top Shelf link names only the ID; the page has the rest.
             if title.isEmpty { title = page.details.summary.title }
             if channelName.isEmpty { channelName = page.details.summary.channelName }
@@ -134,30 +153,31 @@ struct TVPlayerView: View {
             }
         case .right:
             seek(by: .seconds(10))
-        case .down where !chapters.isEmpty:
-            withAnimation(Tokens.Motion.standard) { showsChapters = true }
+        case .down where !chapters.isEmpty || !related.isEmpty:
+            withAnimation(Tokens.Motion.standard) { showsPanel = true }
         default:
             break
         }
         revealTransport()
     }
 
+    /// Exact, so "10 seconds" lands 10 seconds away rather than on the previous keyframe.
     private func seek(by offset: Duration) {
         let target = max(.zero, session.position + offset)
-        Task { await session.seek(to: session.duration.map { min($0, target) } ?? target, precise: false) }
+        Task { await session.seek(to: session.duration.map { min($0, target) } ?? target, precise: true) }
     }
 
     private func exit() {
-        if showsChapters {
-            closeChapters()
+        if showsPanel {
+            closePanel()
         } else {
             session.stop()
             dismiss()
         }
     }
 
-    private func closeChapters() {
-        withAnimation(Tokens.Motion.standard) { showsChapters = false }
+    private func closePanel() {
+        withAnimation(Tokens.Motion.standard) { showsPanel = false }
         playerFocused = true
     }
 
@@ -228,7 +248,7 @@ private struct TransportBar: View {
                 Text(text.elapsed).monospacedDigit()
                 Spacer()
                 if hasChapters {
-                    Label { Text("Chapters") } icon: { Image(systemName: "chevron.down") }
+                    Label { Text("Chapters & Up Next") } icon: { Image(systemName: "chevron.down") }
                         .font(.caption).foregroundStyle(.secondary)
                     Spacer()
                 }
@@ -243,34 +263,77 @@ private struct TransportBar: View {
     }
 }
 
-private struct ChaptersShelf: View {
+/// Chapters and Up Next over the bottom of the video, Apple TV style.
+private struct InfoPanel: View {
     let chapters: [Chapter]
     let starts: [String]
     let current: Int?
-    let onSelect: (Chapter) -> Void
-    @FocusState private var focused: Int?
+    let related: [FeedRow]
+    /// At the end of a video, focus starts on Up Next.
+    let focusUpNext: Bool
+    let onChapter: (Chapter) -> Void
+    let onPlay: (VideoSummary) -> Void
+    @FocusState private var focused: Focus?
+
+    enum Focus: Hashable { case chapter(Int), video(VideoID) }
 
     var body: some View {
-        ScrollView(.horizontal) {
-            LazyHStack(spacing: TVMetrics.gridSpacing) {
-                ForEach(chapters.indices, id: \.self) { index in
-                    Button { onSelect(chapters[index]) } label: {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(chapters[index].title).font(.callout.weight(.medium)).lineLimit(2)
-                            Text(starts[index]).font(.caption).foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 30) {
+            if !chapters.isEmpty {
+                shelf(Text("Chapters")) {
+                    ForEach(chapters.indices, id: \.self) { index in
+                        Button { onChapter(chapters[index]) } label: {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(chapters[index].title).font(.callout.weight(.medium)).lineLimit(2)
+                                Text(starts[index]).font(.caption).foregroundStyle(.secondary)
+                            }
+                            .frame(width: 360, height: 110, alignment: .topLeading)
+                            .padding(24)
                         }
-                        .frame(width: 360, height: 120, alignment: .topLeading)
-                        .padding(24)
+                        .buttonStyle(.card)
+                        .focused($focused, equals: .chapter(index))
                     }
-                    .buttonStyle(.card)
-                    .focused($focused, equals: index)
                 }
             }
-            .padding(.horizontal, 80)
-            .padding(.vertical, 40)
+            if !related.isEmpty {
+                shelf(Text("Up Next")) {
+                    ForEach(related) { row in
+                        Button { onPlay(row.video) } label: {
+                            VStack(alignment: .leading, spacing: 10) {
+                                RemoteImage(row.thumbnails.best(forPixelWidth: 800)?.url, pointSize: CGSize(width: 400, height: 225))
+                                    .frame(width: 400, height: 225)
+                                    .clipped()
+                                Text(row.title).font(.caption.weight(.medium)).lineLimit(2)
+                                    .frame(width: 400, alignment: .leading)
+                                    .padding([.horizontal, .bottom], 14)
+                            }
+                        }
+                        .buttonStyle(.card)
+                        .focused($focused, equals: .video(row.id))
+                    }
+                }
+            }
         }
-        .scrollClipDisabled()
-        .padding(.bottom, 40)
-        .onAppear { focused = current ?? 0 }
+        .padding(.vertical, 40)
+        .background(LinearGradient(colors: [.clear, .black.opacity(0.85)], startPoint: .top, endPoint: .center))
+        .onAppear {
+            if focusUpNext, let first = related.first { focused = .video(first.id) }
+            else if !chapters.isEmpty { focused = .chapter(current ?? 0) }
+            else if let first = related.first { focused = .video(first.id) }
+        }
+    }
+
+    private func shelf(_ title: Text, @ViewBuilder content: () -> some View) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            title.font(.headline).padding(.horizontal, 80)
+            ScrollView(.horizontal) {
+                LazyHStack(alignment: .top, spacing: TVMetrics.gridSpacing) { content() }
+                    .padding(.horizontal, 80)
+                    .padding(.vertical, 20)
+            }
+            .scrollClipDisabled()
+            .fixedSize(horizontal: false, vertical: true)   // A horizontal scroll view would take all the height.
+        }
+        .focusSection()
     }
 }

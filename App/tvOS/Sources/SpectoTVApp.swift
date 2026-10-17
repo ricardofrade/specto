@@ -2,7 +2,7 @@ import SwiftUI
 import Core
 
 @main
-struct PlayerTVApp: App {
+struct SpectoTVApp: App {
     private let launchInterval = Signpost.begin(.launchFirstFeedFrame)
     @State private var environment = AppEnvironment.shared
 

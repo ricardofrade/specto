@@ -8,6 +8,8 @@ import DesignSystem
 /// What the Watch screen shows: the video, and its details once loaded.
 public struct WatchContent: Sendable, Equatable {
     public let video: VideoSummary
+    /// The channel's first letter, for its monogram.
+    public let channelInitial: String
     public var details: VideoDetails? {
         didSet { relatedRows = Self.format(details?.related ?? []) }
     }
@@ -18,6 +20,7 @@ public struct WatchContent: Sendable, Equatable {
 
     public init(video: VideoSummary, details: VideoDetails? = nil, error: String? = nil) {
         self.video = video
+        channelInitial = video.channelName.first.map { String($0).uppercased() } ?? "•"
         self.details = details
         self.error = error
         relatedRows = Self.format(details?.related ?? [])
@@ -51,6 +54,8 @@ public struct WatchScreen: View {
     @Environment(\.displayScale) private var displayScale
     @Environment(\.dismiss) private var dismiss
     @State private var size = CGSize(width: 390, height: 844)
+    /// The active fold of a partly folded iPhone Duo; nil when flat or closed.
+    @State private var fold: CGRect?
 
     /// - Parameters:
     ///   - comments: nil when no instance can load comments.
@@ -71,6 +76,7 @@ public struct WatchScreen: View {
 
     public var body: some View {
         layout
+            .background { AmbientBackdrop(content.video.thumbnails.best(forPixelWidth: 64)?.url) }
             .overlay(alignment: .topLeading) {
                 // Swipe down also closes; this is the visible, VoiceOver-reachable way.
                 Button { dismiss() } label: {
@@ -85,23 +91,44 @@ public struct WatchScreen: View {
                 .padding(Tokens.Spacing.s)
             }
             .onGeometryChange(for: CGSize.self) { $0.size } action: { size = $0 }
+            .onFoldChange { fold = $0.active }
             .task(id: content.video.id) { comments = makeComments?() }
     }
 
     @ViewBuilder
     private var layout: some View {
+        if #available(iOS 27.1, *), fold != nil {
+            // A partly folded iPhone Duo: the system splits at the fold, top and bottom on a
+            // table (video above, controls on the stable half) or side by side like a book.
+            ArrangementView {
+                VStack(spacing: 0) {
+                    player.frame(maxHeight: .infinity)
+                    PlayerActionsBar(session: session, actions: actions)
+                }
+            } secondary: {
+                WatchTabs(content: content, comments: comments, session: session) { details(showsChapters: false) }
+            }
+            .arrangementViewStyle(.split)
+        } else {
+            sizedLayout
+        }
+    }
+
+    @ViewBuilder
+    private var sizedLayout: some View {
         switch WatchLayout.choose(width: size.width, height: size.height, horizontal: horizontalSizeClass) {
         case .compact:
             VStack(spacing: 0) {
                 player
                 PlayerActionsBar(session: session, actions: actions)
-                ScrollView { details }
+                ScrollView { details(showsChapters: true) }
+                    .scrollEdgeEffectStyle(.soft, for: .top)
             }
         case .band:
             VStack(spacing: 0) {
                 player
                 PlayerActionsBar(session: session, actions: actions)
-                WatchTabs(content: content, comments: comments, session: session) { details }
+                WatchTabs(content: content, comments: comments, session: session) { details(showsChapters: false) }
             }
         case .sidePanel:
             HStack(spacing: 0) {
@@ -110,7 +137,7 @@ public struct WatchScreen: View {
                     PlayerActionsBar(session: session, actions: actions)
                 }
                 .background(.black)
-                WatchTabs(content: content, comments: comments, session: session) { details }
+                WatchTabs(content: content, comments: comments, session: session) { details(showsChapters: false) }
                     .frame(width: min(400, size.width * 0.34))
             }
         }
@@ -129,19 +156,33 @@ public struct WatchScreen: View {
             }
     }
 
-    private var details: some View {
-        VStack(alignment: .leading, spacing: Tokens.Spacing.m) {
+    /// - Parameter showsChapters: the band and side panel have a Chapters tab instead.
+    private func details(showsChapters: Bool) -> some View {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.l) {
             Text(content.video.title)
-                .font(.title3.weight(.semibold))
+                .font(Tokens.Typography.sectionTitle)
                 .accessibilityAddTraits(.isHeader)
             Button { onOpenChannel(content.video.channelID, content.video.channelName) } label: {
-                Label { Text(content.video.channelName) } icon: { Image(systemName: "person.crop.circle") }
-                    .font(Tokens.Typography.cellMeta.weight(.medium))
+                HStack(spacing: Tokens.Spacing.s) {
+                    Text(content.channelInitial)
+                        .font(.subheadline.weight(.bold))
+                        .frame(width: 30, height: 30)
+                        .background(Tokens.Colors.accent.opacity(0.25), in: .circle)
+                    Text(content.video.channelName)
+                        .font(Tokens.Typography.cellMeta.weight(.semibold))
+                    Image(systemName: "chevron.right").font(.caption.weight(.semibold))
+                        .foregroundStyle(Tokens.Colors.textSecondary)
+                }
+                .padding(.leading, Tokens.Spacing.xs)
+                .padding(.trailing, Tokens.Spacing.m)
+                .padding(.vertical, Tokens.Spacing.xs)
             }
-            .buttonStyle(.plain)
-            .foregroundStyle(Tokens.Colors.textSecondary)
+            .buttonStyle(.glass)
             .accessibilityIdentifier("watch.channel")
             .accessibilityHint(Text("Opens the channel"))
+            if showsChapters, !content.chapters.isEmpty {
+                ChapterChips(chapters: content.chapters, session: session)
+            }
             if let error = content.error {
                 Label(error, systemImage: "exclamationmark.triangle")
                     .foregroundStyle(.red)
@@ -180,8 +221,8 @@ private struct PlayerArea: View {
         ZStack {
             PlayerSurface(session: session)
                 .accessibilityIdentifier("watch.surface")
-                // "<state> <seconds>": read by UI tests that check playback never stalls.
-                .accessibilityValue(Text(verbatim: "\(session.state) \(session.position.components.seconds)"))
+                // "<state> <engine> <seconds>": read by UI tests (playback never stalls, engine policy).
+                .accessibilityValue(Text(verbatim: "\(session.state) \(session.engineKind?.rawValue ?? "none") \(session.position.components.seconds)"))
             if controlsVisible {
                 PlayerControlCluster(isPlaying: session.state == .playing,
                                      captionsAvailable: false) { action in

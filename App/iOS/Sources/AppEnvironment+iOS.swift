@@ -1,4 +1,5 @@
 import AVFoundation
+import AVKit
 import SwiftUI
 import Core
 import Playback
@@ -18,9 +19,24 @@ extension AppEnvironment {
 
     // MARK: Picture-in-Picture
 
-    /// mpv video only: AVPlayer takes over through on-device HLS (docs/spikes/pip.md).
+    /// AVPlayer video: system PiP on its own layer, also automatic when leaving the app.
+    /// mpv video: AVPlayer takes over through on-device HLS (docs/spikes/pip.md).
     var canStartPictureInPicture: Bool {
-        session.engineKind == .mpv && session.mode == .video && pictureInPictureStreams != nil
+        guard session.mode == .video else { return false }
+        switch session.engineKind {
+        case .avPlayer: return AVPictureInPictureController.isPictureInPictureSupported()
+        case .mpv: return pictureInPictureStreams != nil
+        case nil: return false
+        }
+    }
+
+    /// Keeps the system PiP controller on AVPlayer's layer whenever AVPlayer plays video.
+    func followEngineForPictureInPicture() {
+        let layer = session.mode == .video ? (session.activeEngine as? AVPlayerEngine)?.playerLayer : nil
+        systemPictureInPicture.update(layer: layer)
+        withObservationTracking { _ = (session.engineKind, session.mode) } onChange: { [weak self] in
+            Task { @MainActor in self?.followEngineForPictureInPicture() }
+        }
     }
 
     private var pictureInPictureStreams: (VideoStream, AudioStream)? {
@@ -34,6 +50,10 @@ extension AppEnvironment {
     }
 
     func startPictureInPicture() {
+        if session.engineKind == .avPlayer {
+            systemPictureInPicture.start()
+            return
+        }
         guard let (video, audio) = pictureInPictureStreams, let layer = session.hostLayer else { return }
         let position = session.position
         pictureInPicture.onStop = { [weak self] stoppedAt in
@@ -57,7 +77,14 @@ extension AppEnvironment {
     private func routeChanged() async {
         let airPlaying = AVAudioSession.sharedInstance().currentRoute.outputs.contains { $0.portType == .airPlay }
         guard let page = currentPage, let item = session.item, session.mode == .video else { return }
-        let engine: EngineKind = airPlaying ? .avPlayer : .mpv
+        guard airPlaying else {
+            // Back on the device: the planner picks the engine again (ADR 0005).
+            guard let request = try? plan(page, mode: .video, startAt: session.position),
+                  let engine = request.engine, engine != session.engineKind else { return }
+            await session.play(item, request)
+            return
+        }
+        let engine = EngineKind.avPlayer
         guard session.engineKind != engine else { return }
         // AVPlayer needs MP4 renditions (on-device HLS); without them, stay on mpv.
         let selector = FormatSelector(capabilities: DecodeCapabilities())
